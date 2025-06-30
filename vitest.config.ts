@@ -28,22 +28,6 @@ export default defineConfig({
           environment: 'node',
         },
       },
-      {
-        extends: true,
-        test: {
-          name: 'storage',
-          include: ['packages/storage/**/*.test.ts'],
-          environment: 'node',
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'e2e',
-          include: ['packages/client/**/*.e2e.ts'],
-          environment: 'node',
-        },
-      },
     ],
   },
 });

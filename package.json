@@ -19,7 +19,7 @@
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
     "prepublish": "pnpm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "license": "MIT",
   "devDependencies": {
