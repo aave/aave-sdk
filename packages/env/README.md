@@ -1,6 +1,6 @@
-# `@aave/graphql`
+# `@aave/env`
 
-This package contains [`gql.tada`](https://gql-tada.0no.co/) bindings for the Aave GraphQL API.
+The Aave API environments.
 
 ---
 
