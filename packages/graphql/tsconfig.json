@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": ["./tsconfig.build.json", "../../tsconfig.json"],
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "gql.tada/ts-plugin",
+        "schema": "./schema.graphql",
+        "tadaOutputLocation": "./src/graphql-env.d.ts",
+        "tadaTurboLocation": "./src/graphql-cache.d.ts",
+        "shouldCheckForColocatedFragments": false,
+        "trackFieldUsage": false
+      }
+    ]
+  }
+}
