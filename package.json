@@ -1,0 +1,29 @@
+{
+  "name": "aave-sdk",
+  "version": "0.0.0",
+  "description": "The quickest way to build on Aave Protocol",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9.15.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
+    "@changesets/cli": "^2.29.5",
+    "@types/node": "^24.0.7",
+    "jest-extended": "^6.0.0",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
+  }
+}

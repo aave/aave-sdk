@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "skipLibCheck": true, // Important for ambient types (e.g., vite-env.d.ts) to work
+    "types": ["node"],
+    "paths": {
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "node_modules", "examples"]
+}
