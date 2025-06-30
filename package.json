@@ -12,6 +12,13 @@
     "pnpm": ">=9.15.4"
   },
   "scripts": {
+    "build": "turbo build",
+    "dev": "turbo watch build",
+    "clean": "rimraf .turbo packages/*/dist",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
+    "prepublish": "pnpm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "MIT",
@@ -20,10 +27,13 @@
     "@changesets/cli": "^2.29.5",
     "@types/node": "^24.0.7",
     "jest-extended": "^6.0.0",
+    "plop": "^4.0.1",
     "rimraf": "^6.0.1",
+    "tsx": "^4.20.3",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3",
     "vite": "^7.0.0",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "pnpm@9.15.4"
 }
