@@ -15,31 +15,15 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./actions": {
-      "types": "./dist/actions/index.d.cts",
-      "import": "./dist/actions/index.js",
-      "require": "./dist/actions/index.cjs"
-    },
-    "./test-utils": {
-      "types": "./dist/test-utils.d.cts",
-      "import": "./dist/test-utils.js",
-      "require": "./dist/test-utils.cjs"
     }
   },
   "typesVersions": {
     "*": {
-      "actions": [
-        "./dist/actions/index.d.ts"
+      "import": [
+        "./dist/index.d.ts"
       ],
-      "ethers": [
-        "./dist/ethers/index.d.ts"
-      ],
-      "viem": [
-        "./dist/viem/index.d.ts"
-      ],
-      "test-utils": [
-        "./dist/test-utils.d.ts"
+      "require": [
+        "./dist/index.d.cts"
       ]
     }
   },
