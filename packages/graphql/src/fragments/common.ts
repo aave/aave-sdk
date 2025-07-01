@@ -10,3 +10,40 @@ export const DecimalValueFragment = graphql(
   }`,
 );
 export type DecimalValue = FragmentOf<typeof DecimalValueFragment>;
+
+export const CurrencyFragment = graphql(
+  `fragment Currency on Currency {
+    __typename
+    address
+    imageUrl
+    name
+    symbol
+    decimals
+    chainId
+  }`,
+);
+export type Currency = FragmentOf<typeof CurrencyFragment>;
+
+export const NativeCurrencyFragment = graphql(
+  `fragment NativeCurrency on NativeCurrency {
+    __typename
+    imageUrl
+    name
+    symbol
+    decimals
+    chainId
+  }`,
+);
+export type NativeCurrency = FragmentOf<typeof NativeCurrencyFragment>;
+
+export const TokenAmountFragment = graphql(
+  `fragment TokenAmount on TokenAmount {
+    __typename
+    amount {
+      ...DecimalValue
+    }
+    usd
+  }`,
+  [DecimalValueFragment],
+);
+export type TokenAmount = FragmentOf<typeof TokenAmountFragment>;
