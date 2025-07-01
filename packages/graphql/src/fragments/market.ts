@@ -46,11 +46,11 @@ export const MarketFragment = graphql(
     totalAvailableLiquidity
     totalBorrows
 
-    borrows: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
+    borrowReserves: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
       ...Reserve
     }
 
-    supplies: reserves(request: { reserveType: SUPPLY, orderBy: $suppliesOrderBy }) {
+    supplyReserves: reserves(request: { reserveType: SUPPLY, orderBy: $suppliesOrderBy }) {
       ...Reserve
     }
 
