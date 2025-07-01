@@ -373,7 +373,7 @@ type ReserveBorrowInfo {
 
 input ReserveRequest {
     """The pool address for the market"""
-    marketAddress: EvmAddress!
+    market: EvmAddress!
 
     """The asset for the reserve"""
     token: EvmAddress!
