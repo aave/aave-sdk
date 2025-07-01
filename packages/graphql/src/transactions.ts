@@ -1,4 +1,4 @@
-import { TransactionFragment } from './fragments';
+import { TransactionFragment, TransactionRequestFragment } from './fragments';
 import { graphql, type RequestOf } from './graphql';
 
 /**
@@ -52,3 +52,16 @@ export const WithdrawQuery = graphql(
   [TransactionFragment],
 );
 export type WithdrawRequest = RequestOf<typeof WithdrawQuery>;
+
+/**
+ * @internal
+ */
+export const EModeToggleQuery = graphql(
+  `query EModeToggle($request: EmodeToggleRequest!) {
+    value: eModeToggle(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type EModeToggleRequest = RequestOf<typeof EModeToggleQuery>;

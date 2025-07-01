@@ -1,11 +1,14 @@
 import {
   BorrowQuery,
   type BorrowRequest,
+  EModeToggleQuery,
+  type EModeToggleRequest,
   RepayQuery,
   type RepayRequest,
   SupplyQuery,
   type SupplyRequest,
   type Transaction,
+  type TransactionRequest,
   WithdrawQuery,
   type WithdrawRequest,
 } from '@aave/graphql';
@@ -123,4 +126,26 @@ export function withdraw(
   request: WithdrawRequest,
 ): ResultAsync<Transaction, UnexpectedError> {
   return client.query(WithdrawQuery, { request });
+}
+
+/**
+ * Creates a transaction to toggle eMode for a user in a market.
+ *
+ * ```ts
+ * const result = await eModeToggle(client, {
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   chainId: chainId(1)
+ * });
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The eMode toggle request parameters.
+ * @returns The transaction request data to toggle eMode.
+ */
+export function eModeToggle(
+  client: AaveClient,
+  request: EModeToggleRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(EModeToggleQuery, { request });
 }
