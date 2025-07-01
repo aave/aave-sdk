@@ -1,12 +1,12 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
-import { ChainFragment } from './chain';
 import {
   CurrencyFragment,
   DecimalValueFragment,
   NativeCurrencyFragment,
   TokenAmountFragment,
 } from './common';
+import { MarketInfoFragment } from './market';
 
 export const EmodeInfoFragment = graphql(
   `fragment EmodeInfo on EmodeInfo {
@@ -90,10 +90,7 @@ export const ReserveFragment = graphql(
   `fragment Reserve on Reserve {
     __typename
     market {
-      name
-      chain {
-        ...Chain
-      }
+      ...MarketInfo
     }
     address
     underlyingToken {
@@ -133,7 +130,7 @@ export const ReserveFragment = graphql(
     }
   }`,
   [
-    ChainFragment,
+    MarketInfoFragment,
     CurrencyFragment,
     NativeCurrencyFragment,
     TokenAmountFragment,

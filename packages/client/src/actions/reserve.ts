@@ -1,5 +1,10 @@
 import { type Reserve, ReserveQuery } from '@aave/graphql';
-import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
+import {
+  type ChainId,
+  type EvmAddress,
+  type ResultAsync,
+  ZERO_ADDRESS,
+} from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
@@ -46,6 +51,6 @@ export function reserve(
   return client.query(ReserveQuery, {
     request: { market, token, chainId },
     includeUserFields: !!userAddress,
-    userAddress,
+    userAddress: userAddress ?? ZERO_ADDRESS,
   });
 }

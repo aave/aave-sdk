@@ -4,7 +4,12 @@ import {
   MarketsQuery,
   type ReservesRequestOrderBy,
 } from '@aave/graphql';
-import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
+import {
+  type ChainId,
+  type EvmAddress,
+  type ResultAsync,
+  ZERO_ADDRESS,
+} from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
@@ -54,7 +59,7 @@ export function markets(
     request: { chainIds },
     borrowsOrderBy,
     suppliesOrderBy,
-    userAddress,
+    userAddress: userAddress ?? ZERO_ADDRESS,
     includeUserFields: !!userAddress,
   });
 }
@@ -116,7 +121,7 @@ export function market(
   return client.query(MarketQuery, {
     request: { address, chainId },
     includeUserFields: !!userAddress,
-    userAddress,
+    userAddress: userAddress ?? ZERO_ADDRESS,
     borrowsOrderBy,
     suppliesOrderBy,
   });
