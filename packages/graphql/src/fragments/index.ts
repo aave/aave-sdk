@@ -3,4 +3,4 @@ export * from './common';
 export * from './market';
 export * from './positions';
 export * from './reserve';
-export * from './transaction';
+export * from './transactions';

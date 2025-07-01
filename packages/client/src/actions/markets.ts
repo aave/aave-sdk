@@ -1,13 +1,37 @@
 import {
   type Market,
   MarketQuery,
-  type MarketRequest,
   MarketsQuery,
-  type MarketsRequest,
+  type ReservesRequestOrderBy,
 } from '@aave/graphql';
-import type { ResultAsync } from '@aave/types';
+import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
+
+export type MarketsRequest = {
+  /**
+   * The markets you want to see based on the chain ids.
+   */
+  chainIds: ChainId[];
+  /**
+   * The user address in case you want to include user fields in the response.
+   *
+   * If not provided, user fields will not be included.
+   */
+  userAddress?: EvmAddress;
+  /**
+   * The order by clause for the borrow reserves in the market.
+   *
+   * @defaultValue { name: OrderDirection.Asc }
+   */
+  borrowsOrderBy?: ReservesRequestOrderBy;
+  /**
+   * The order by clause for the supply reserves in the market.
+   *
+   * @defaultValue { name: OrderDirection.Asc }
+   */
+  suppliesOrderBy?: ReservesRequestOrderBy;
+};
 
 /**
  * Fetches all markets for the specified chain IDs.
@@ -24,10 +48,46 @@ import type { UnexpectedError } from '../errors';
  */
 export function markets(
   client: AaveClient,
-  request: MarketsRequest,
+  { chainIds, borrowsOrderBy, suppliesOrderBy, userAddress }: MarketsRequest,
 ): ResultAsync<Market[], UnexpectedError> {
-  return client.query(MarketsQuery, { request });
+  return client.query(MarketsQuery, {
+    request: { chainIds },
+    borrowsOrderBy,
+    suppliesOrderBy,
+    userAddress,
+    includeUserFields: !!userAddress,
+  });
 }
+
+export type MarketRequest = {
+  /**
+   * The pool address for the market.
+   */
+  address: EvmAddress;
+
+  /**
+   * The chain id the market pool address is deployed on.
+   */
+  chainId: ChainId;
+  /**
+   * The user address in case you want to include user fields in the response.
+   *
+   * If not provided, user fields will not be included.
+   */
+  userAddress?: EvmAddress;
+  /**
+   * The order by clause for the borrow reserves in the market.
+   *
+   * @defaultValue { name: OrderDirection.Asc }
+   */
+  borrowsOrderBy?: ReservesRequestOrderBy;
+  /**
+   * The order by clause for the supply reserves in the market.
+   *
+   * @defaultValue { name: OrderDirection.Asc }
+   */
+  suppliesOrderBy?: ReservesRequestOrderBy;
+};
 
 /**
  * Fetches a specific market by address and chain ID.
@@ -45,7 +105,19 @@ export function markets(
  */
 export function market(
   client: AaveClient,
-  request: MarketRequest,
+  {
+    address,
+    chainId,
+    userAddress,
+    borrowsOrderBy,
+    suppliesOrderBy,
+  }: MarketRequest,
 ): ResultAsync<Market | null, UnexpectedError> {
-  return client.query(MarketQuery, { request });
+  return client.query(MarketQuery, {
+    request: { address, chainId },
+    includeUserFields: !!userAddress,
+    userAddress,
+    borrowsOrderBy,
+    suppliesOrderBy,
+  });
 }

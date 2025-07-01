@@ -18,7 +18,9 @@ export const UserReserveBorrowPositionFragment = graphql(
   }`,
   [CurrencyFragment, DecimalValueFragment],
 );
-export type UserReserveBorrowPosition = FragmentOf<typeof UserReserveBorrowPositionFragment>;
+export type UserReserveBorrowPosition = FragmentOf<
+  typeof UserReserveBorrowPositionFragment
+>;
 
 export const UserReserveSupplyPositionFragment = graphql(
   `fragment UserReserveSupplyPosition on UserReserveSupplyPosition {
@@ -37,4 +39,6 @@ export const UserReserveSupplyPositionFragment = graphql(
   }`,
   [CurrencyFragment, DecimalValueFragment],
 );
-export type UserReserveSupplyPosition = FragmentOf<typeof UserReserveSupplyPositionFragment>;
+export type UserReserveSupplyPosition = FragmentOf<
+  typeof UserReserveSupplyPositionFragment
+>;

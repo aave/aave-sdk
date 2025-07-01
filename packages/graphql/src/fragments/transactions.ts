@@ -1,5 +1,5 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
+import { type FragmentDocumentFor, graphql } from '../graphql';
 import { DecimalValueFragment } from './common';
 
 export const TransactionRequestFragment = graphql(
@@ -47,9 +47,19 @@ export const InsufficientBalanceErrorFragment = graphql(
   }`,
   [DecimalValueFragment],
 );
-export type InsufficientBalanceError = FragmentOf<typeof InsufficientBalanceErrorFragment>;
+export type InsufficientBalanceError = FragmentOf<
+  typeof InsufficientBalanceErrorFragment
+>;
 
-export const TransactionFragment = graphql(
+export type Transaction =
+  | TransactionRequest
+  | ApprovalRequired
+  | InsufficientBalanceError;
+
+export const TransactionFragment: FragmentDocumentFor<
+  Transaction,
+  'Transaction'
+> = graphql(
   `fragment Transaction on Transaction {
     __typename
     ... on TransactionRequest {
@@ -62,6 +72,9 @@ export const TransactionFragment = graphql(
       ...InsufficientBalanceError
     }
   }`,
-  [TransactionRequestFragment, ApprovalRequiredFragment, InsufficientBalanceErrorFragment],
+  [
+    TransactionRequestFragment,
+    ApprovalRequiredFragment,
+    InsufficientBalanceErrorFragment,
+  ],
 );
-export type Transaction = FragmentOf<typeof TransactionFragment>;

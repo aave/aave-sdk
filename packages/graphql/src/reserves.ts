@@ -1,15 +1,14 @@
 import { ReserveFragment } from './fragments';
-import { graphql, type RequestOf } from './graphql';
+import { graphql } from './graphql';
 
 /**
  * @internal
  */
 export const ReserveQuery = graphql(
-  `query Reserve($request: ReserveRequest!) {
+  `query Reserve($request: ReserveRequest!, $includeUserFields: Boolean!, $userAddress: EvmAddress) {
     value: reserve(request: $request) {
       ...Reserve
     }
   }`,
   [ReserveFragment],
 );
-export type ReserveRequest = RequestOf<typeof ReserveQuery>;

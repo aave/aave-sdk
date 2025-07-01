@@ -1,11 +1,11 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import { ChainFragment } from './chain';
-import { 
-  DecimalValueFragment, 
-  CurrencyFragment, 
-  NativeCurrencyFragment, 
-  TokenAmountFragment
+import {
+  CurrencyFragment,
+  DecimalValueFragment,
+  NativeCurrencyFragment,
+  TokenAmountFragment,
 } from './common';
 
 export const EmodeInfoFragment = graphql(
@@ -82,7 +82,9 @@ export const ReserveUserAvailabilityFragment = graphql(
   }`,
   [DecimalValueFragment],
 );
-export type ReserveUserAvailability = FragmentOf<typeof ReserveUserAvailabilityFragment>;
+export type ReserveUserAvailability = FragmentOf<
+  typeof ReserveUserAvailabilityFragment
+>;
 
 export const ReserveFragment = graphql(
   `fragment Reserve on Reserve {
@@ -126,6 +128,9 @@ export const ReserveFragment = graphql(
     eModeInfo {
       ...EmodeInfo
     }
+    userAvailability(address: $userAddress) @include(if: $includeUserFields) {
+      ...ReserveUserAvailability
+    }
   }`,
   [
     ChainFragment,
@@ -136,6 +141,7 @@ export const ReserveFragment = graphql(
     ReserveSupplyInfoFragment,
     ReserveBorrowInfoFragment,
     EmodeInfoFragment,
+    ReserveUserAvailabilityFragment,
   ],
 );
 export type Reserve = FragmentOf<typeof ReserveFragment>;

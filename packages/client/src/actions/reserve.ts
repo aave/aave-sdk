@@ -1,7 +1,28 @@
-import { type Reserve, ReserveQuery, type ReserveRequest } from '@aave/graphql';
-import type { ResultAsync } from '@aave/types';
+import { type Reserve, ReserveQuery } from '@aave/graphql';
+import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
+
+export type ReserveRequest = {
+  /**
+   * The pool address for the market
+   */
+  market: EvmAddress;
+  /**
+   * The asset for the reserve
+   */
+  token: EvmAddress;
+  /**
+   * The chain id the pool is deployed on
+   */
+  chainId: ChainId;
+  /**
+   * The user address in case you want to include user fields in the response.
+   *
+   * If not provided, user fields will not be included.
+   */
+  userAddress?: EvmAddress;
+};
 
 /**
  * Fetches a specific reserve by market address, token address, and chain ID.
@@ -20,7 +41,11 @@ import type { UnexpectedError } from '../errors';
  */
 export function reserve(
   client: AaveClient,
-  request: ReserveRequest,
+  { market, token, chainId, userAddress }: ReserveRequest,
 ): ResultAsync<Reserve | null, UnexpectedError> {
-  return client.query(ReserveQuery, { request });
+  return client.query(ReserveQuery, {
+    request: { market, token, chainId },
+    includeUserFields: !!userAddress,
+    userAddress,
+  });
 }

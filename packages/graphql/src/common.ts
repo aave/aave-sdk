@@ -1,3 +1,5 @@
+import type { graphql } from './graphql';
+
 /**
  * A standardized data object.
  *
@@ -5,3 +7,17 @@
  * with this client interface.
  */
 export type StandardData<T> = { value: T };
+
+/**
+ * Criteria for ordering by user.
+ */
+export type OrderByUserCriteria = ReturnType<
+  typeof graphql.scalar<'OrderByUserCriteria'>
+>;
+
+/**
+ * Criteria for ordering reserves.
+ */
+export type ReservesRequestOrderBy = ReturnType<
+  typeof graphql.scalar<'ReservesRequestOrderBy'>
+>;

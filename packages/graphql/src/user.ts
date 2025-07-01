@@ -1,6 +1,6 @@
-import { 
-  UserReserveBorrowPositionFragment, 
-  UserReserveSupplyPositionFragment 
+import {
+  UserReserveBorrowPositionFragment,
+  UserReserveSupplyPositionFragment,
 } from './fragments/positions';
 import { graphql, type RequestOf } from './graphql';
 

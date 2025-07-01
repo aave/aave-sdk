@@ -2,22 +2,7 @@ import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import { ChainFragment } from './chain';
 import { DecimalValueFragment } from './common';
-
-export const MarketFragment = graphql(
-  `fragment Market on Market {
-    __typename
-    name
-    chain {
-      ...Chain
-    }
-    address
-    totalMarketSize
-    totalAvailableLiquidity
-    totalBorrows
-  }`,
-  [ChainFragment],
-);
-export type Market = FragmentOf<typeof MarketFragment>;
+import { ReserveFragment } from './reserve';
 
 export const MarketInfoFragment = graphql(
   `fragment MarketInfo on MarketInfo {
@@ -48,3 +33,31 @@ export const MarketUserStatsFragment = graphql(
   [DecimalValueFragment],
 );
 export type MarketUserStats = FragmentOf<typeof MarketUserStatsFragment>;
+
+export const MarketFragment = graphql(
+  `fragment Market on Market {
+    __typename
+    name
+    chain {
+      ...Chain
+    }
+    address
+    totalMarketSize
+    totalAvailableLiquidity
+    totalBorrows
+
+    borrows: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
+      ...Reserve
+    }
+
+    supplies: reserves(request: { reserveType: SUPPLY, orderBy: $suppliesOrderBy }) {
+      ...Reserve
+    }
+
+    userStats(address: $userAddress) @include(if: $includeUserFields) {
+      ...MarketUserStats
+    }
+  }`,
+  [ChainFragment, ReserveFragment, MarketUserStatsFragment],
+);
+export type Market = FragmentOf<typeof MarketFragment>;
