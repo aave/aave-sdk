@@ -1,30 +1,24 @@
-"""
-Indicates that an Input Object is a OneOf Input Object (and thus requires
-exactly one of its field be provided)
-"""
-directive @oneOf on INPUT_OBJECT
+input AmountInput @oneOf {
+  """The native amount"""
+  native: BigDecimal
 
-input AmountInput {
-    """The native amount"""
-    native: BigDecimal
-
-    """The erc20 amount input"""
-    erc20: Erc20AmountInput
+  """The erc20 amount input"""
+  erc20: Erc20AmountInput
 }
 
 type ApprovalRequired {
-    """The transaction requires an approval first"""
-    approval: TransactionRequest!
-    reason: String!
+  """The transaction requires an approval first"""
+  approval: TransactionRequest!
+  reason: String!
 
-    """The required amount missing to be able to do the original transaction"""
-    requiredAmount: DecimalValue!
+  """The required amount missing to be able to do the original transaction"""
+  requiredAmount: DecimalValue!
 
-    """The current allowance approved"""
-    currentAllowance: DecimalValue!
+  """The current allowance approved"""
+  currentAllowance: DecimalValue!
 
-    """The transaction to send after the approval is complete"""
-    originalTransaction: TransactionRequest!
+  """The transaction to send after the approval is complete"""
+  originalTransaction: TransactionRequest!
 }
 
 scalar BigDecimal
@@ -34,563 +28,563 @@ scalar BigInt
 scalar BlockchainData
 
 input BorrowRequest {
-    """The market pool address"""
-    market: EvmAddress!
+  """The market pool address"""
+  market: EvmAddress!
 
-    """The amount borrowing"""
-    amount: AmountInput!
+  """The amount borrowing"""
+  amount: AmountInput!
 
-    """The user who is borrowing"""
-    borrower: EvmAddress!
+  """The user who is borrowing"""
+  borrower: EvmAddress!
 
-    """
-    This should be the address of the borrower if they want to borrow against their own collateral,
-    """
-    onBehalfOf: EvmAddress
+  """
+  This should be the address of the borrower if they want to borrow against their own collateral,
+  """
+  onBehalfOf: EvmAddress
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 
-    """The permit for the transaction if required"""
-    permit: PermitInput
+  """The permit for the transaction if required"""
+  permit: PermitInput
 }
 
 type Chain {
-    """The chain name"""
-    name: String!
+  """The chain name"""
+  name: String!
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 scalar ChainId
 
 type Currency {
-    """The token address"""
-    address: String!
+  """The token address"""
+  address: String!
 
-    """The token image"""
-    imageUrl: String!
+  """The token image"""
+  imageUrl: String!
 
-    """The token name"""
-    name: String!
+  """The token name"""
+  name: String!
 
-    """The token symbol"""
-    symbol: String!
+  """The token symbol"""
+  symbol: String!
 
-    """The token decimals"""
-    decimals: Int!
+  """The token decimals"""
+  decimals: Int!
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 scalar DateTime
 
 type DecimalValue {
-    """The raw none formatted value"""
-    raw: BigInt!
+  """The raw none formatted value"""
+  raw: BigInt!
 
-    """The decimals the value formatted into"""
-    decimals: Int!
+  """The decimals the value formatted into"""
+  decimals: Int!
 
-    """The formatted value"""
-    value: BigDecimal!
+  """The formatted value"""
+  value: BigDecimal!
 }
 
 type EmodeInfo {
-    """The maximum loan-to-value ratio in efficiency mode"""
-    maxLTV: DecimalValue!
+  """The maximum loan-to-value ratio in efficiency mode"""
+  maxLTV: DecimalValue!
 
-    """The liquidation threshold in efficiency mode"""
-    liquidationThreshold: DecimalValue!
+  """The liquidation threshold in efficiency mode"""
+  liquidationThreshold: DecimalValue!
 
-    """The liquidation penalty applied in efficiency mode"""
-    liquidationPenalty: DecimalValue!
+  """The liquidation penalty applied in efficiency mode"""
+  liquidationPenalty: DecimalValue!
 }
 
 input EmodeToggleRequest {
-    """The pool address for the market"""
-    market: EvmAddress!
+  """The pool address for the market"""
+  market: EvmAddress!
 
-    """The user to toggle emode on"""
-    user: EvmAddress!
+  """The user to toggle emode on"""
+  user: EvmAddress!
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 input Erc20AmountInput {
-    """The token address."""
-    currency: EvmAddress!
+  """The token address."""
+  currency: EvmAddress!
 
-    """
-    Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g.,
-    wei).
-    """
-    value: BigDecimal!
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g.,
+  wei).
+  """
+  value: BigDecimal!
 }
 
 scalar EvmAddress
 
 type InsufficientBalanceError {
-    """The amount required to do the original transaction"""
-    required: DecimalValue!
+  """The amount required to do the original transaction"""
+  required: DecimalValue!
 
-    """The amount available in the wallet"""
-    available: DecimalValue!
+  """The amount available in the wallet"""
+  available: DecimalValue!
 }
 
 type Market {
-    """The human-friendly name for the market"""
-    name: String!
+  """The human-friendly name for the market"""
+  name: String!
 
-    """The chain"""
-    chain: Chain!
+  """The chain"""
+  chain: Chain!
 
-    """The liquidity pool address for the market"""
-    address: EvmAddress!
+  """The liquidity pool address for the market"""
+  address: EvmAddress!
 
-    """The total market size"""
-    totalMarketSize: BigDecimal!
+  """The total market size"""
+  totalMarketSize: BigDecimal!
 
-    """The total available liquidity for the market"""
-    totalAvailableLiquidity: BigDecimal!
+  """The total available liquidity for the market"""
+  totalAvailableLiquidity: BigDecimal!
 
-    """The total borrows on the market"""
-    totalBorrows: BigDecimal!
+  """The total borrows on the market"""
+  totalBorrows: BigDecimal!
 
-    """The market reserves"""
-    reserves(request: ReservesRequest!): [Reserve!]!
+  """The market reserves"""
+  reserves(request: ReservesRequest!): [Reserve!]!
 
-    """The market user stats"""
-    userStats(address: EvmAddress!): MarketUserStats!
+  """The market user stats"""
+  userStats(address: EvmAddress!): MarketUserStats!
 }
 
 type MarketInfo {
-    """The human-friendly name for the market"""
-    name: String!
+  """The human-friendly name for the market"""
+  name: String!
 
-    """The chain"""
-    chain: Chain!
+  """The chain"""
+  chain: Chain!
 }
 
 input MarketRequest {
-    """The pool address for the market"""
-    address: EvmAddress!
+  """The pool address for the market"""
+  address: EvmAddress!
 
-    """The chain id the market pool address is deployed on"""
-    chainId: ChainId!
+  """The chain id the market pool address is deployed on"""
+  chainId: ChainId!
 }
 
 type MarketUserStats {
-    """The user's total net worth in the market"""
-    netWorth: DecimalValue!
+  """The user's total net worth in the market"""
+  netWorth: DecimalValue!
 
-    """The user's net annual percentage yield across all positions"""
-    netAPY: DecimalValue!
+  """The user's net annual percentage yield across all positions"""
+  netAPY: DecimalValue!
 
-    """The user's health factor (risk metric for liquidation)"""
-    healthFactor: DecimalValue!
+  """The user's health factor (risk metric for liquidation)"""
+  healthFactor: DecimalValue!
 
-    """Whether efficiency mode is enabled for the user"""
-    eModeEnabled: Boolean!
+  """Whether efficiency mode is enabled for the user"""
+  eModeEnabled: Boolean!
 }
 
 input MarketsRequest {
-    """The markets you want to see based on the chain ids"""
-    chainIds: [ChainId!]!
+  """The markets you want to see based on the chain ids"""
+  chainIds: [ChainId!]!
 }
 
 type NativeCurrency {
-    """The token image"""
-    imageUrl: String!
+  """The token image"""
+  imageUrl: String!
 
-    """The token name"""
-    name: String!
+  """The token name"""
+  name: String!
 
-    """The token symbol"""
-    symbol: String!
+  """The token symbol"""
+  symbol: String!
 
-    """The token decimals"""
-    decimals: Int!
+  """The token decimals"""
+  decimals: Int!
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 input OrderByUserCriteria {
-    """The address of the user"""
-    address: EvmAddress!
+  """The address of the user"""
+  address: EvmAddress!
 
-    """The order direction"""
-    direction: OrderDirection! = DESC
+  """The order direction"""
+  direction: OrderDirection! = DESC
 }
 
 enum OrderDirection {
-    ASC
-    DESC
+  ASC
+  DESC
 }
 
 input PermitInput {
-    """The signature for the permit"""
-    signature: Signature!
+  """The signature for the permit"""
+  signature: Signature!
 
-    """The deadline for the permit"""
-    deadline: DateTime!
+  """The deadline for the permit"""
+  deadline: DateTime!
 }
 
 type Query {
-    """Get if the API is healthy"""
-    health: Boolean!
+  """Get if the API is healthy"""
+  health: Boolean!
 
-    """All chains the protocol supports"""
-    chains: [Chain!]!
+  """All chains the protocol supports"""
+  chains: [Chain!]!
 
-    """Lists all the markets"""
-    markets(request: MarketsRequest!): [Market!]!
+  """Lists all the markets"""
+  markets(request: MarketsRequest!): [Market!]!
 
-    """Get a market"""
-    market(request: MarketRequest!): Market
+  """Get a market"""
+  market(request: MarketRequest!): Market
 
-    """Create the transaction to borrow from a market"""
-    borrow(request: BorrowRequest!): Transaction!
+  """Create the transaction to borrow from a market"""
+  borrow(request: BorrowRequest!): Transaction!
 
-    """Create the transaction to supply to a market"""
-    supply(request: SupplyRequest!): Transaction!
+  """Create the transaction to supply to a market"""
+  supply(request: SupplyRequest!): Transaction!
 
-    """Create the transaction to repay to a market"""
-    repay(request: RepayRequest!): Transaction!
+  """Create the transaction to repay to a market"""
+  repay(request: RepayRequest!): Transaction!
 
-    """Create the transaction to withdraw from a market"""
-    withdraw(request: WithdrawRequest!): Transaction!
+  """Create the transaction to withdraw from a market"""
+  withdraw(request: WithdrawRequest!): Transaction!
 
-    """Create the transaction to toggle eMode for a market"""
-    eModeToggle(request: EmodeToggleRequest!): TransactionRequest!
+  """Create the transaction to toggle eMode for a market"""
+  eModeToggle(request: EmodeToggleRequest!): TransactionRequest!
 
-    """Get all the user supplies positions"""
-    userSupplies(request: UserSuppliesRequest!): [UserReserveSupplyPosition!]!
+  """Get all the user supplies positions"""
+  userSupplies(request: UserSuppliesRequest!): [UserReserveSupplyPosition!]!
 
-    """Get all the user borrows positions"""
-    userBorrows(request: UserBorrowsRequest!): [UserReserveBorrowPosition!]!
+  """Get all the user borrows positions"""
+  userBorrows(request: UserBorrowsRequest!): [UserReserveBorrowPosition!]!
 
-    """Get the reserve for on a market"""
-    reserve(request: ReserveRequest!): Reserve
-    _service: _Service!
+  """Get the reserve for on a market"""
+  reserve(request: ReserveRequest!): Reserve
+  _service: _Service!
 }
 
 input RepayRequest {
-    """The market pool address"""
-    market: EvmAddress!
+  """The market pool address"""
+  market: EvmAddress!
 
-    """The amount to repay"""
-    amount: AmountInput!
+  """The amount to repay"""
+  amount: AmountInput!
 
-    """The user who is repaying"""
-    borrower: EvmAddress!
+  """The user who is repaying"""
+  borrower: EvmAddress!
 
-    """
-    The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
-    """
-    onBehalfOf: EvmAddress
+  """
+  The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
+  """
+  onBehalfOf: EvmAddress
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 
-    """The permit for the transaction if required"""
-    permit: PermitInput
+  """The permit for the transaction if required"""
+  permit: PermitInput
 }
 
 type Reserve {
-    """The market information the reserve is under"""
-    market: MarketInfo!
+  """The market information the reserve is under"""
+  market: MarketInfo!
 
-    """The reserve address"""
-    address: EvmAddress!
+  """The reserve address"""
+  address: EvmAddress!
 
-    """The reserve underlying currency"""
-    underlyingToken: Currency!
+  """The reserve underlying currency"""
+  underlyingToken: Currency!
 
-    """The reserve a token"""
-    aToken: Currency!
+  """The reserve a token"""
+  aToken: Currency!
 
-    """The reserve v token"""
-    vToken: Currency!
+  """The reserve v token"""
+  vToken: Currency!
 
-    """
-    If the reserve accepts native currency, for example, if you're on a reserve with asset WETH, it can
-    also accept ETH
-    """
-    acceptsNative: NativeCurrency
+  """
+  If the reserve accepts native currency, for example, if you're on a reserve with asset WETH, it can
+  also accept ETH
+  """
+  acceptsNative: NativeCurrency
 
-    """The reserve size"""
-    size: TokenAmount!
+  """The reserve size"""
+  size: TokenAmount!
 
-    """The reserve utilization rate"""
-    utilizationRate: DecimalValue!
+  """The reserve utilization rate"""
+  utilizationRate: DecimalValue!
 
-    """The available liquidity"""
-    available: TokenAmount!
+  """The available liquidity"""
+  available: TokenAmount!
 
-    """The usd exchange rate for the underlying token"""
-    usdExchangeRate: BigDecimal!
+  """The usd exchange rate for the underlying token"""
+  usdExchangeRate: BigDecimal!
 
-    """The usd oracle address it is pulling that price from"""
-    usdOracleAddress: EvmAddress!
+  """The usd oracle address it is pulling that price from"""
+  usdOracleAddress: EvmAddress!
 
-    """
-    The supply info for the reserve if it's null you cannot supply on this reserve
-    """
-    supplyInfo: ReserveSupplyInfo
+  """
+  The supply info for the reserve if it's null you cannot supply on this reserve
+  """
+  supplyInfo: ReserveSupplyInfo
 
-    """
-    The borrow info for the reserve if it's null you cannot borrow on this reserve
-    """
-    borrowInfo: ReserveBorrowInfo
+  """
+  The borrow info for the reserve if it's null you cannot borrow on this reserve
+  """
+  borrowInfo: ReserveBorrowInfo
 
-    """The eMode info for the reserve if null its not been set"""
-    eModeInfo: EmodeInfo
+  """The eMode info for the reserve if null its not been set"""
+  eModeInfo: EmodeInfo
 
-    """
-    The user's availability on the reserve to borrow and supply with balance
-    """
-    userAvailability(address: EvmAddress!): ReserveUserAvailability!
+  """
+  The user's availability on the reserve to borrow and supply with balance
+  """
+  userAvailability(address: EvmAddress!): ReserveUserAvailability!
 }
 
 type ReserveBorrowInfo {
-    """The annual percentage yield for borrowing this asset"""
-    apy: DecimalValue!
+  """The annual percentage yield for borrowing this asset"""
+  apy: DecimalValue!
 
-    """The total amount borrowed from this reserve"""
-    total: DecimalValue!
+  """The total amount borrowed from this reserve"""
+  total: DecimalValue!
 
-    """The maximum amount that can be borrowed from this reserve"""
-    borrowCap: DecimalValue!
+  """The maximum amount that can be borrowed from this reserve"""
+  borrowCap: DecimalValue!
 
-    """The reserve factor percentage"""
-    reserveFactor: BigDecimal!
+  """The reserve factor percentage"""
+  reserveFactor: BigDecimal!
 }
 
 input ReserveRequest {
-    """The pool address for the market"""
-    market: EvmAddress!
+  """The pool address for the market"""
+  market: EvmAddress!
 
-    """The asset for the reserve"""
-    token: EvmAddress!
+  """The asset for the reserve"""
+  token: EvmAddress!
 
-    """The chain id the pool is deployed on"""
-    chainId: ChainId!
+  """The chain id the pool is deployed on"""
+  chainId: ChainId!
 }
 
 type ReserveSupplyInfo {
-    """The annual percentage yield for supplying this asset"""
-    apy: DecimalValue!
+  """The annual percentage yield for supplying this asset"""
+  apy: DecimalValue!
 
-    """The total amount supplied to this reserve"""
-    total: DecimalValue!
+  """The total amount supplied to this reserve"""
+  total: DecimalValue!
 
-    """The maximum loan-to-value ratio when used as collateral"""
-    maxLTV: DecimalValue!
+  """The maximum loan-to-value ratio when used as collateral"""
+  maxLTV: DecimalValue!
 
-    """The liquidation threshold for this asset"""
-    liquidationThreshold: DecimalValue!
+  """The liquidation threshold for this asset"""
+  liquidationThreshold: DecimalValue!
 
-    """The liquidation penalty applied when liquidated"""
-    liquidationPenalty: DecimalValue!
+  """The liquidation penalty applied when liquidated"""
+  liquidationPenalty: DecimalValue!
 
-    """If the asset can be used for collateral"""
-    canBeCollateral: Boolean!
+  """If the asset can be used for collateral"""
+  canBeCollateral: Boolean!
 }
 
 type ReserveUserAvailability {
-    """The user's balance of this asset"""
-    balance: DecimalValue!
+  """The user's balance of this asset"""
+  balance: DecimalValue!
 
-    """The amount the user can supply to this reserve"""
-    supply: DecimalValue!
+  """The amount the user can supply to this reserve"""
+  supply: DecimalValue!
 
-    """The amount the user can borrow from this reserve"""
-    borrow: DecimalValue!
+  """The amount the user can borrow from this reserve"""
+  borrow: DecimalValue!
 }
 
 input ReservesRequest {
-    """The reserve type"""
-    reserveType: ReservesRequestType! = BOTH
+  """The reserve type"""
+  reserveType: ReservesRequestType! = BOTH
 
-    """The way the reserve gets ordered on the return result"""
-    orderBy: ReservesRequestOrderBy
+  """The way the reserve gets ordered on the return result"""
+  orderBy: ReservesRequestOrderBy
 
-    """The ability to search for a reserve name - it will use a like approach"""
-    searchName: String
+  """The ability to search for a reserve name - it will use a like approach"""
+  searchName: String
 }
 
-input ReservesRequestOrderBy {
-    """Order by the borrow APY"""
-    borrowApy: OrderDirection
+input ReservesRequestOrderBy @oneOf {
+  """Order by the borrow APY"""
+  borrowApy: OrderDirection
 
-    """Order by the supply APY"""
-    supplyApy: OrderDirection
+  """Order by the supply APY"""
+  supplyApy: OrderDirection
 
-    """Order by whether the asset can be used as collateral"""
-    canBeCollateralized: OrderDirection
+  """Order by whether the asset can be used as collateral"""
+  canBeCollateralized: OrderDirection
 
-    """Order by the token name"""
-    tokenName: OrderDirection
+  """Order by the token name"""
+  tokenName: OrderDirection
 
-    """Order by the amount available for the user to borrow"""
-    userAvailableToBorrow: OrderByUserCriteria
+  """Order by the amount available for the user to borrow"""
+  userAvailableToBorrow: OrderByUserCriteria
 
-    """Order by the user's balance of this asset"""
-    userBalance: OrderByUserCriteria
+  """Order by the user's balance of this asset"""
+  userBalance: OrderByUserCriteria
 }
 
 enum ReservesRequestType {
-    SUPPLY
-    BORROW
-    BOTH
+  SUPPLY
+  BORROW
+  BOTH
 }
 
 scalar Signature
 
 input SupplyRequest {
-    """The market pool address"""
-    market: EvmAddress!
+  """The market pool address"""
+  market: EvmAddress!
 
-    """The amount supplying"""
-    amount: AmountInput!
+  """The amount supplying"""
+  amount: AmountInput!
 
-    """The user who is supplying"""
-    supplier: EvmAddress!
+  """The user who is supplying"""
+  supplier: EvmAddress!
 
-    """
-    The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
-    This will be the same as msg.sender if the user wants to receive aTokens into their own wallet, or use a different address if the beneficiary
-    of aTokens is a different wallet
-    """
-    onBehalfOf: EvmAddress
+  """
+  The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
+  This will be the same as msg.sender if the user wants to receive aTokens into their own wallet, or use a different address if the beneficiary
+  of aTokens is a different wallet
+  """
+  onBehalfOf: EvmAddress
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 
-    """The permit for the transaction if required"""
-    permit: PermitInput
+  """The permit for the transaction if required"""
+  permit: PermitInput
 }
 
 type TokenAmount {
-    amount: DecimalValue!
-    usd: BigDecimal!
+  amount: DecimalValue!
+  usd: BigDecimal!
 }
 
 union Transaction = TransactionRequest | ApprovalRequired | InsufficientBalanceError
 
 type TransactionRequest {
-    to: EvmAddress!
-    from: EvmAddress!
-    data: BlockchainData!
-    value: BigInt!
-    chainId: ChainId!
+  to: EvmAddress!
+  from: EvmAddress!
+  data: BlockchainData!
+  value: BigInt!
+  chainId: ChainId!
 }
 
 input UserBorrowsRequest {
-    """The market addresses to query"""
-    markets: [EvmAddress!]!
+  """The market addresses to query"""
+  markets: [EvmAddress!]!
 
-    """The user address to get borrow positions for"""
-    user: EvmAddress!
+  """The user address to get borrow positions for"""
+  user: EvmAddress!
 
-    """How to order the results"""
-    orderBy: UserBorrowsRequestOrderBy! = {name: ASC}
+  """How to order the results"""
+  orderBy: UserBorrowsRequestOrderBy! = {name: ASC}
 }
 
-input UserBorrowsRequestOrderBy {
-    """Order by the user's debt amount"""
-    debt: OrderByUserCriteria
+input UserBorrowsRequestOrderBy @oneOf {
+  """Order by the user's debt amount"""
+  debt: OrderByUserCriteria
 
-    """Order by the asset name"""
-    name: OrderDirection
+  """Order by the asset name"""
+  name: OrderDirection
 
-    """Order by the annual percentage yield"""
-    apy: OrderDirection
+  """Order by the annual percentage yield"""
+  apy: OrderDirection
 }
 
 type UserReserveBorrowPosition {
-    """The market address where this position exists"""
-    market: EvmAddress!
+  """The market address where this position exists"""
+  market: EvmAddress!
 
-    """The currency being borrowed"""
-    currency: Currency!
+  """The currency being borrowed"""
+  currency: Currency!
 
-    """The user's debt balance in this reserve"""
-    debt: DecimalValue!
+  """The user's debt balance in this reserve"""
+  debt: DecimalValue!
 
-    """The annual percentage yield for this borrow position"""
-    apy: DecimalValue!
+  """The annual percentage yield for this borrow position"""
+  apy: DecimalValue!
 }
 
 type UserReserveSupplyPosition {
-    """The market address where this position exists"""
-    market: EvmAddress!
+  """The market address where this position exists"""
+  market: EvmAddress!
 
-    """The currency being supplied"""
-    currency: Currency!
+  """The currency being supplied"""
+  currency: Currency!
 
-    """The user's supply balance in this reserve"""
-    balance: DecimalValue!
+  """The user's supply balance in this reserve"""
+  balance: DecimalValue!
 
-    """The annual percentage yield for this supply position"""
-    apy: DecimalValue!
+  """The annual percentage yield for this supply position"""
+  apy: DecimalValue!
 
-    """Whether this position is being used as collateral"""
-    collateral: Boolean!
+  """Whether this position is being used as collateral"""
+  collateral: Boolean!
 }
 
 input UserSuppliesRequest {
-    """The market addresses to query"""
-    markets: [EvmAddress!]!
+  """The market addresses to query"""
+  markets: [EvmAddress!]!
 
-    """The user address to get supply positions for"""
-    user: EvmAddress!
+  """The user address to get supply positions for"""
+  user: EvmAddress!
 
-    """How to order the results"""
-    orderBy: UserSuppliesRequestOrderBy! = {name: ASC}
+  """How to order the results"""
+  orderBy: UserSuppliesRequestOrderBy! = {name: ASC}
 }
 
-input UserSuppliesRequestOrderBy {
-    """Order by the user's supply balance"""
-    balance: OrderByUserCriteria
+input UserSuppliesRequestOrderBy @oneOf {
+  """Order by the user's supply balance"""
+  balance: OrderByUserCriteria
 
-    """Order by the asset name"""
-    name: OrderDirection
+  """Order by the asset name"""
+  name: OrderDirection
 
-    """Order by the annual percentage yield"""
-    apy: OrderDirection
+  """Order by the annual percentage yield"""
+  apy: OrderDirection
 
-    """Order by whether the position is used as collateral"""
-    isCollateralized: OrderByUserCriteria
+  """Order by whether the position is used as collateral"""
+  isCollateralized: OrderByUserCriteria
 }
 
 input WithdrawRequest {
-    """The market pool address"""
-    market: EvmAddress!
+  """The market pool address"""
+  market: EvmAddress!
 
-    """The amount to withdraw"""
-    amount: AmountInput!
+  """The amount to withdraw"""
+  amount: AmountInput!
 
-    """
-    The user who is withdrawing, this should have the `aToken` that will be burned by the `Pool`
-    """
-    supplier: EvmAddress!
+  """
+  The user who is withdrawing, this should have the `aToken` that will be burned by the `Pool`
+  """
+  supplier: EvmAddress!
 
-    """
-    The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
-    their own wallet, or use a different address if the beneficiary is a different wallet
-    """
-    recipient: EvmAddress
+  """
+  The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
+  their own wallet, or use a different address if the beneficiary is a different wallet
+  """
+  recipient: EvmAddress
 
-    """The chain id"""
-    chainId: ChainId!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 type _Service {
-    sdl: String
+  sdl: String
 }

@@ -22,13 +22,13 @@ export type MarketsRequest = {
   /**
    * The order by clause for the borrow reserves in the market.
    *
-   * @defaultValue { name: OrderDirection.Asc }
+   * @defaultValue { tokenName: OrderDirection.Asc }
    */
   borrowsOrderBy?: ReservesRequestOrderBy;
   /**
    * The order by clause for the supply reserves in the market.
    *
-   * @defaultValue { name: OrderDirection.Asc }
+   * @defaultValue { tokenName: OrderDirection.Asc }
    */
   suppliesOrderBy?: ReservesRequestOrderBy;
 };
@@ -78,13 +78,13 @@ export type MarketRequest = {
   /**
    * The order by clause for the borrow reserves in the market.
    *
-   * @defaultValue { name: OrderDirection.Asc }
+   * @defaultValue { tokenName: OrderDirection.Asc }
    */
   borrowsOrderBy?: ReservesRequestOrderBy;
   /**
    * The order by clause for the supply reserves in the market.
    *
-   * @defaultValue { name: OrderDirection.Asc }
+   * @defaultValue { tokenName: OrderDirection.Asc }
    */
   suppliesOrderBy?: ReservesRequestOrderBy;
 };
