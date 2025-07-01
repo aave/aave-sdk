@@ -19,3 +19,12 @@ export function bigIntString(value: string): BigIntString {
   invariant(!/^-?\d+$/.test(value), `Invalid BigIntString: ${value}`);
   return value as BigIntString;
 }
+
+/**
+ * An integer representation of a blockchain chain ID.
+ */
+export type ChainId = Tagged<number, 'ChainId'>;
+export function chainId(value: number): ChainId {
+  invariant(Number.isInteger(value) && value >= 0, `Invalid ChainId: ${value}`);
+  return value as ChainId;
+}

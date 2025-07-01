@@ -42,6 +42,31 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.7)(tsx@4.20.3)
 
+  packages/client:
+    dependencies:
+      '@aave/env':
+        specifier: workspace:*
+        version: link:../env
+      '@aave/graphql':
+        specifier: workspace:*
+        version: link:../graphql
+      '@aave/types':
+        specifier: workspace:*
+        version: link:../types
+      '@urql/core':
+        specifier: ^5.2.0
+        version: 5.2.0(graphql@16.11.0)
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.6)(tsx@4.20.3)(typescript@5.8.3)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+
   packages/env:
     dependencies:
       '@aave/types':
@@ -574,6 +599,9 @@ packages:
 
   '@types/through@0.0.33':
     resolution: {integrity: sha512-HsJ+z3QuETzP3cswwtzt2vEIiHBk/dCcHGhbmG5X3ecnwFD/lPrMpliGXxSCg03L9AhrdwA4Oz/qfspkDW+xGQ==}
+
+  '@urql/core@5.2.0':
+    resolution: {integrity: sha512-/n0ieD0mvvDnVAXEQgX/7qJiVcvYvNkOHeBvkwtylfjydar123caCXcl58PXFY11oU1oquJocVXHxLAbtv4x1A==}
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -1962,6 +1990,9 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  wonka@6.3.5:
+    resolution: {integrity: sha512-SSil+ecw6B4/Dm7Pf2sAshKQ5hWFvfyGlfPbEd6A14dOH6VDjrmbY86u6nZvy9omGwwIPFR8V41+of1EezgoUw==}
+
   wordwrap@1.0.0:
     resolution: {integrity: sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==}
 
@@ -2420,6 +2451,13 @@ snapshots:
   '@types/through@0.0.33':
     dependencies:
       '@types/node': 24.0.7
+
+  '@urql/core@5.2.0(graphql@16.11.0)':
+    dependencies:
+      '@0no-co/graphql.web': 1.1.2(graphql@16.11.0)
+      wonka: 6.3.5
+    transitivePeerDependencies:
+      - graphql
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -3818,6 +3856,8 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  wonka@6.3.5: {}
 
   wordwrap@1.0.0: {}
 

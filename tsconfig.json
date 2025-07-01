@@ -4,6 +4,12 @@
     "skipLibCheck": true, // Important for ambient types (e.g., vite-env.d.ts) to work
     "types": ["node"],
     "paths": {
+      "@aave/client": ["./packages/client/src"],
+      // "@aave/client/actions": ["./packages/client/src/actions"],
+      // "@aave/client/test-utils": ["./packages/client/src/test-utils"],
+      "@aave/env": ["./packages/env/src"],
+      "@aave/graphql": ["./packages/graphql/src"],
+      "@aave/types": ["./packages/types/src"]
     }
   },
   "include": ["**/*.ts"],

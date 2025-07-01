@@ -2,11 +2,11 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig(() => ({
-  entry: ['src/index.ts', 'src/test-utils.ts'],
+  entry: ['src/index.ts'],
   outDir: 'dist',
   splitting: false,
   sourcemap: true,
-  treeshake: true,
+  treeshake: false,
   clean: true,
   tsconfig: 'tsconfig.build.json',
   bundle: true,
@@ -14,7 +14,4 @@ export default defineConfig(() => ({
   dts: true,
   platform: 'neutral',
   format: ['esm', 'cjs'],
-  loader: {
-    '.graphql': 'text',
-  },
 }));

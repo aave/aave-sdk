@@ -1,9 +1,9 @@
 {
-  "name": "@aave/env",
+  "name": "@aave/client",
   "version": "0.0.0",
-  "description": "The Aave API environments",
+  "description": "The official JavaScript client for the Aave API",
   "repository": {
-    "directory": "packages/env",
+    "directory": "packages/client",
     "type": "git",
     "url": "git://github.com/aave/aave-sdk.git"
   },
@@ -19,17 +19,27 @@
   },
   "typesVersions": {
     "*": {
-      "import": ["./dist/index.d.ts"],
-      "require": ["./dist/index.d.cts"]
+      "import": [
+        "./dist/index.d.ts"
+      ],
+      "require": [
+        "./dist/index.d.cts"
+      ]
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsup"
   },
   "dependencies": {
-    "@aave/types": "workspace:*"
+    "@aave/env": "workspace:*",
+    "@aave/graphql": "workspace:*",
+    "@aave/types": "workspace:*",
+    "@urql/core": "^5.2.0",
+    "graphql": "^16.11.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
