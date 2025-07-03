@@ -4,12 +4,7 @@ import {
   type MarketReservesRequestOrderBy,
   MarketsQuery,
 } from '@aave/graphql';
-import {
-  type ChainId,
-  type EvmAddress,
-  type ResultAsync,
-  ZERO_ADDRESS,
-} from '@aave/types';
+import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
@@ -19,11 +14,11 @@ export type MarketsRequest = {
    */
   chainIds: ChainId[];
   /**
-   * The user address in case you want to include user fields in the response.
+   * The user viewing the market (e.g., the connected wallet).
    *
    * If not provided, user fields will not be included.
    */
-  userAddress?: EvmAddress;
+  user?: EvmAddress;
   /**
    * The order by clause for the borrow reserves in the market.
    *
@@ -53,14 +48,12 @@ export type MarketsRequest = {
  */
 export function markets(
   client: AaveClient,
-  { chainIds, borrowsOrderBy, suppliesOrderBy, userAddress }: MarketsRequest,
+  { chainIds, borrowsOrderBy, suppliesOrderBy, user }: MarketsRequest,
 ): ResultAsync<Market[], UnexpectedError> {
   return client.query(MarketsQuery, {
-    request: { chainIds },
+    request: { chainIds, user },
     borrowsOrderBy,
     suppliesOrderBy,
-    userAddress: userAddress ?? ZERO_ADDRESS,
-    includeUserFields: !!userAddress,
   });
 }
 
@@ -75,11 +68,11 @@ export type MarketRequest = {
    */
   chainId: ChainId;
   /**
-   * The user address in case you want to include user fields in the response.
+   * The user viewing the market (e.g., the connected wallet).
    *
    * If not provided, user fields will not be included.
    */
-  userAddress?: EvmAddress;
+  user?: EvmAddress;
   /**
    * The order by clause for the borrow reserves in the market.
    *
@@ -110,18 +103,10 @@ export type MarketRequest = {
  */
 export function market(
   client: AaveClient,
-  {
-    address,
-    chainId,
-    userAddress,
-    borrowsOrderBy,
-    suppliesOrderBy,
-  }: MarketRequest,
+  { address, chainId, user, borrowsOrderBy, suppliesOrderBy }: MarketRequest,
 ): ResultAsync<Market | null, UnexpectedError> {
   return client.query(MarketQuery, {
-    request: { address, chainId },
-    includeUserFields: !!userAddress,
-    userAddress: userAddress ?? ZERO_ADDRESS,
+    request: { address, chainId, user },
     borrowsOrderBy,
     suppliesOrderBy,
   });

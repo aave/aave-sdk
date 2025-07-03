@@ -8,9 +8,10 @@ import {
 } from './common';
 import { MarketInfoFragment } from './market';
 
-export const EmodeInfoFragment = graphql(
-  `fragment EmodeInfo on EmodeInfo {
+export const EmodeReserveInfoFragment = graphql(
+  `fragment EmodeReserveInfo on EmodeReserveInfo {
     __typename
+    label
     maxLTV {
       ...DecimalValue
     }
@@ -20,10 +21,11 @@ export const EmodeInfoFragment = graphql(
     liquidationPenalty {
       ...DecimalValue
     }
+    userEnabled
   }`,
   [DecimalValueFragment],
 );
-export type EmodeInfo = FragmentOf<typeof EmodeInfoFragment>;
+export type EmodeReserveInfo = FragmentOf<typeof EmodeReserveInfoFragment>;
 
 export const ReserveSupplyInfoFragment = graphql(
   `fragment ReserveSupplyInfo on ReserveSupplyInfo {
@@ -44,8 +46,12 @@ export const ReserveSupplyInfoFragment = graphql(
       ...DecimalValue
     }
     canBeCollateral
+    supplyCap {
+      ...TokenAmount
+    }
+    supplyCapReached
   }`,
-  [DecimalValueFragment],
+  [DecimalValueFragment, TokenAmountFragment],
 );
 export type ReserveSupplyInfo = FragmentOf<typeof ReserveSupplyInfoFragment>;
 
@@ -56,14 +62,24 @@ export const ReserveBorrowInfoFragment = graphql(
       ...DecimalValue
     }
     total {
-      ...DecimalValue
+      ...TokenAmount
     }
-    borrowCap
+    borrowCap {
+      ...TokenAmount
+    }
     reserveFactor {
       ...DecimalValue
     }
+    availableLiquidity {
+      ...TokenAmount
+    }
+    utilizationRate {
+      ...DecimalValue
+    }
+    borrowingState
+    borrowCapReached
   }`,
-  [DecimalValueFragment],
+  [DecimalValueFragment, TokenAmountFragment],
 );
 export type ReserveBorrowInfo = FragmentOf<typeof ReserveBorrowInfoFragment>;
 
@@ -107,12 +123,6 @@ export const ReserveFragment = graphql(
     size {
       ...TokenAmount
     }
-    utilizationRate {
-      ...DecimalValue
-    }
-    available {
-      ...TokenAmount
-    }
     usdExchangeRate
     usdOracleAddress
     isFrozen
@@ -124,9 +134,9 @@ export const ReserveFragment = graphql(
       ...ReserveBorrowInfo
     }
     eModeInfo {
-      ...EmodeInfo
+      ...EmodeReserveInfo
     }
-    userAvailability(address: $userAddress) @include(if: $includeUserFields) {
+    userAvailability {
       ...ReserveUserAvailability
     }
   }`,
@@ -138,7 +148,7 @@ export const ReserveFragment = graphql(
     DecimalValueFragment,
     ReserveSupplyInfoFragment,
     ReserveBorrowInfoFragment,
-    EmodeInfoFragment,
+    EmodeReserveInfoFragment,
     ReserveUserAvailabilityFragment,
   ],
 );

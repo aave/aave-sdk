@@ -5,7 +5,7 @@ import { graphql } from './graphql';
  * @internal
  */
 export const MarketsQuery = graphql(
-  `query Markets($request: MarketsRequest!, $includeUserFields: Boolean!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy, $userAddress: EvmAddress!) {
+  `query Markets($request: MarketsRequest!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy) {
     value: markets(request: $request) {
       ...Market
     }
@@ -18,7 +18,7 @@ export const MarketsQuery = graphql(
  */
 export const MarketQuery = graphql(
   `query Market(
-    $request: MarketRequest!, $includeUserFields: Boolean!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy, $userAddress: EvmAddress!) {
+    $request: MarketRequest!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy) {
     value: market(request: $request) {
       ...Market
     }

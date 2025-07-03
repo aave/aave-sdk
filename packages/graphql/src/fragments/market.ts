@@ -1,7 +1,7 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import { ChainFragment } from './chain';
-import { DecimalValueFragment } from './common';
+import { CurrencyFragment, DecimalValueFragment } from './common';
 import { ReserveFragment } from './reserve';
 
 export const MarketInfoFragment = graphql(
@@ -11,6 +11,7 @@ export const MarketInfoFragment = graphql(
     chain {
       ...Chain
     }
+    icon
   }`,
   [ChainFragment],
 );
@@ -29,10 +30,64 @@ export const MarketUserStatsFragment = graphql(
       ...DecimalValue
     }
     eModeEnabled
+    totalCollateralBase {
+      ...DecimalValue
+    }
+    totalDebtBase {
+      ...DecimalValue
+    }
+    availableBorrowsBase {
+      ...DecimalValue
+    }
+    currentLiquidationThreshold {
+      ...DecimalValue
+    }
+    ltv {
+      ...DecimalValue
+    }
   }`,
   [DecimalValueFragment],
 );
 export type MarketUserStats = FragmentOf<typeof MarketUserStatsFragment>;
+
+export const EmodeMarketReserveInfoFragment = graphql(
+  `fragment EmodeMarketReserveInfo on EmodeMarketReserveInfo {
+    __typename
+    underlyingToken {
+      ...Currency
+    }
+    canBeCollateral
+    canBeBorrowable
+  }`,
+  [CurrencyFragment],
+);
+export type EmodeMarketReserveInfo = FragmentOf<
+  typeof EmodeMarketReserveInfoFragment
+>;
+
+export const EmodeMarketCategoryFragment = graphql(
+  `fragment EmodeMarketCategory on EmodeMarketCategory {
+    __typename
+    label
+    maxLTV {
+      ...DecimalValue
+    }
+    liquidationThreshold {
+      ...DecimalValue
+    }
+    liquidationPenalty {
+      ...DecimalValue
+    }
+    userEnabled
+    reserves {
+      ...EmodeMarketReserveInfo
+    }
+  }`,
+  [DecimalValueFragment, EmodeMarketReserveInfoFragment],
+);
+export type EmodeMarketCategory = FragmentOf<
+  typeof EmodeMarketCategoryFragment
+>;
 
 export const MarketFragment = graphql(
   `fragment Market on Market {
@@ -42,9 +97,13 @@ export const MarketFragment = graphql(
       ...Chain
     }
     address
+    icon
     totalMarketSize
     totalAvailableLiquidity
     totalBorrows
+    eModeCategories {
+      ...EmodeMarketCategory
+    }
 
     borrowReserves: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
       ...Reserve
@@ -54,10 +113,17 @@ export const MarketFragment = graphql(
       ...Reserve
     }
 
-    userStats(address: $userAddress) @include(if: $includeUserFields) {
+    userStats {
       ...MarketUserStats
     }
   }`,
-  [ChainFragment, ReserveFragment, MarketUserStatsFragment],
+  [
+    ChainFragment,
+    ReserveFragment,
+    MarketUserStatsFragment,
+    DecimalValueFragment,
+    CurrencyFragment,
+    EmodeMarketCategoryFragment,
+  ],
 );
 export type Market = FragmentOf<typeof MarketFragment>;

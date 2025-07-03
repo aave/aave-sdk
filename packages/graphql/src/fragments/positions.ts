@@ -35,7 +35,8 @@ export const UserReserveSupplyPositionFragment = graphql(
     apy {
       ...DecimalValue
     }
-    collateral
+    isCollateral
+    canBeCollateral
   }`,
   [CurrencyFragment, DecimalValueFragment],
 );

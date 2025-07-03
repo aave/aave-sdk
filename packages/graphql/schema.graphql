@@ -165,7 +165,10 @@ input ERC712Signature {
   deadline: DateTime!
 }
 
-type EmodeInfo {
+type EmodeMarketCategory {
+  """The eMode label"""
+  label: String!
+
   """The maximum loan-to-value ratio in efficiency mode"""
   maxLTV: DecimalValue!
 
@@ -174,6 +177,52 @@ type EmodeInfo {
 
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: DecimalValue!
+
+  """
+  If you have passed in the user address, this will tell you if they have this eMode enabled
+  (they can only have 1 enabled at once)
+  """
+  userEnabled: Boolean!
+
+  """The list of reserves which will tailor for this eMode"""
+  reserves: [EmodeMarketReserveInfo!]!
+}
+
+type EmodeMarketReserveInfo {
+  """The underlying token used on the reserve"""
+  underlyingToken: Currency!
+
+  """If the underlying token can be collateral with this eMode on"""
+  canBeCollateral: Boolean!
+
+  """If the underlying token can be borrowable with this eMode on"""
+  canBeBorrowable: Boolean!
+}
+
+type EmodeReserveInfo {
+  """The eMode label"""
+  label: String!
+
+  """The maximum loan-to-value ratio in efficiency mode"""
+  maxLTV: DecimalValue!
+
+  """The liquidation threshold in efficiency mode"""
+  liquidationThreshold: DecimalValue!
+
+  """The liquidation penalty applied in efficiency mode"""
+  liquidationPenalty: DecimalValue!
+
+  """
+  If you have passed in the user address, this will tell you if they have this eMode enabled
+  (they can only have 1 enabled at once)
+  """
+  userEnabled: Boolean!
+
+  """If the underlying token can be collateral with this eMode on"""
+  canBeCollateral: Boolean!
+
+  """If the underlying token can be borrowable with this eMode on"""
+  canBeBorrowable: Boolean!
 }
 
 input EmodeToggleRequest {
@@ -261,8 +310,14 @@ type Market {
   """The total borrows on the market"""
   totalBorrows: BigDecimal!
 
+  """A list eModes the market can support"""
+  eModeCategories: [EmodeMarketCategory!]!
+
+  """The market icon"""
+  icon: String!
+
   """The market reserves"""
-  reserves(request: MarketReservesRequest!): [Reserve!]!
+  reserves(request: MarketReservesRequest! = {reserveType: BOTH, orderBy: {tokenName: ASC}}): [Reserve!]!
 
   """The total market size"""
   totalMarketSize: BigDecimal!
@@ -271,7 +326,7 @@ type Market {
   totalAvailableLiquidity: BigDecimal!
 
   """The market user stats"""
-  userStats(address: EvmAddress!): MarketUserStats!
+  userStats: MarketUserStats
 }
 
 type MarketInfo {
@@ -280,6 +335,9 @@ type MarketInfo {
 
   """The chain"""
   chain: Chain!
+
+  """The market icon"""
+  icon: String!
 }
 
 input MarketRequest {
@@ -288,6 +346,11 @@ input MarketRequest {
 
   """The chain id the market pool address is deployed on"""
   chainId: ChainId!
+
+  """
+  The user viewing it (can be connected wallet) - this caters for stuff like eMode and other user features
+  """
+  user: EvmAddress
 }
 
 input MarketReservesRequest {
@@ -360,6 +423,12 @@ type MarketUserStats {
 input MarketsRequest {
   """The markets you want to see based on the chain ids"""
   chainIds: [ChainId!]!
+
+  """
+  The user viewing it (can be connected wallet) - this caters for stuff like eMode and other
+  user features
+  """
+  user: EvmAddress
 }
 
 input MintVaultSharesRequest {
@@ -572,12 +641,6 @@ type Reserve {
   """The reserve size"""
   size: TokenAmount!
 
-  """The reserve utilization rate"""
-  utilizationRate: DecimalValue!
-
-  """The available liquidity"""
-  available: TokenAmount!
-
   """The usd exchange rate for the underlying token"""
   usdExchangeRate: BigDecimal!
 
@@ -587,11 +650,13 @@ type Reserve {
   """The supply info for the reserve"""
   supplyInfo: ReserveSupplyInfo!
 
-  """The borrow info for the reserve"""
-  borrowInfo: ReserveBorrowInfo!
+  """
+  The borrow info for the reserve - if its null the underlying token cannot be borrowed
+  """
+  borrowInfo: ReserveBorrowInfo
 
-  """The eMode info for the reserve if null it's not been set"""
-  eModeInfo: EmodeInfo
+  """A list eModes the reserve can support"""
+  eModeInfo: [EmodeReserveInfo!]!
 
   """The reserve has been frozen all actions are stopped"""
   isFrozen: Boolean!
@@ -602,7 +667,7 @@ type Reserve {
   """
   The user's availability on the reserve to borrow and supply with balance
   """
-  userAvailability(address: EvmAddress!): ReserveUserAvailability!
+  userAvailability: ReserveUserAvailability
 }
 
 type ReserveBorrowInfo {
@@ -610,12 +675,38 @@ type ReserveBorrowInfo {
   apy: DecimalValue!
 
   """The total amount borrowed from this reserve"""
-  total: DecimalValue!
+  total: TokenAmount!
 
   """The reserve factor percentage"""
   reserveFactor: DecimalValue!
-  borrowingEnabled: Boolean!
-  borrowCap: BigInt!
+
+  """The available liquidity"""
+  availableLiquidity: TokenAmount!
+
+  """The reserve utilization rate"""
+  utilizationRate: DecimalValue!
+
+  """
+  Borrowing can have different states based on criteria of the user or the market
+  """
+  borrowingState: ReserveBorrowingState!
+
+  """The borrow cap of the reserve"""
+  borrowCap: TokenAmount!
+
+  """The borrow cap is now full"""
+  borrowCapReached: Boolean!
+}
+
+enum ReserveBorrowingState {
+  """Borrowing is enabled"""
+  ENABLED
+
+  """Borrowing is disabled"""
+  DISABLED
+
+  """The user emode settings make this underlying not able to be borrowed"""
+  USER_EMODE_DISABLED_BORROW
 }
 
 input ReserveRequest {
@@ -627,6 +718,12 @@ input ReserveRequest {
 
   """The chain id the pool is deployed on"""
   chainId: ChainId!
+
+  """
+  The user viewing it (can be connected wallet) - this caters for stuff like eMode and other
+  user features
+  """
+  user: EvmAddress
 }
 
 type ReserveSupplyInfo {
@@ -644,7 +741,12 @@ type ReserveSupplyInfo {
 
   """If the asset can be used for collateral"""
   canBeCollateral: Boolean!
-  supplyCap: BigInt!
+
+  """The supply cap"""
+  supplyCap: TokenAmount!
+
+  """The supply cap is now full"""
+  supplyCapReached: Boolean!
 
   """The total amount supplied to this reserve"""
   total: DecimalValue!
@@ -793,7 +895,10 @@ type UserReserveSupplyPosition {
   apy: DecimalValue!
 
   """Whether this position is being used as collateral"""
-  collateral: Boolean!
+  isCollateral: Boolean!
+
+  """If the asset can be used for collateral"""
+  canBeCollateral: Boolean!
 }
 
 input UserSuppliesRequest {
