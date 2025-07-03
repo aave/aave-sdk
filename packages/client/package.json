@@ -17,22 +17,18 @@
       "require": "./dist/index.cjs"
     },
     "./actions": {
-      "types": "./dist/actions/index.d.cts",
       "import": "./dist/actions/index.js",
       "require": "./dist/actions/index.cjs"
     },
     "./ethers": {
-      "types": "./dist/ethers.d.cts",
       "import": "./dist/ethers.js",
       "require": "./dist/ethers.cjs"
     },
     "./viem": {
-      "types": "./dist/viem.d.cts",
       "import": "./dist/viem.js",
       "require": "./dist/viem.cjs"
     },
     "./test-utils": {
-      "types": "./dist/test-utils.d.cts",
       "import": "./dist/test-utils.js",
       "require": "./dist/test-utils.cjs"
     }
