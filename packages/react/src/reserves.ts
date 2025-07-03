@@ -19,7 +19,7 @@ export type UseAaveReserveArgs = ReserveRequest;
  * ```tsx
  * const { data } = useAaveReserve({
  *   market: evmAddress('0x87870bca...'),
- *   token: evmAddress('0xa0b86a33...'),
+ *   underlyingToken: evmAddress('0xa0b86a33...'),
  *   chainId: chainId(1),
  *   suspense: true,
  * });
@@ -35,7 +35,7 @@ export function useAaveReserve(
  * ```tsx
  * const { data, loading } = useAaveReserve({
  *   market: evmAddress('0x87870bca...'),
- *   token: evmAddress('0xa0b86a33...'),
+ *   underlyingToken: evmAddress('0xa0b86a33...'),
  *   chainId: chainId(1),
  * });
  * ```
@@ -47,7 +47,7 @@ export function useAaveReserve(
 export function useAaveReserve({
   suspense = false,
   market,
-  token,
+  underlyingToken,
   chainId,
   userAddress,
 }: UseAaveReserveArgs & {
@@ -56,7 +56,7 @@ export function useAaveReserve({
   return useSuspendableQuery({
     document: ReserveQuery,
     variables: {
-      request: { market, token, chainId },
+      request: { market, underlyingToken, chainId },
       includeUserFields: !!userAddress,
       userAddress: userAddress ?? ZERO_ADDRESS,
     },
