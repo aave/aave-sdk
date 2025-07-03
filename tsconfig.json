@@ -5,8 +5,10 @@
     "types": ["node"],
     "paths": {
       "@aave/client": ["./packages/client/src"],
-      // "@aave/client/actions": ["./packages/client/src/actions"],
-      // "@aave/client/test-utils": ["./packages/client/src/test-utils"],
+      "@aave/client/actions": ["./packages/client/src/actions"],
+      "@aave/client/ethers": ["./packages/client/src/ethers"],
+      "@aave/client/test-utils": ["./packages/client/src/test-utils"],
+      "@aave/client/viem": ["./packages/client/src/viem"],
       "@aave/env": ["./packages/env/src"],
       "@aave/graphql": ["./packages/graphql/src"],
       "@aave/types": ["./packages/types/src"]
