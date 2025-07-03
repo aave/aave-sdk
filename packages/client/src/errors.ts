@@ -1,6 +1,6 @@
+import type { TypedSelectionSet } from '@aave/graphql';
 import { ResultAwareError } from '@aave/types';
 import type { CombinedError } from '@urql/core';
-import type { ErrorResponse } from './types';
 
 /**
  * @internal
@@ -57,17 +57,17 @@ export class TransactionIndexingError extends ResultAwareError {
  * See the `cause` property for more information.
  */
 export class ValidationError<
-  T extends string = string,
+  TGqlNode extends TypedSelectionSet,
 > extends ResultAwareError {
   name = 'ValidationError' as const;
 
-  constructor(public readonly cause: ErrorResponse<T>) {
-    super(cause.reason);
+  constructor(public readonly cause: TGqlNode) {
+    super(cause.__typename);
   }
 
-  static fromErrorResponse<T extends string>(
-    error: ErrorResponse<T>,
-  ): ValidationError<T> {
+  static fromGqlNode<TGqlNode extends TypedSelectionSet>(
+    error: TGqlNode,
+  ): ValidationError<TGqlNode> {
     return new ValidationError(error);
   }
 }
