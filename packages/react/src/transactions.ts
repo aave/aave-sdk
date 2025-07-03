@@ -1,4 +1,11 @@
 import type { UnexpectedError } from '@aave/client';
+import {
+  borrow,
+  eModeToggle,
+  repay,
+  supply,
+  withdraw,
+} from '@aave/client/actions';
 import type {
   BorrowRequest,
   EModeToggleRequest,
@@ -8,13 +15,6 @@ import type {
   TransactionRequest,
   WithdrawRequest,
 } from '@aave/graphql';
-import {
-  borrow,
-  eModeToggle,
-  repay,
-  supply,
-  withdraw,
-} from '../../client/src/actions';
 import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
