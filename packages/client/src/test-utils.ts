@@ -6,15 +6,30 @@ import { schema } from '@aave/graphql/test-utils';
 import type { TypedDocumentNode } from '@urql/core';
 import { validate } from 'graphql';
 import type { ValidationRule } from 'graphql/validation/ValidationContext';
+import { createWalletClient, http, type WalletClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { sepolia } from 'viem/chains';
 import { expect } from 'vitest';
+import { AaveClient } from './client';
 import { GraphQLErrorCode } from './errors';
 
+export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
   import.meta.env.ENVIRONMENT === 'local'
     ? local
     : import.meta.env.ENVIRONMENT === 'staging'
       ? staging
       : testnet;
+
+export const client = AaveClient.create({
+  environment,
+});
+
+export const wallet: WalletClient = createWalletClient({
+  account: signer,
+  chain: sepolia,
+  transport: http(),
+});
 
 const messages: Record<GraphQLErrorCode, string> = {
   [GraphQLErrorCode.UNAUTHENTICATED]:
