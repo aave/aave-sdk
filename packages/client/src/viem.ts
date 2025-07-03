@@ -38,6 +38,9 @@ export function sendTransactionAndWait(
   walletClient: WalletClient,
   request: TransactionRequest,
 ): ResultAsync<TxHash, SigningError> {
+  // TODO: verify it's on the correct chain, ask to switch if possible
+  // TODO: verify if wallet account is correct, switch if possible
+
   return ResultAsync.fromPromise(
     sendTransaction(walletClient, request),
     (err) => SigningError.from(err),

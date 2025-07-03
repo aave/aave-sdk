@@ -119,12 +119,10 @@ const AsyncTaskState = {
  * return <p>Task completed: {data}</p>;
  * ```
  */
-export type UseAsyncTask<TInput, TValue, TError> = AsyncTaskState<
-  TValue,
-  TError
-> & {
-  execute: AsyncTask<TInput, ResultAsync<TValue, TError>>;
-};
+export type UseAsyncTask<TInput, TValue, TError> = [
+  AsyncTask<TInput, ResultAsync<TValue, TError>>,
+  AsyncTaskState<TValue, TError>,
+];
 
 /**
  * @internal
@@ -165,8 +163,5 @@ export function useAsyncTask<
     [handler, state],
   );
 
-  return {
-    ...state,
-    execute,
-  };
+  return [execute, state];
 }
