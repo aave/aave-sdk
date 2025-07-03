@@ -1,19 +1,19 @@
 import type { UnexpectedError } from '@aave/client';
 import type {
-  ExecutionPlan,
-  SupplyRequest,
   BorrowRequest,
-  RepayRequest,
-  WithdrawRequest,
   EModeToggleRequest,
+  ExecutionPlan,
+  RepayRequest,
+  SupplyRequest,
   TransactionRequest,
+  WithdrawRequest,
 } from '@aave/graphql';
 import {
-  supply,
   borrow,
-  repay,
-  withdraw,
   eModeToggle,
+  repay,
+  supply,
+  withdraw,
 } from '../../client/src/actions';
 import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
@@ -100,5 +100,7 @@ export function useEModeToggle(): UseAsyncTask<
 > {
   const client = useAaveClient();
 
-  return useAsyncTask((request: EModeToggleRequest) => eModeToggle(client, request));
+  return useAsyncTask((request: EModeToggleRequest) =>
+    eModeToggle(client, request),
+  );
 }
