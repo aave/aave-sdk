@@ -60,12 +60,18 @@ importers:
         specifier: ^16.11.0
         version: 16.11.0
     devDependencies:
+      ethers:
+        specifier: ^6.14.4
+        version: 6.14.4
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(postcss@8.5.6)(tsx@4.20.3)(typescript@5.8.3)
       typescript:
         specifier: ^5.6.3
         version: 5.8.3
+      viem:
+        specifier: ^2.31.6
+        version: 2.31.6(typescript@5.8.3)
 
   packages/env:
     dependencies:
@@ -150,9 +156,6 @@ importers:
       viem:
         specifier: ^2.31.6
         version: 2.31.6(typescript@5.8.3)
-      zksync-ethers:
-        specifier: ^6.18.0
-        version: 6.18.0(ethers@6.14.4)
 
   packages/types:
     dependencies:
@@ -2270,12 +2273,6 @@ packages:
     resolution: {integrity: sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==}
     engines: {node: '>=18'}
 
-  zksync-ethers@6.18.0:
-    resolution: {integrity: sha512-ScBZNlgYGppmq775mK36d44G5zS+PM4inzwlcKD1vFM2AleV9VvZmCOr7CSZGWTLofNraE4l7bhpwj8WAM/Osw==}
-    engines: {node: '>=18.9.0'}
-    peerDependencies:
-      ethers: ^6.7.1
-
 snapshots:
 
   '@0no-co/graphql.web@1.1.2(graphql@16.11.0)':
@@ -4333,7 +4330,3 @@ snapshots:
   ws@8.18.2: {}
 
   yoctocolors-cjs@2.1.2: {}
-
-  zksync-ethers@6.18.0(ethers@6.14.4):
-    dependencies:
-      ethers: 6.14.4
