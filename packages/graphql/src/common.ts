@@ -18,6 +18,6 @@ export type OrderByUserCriteria = ReturnType<
 /**
  * Criteria for ordering reserves.
  */
-export type ReservesRequestOrderBy = ReturnType<
-  typeof graphql.scalar<'ReservesRequestOrderBy'>
+export type MarketReservesRequestOrderBy = ReturnType<
+  typeof graphql.scalar<'MarketReservesRequestOrderBy'>
 >;

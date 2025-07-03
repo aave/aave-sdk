@@ -40,7 +40,7 @@ export const ReserveSupplyInfoFragment = graphql(
     liquidationThreshold {
       ...DecimalValue
     }
-    liquidationPenalty {
+    liquidationBonus {
       ...DecimalValue
     }
     canBeCollateral
@@ -58,10 +58,10 @@ export const ReserveBorrowInfoFragment = graphql(
     total {
       ...DecimalValue
     }
-    borrowCap {
+    borrowCap
+    reserveFactor {
       ...DecimalValue
     }
-    reserveFactor
   }`,
   [DecimalValueFragment],
 );
@@ -92,7 +92,6 @@ export const ReserveFragment = graphql(
     market {
       ...MarketInfo
     }
-    address
     underlyingToken {
       ...Currency
     }
@@ -116,6 +115,8 @@ export const ReserveFragment = graphql(
     }
     usdExchangeRate
     usdOracleAddress
+    isFrozen
+    isPaused
     supplyInfo {
       ...ReserveSupplyInfo
     }

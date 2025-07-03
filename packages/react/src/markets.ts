@@ -2,8 +2,8 @@ import type { MarketRequest } from '@aave/client/actions';
 import {
   type Market,
   MarketQuery,
+  type MarketReservesRequestOrderBy,
   MarketsQuery,
-  type ReservesRequestOrderBy,
 } from '@aave/graphql';
 import { type ChainId, type EvmAddress, ZERO_ADDRESS } from '@aave/types';
 import type {
@@ -73,8 +73,8 @@ export function useAaveMarket({
 export type UseAaveMarketsArgs = {
   chainIds: ChainId[];
   userAddress?: EvmAddress;
-  borrowsOrderBy?: ReservesRequestOrderBy;
-  suppliesOrderBy?: ReservesRequestOrderBy;
+  borrowsOrderBy?: MarketReservesRequestOrderBy;
+  suppliesOrderBy?: MarketReservesRequestOrderBy;
 };
 
 /**

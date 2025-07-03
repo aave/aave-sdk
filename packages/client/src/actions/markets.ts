@@ -1,8 +1,8 @@
 import {
   type Market,
   MarketQuery,
+  type MarketReservesRequestOrderBy,
   MarketsQuery,
-  type ReservesRequestOrderBy,
 } from '@aave/graphql';
 import {
   type ChainId,
@@ -29,13 +29,13 @@ export type MarketsRequest = {
    *
    * @defaultValue { tokenName: OrderDirection.Asc }
    */
-  borrowsOrderBy?: ReservesRequestOrderBy;
+  borrowsOrderBy?: MarketReservesRequestOrderBy;
   /**
    * The order by clause for the supply reserves in the market.
    *
    * @defaultValue { tokenName: OrderDirection.Asc }
    */
-  suppliesOrderBy?: ReservesRequestOrderBy;
+  suppliesOrderBy?: MarketReservesRequestOrderBy;
 };
 
 /**
@@ -85,13 +85,13 @@ export type MarketRequest = {
    *
    * @defaultValue { tokenName: OrderDirection.Asc }
    */
-  borrowsOrderBy?: ReservesRequestOrderBy;
+  borrowsOrderBy?: MarketReservesRequestOrderBy;
   /**
    * The order by clause for the supply reserves in the market.
    *
    * @defaultValue { tokenName: OrderDirection.Asc }
    */
-  suppliesOrderBy?: ReservesRequestOrderBy;
+  suppliesOrderBy?: MarketReservesRequestOrderBy;
 };
 
 /**
