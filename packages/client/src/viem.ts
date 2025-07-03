@@ -67,10 +67,6 @@ export function sendWith(
     TxHash,
     SigningError | ValidationError<InsufficientBalanceError>
   > => {
-    if ('hash' in result) {
-      return okAsync(result.hash);
-    }
-
     invariant(
       walletClient,
       'Expected a WalletClient to handle the operation result.',
