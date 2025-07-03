@@ -16,7 +16,7 @@ export type ReserveRequest = {
   /**
    * The asset for the reserve
    */
-  token: EvmAddress;
+  underlyingToken: EvmAddress;
   /**
    * The chain id the pool is deployed on
    */
@@ -35,7 +35,7 @@ export type ReserveRequest = {
  * ```ts
  * const result = await reserve(client, {
  *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
- *   token: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
  *   chainId: chainId(1)
  * });
  * ```
@@ -46,10 +46,10 @@ export type ReserveRequest = {
  */
 export function reserve(
   client: AaveClient,
-  { market, token, chainId, userAddress }: ReserveRequest,
+  { market, underlyingToken, chainId, userAddress }: ReserveRequest,
 ): ResultAsync<Reserve | null, UnexpectedError> {
   return client.query(ReserveQuery, {
-    request: { market, token, chainId },
+    request: { market, underlyingToken, chainId },
     includeUserFields: !!userAddress,
     userAddress: userAddress ?? ZERO_ADDRESS,
   });

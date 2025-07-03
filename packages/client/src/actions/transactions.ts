@@ -3,11 +3,11 @@ import {
   type BorrowRequest,
   EModeToggleQuery,
   type EModeToggleRequest,
+  type ExecutionPlan,
   RepayQuery,
   type RepayRequest,
   SupplyQuery,
   type SupplyRequest,
-  type Transaction,
   type TransactionRequest,
   WithdrawQuery,
   type WithdrawRequest,
@@ -40,7 +40,7 @@ import type { UnexpectedError } from '../errors';
 export function borrow(
   client: AaveClient,
   request: BorrowRequest,
-): ResultAsync<Transaction, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(BorrowQuery, { request });
 }
 
@@ -68,7 +68,7 @@ export function borrow(
 export function supply(
   client: AaveClient,
   request: SupplyRequest,
-): ResultAsync<Transaction, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(SupplyQuery, { request });
 }
 
@@ -96,7 +96,7 @@ export function supply(
 export function repay(
   client: AaveClient,
   request: RepayRequest,
-): ResultAsync<Transaction, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(RepayQuery, { request });
 }
 
@@ -124,7 +124,7 @@ export function repay(
 export function withdraw(
   client: AaveClient,
   request: WithdrawRequest,
-): ResultAsync<Transaction, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(WithdrawQuery, { request });
 }
 

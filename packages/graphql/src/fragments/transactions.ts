@@ -51,16 +51,16 @@ export type InsufficientBalanceError = FragmentOf<
   typeof InsufficientBalanceErrorFragment
 >;
 
-export type Transaction =
+export type ExecutionPlan =
   | TransactionRequest
   | ApprovalRequired
   | InsufficientBalanceError;
 
-export const TransactionFragment: FragmentDocumentFor<
-  Transaction,
-  'Transaction'
+export const ExecutionPlanFragment: FragmentDocumentFor<
+  ExecutionPlan,
+  'ExecutionPlan'
 > = graphql(
-  `fragment Transaction on Transaction {
+  `fragment ExecutionPlan on ExecutionPlan {
     __typename
     ... on TransactionRequest {
       ...TransactionRequest

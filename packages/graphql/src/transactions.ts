@@ -1,4 +1,4 @@
-import { TransactionFragment, TransactionRequestFragment } from './fragments';
+import { ExecutionPlanFragment, TransactionRequestFragment } from './fragments';
 import { graphql, type RequestOf } from './graphql';
 
 /**
@@ -7,10 +7,10 @@ import { graphql, type RequestOf } from './graphql';
 export const BorrowQuery = graphql(
   `query Borrow($request: BorrowRequest!) {
     value: borrow(request: $request) {
-      ...Transaction
+      ...ExecutionPlan
     }
   }`,
-  [TransactionFragment],
+  [ExecutionPlanFragment],
 );
 export type BorrowRequest = RequestOf<typeof BorrowQuery>;
 
@@ -20,10 +20,10 @@ export type BorrowRequest = RequestOf<typeof BorrowQuery>;
 export const SupplyQuery = graphql(
   `query Supply($request: SupplyRequest!) {
     value: supply(request: $request) {
-      ...Transaction
+      ...ExecutionPlan
     }
   }`,
-  [TransactionFragment],
+  [ExecutionPlanFragment],
 );
 export type SupplyRequest = RequestOf<typeof SupplyQuery>;
 
@@ -33,10 +33,10 @@ export type SupplyRequest = RequestOf<typeof SupplyQuery>;
 export const RepayQuery = graphql(
   `query Repay($request: RepayRequest!) {
     value: repay(request: $request) {
-      ...Transaction
+      ...ExecutionPlan
     }
   }`,
-  [TransactionFragment],
+  [ExecutionPlanFragment],
 );
 export type RepayRequest = RequestOf<typeof RepayQuery>;
 
@@ -46,10 +46,10 @@ export type RepayRequest = RequestOf<typeof RepayQuery>;
 export const WithdrawQuery = graphql(
   `query Withdraw($request: WithdrawRequest!) {
     value: withdraw(request: $request) {
-      ...Transaction
+      ...ExecutionPlan
     }
   }`,
-  [TransactionFragment],
+  [ExecutionPlanFragment],
 );
 export type WithdrawRequest = RequestOf<typeof WithdrawQuery>;
 

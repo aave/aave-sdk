@@ -1,9 +1,8 @@
-import type { Transaction, TransactionRequest } from '@aave/graphql';
+import type { ExecutionPlan, TransactionRequest } from '@aave/graphql';
 import type { ResultAsync, TxHash } from '@aave/types';
-import type { SigningError } from '../dist';
-import type { ValidationError } from './errors';
+import type { SigningError, ValidationError } from './errors';
 
-export type OperationHandler<T extends Transaction = Transaction> = (
+export type OperationHandler<T extends ExecutionPlan = ExecutionPlan> = (
   result: T,
 ) => ResultAsync<
   TxHash,
