@@ -1,11 +1,5 @@
-import type { MarketRequest } from '@aave/client/actions';
-import {
-  type Market,
-  MarketQuery,
-  type MarketReservesRequestOrderBy,
-  MarketsQuery,
-} from '@aave/graphql';
-import { type ChainId, type EvmAddress, ZERO_ADDRESS } from '@aave/types';
+import type { MarketRequest, MarketsRequest } from '@aave/client/actions';
+import { type Market, MarketQuery, MarketsQuery } from '@aave/graphql';
 import type {
   ReadResult,
   Suspendable,
@@ -51,7 +45,7 @@ export function useAaveMarket({
   suspense = false,
   address,
   chainId,
-  userAddress,
+  user,
   borrowsOrderBy,
   suppliesOrderBy,
 }: UseAaveMarketArgs & {
@@ -60,9 +54,7 @@ export function useAaveMarket({
   return useSuspendableQuery({
     document: MarketQuery,
     variables: {
-      request: { address, chainId },
-      includeUserFields: !!userAddress,
-      userAddress: userAddress ?? ZERO_ADDRESS,
+      request: { address, chainId, user },
       borrowsOrderBy,
       suppliesOrderBy,
     },
@@ -70,12 +62,7 @@ export function useAaveMarket({
   });
 }
 
-export type UseAaveMarketsArgs = {
-  chainIds: ChainId[];
-  userAddress?: EvmAddress;
-  borrowsOrderBy?: MarketReservesRequestOrderBy;
-  suppliesOrderBy?: MarketReservesRequestOrderBy;
-};
+export type UseAaveMarketsArgs = MarketsRequest;
 
 /**
  * Fetch all Aave Markets for the specified chains.
@@ -85,7 +72,7 @@ export type UseAaveMarketsArgs = {
  * ```tsx
  * const { data } = useAaveMarkets({
  *   chainIds: [chainId(1), chainId(137)],
- *   userAddress: evmAddress('0x742d35cc...'),
+ *   user: evmAddress('0x742d35cc...'),
  *   suspense: true
  * });
  * ```
@@ -100,7 +87,7 @@ export function useAaveMarkets(
  * ```tsx
  * const { data, loading } = useAaveMarkets({
  *   chainIds: [chainId(1), chainId(137)],
- *   userAddress: evmAddress('0x742d35cc...'),
+ *   user: evmAddress('0x742d35cc...'),
  * });
  * ```
  */
@@ -109,7 +96,7 @@ export function useAaveMarkets(args: UseAaveMarketsArgs): ReadResult<Market[]>;
 export function useAaveMarkets({
   suspense = false,
   chainIds,
-  userAddress,
+  user,
   borrowsOrderBy,
   suppliesOrderBy,
 }: UseAaveMarketsArgs & {
@@ -118,9 +105,7 @@ export function useAaveMarkets({
   return useSuspendableQuery({
     document: MarketsQuery,
     variables: {
-      request: { chainIds },
-      includeUserFields: !!userAddress,
-      userAddress: userAddress ?? ZERO_ADDRESS,
+      request: { chainIds, user },
       borrowsOrderBy,
       suppliesOrderBy,
     },

@@ -1,6 +1,4 @@
-import type { ReserveRequest } from '@aave/client/actions';
-import { type Reserve, ReserveQuery } from '@aave/graphql';
-import { ZERO_ADDRESS } from '@aave/types';
+import { type Reserve, ReserveQuery, type ReserveRequest } from '@aave/graphql';
 import type {
   ReadResult,
   Suspendable,
@@ -49,16 +47,14 @@ export function useAaveReserve({
   market,
   underlyingToken,
   chainId,
-  userAddress,
+  user,
 }: UseAaveReserveArgs & {
   suspense?: boolean;
 }): SuspendableResult<Reserve | null> {
   return useSuspendableQuery({
     document: ReserveQuery,
     variables: {
-      request: { market, underlyingToken, chainId },
-      includeUserFields: !!userAddress,
-      userAddress: userAddress ?? ZERO_ADDRESS,
+      request: { market, underlyingToken, chainId, user },
     },
     suspense,
   });
