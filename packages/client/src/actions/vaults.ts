@@ -115,7 +115,6 @@ export function userVaults(
 ): ResultAsync<PaginatedVaultsResult, UnexpectedError> {
   return client.query(UserVaultsQuery, {
     request,
-    userddress: request.user,
+    userAddress: request.user,
   });
 }
-
