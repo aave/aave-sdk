@@ -21,15 +21,15 @@ import type { UnexpectedError } from '../errors';
  *
  * ```ts
  * const result = await borrow(client, {
- *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   market: evmAddress('0x1234…'),
  *   amount: {
  *     erc20: {
- *       currency: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
- *       value: '1000'
- *     }
+ *       currency: evmAddress('0x5678…'),
+ *       value: '1000',
+ *     },
  *   },
- *   borrower: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
- *   chainId: chainId(1)
+ *   borrower: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
  * });
  * ```
  *
@@ -49,15 +49,15 @@ export function borrow(
  *
  * ```ts
  * const result = await supply(client, {
- *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   market: evmAddress('0x1234…'),
  *   amount: {
  *     erc20: {
- *       currency: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
- *       value: '1000'
- *     }
+ *       currency: evmAddress('0x5678…'),
+ *       value: '1000',
+ *     },
  *   },
- *   supplier: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
- *   chainId: chainId(1)
+ *   supplier: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
  * });
  * ```
  *
@@ -77,15 +77,15 @@ export function supply(
  *
  * ```ts
  * const result = await repay(client, {
- *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   market: evmAddress('0x1234…'),
  *   amount: {
  *     erc20: {
- *       currency: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
- *       value: '500'
- *     }
+ *       currency: evmAddress('0x5678…'),
+ *       value: '500',
+ *     },
  *   },
- *   borrower: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
- *   chainId: chainId(1)
+ *   borrower: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
  * });
  * ```
  *
@@ -105,15 +105,15 @@ export function repay(
  *
  * ```ts
  * const result = await withdraw(client, {
- *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   market: evmAddress('0x1234…'),
  *   amount: {
  *     erc20: {
- *       currency: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
- *       value: '750'
- *     }
+ *       currency: evmAddress('0x5678…'),
+ *       value: '750',
+ *     },
  *   },
- *   supplier: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
- *   chainId: chainId(1)
+ *   supplier: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
  * });
  * ```
  *
@@ -133,9 +133,9 @@ export function withdraw(
  *
  * ```ts
  * const result = await eModeToggle(client, {
- *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
- *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
- *   chainId: chainId(1)
+ *   market: evmAddress('0x1234…'),
+ *   user: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
  * });
  * ```
  *

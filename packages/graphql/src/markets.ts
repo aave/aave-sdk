@@ -1,5 +1,5 @@
-import { MarketFragment } from './fragments';
-import { graphql } from './graphql';
+import { MarketFragment, MarketUserStatsFragment } from './fragments';
+import { graphql, type RequestOf } from './graphql';
 
 /**
  * @internal
@@ -25,3 +25,16 @@ export const MarketQuery = graphql(
   }`,
   [MarketFragment],
 );
+
+/**
+ * @internal
+ */
+export const UserMarketStatsQuery = graphql(
+  `query UserMarketStats($request: UserMarketStatsRequest!) {
+    value: userMarketStats(request: $request) {
+      ...MarketUserStats
+    }
+  }`,
+  [MarketUserStatsFragment],
+);
+export type UserMarketStatsRequest = RequestOf<typeof UserMarketStatsQuery>;

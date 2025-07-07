@@ -18,7 +18,7 @@ import {
   type TadaDocumentNode,
 } from 'gql.tada';
 import type { StandardData } from './common';
-import type { OrderDirection } from './enums';
+import type { OrderDirection, PageSize } from './enums';
 import type { introspection } from './graphql-env';
 
 export type { FragmentOf } from 'gql.tada';
@@ -39,6 +39,7 @@ export const graphql = initGraphQLTada<{
     ID: ID;
     Int: number;
     OrderDirection: OrderDirection;
+    PageSize: PageSize;
     Signature: Signature;
     String: string;
     TxHash: TxHash;

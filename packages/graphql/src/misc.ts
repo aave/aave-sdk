@@ -1,5 +1,6 @@
 import { ChainFragment } from './fragments';
-import { graphql } from './graphql';
+import { CurrencyFragment } from './fragments/common';
+import { type FragmentOf, graphql, type RequestOf } from './graphql';
 
 /**
  * @internal
@@ -21,3 +22,29 @@ export const ChainsQuery = graphql(
   }`,
   [ChainFragment],
 );
+
+export const UsdExchangeRateFragment = graphql(
+  `fragment UsdExchangeRate on UsdExchangeRate {
+    __typename
+    currency {
+      ...Currency
+    }
+    rate
+  }`,
+  [CurrencyFragment],
+);
+export type UsdExchangeRate = FragmentOf<typeof UsdExchangeRateFragment>;
+
+/**
+ * @internal
+ */
+export const UsdExchangeRatesQuery = graphql(
+  `query UsdExchangeRates($request: UsdExchangeRatesRequest!) {
+    value: usdExchangeRates(request: $request) {
+      ...UsdExchangeRate
+      rate
+    }
+  }`,
+  [UsdExchangeRateFragment],
+);
+export type UsdExchangeRatesRequest = RequestOf<typeof UsdExchangeRatesQuery>;

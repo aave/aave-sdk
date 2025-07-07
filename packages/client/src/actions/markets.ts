@@ -3,6 +3,9 @@ import {
   MarketQuery,
   type MarketReservesRequestOrderBy,
   MarketsQuery,
+  type MarketUserStats,
+  UserMarketStatsQuery,
+  type UserMarketStatsRequest,
 } from '@aave/graphql';
 import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -38,7 +41,7 @@ export type MarketsRequest = {
  *
  * ```ts
  * const result = await markets(client, {
- *   chainIds: [chainId(1), chainId(137)]
+ *   chainIds: [chainId(1), chainId(137)],
  * });
  * ```
  *
@@ -93,7 +96,7 @@ export type MarketRequest = {
  * ```ts
  * const result = await market(client, {
  *   address: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
- *   chainId: chainId(1)
+ *   chainId: chainId(1),
  * });
  * ```
  *
@@ -110,4 +113,26 @@ export function market(
     borrowsOrderBy,
     suppliesOrderBy,
   });
+}
+
+/**
+ * Fetches user account market data across all reserves.
+ *
+ * ```ts
+ * const result = await userMarketStats(client, {
+ *   market: evmAddress('0x1234…'),
+ *   user: evmAddress('0x5678…'),
+ *   chainId: chainId(1)
+ * });
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The user market stats request parameters.
+ * @returns The user's market statistics.
+ */
+export function userMarketStats(
+  client: AaveClient,
+  request: UserMarketStatsRequest,
+): ResultAsync<MarketUserStats, UnexpectedError> {
+  return client.query(UserMarketStatsQuery, { request });
 }

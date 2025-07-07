@@ -47,3 +47,14 @@ export const TokenAmountFragment = graphql(
   [DecimalValueFragment],
 );
 export type TokenAmount = FragmentOf<typeof TokenAmountFragment>;
+
+export const PaginatedResultInfoFragment = graphql(
+  `fragment PaginatedResultInfo on PaginatedResultInfo {
+    __typename
+    prev
+    next
+  }`,
+);
+export type PaginatedResultInfo = FragmentOf<
+  typeof PaginatedResultInfoFragment
+>;
