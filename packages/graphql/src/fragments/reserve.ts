@@ -1,12 +1,25 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
+import { ChainFragment } from './chain';
 import {
   CurrencyFragment,
   DecimalValueFragment,
   NativeCurrencyFragment,
   TokenAmountFragment,
 } from './common';
-import { MarketInfoFragment } from './market';
+
+export const MarketInfoFragment = graphql(
+  `fragment MarketInfo on MarketInfo {
+    __typename
+    name
+    chain {
+      ...Chain
+    }
+    icon
+  }`,
+  [ChainFragment],
+);
+export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
 
 export const EmodeReserveInfoFragment = graphql(
   `fragment EmodeReserveInfo on EmodeReserveInfo {

@@ -4,19 +4,6 @@ import { ChainFragment } from './chain';
 import { CurrencyFragment, DecimalValueFragment } from './common';
 import { ReserveFragment } from './reserve';
 
-export const MarketInfoFragment = graphql(
-  `fragment MarketInfo on MarketInfo {
-    __typename
-    name
-    chain {
-      ...Chain
-    }
-    icon
-  }`,
-  [ChainFragment],
-);
-export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
-
 export const MarketUserStatsFragment = graphql(
   `fragment MarketUserStats on MarketUserStats {
     __typename

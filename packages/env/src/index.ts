@@ -37,5 +37,5 @@ export const staging: EnvironmentConfig = new Proxy<EnvironmentConfig>(
  */
 export const local: EnvironmentConfig = {
   name: 'local',
-  backend: 'http://localhost:3000/graphql',
+  backend: 'http://localhost:3011/graphql',
 };
