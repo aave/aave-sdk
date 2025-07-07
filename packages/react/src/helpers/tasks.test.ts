@@ -122,7 +122,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           await result.current[0]('one');
         });
 
-        await waitFor(() => result.current.loading === false);
+        await waitFor(() => result.current[1].loading === false);
 
         act(() => {
           void result.current[0]('two');
@@ -149,7 +149,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           await result.current[0]('one');
         });
 
-        await waitFor(() => result.current.loading === false);
+        await waitFor(() => result.current[1].loading === false);
 
         await act(async () => {
           await result.current[0]('two');
@@ -179,7 +179,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           await result.current[0]('one');
         });
 
-        await waitFor(() => result.current.loading === false);
+        await waitFor(() => result.current[1].loading === false);
 
         await act(async () => {
           await result.current[0]('two');
