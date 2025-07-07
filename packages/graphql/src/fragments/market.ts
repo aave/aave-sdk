@@ -119,11 +119,9 @@ export const MarketFragment = graphql(
   }`,
   [
     ChainFragment,
+    EmodeMarketCategoryFragment,
     ReserveFragment,
     MarketUserStatsFragment,
-    DecimalValueFragment,
-    CurrencyFragment,
-    EmodeMarketCategoryFragment,
   ],
 );
 export type Market = FragmentOf<typeof MarketFragment>;

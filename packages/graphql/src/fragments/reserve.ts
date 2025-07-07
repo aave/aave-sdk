@@ -22,6 +22,8 @@ export const EmodeReserveInfoFragment = graphql(
       ...DecimalValue
     }
     userEnabled
+    canBeCollateral
+    canBeBorrowable
   }`,
   [DecimalValueFragment],
 );
@@ -145,7 +147,6 @@ export const ReserveFragment = graphql(
     CurrencyFragment,
     NativeCurrencyFragment,
     TokenAmountFragment,
-    DecimalValueFragment,
     ReserveSupplyInfoFragment,
     ReserveBorrowInfoFragment,
     EmodeReserveInfoFragment,

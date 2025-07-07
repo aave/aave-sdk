@@ -39,6 +39,7 @@ export type NativeCurrency = FragmentOf<typeof NativeCurrencyFragment>;
 export const TokenAmountFragment = graphql(
   `fragment TokenAmount on TokenAmount {
     __typename
+    usdPerToken
     amount {
       ...DecimalValue
     }

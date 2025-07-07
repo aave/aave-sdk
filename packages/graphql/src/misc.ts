@@ -42,7 +42,6 @@ export const UsdExchangeRatesQuery = graphql(
   `query UsdExchangeRates($request: UsdExchangeRatesRequest!) {
     value: usdExchangeRates(request: $request) {
       ...UsdExchangeRate
-      rate
     }
   }`,
   [UsdExchangeRateFragment],
