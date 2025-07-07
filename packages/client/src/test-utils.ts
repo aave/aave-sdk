@@ -1,6 +1,6 @@
 /// <reference path="../../../vite-env.d.ts" />
 
-import { local, staging, testnet } from '@aave/env';
+import { local, staging } from '@aave/env';
 import type { AnyVariables } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
 import type { TypedDocumentNode } from '@urql/core';
@@ -15,11 +15,7 @@ import { GraphQLErrorCode } from './errors';
 
 export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
-  import.meta.env.ENVIRONMENT === 'local'
-    ? local
-    : import.meta.env.ENVIRONMENT === 'staging'
-      ? staging
-      : testnet;
+  import.meta.env.ENVIRONMENT === 'local' ? local : staging;
 
 export const client = AaveClient.create({
   environment,

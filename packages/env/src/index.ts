@@ -9,25 +9,13 @@ export type EnvironmentConfig = {
 };
 
 /**
- * The mainnet environment configuration.
+ * The production environment configuration.
  */
-export const mainnet: EnvironmentConfig = new Proxy<EnvironmentConfig>(
+export const production: EnvironmentConfig = new Proxy<EnvironmentConfig>(
   {} as EnvironmentConfig,
   {
     get: () => {
-      never(`The 'mainnet' environment is not available (yet)`);
-    },
-  },
-);
-
-/**
- * The testnet environment configuration.
- */
-export const testnet: EnvironmentConfig = new Proxy<EnvironmentConfig>(
-  {} as EnvironmentConfig,
-  {
-    get: () => {
-      never(`The 'testnet' environment is not available (yet)`);
+      never(`The 'production' environment is not available (yet)`);
     },
   },
 );

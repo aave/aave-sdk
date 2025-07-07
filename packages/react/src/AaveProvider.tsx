@@ -22,10 +22,10 @@ export type AaveProviderProps = {
  * Manages the internal state of the Aave SDK.
  *
  * ```tsx
- * import { AaveProvider, AaveClient, mainnet } from '@aave/react';
+ * import { AaveProvider, AaveClient, production } from '@aave/react';
  *
  * const client = AaveClient.create({
- *   environment: mainnet,
+ *   environment: production,
  * });
  *
  * function App() {

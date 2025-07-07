@@ -52,7 +52,7 @@ export class AaveClient {
    *
    * ```ts
    * const client = AaveClient.create({
-   *   environment: mainnet,
+   *   environment: production,
    *   origin: 'http://example.com',
    * });
    * ```
