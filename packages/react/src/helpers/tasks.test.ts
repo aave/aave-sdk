@@ -23,7 +23,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         error: undefined,
       };
 
-      expect(result.current).toMatchObject(expectation);
+      expect(result.current[1]).toMatchObject(expectation);
     });
   });
 
@@ -35,7 +35,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         act(() => {
-          void result.current.execute('test');
+          void result.current[0]('test');
         });
 
         const expectation: AsyncTaskLoading<unknown> = {
@@ -45,7 +45,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: undefined,
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
 
@@ -56,7 +56,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('test');
+          await result.current[0]('test');
         });
 
         const expectation: AsyncTaskSuccess<string> = {
@@ -66,7 +66,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: undefined,
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
 
       it('Then it should support void as success data', async () => {
@@ -75,7 +75,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('test');
+          await result.current[0]('test');
         });
 
         const expectation: AsyncTaskSuccess<void> = {
@@ -85,7 +85,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: undefined,
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
 
@@ -96,7 +96,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('test');
+          await result.current[0]('test');
         });
 
         const expectation: AsyncTaskError<Error> = {
@@ -106,7 +106,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: new Error('test error'),
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
   });
@@ -119,13 +119,13 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('one');
+          await result.current[0]('one');
         });
 
         await waitFor(() => result.current.loading === false);
 
         act(() => {
-          void result.current.execute('two');
+          void result.current[0]('two');
         });
 
         const expectation: AsyncTaskLoading<string> = {
@@ -135,7 +135,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: undefined,
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
 
@@ -146,13 +146,13 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('one');
+          await result.current[0]('one');
         });
 
         await waitFor(() => result.current.loading === false);
 
         await act(async () => {
-          await result.current.execute('two');
+          await result.current[0]('two');
         });
 
         const expectation: AsyncTaskSuccess<string> = {
@@ -162,7 +162,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: undefined,
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
 
@@ -176,13 +176,13 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
         );
 
         await act(async () => {
-          await result.current.execute('one');
+          await result.current[0]('one');
         });
 
         await waitFor(() => result.current.loading === false);
 
         await act(async () => {
-          await result.current.execute('two');
+          await result.current[0]('two');
         });
 
         const expectation: AsyncTaskError<Error> = {
@@ -192,7 +192,7 @@ describe(`Given the '${useAsyncTask.name}' hook`, () => {
           error: new Error('test error'),
         };
 
-        expect(result.current).toMatchObject(expectation);
+        expect(result.current[1]).toMatchObject(expectation);
       });
     });
   });
