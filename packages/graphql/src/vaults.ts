@@ -38,7 +38,7 @@ export type VaultsQueryRequest = ReturnType<
  * @internal
  */
 export const UserVaultsQuery = graphql(
-  `query UserVaults($request: UserVaultsRequest!, $userAddress: EvmAddress!) {
+  `query UserVaults($request: UserVaultsRequest!, $includeUserShares: Boolean!, $userAddress: EvmAddress!) {
     value: userVaults(request: $request) {
       ...PaginatedVaultsResult
     }
