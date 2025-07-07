@@ -30,7 +30,14 @@ import type { UnexpectedError } from '../errors';
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * });
+ * }).andThen(sendWith(wallet));
+ *
+ * if (result.isErr()) {
+ *   // Handle error, e.g. insufficient balance, signing error, etc.
+ *   return;
+ * }
+ *
+ * // result.value: TxHash
  * ```
  *
  * @param client - Aave client.
