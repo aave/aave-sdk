@@ -25,7 +25,7 @@ export const VaultFragment = graphql(
       ...TokenAmount
     }
     chainId
-    userShares(address: $userAddress) @include(if: $includeUserShares) {
+    userShares {
       ...DecimalValue
     }
   }`,

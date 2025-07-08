@@ -55,6 +55,7 @@ export type EmodeMarketReserveInfo = FragmentOf<
 export const EmodeMarketCategoryFragment = graphql(
   `fragment EmodeMarketCategory on EmodeMarketCategory {
     __typename
+    id
     label
     maxLTV {
       ...DecimalValue
@@ -87,7 +88,6 @@ export const MarketFragment = graphql(
     icon
     totalMarketSize
     totalAvailableLiquidity
-    totalBorrows
     eModeCategories {
       ...EmodeMarketCategory
     }

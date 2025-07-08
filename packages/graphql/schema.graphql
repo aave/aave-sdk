@@ -166,6 +166,9 @@ input ERC712Signature {
 }
 
 type EmodeMarketCategory {
+  """The eMode id for the market"""
+  id: Int!
+
   """The eMode label"""
   label: String!
 
@@ -270,6 +273,9 @@ type InsufficientBalanceError {
 }
 
 input LiquidateRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
   """
   The address of the token used as collateral, to receive as result of the liquidation
   """
@@ -307,11 +313,9 @@ type Market {
   """The liquidity pool address for the market"""
   address: EvmAddress!
 
-  """The total borrows on the market"""
-  totalBorrows: BigDecimal!
-
   """A list eModes the market can support"""
   eModeCategories: [EmodeMarketCategory!]!
+  userStats: MarketUserStats
 
   """The market icon"""
   icon: String!
@@ -324,9 +328,6 @@ type Market {
 
   """The total available liquidity in USD"""
   totalAvailableLiquidity: BigDecimal!
-
-  """The market user stats"""
-  userStats: MarketUserStats
 }
 
 type MarketInfo {
@@ -655,14 +656,14 @@ type Reserve {
   """
   borrowInfo: ReserveBorrowInfo
 
-  """A list eModes the reserve can support"""
-  eModeInfo: [EmodeReserveInfo!]!
-
   """The reserve has been frozen all actions are stopped"""
   isFrozen: Boolean!
 
   """The reserve is paused you can still withdraw and some other actions"""
   isPaused: Boolean!
+
+  """A list eModes the reserve can support"""
+  eModeInfo: [EmodeReserveInfo!]!
 
   """
   The user's availability on the reserve to borrow and supply with balance
@@ -754,13 +755,13 @@ type ReserveSupplyInfo {
 
 type ReserveUserAvailability {
   """The user's balance of this asset"""
-  balance: DecimalValue!
+  balance: TokenAmount!
 
   """The amount the user can supply to this reserve"""
-  supply: DecimalValue!
+  suppliable: TokenAmount!
 
   """The amount the user can borrow from this reserve"""
-  borrow: DecimalValue!
+  borrowable: TokenAmount!
 }
 
 input SetVaultFeeRequest {
@@ -998,7 +999,7 @@ type Vault {
   chainId: ChainId!
 
   """The user's shares on the vault"""
-  userShares(address: EvmAddress!): DecimalValue!
+  userShares: DecimalValue
 }
 
 input VaultDepositRequest {
@@ -1052,6 +1053,11 @@ input VaultRequest {
 
   """The chain id the vault is deployed on"""
   chainId: ChainId!
+
+  """
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  """
+  user: EvmAddress
 }
 
 input VaultShareInput {
@@ -1068,6 +1074,11 @@ input VaultShareInput {
 input VaultsRequest {
   """Filter criteria for vaults"""
   criteria: VaultsRequestFilterCriteria!
+
+  """
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  """
+  user: EvmAddress
 
   """The page size"""
   pageSize: PageSize! = FIFTY

@@ -1,11 +1,12 @@
-import type { VaultRequest, VaultsRequest } from '@aave/client/actions';
 import {
   type PaginatedVaultsResult,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
   VaultQuery,
+  type VaultRequest,
   VaultsQuery,
+  type VaultsRequest,
 } from '@aave/graphql';
 import type {
   ReadResult,
@@ -59,9 +60,7 @@ export function useVault({
   return useSuspendableQuery({
     document: VaultQuery,
     variables: {
-      request: { address, chainId },
-      includeUserShares: !!user,
-      userAddress: user ?? '0x0000000000000000000000000000000000000000',
+      request: { address, chainId, user },
     },
     suspense,
   });
@@ -118,9 +117,7 @@ export function useVaults({
   return useSuspendableQuery({
     document: VaultsQuery,
     variables: {
-      request: { criteria, pageSize, cursor },
-      includeUserShares: !!user,
-      userAddress: user ?? '0x0000000000000000000000000000000000000000',
+      request: { criteria, pageSize, cursor, user },
     },
     suspense,
   });
@@ -181,8 +178,6 @@ export function useUserVaults({
     document: UserVaultsQuery,
     variables: {
       request: { user, filters, orderBy, pageSize, cursor },
-      includeUserShares: true,
-      userAddress: user,
     },
     suspense,
   });

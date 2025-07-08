@@ -4,28 +4,13 @@ import {
   type UserVaultsRequest,
   type Vault,
   VaultQuery,
-  type VaultQueryRequest,
+  type VaultRequest,
   VaultsQuery,
-  type VaultsQueryRequest,
+  type VaultsRequest,
 } from '@aave/graphql';
-import {
-  type EvmAddress,
-  type Prettify,
-  type ResultAsync,
-  ZERO_ADDRESS,
-} from '@aave/types';
+import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
-
-export type VaultRequest = Prettify<
-  VaultQueryRequest & {
-    /**
-     * The user address to get user-specific data for the vault.
-     * If not provided, user-specific fields will be null.
-     */
-    user?: EvmAddress;
-  }
->;
 
 /**
  * Fetches a specific vault by address and chain ID.
@@ -44,24 +29,12 @@ export type VaultRequest = Prettify<
  */
 export function vault(
   client: AaveClient,
-  { user, ...request }: VaultRequest,
+  request: VaultRequest,
 ): ResultAsync<Vault | null, UnexpectedError> {
   return client.query(VaultQuery, {
     request,
-    includeUserShares: !!user,
-    userAddress: user ?? ZERO_ADDRESS,
   });
 }
-
-export type VaultsRequest = Prettify<
-  VaultsQueryRequest & {
-    /**
-     * The user address to get user-specific data for the vaults.
-     * If not provided, user-specific fields will be null.
-     */
-    user?: EvmAddress;
-  }
->;
 
 /**
  * Fetches vaults based on filter criteria.
@@ -82,12 +55,10 @@ export type VaultsRequest = Prettify<
  */
 export function vaults(
   client: AaveClient,
-  { user, ...request }: VaultsRequest,
+  request: VaultsRequest,
 ): ResultAsync<PaginatedVaultsResult, UnexpectedError> {
   return client.query(VaultsQuery, {
     request,
-    includeUserShares: !!user,
-    userAddress: user ?? ZERO_ADDRESS,
   });
 }
 
@@ -115,7 +86,5 @@ export function userVaults(
 ): ResultAsync<PaginatedVaultsResult, UnexpectedError> {
   return client.query(UserVaultsQuery, {
     request,
-    includeUserShares: true,
-    userAddress: request.user,
   });
 }

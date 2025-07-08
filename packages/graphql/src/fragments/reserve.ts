@@ -102,16 +102,16 @@ export const ReserveUserAvailabilityFragment = graphql(
   `fragment ReserveUserAvailability on ReserveUserAvailability {
     __typename
     balance {
-      ...DecimalValue
+      ...TokenAmount
     }
-    supply {
-      ...DecimalValue
+    suppliable {
+      ...TokenAmount
     }
-    borrow {
-      ...DecimalValue
+    borrowable {
+      ...TokenAmount
     }
   }`,
-  [DecimalValueFragment],
+  [TokenAmountFragment],
 );
 export type ReserveUserAvailability = FragmentOf<
   typeof ReserveUserAvailabilityFragment
