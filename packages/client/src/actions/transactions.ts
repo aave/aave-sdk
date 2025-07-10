@@ -1,36 +1,36 @@
 import {
   BorrowQuery,
   type BorrowRequest,
-  ClaimVaultRewardsQuery,
-  type ClaimVaultRewardsRequest,
   CollateralToggleQuery,
   type CollateralToggleRequest,
-  DeployVaultQuery,
-  type DeployVaultRequest,
-  EModeToggleQuery,
-  type EModeToggleRequest,
   type ExecutionPlan,
   LiquidateQuery,
   type LiquidateRequest,
-  MintVaultSharesQuery,
-  type MintVaultSharesRequest,
-  RedeemVaultSharesQuery,
-  type RedeemVaultSharesRequest,
   RepayQuery,
   type RepayRequest,
-  SetVaultFeeQuery,
-  type SetVaultFeeRequest,
   SupplyQuery,
   type SupplyRequest,
   type TransactionRequest,
+  UserSetEmodeQuery,
+  type UserSetEmodeRequest,
+  VaultClaimRewardsQuery,
+  type VaultClaimRewardsRequest,
+  VaultDeployQuery,
+  type VaultDeployRequest,
   VaultDepositQuery,
   type VaultDepositRequest,
+  VaultMintSharesQuery,
+  type VaultMintSharesRequest,
+  VaultRedeemSharesQuery,
+  type VaultRedeemSharesRequest,
+  VaultSetFeeQuery,
+  type VaultSetFeeRequest,
+  VaultWithdrawFeesQuery,
+  type VaultWithdrawFeesRequest,
+  VaultWithdrawQuery,
+  type VaultWithdrawRequest,
   WithdrawQuery,
   type WithdrawRequest,
-  WithdrawVaultFeesQuery,
-  type WithdrawVaultFeesRequest,
-  WithdrawVaultQuery,
-  type WithdrawVaultRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -41,7 +41,7 @@ import type { UnexpectedError } from '../errors';
  *
  * ```ts
  * const result = await borrow(client, {
- *   market: evmAddress('0x1234…'),
+ *   market: market.address,
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
@@ -49,7 +49,7 @@ import type { UnexpectedError } from '../errors';
  *     },
  *   },
  *   borrower: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
@@ -76,7 +76,7 @@ export function borrow(
  *
  * ```ts
  * const result = await supply(client, {
- *   market: evmAddress('0x1234…'),
+ *   market: market.address,
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
@@ -84,7 +84,7 @@ export function borrow(
  *     },
  *   },
  *   supplier: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
@@ -111,7 +111,7 @@ export function supply(
  *
  * ```ts
  * const result = await repay(client, {
- *   market: evmAddress('0x1234…'),
+ *   market: market.address,
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
@@ -119,7 +119,7 @@ export function supply(
  *     },
  *   },
  *   borrower: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
@@ -146,7 +146,7 @@ export function repay(
  *
  * ```ts
  * const result = await withdraw(client, {
- *   market: evmAddress('0x1234…'),
+ *   market: market.address,
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
@@ -154,7 +154,7 @@ export function repay(
  *     },
  *   },
  *   supplier: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
@@ -177,13 +177,32 @@ export function withdraw(
 }
 
 /**
- * Creates a transaction to toggle eMode for a user in a market.
+ * Creates a transaction to enable/disable the user's eMode for a market.
  *
+ * **Example: Enable a Specific eMode**
  * ```ts
- * const result = await eModeToggle(client, {
- *   market: evmAddress('0x1234…'),
- *   user: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ * const result = await userSetEmode(client, {
+ *   market: market.address,
+ *   user: evmAddress('0x5678…'),
+ *   categoryId: market.eModeCategories[0].id,
+ *   chainId: market.chain.chainId,
+ * }).andThen(sendWith(wallet));
+ *
+ * if (result.isErr()) {
+ *   // Handle error, e.g. signing error, etc.
+ *   return;
+ * }
+ *
+ * // result.value: TxHash
+ * ```
+ *
+ * **Example: Disable eMode**
+ * ```ts
+ * const result = await userSetEmode(client, {
+ *   market: market.address,
+ *   user: evmAddress('0x5678…'),
+ *   categoryId: null,
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
@@ -195,14 +214,14 @@ export function withdraw(
  * ```
  *
  * @param client - Aave client.
- * @param request - The eMode toggle request parameters.
- * @returns The transaction request data to toggle eMode.
+ * @param request - The user set eMode request parameters.
+ * @returns The transaction request data to set eMode.
  */
-export function eModeToggle(
+export function userSetEmode(
   client: AaveClient,
-  request: EModeToggleRequest,
+  request: UserSetEmodeRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(EModeToggleQuery, { request });
+  return client.query(UserSetEmodeQuery, { request });
 }
 
 /**
@@ -242,7 +261,7 @@ export function vaultDeposit(
  * Creates a transaction to redeem vault shares for underlying assets.
  *
  * ```ts
- * const result = await redeemVaultShares(client, {
+ * const result = await vaultRedeemShares(client, {
  *   vault: evmAddress('0x1234…'),
  *   shares: {
  *     amount: '500',
@@ -264,18 +283,18 @@ export function vaultDeposit(
  * @param request - The redeem vault shares request parameters.
  * @returns The transaction request data to redeem shares.
  */
-export function redeemVaultShares(
+export function vaultRedeemShares(
   client: AaveClient,
-  request: RedeemVaultSharesRequest,
+  request: VaultRedeemSharesRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(RedeemVaultSharesQuery, { request });
+  return client.query(VaultRedeemSharesQuery, { request });
 }
 
 /**
  * Creates a transaction to deploy a new vault.
  *
  * ```ts
- * const result = await deployVault(client, {
+ * const result = await vaultDeploy(client, {
  *   underlyingToken: evmAddress('0x1234…'),
  *   market: evmAddress('0x5678…'),
  *   deployer: evmAddress('0x9abc…'),
@@ -298,18 +317,18 @@ export function redeemVaultShares(
  * @param request - The deploy vault request parameters.
  * @returns The transaction request data to deploy a vault.
  */
-export function deployVault(
+export function vaultDeploy(
   client: AaveClient,
-  request: DeployVaultRequest,
+  request: VaultDeployRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(DeployVaultQuery, { request });
+  return client.query(VaultDeployQuery, { request });
 }
 
 /**
  * Creates a transaction to set the vault fee (owner only).
  *
  * ```ts
- * const result = await setVaultFee(client, {
+ * const result = await vaultSetFee(client, {
  *   vault: evmAddress('0x1234…'),
  *   newFee: '0.2',
  *   chainId: chainId(1),
@@ -327,18 +346,18 @@ export function deployVault(
  * @param request - The set vault fee request parameters.
  * @returns The transaction request data to set vault fee.
  */
-export function setVaultFee(
+export function vaultSetFee(
   client: AaveClient,
-  request: SetVaultFeeRequest,
+  request: VaultSetFeeRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(SetVaultFeeQuery, { request });
+  return client.query(VaultSetFeeQuery, { request });
 }
 
 /**
  * Creates a transaction to withdraw accumulated fees from a vault (owner only).
  *
  * ```ts
- * const result = await withdrawVaultFees(client, {
+ * const result = await vaultWithdrawFees(client, {
  *   vault: evmAddress('0x1234…'),
  *   amount: '100',
  *   chainId: chainId(1),
@@ -356,18 +375,18 @@ export function setVaultFee(
  * @param request - The withdraw vault fees request parameters.
  * @returns The transaction request data to withdraw vault fees.
  */
-export function withdrawVaultFees(
+export function vaultWithdrawFees(
   client: AaveClient,
-  request: WithdrawVaultFeesRequest,
+  request: VaultWithdrawFeesRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(WithdrawVaultFeesQuery, { request });
+  return client.query(VaultWithdrawFeesQuery, { request });
 }
 
 /**
  * Creates a transaction to claim rewards from a vault (owner only).
  *
  * ```ts
- * const result = await claimVaultRewards(client, {
+ * const result = await vaultClaimRewards(client, {
  *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  * }).andThen(sendWith(wallet));
@@ -384,22 +403,22 @@ export function withdrawVaultFees(
  * @param request - The claim vault rewards request parameters.
  * @returns The transaction request data to claim vault rewards.
  */
-export function claimVaultRewards(
+export function vaultClaimRewards(
   client: AaveClient,
-  request: ClaimVaultRewardsRequest,
+  request: VaultClaimRewardsRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(ClaimVaultRewardsQuery, { request });
+  return client.query(VaultClaimRewardsQuery, { request });
 }
 
 /**
  * Creates a transaction to withdraw assets from a vault, burning shares.
  *
  * ```ts
- * const result = await withdrawVault(client, {
+ * const result = await vaultWithdraw(client, {
  *   vault: evmAddress('0x1234…'),
- *   amount: {
- *     currency: evmAddress('0x5678…'),
- *     value: '500',
+ *   shares: {
+ *     amount: '500',
+ *     asAToken: false,
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
@@ -417,21 +436,24 @@ export function claimVaultRewards(
  * @param request - The withdraw vault request parameters.
  * @returns The transaction request data to withdraw from vault.
  */
-export function withdrawVault(
+export function vaultWithdraw(
   client: AaveClient,
-  request: WithdrawVaultRequest,
+  request: VaultWithdrawRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(WithdrawVaultQuery, { request });
+  return client.query(VaultWithdrawQuery, { request });
 }
 
 /**
  * Creates a transaction to mint exact amount of vault shares by depositing calculated assets.
  *
  * ```ts
- * const result = await mintVaultShares(client, {
+ * const result = await vaultMintShares(client, {
  *   vault: evmAddress('0x1234…'),
- *   shares: '1000',
- *   depositor: evmAddress('0x9abc…'),
+ *   shares: {
+ *     amount: '1000',
+ *     asAToken: false,
+ *   },
+ *   minter: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
  * }).andThen(sendWith(wallet));
  *
@@ -447,11 +469,11 @@ export function withdrawVault(
  * @param request - The mint vault shares request parameters.
  * @returns The transaction data, approval requirements, or insufficient balance error.
  */
-export function mintVaultShares(
+export function vaultMintShares(
   client: AaveClient,
-  request: MintVaultSharesRequest,
+  request: VaultMintSharesRequest,
 ): ResultAsync<ExecutionPlan, UnexpectedError> {
-  return client.query(MintVaultSharesQuery, { request });
+  return client.query(VaultMintSharesQuery, { request });
 }
 
 /**
@@ -459,10 +481,10 @@ export function mintVaultShares(
  *
  * ```ts
  * const result = await collateralToggle(client, {
- *   market: evmAddress('0x1234…'),
- *   underlyingToken: evmAddress('0x5678…'),
+ *   market: market.address,
+ *   underlyingToken: market.supplyReserves[n].underlyingToken.address,
  *   user: evmAddress('0x9abc…'),
- *   chainId: chainId(1),
+ *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
