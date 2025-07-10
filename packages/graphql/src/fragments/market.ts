@@ -4,38 +4,22 @@ import { ChainFragment } from './chain';
 import { CurrencyFragment, DecimalValueFragment } from './common';
 import { ReserveFragment } from './reserve';
 
-export const MarketUserStatsFragment = graphql(
-  `fragment MarketUserStats on MarketUserStats {
+export const MarketUserStateFragment = graphql(
+  `fragment MarketUserState on MarketUserState {
     __typename
-    netWorth {
-      ...DecimalValue
-    }
-    netAPY {
-      ...DecimalValue
-    }
-    healthFactor {
-      ...DecimalValue
-    }
+    netWorth
+    netAPY
+    healthFactor
     eModeEnabled
-    totalCollateralBase {
-      ...DecimalValue
-    }
-    totalDebtBase {
-      ...DecimalValue
-    }
-    availableBorrowsBase {
-      ...DecimalValue
-    }
-    currentLiquidationThreshold {
-      ...DecimalValue
-    }
-    ltv {
-      ...DecimalValue
-    }
+    totalCollateralBase
+    totalDebtBase
+    availableBorrowsBase
+    currentLiquidationThreshold
+    ltv
+    isInIsolationMode
   }`,
-  [DecimalValueFragment],
 );
-export type MarketUserStats = FragmentOf<typeof MarketUserStatsFragment>;
+export type MarketUserState = FragmentOf<typeof MarketUserStateFragment>;
 
 export const EmodeMarketReserveInfoFragment = graphql(
   `fragment EmodeMarketReserveInfo on EmodeMarketReserveInfo {
@@ -44,7 +28,7 @@ export const EmodeMarketReserveInfoFragment = graphql(
       ...Currency
     }
     canBeCollateral
-    canBeBorrowable
+    canBeBorrowed
   }`,
   [CurrencyFragment],
 );
@@ -66,7 +50,6 @@ export const EmodeMarketCategoryFragment = graphql(
     liquidationPenalty {
       ...DecimalValue
     }
-    userEnabled
     reserves {
       ...EmodeMarketReserveInfo
     }
@@ -91,6 +74,9 @@ export const MarketFragment = graphql(
     eModeCategories {
       ...EmodeMarketCategory
     }
+    userState {
+      ...MarketUserState
+    }
 
     borrowReserves: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
       ...Reserve
@@ -99,16 +85,12 @@ export const MarketFragment = graphql(
     supplyReserves: reserves(request: { reserveType: SUPPLY, orderBy: $suppliesOrderBy }) {
       ...Reserve
     }
-
-    userStats {
-      ...MarketUserStats
-    }
   }`,
   [
     ChainFragment,
     EmodeMarketCategoryFragment,
     ReserveFragment,
-    MarketUserStatsFragment,
+    MarketUserStateFragment,
   ],
 );
 export type Market = FragmentOf<typeof MarketFragment>;

@@ -18,10 +18,10 @@ export const VaultFragment = graphql(
       ...Reserve
     }
     fee
-    balance {
+    feesFromYield {
       ...TokenAmount
     }
-    totalAssets {
+    balance {
       ...TokenAmount
     }
     chainId

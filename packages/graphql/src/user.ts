@@ -1,31 +1,25 @@
 import {
-  UserReserveBorrowPositionFragment,
-  UserReserveSupplyPositionFragment,
-} from './fragments/positions';
+  MarketUserReserveBorrowPositionFragment,
+  MarketUserReserveSupplyPositionFragment,
+} from './fragments';
 import { graphql, type RequestOf } from './graphql';
 
-/**
- * @internal
- */
 export const UserSuppliesQuery = graphql(
   `query UserSupplies($request: UserSuppliesRequest!) {
     value: userSupplies(request: $request) {
-      ...UserReserveSupplyPosition
+      ...MarketUserReserveSupplyPosition
     }
   }`,
-  [UserReserveSupplyPositionFragment],
+  [MarketUserReserveSupplyPositionFragment],
 );
 export type UserSuppliesRequest = RequestOf<typeof UserSuppliesQuery>;
 
-/**
- * @internal
- */
 export const UserBorrowsQuery = graphql(
   `query UserBorrows($request: UserBorrowsRequest!) {
     value: userBorrows(request: $request) {
-      ...UserReserveBorrowPosition
+      ...MarketUserReserveBorrowPosition
     }
   }`,
-  [UserReserveBorrowPositionFragment],
+  [MarketUserReserveBorrowPositionFragment],
 );
 export type UserBorrowsRequest = RequestOf<typeof UserBorrowsQuery>;

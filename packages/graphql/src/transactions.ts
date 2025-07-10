@@ -56,15 +56,15 @@ export type WithdrawRequest = RequestOf<typeof WithdrawQuery>;
 /**
  * @internal
  */
-export const EModeToggleQuery = graphql(
-  `query EModeToggle($request: EmodeToggleRequest!) {
-    value: eModeToggle(request: $request) {
+export const UserSetEmodeQuery = graphql(
+  `query UserSetEmode($request: UserSetEmodeRequest!) {
+    value: userSetEmode(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type EModeToggleRequest = RequestOf<typeof EModeToggleQuery>;
+export type UserSetEmodeRequest = RequestOf<typeof UserSetEmodeQuery>;
 
 /**
  * @internal
@@ -82,93 +82,93 @@ export type VaultDepositRequest = RequestOf<typeof VaultDepositQuery>;
 /**
  * @internal
  */
-export const RedeemVaultSharesQuery = graphql(
-  `query RedeemVaultShares($request: VaultRedeemSharesRequest!) {
-    value: redeemVaultShares(request: $request) {
+export const VaultRedeemSharesQuery = graphql(
+  `query VaultRedeemShares($request: VaultRedeemSharesRequest!) {
+    value: vaultRedeemShares(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type RedeemVaultSharesRequest = RequestOf<typeof RedeemVaultSharesQuery>;
+export type VaultRedeemSharesRequest = RequestOf<typeof VaultRedeemSharesQuery>;
 
 /**
  * @internal
  */
-export const DeployVaultQuery = graphql(
-  `query DeployVault($request: DeployVaultRequest!) {
-    value: deployVault(request: $request) {
+export const VaultDeployQuery = graphql(
+  `query VaultDeploy($request: VaultDeployRequest!) {
+    value: vaultDeploy(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type DeployVaultRequest = RequestOf<typeof DeployVaultQuery>;
+export type VaultDeployRequest = RequestOf<typeof VaultDeployQuery>;
 
 /**
  * @internal
  */
-export const SetVaultFeeQuery = graphql(
-  `query SetVaultFee($request: SetVaultFeeRequest!) {
-    value: setVaultFee(request: $request) {
+export const VaultSetFeeQuery = graphql(
+  `query VaultSetFee($request: VaultSetFeeRequest!) {
+    value: vaultSetFee(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type SetVaultFeeRequest = RequestOf<typeof SetVaultFeeQuery>;
+export type VaultSetFeeRequest = RequestOf<typeof VaultSetFeeQuery>;
 
 /**
  * @internal
  */
-export const WithdrawVaultFeesQuery = graphql(
-  `query WithdrawVaultFees($request: WithdrawVaultFeesRequest!) {
-    value: withdrawVaultFees(request: $request) {
+export const VaultWithdrawFeesQuery = graphql(
+  `query VaultWithdrawFees($request: VaultWithdrawFeesRequest!) {
+    value: vaultWithdrawFees(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type WithdrawVaultFeesRequest = RequestOf<typeof WithdrawVaultFeesQuery>;
+export type VaultWithdrawFeesRequest = RequestOf<typeof VaultWithdrawFeesQuery>;
 
 /**
  * @internal
  */
-export const ClaimVaultRewardsQuery = graphql(
-  `query ClaimVaultRewards($request: ClaimVaultRewardsRequest!) {
-    value: claimVaultRewards(request: $request) {
+export const VaultClaimRewardsQuery = graphql(
+  `query VaultClaimRewards($request: VaultClaimRewardsRequest!) {
+    value: vaultClaimRewards(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type ClaimVaultRewardsRequest = RequestOf<typeof ClaimVaultRewardsQuery>;
+export type VaultClaimRewardsRequest = RequestOf<typeof VaultClaimRewardsQuery>;
 
 /**
  * @internal
  */
-export const WithdrawVaultQuery = graphql(
-  `query WithdrawVault($request: WithdrawVaultRequest!) {
-    value: withdrawVault(request: $request) {
+export const VaultWithdrawQuery = graphql(
+  `query VaultWithdraw($request: VaultWithdrawRequest!) {
+    value: vaultWithdraw(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type WithdrawVaultRequest = RequestOf<typeof WithdrawVaultQuery>;
+export type VaultWithdrawRequest = RequestOf<typeof VaultWithdrawQuery>;
 
 /**
  * @internal
  */
-export const MintVaultSharesQuery = graphql(
-  `query MintVaultShares($request: MintVaultSharesRequest!) {
-    value: mintVaultShares(request: $request) {
+export const VaultMintSharesQuery = graphql(
+  `query VaultMintShares($request: VaultMintSharesRequest!) {
+    value: vaultMintShares(request: $request) {
       ...ExecutionPlan
     }
   }`,
   [ExecutionPlanFragment],
 );
-export type MintVaultSharesRequest = RequestOf<typeof MintVaultSharesQuery>;
+export type VaultMintSharesRequest = RequestOf<typeof VaultMintSharesQuery>;
 
 /**
  * @internal

@@ -1,4 +1,4 @@
-import { MarketFragment, MarketUserStatsFragment } from './fragments';
+import { MarketFragment, MarketUserStateFragment } from './fragments';
 import { graphql, type RequestOf } from './graphql';
 
 /**
@@ -12,29 +12,30 @@ export const MarketsQuery = graphql(
   }`,
   [MarketFragment],
 );
+export type MarketsRequest = RequestOf<typeof MarketsQuery>;
 
 /**
  * @internal
  */
 export const MarketQuery = graphql(
-  `query Market(
-    $request: MarketRequest!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy) {
+  `query Market($request: MarketRequest!, $borrowsOrderBy: MarketReservesRequestOrderBy, $suppliesOrderBy: MarketReservesRequestOrderBy) {
     value: market(request: $request) {
       ...Market
     }
   }`,
   [MarketFragment],
 );
+export type MarketRequest = RequestOf<typeof MarketQuery>;
 
 /**
  * @internal
  */
-export const UserMarketStatsQuery = graphql(
-  `query UserMarketStats($request: UserMarketStatsRequest!) {
+export const UserMarketStateQuery = graphql(
+  `query UserMarketState($request: UserMarketStatsRequest!) {
     value: userMarketStats(request: $request) {
-      ...MarketUserStats
+      ...MarketUserState
     }
   }`,
-  [MarketUserStatsFragment],
+  [MarketUserStateFragment],
 );
-export type UserMarketStatsRequest = RequestOf<typeof UserMarketStatsQuery>;
+export type UserMarketStateRequest = RequestOf<typeof UserMarketStateQuery>;

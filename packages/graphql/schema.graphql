@@ -53,22 +53,14 @@ type Chain {
   """The chain name"""
   name: String!
 
+  """The chain icon"""
+  icon: String!
+
   """The chain id"""
   chainId: ChainId!
 }
 
 scalar ChainId
-
-input ClaimVaultRewardsRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
-
-  """Who the rewards go to - if not supplied, it goes to the owner"""
-  sendTo: EvmAddress
-
-  """The chain id"""
-  chainId: ChainId!
-}
 
 input CollateralToggleRequest {
   """The pool address for the market"""
@@ -127,36 +119,6 @@ type DecimalValue {
   value: BigDecimal!
 }
 
-input DeployVaultRequest {
-  """Underlying token address."""
-  underlyingToken: EvmAddress!
-
-  """The market address."""
-  market: EvmAddress!
-
-  """The chain id"""
-  chainId: ChainId!
-
-  """
-  The address to set as which deploys the vault and will become a owner of the vault.
-  """
-  deployer: EvmAddress!
-
-  """The initial fee to set, expressed in %."""
-  initialFee: BigDecimal!
-
-  """The name to set for the vault's shares."""
-  shareName: String!
-
-  """The symbol to set for the vault's shares."""
-  shareSymbol: String!
-
-  """
-  The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
-  """
-  initialLockDeposit: BigDecimal!
-}
-
 input ERC712Signature {
   """The signature for the erc721"""
   value: Signature!
@@ -181,12 +143,6 @@ type EmodeMarketCategory {
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: DecimalValue!
 
-  """
-  If you have passed in the user address, this will tell you if they have this eMode enabled
-  (they can only have 1 enabled at once)
-  """
-  userEnabled: Boolean!
-
   """The list of reserves which will tailor for this eMode"""
   reserves: [EmodeMarketReserveInfo!]!
 }
@@ -198,11 +154,15 @@ type EmodeMarketReserveInfo {
   """If the underlying token can be collateral with this eMode on"""
   canBeCollateral: Boolean!
 
-  """If the underlying token can be borrowable with this eMode on"""
-  canBeBorrowable: Boolean!
+  """If the underlying token can be borrowed with this eMode on"""
+  canBeBorrowed: Boolean!
 }
 
+"""The emode reserve information"""
 type EmodeReserveInfo {
+  """The eMode category id for the market"""
+  categoryId: Int!
+
   """The eMode label"""
   label: String!
 
@@ -215,28 +175,11 @@ type EmodeReserveInfo {
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: DecimalValue!
 
-  """
-  If you have passed in the user address, this will tell you if they have this eMode enabled
-  (they can only have 1 enabled at once)
-  """
-  userEnabled: Boolean!
-
   """If the underlying token can be collateral with this eMode on"""
   canBeCollateral: Boolean!
 
-  """If the underlying token can be borrowable with this eMode on"""
-  canBeBorrowable: Boolean!
-}
-
-input EmodeToggleRequest {
-  """The pool address for the market"""
-  market: EvmAddress!
-
-  """The user to toggle emode on"""
-  user: EvmAddress!
-
-  """The chain id"""
-  chainId: ChainId!
+  """If the underlying token can be borrowed with this eMode on"""
+  canBeBorrowed: Boolean!
 }
 
 input Erc20AmountInput {
@@ -315,7 +258,7 @@ type Market {
 
   """A list eModes the market can support"""
   eModeCategories: [EmodeMarketCategory!]!
-  userStats: MarketUserStats
+  userState: MarketUserState
 
   """The market icon"""
   icon: String!
@@ -339,6 +282,11 @@ type MarketInfo {
 
   """The market icon"""
   icon: String!
+}
+
+input MarketInput {
+  address: EvmAddress!
+  chainId: ChainId!
 }
 
 input MarketRequest {
@@ -388,15 +336,49 @@ enum MarketReservesRequestType {
   BOTH
 }
 
-type MarketUserStats {
+type MarketUserReserveBorrowPosition {
+  """The market address where this position exists"""
+  market: MarketInfo!
+
+  """The currency being borrowed"""
+  currency: Currency!
+
+  """The user's debt balance in this reserve"""
+  debt: TokenAmount!
+
+  """The annual percentage yield for this borrow position"""
+  apy: DecimalValue!
+}
+
+type MarketUserReserveSupplyPosition {
+  """The market address where this position exists"""
+  market: MarketInfo!
+
+  """The currency being supplied"""
+  currency: Currency!
+
+  """The user's supply balance in this reserve"""
+  balance: TokenAmount!
+
+  """The annual percentage yield for this supply position"""
+  apy: DecimalValue!
+
+  """Whether this position is being used as collateral"""
+  isCollateral: Boolean!
+
+  """If the asset can be used for collateral"""
+  canBeCollateral: Boolean!
+}
+
+type MarketUserState {
   """The user's total net worth in the market"""
-  netWorth: DecimalValue!
+  netWorth: BigDecimal!
 
   """The user's net annual percentage yield across all positions"""
-  netAPY: DecimalValue!
+  netAPY: BigDecimal!
 
   """The user's health factor (risk metric for liquidation)"""
-  healthFactor: DecimalValue!
+  healthFactor: BigDecimal!
 
   """Whether efficiency mode is enabled for the user"""
   eModeEnabled: Boolean!
@@ -404,21 +386,24 @@ type MarketUserStats {
   """
   The total collateral of the user in the base currency used by the price feed
   """
-  totalCollateralBase: DecimalValue!
+  totalCollateralBase: BigDecimal!
 
   """The total debt of the user in the base currency used by the price feed"""
-  totalDebtBase: DecimalValue!
+  totalDebtBase: BigDecimal!
 
   """
   The borrowing power left of the user in the base currency used by the price feed
   """
-  availableBorrowsBase: DecimalValue!
+  availableBorrowsBase: BigDecimal!
 
   """The liquidation threshold of the user"""
-  currentLiquidationThreshold: DecimalValue!
+  currentLiquidationThreshold: BigDecimal!
 
   """The loan to value of the user"""
-  ltv: DecimalValue!
+  ltv: BigDecimal!
+
+  """One of the user collateral is in isolation mode"""
+  isInIsolationMode: Boolean!
 }
 
 input MarketsRequest {
@@ -430,25 +415,6 @@ input MarketsRequest {
   user features
   """
   user: EvmAddress
-}
-
-input MintVaultSharesRequest {
-  """The vault address"""
-  vault: EvmAddress!
-
-  """The amount of shares to mint"""
-  shares: VaultShareInput!
-
-  """The user who is wanting to mint the shares"""
-  minter: EvmAddress!
-
-  """
-  The address to which vault shares will be minted to - defaults to minter.
-  """
-  sharesRecipient: EvmAddress
-
-  """The chain id"""
-  chainId: ChainId!
 }
 
 type NativeCurrency {
@@ -514,7 +480,7 @@ type Query {
   """
   Redeems shares (vault shares) for the underlying assets or a tokens, which are sent to the receiver. The shares are burned from the owner.
   """
-  redeemVaultShares(request: VaultRedeemSharesRequest!): TransactionRequest!
+  vaultRedeemShares(request: VaultRedeemSharesRequest!): TransactionRequest!
 
   """Get a vault"""
   vault(request: VaultRequest!): Vault
@@ -526,32 +492,32 @@ type Query {
   userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
 
   """Deploy a vault and earn fees from the yield"""
-  deployVault(request: DeployVaultRequest!): TransactionRequest!
+  vaultDeploy(request: VaultDeployRequest!): TransactionRequest!
 
   """
   Update a vault's fee. You MUST be the owner of the vault to send this tx request.
   """
-  setVaultFee(request: SetVaultFeeRequest!): TransactionRequest!
+  vaultSetFee(request: VaultSetFeeRequest!): TransactionRequest!
 
   """
   Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
   """
-  withdrawVaultFees(request: WithdrawVaultFeesRequest!): TransactionRequest!
+  vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
 
   """
   Claim rewards from the specified vault. You MUST be the owner of the vault to send this tx request.
   """
-  claimVaultRewards(request: ClaimVaultRewardsRequest!): TransactionRequest!
+  vaultClaimRewards(request: VaultClaimRewardsRequest!): TransactionRequest!
 
   """
   Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
   """
-  withdrawVault(request: WithdrawVaultRequest!): TransactionRequest!
+  vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
 
   """
   Mints an exact amount of shares (vault shares) to the receiver by depositing the calculated amount of underlying or aTokens assets.
   """
-  mintVaultShares(request: MintVaultSharesRequest!): ExecutionPlan!
+  vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
 
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
@@ -572,7 +538,7 @@ type Query {
   withdraw(request: WithdrawRequest!): ExecutionPlan!
 
   """Create the transaction to toggle eMode for a market"""
-  eModeToggle(request: EmodeToggleRequest!): TransactionRequest!
+  userSetEmode(request: UserSetEmodeRequest!): TransactionRequest!
 
   """Enable/disable a specific supplied asset as collateral"""
   collateralToggle(request: CollateralToggleRequest!): TransactionRequest!
@@ -583,16 +549,16 @@ type Query {
   liquidate(request: LiquidateRequest!): TransactionRequest!
 
   """Returns the user account market data across all the reserves."""
-  userMarketStats(request: UserMarketStatsRequest!): MarketUserStats!
+  userMarketStats(request: UserMarketStatsRequest!): MarketUserState!
 
   """The usd exchange rates for different tokens on a given market"""
   usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
 
-  """Get all the user supplies positions"""
-  userSupplies(request: UserSuppliesRequest!): [UserReserveSupplyPosition!]!
-
   """Get all the user borrows positions"""
-  userBorrows(request: UserBorrowsRequest!): [UserReserveBorrowPosition!]!
+  userBorrows(request: UserBorrowsRequest!): [MarketUserReserveBorrowPosition!]!
+
+  """Get all the user supplies positions"""
+  userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
 
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
@@ -662,13 +628,21 @@ type Reserve {
   """The reserve is paused you can still withdraw and some other actions"""
   isPaused: Boolean!
 
+  """
+  If the reserve supports isolation mode this is defined and the configs are defined
+  """
+  isolationModeConfig: ReserveIsolationModeConfig
+
+  """If the reserve can use flash loans on it"""
+  flashLoanEnabled: Boolean!
+
   """A list eModes the reserve can support"""
   eModeInfo: [EmodeReserveInfo!]!
 
   """
-  The user's availability on the reserve to borrow and supply with balance
+  The state of the user in the context of this reserve, note this can change borrow and supply criteria
   """
-  userAvailability: ReserveUserAvailability
+  userState: ReserveUserState
 }
 
 type ReserveBorrowInfo {
@@ -688,7 +662,7 @@ type ReserveBorrowInfo {
   utilizationRate: DecimalValue!
 
   """
-  Borrowing can have different states based on criteria of the user or the market
+  Borrowing can have different states based on the criteria of the user or the market
   """
   borrowingState: ReserveBorrowingState!
 
@@ -708,6 +682,16 @@ enum ReserveBorrowingState {
 
   """The user emode settings make this underlying not able to be borrowed"""
   USER_EMODE_DISABLED_BORROW
+}
+
+type ReserveIsolationModeConfig {
+  """This means that it can be used to borrow"""
+  canBeCollateral: Boolean!
+  canBeBorrowed: Boolean!
+  debtCeiling: TokenAmount!
+
+  """Only the amount that is borrowed by the users in isolation"""
+  totalBorrows: TokenAmount!
 }
 
 input ReserveRequest {
@@ -753,7 +737,7 @@ type ReserveSupplyInfo {
   total: DecimalValue!
 }
 
-type ReserveUserAvailability {
+type ReserveUserState {
   """The user's balance of this asset"""
   balance: TokenAmount!
 
@@ -762,17 +746,20 @@ type ReserveUserAvailability {
 
   """The amount the user can borrow from this reserve"""
   borrowable: TokenAmount!
-}
 
-input SetVaultFeeRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
+  """The user emode info if enabled"""
+  emode: EmodeReserveInfo
 
-  """The new fee to set, expressed in %."""
-  newFee: BigDecimal!
+  """
+  If the user is in a state to be able to supply taking into consideration their emode
+  """
+  canBeCollateral: Boolean!
 
-  """The chain id"""
-  chainId: ChainId!
+  """If the user is in a state to be able to borrow from the reserve"""
+  canBeBorrowed: Boolean!
+
+  """Is the user in isolation mode"""
+  isInIsolationMode: Boolean!
 }
 
 scalar Signature
@@ -819,6 +806,8 @@ type TransactionRequest {
   chainId: ChainId!
 }
 
+scalar TxHash
+
 type UsdExchangeRate {
   currency: Currency!
   rate: BigDecimal!
@@ -836,8 +825,8 @@ input UsdExchangeRatesRequest {
 }
 
 input UserBorrowsRequest {
-  """The market addresses to query"""
-  markets: [EvmAddress!]!
+  """The market addresses and chains ids to query"""
+  markets: [MarketInput!]!
 
   """The user address to get borrow positions for"""
   user: EvmAddress!
@@ -868,43 +857,25 @@ input UserMarketStatsRequest {
   chainId: ChainId!
 }
 
-type UserReserveBorrowPosition {
-  """The market address where this position exists"""
+input UserSetEmodeRequest {
+  """The pool address for the market"""
   market: EvmAddress!
 
-  """The currency being borrowed"""
-  currency: Currency!
+  """The user to toggle emode on"""
+  user: EvmAddress!
 
-  """The user's debt balance in this reserve"""
-  debt: DecimalValue!
+  """
+  The eMode category id for the market if you want to disable eMode, then pass in null
+  """
+  categoryId: Int
 
-  """The annual percentage yield for this borrow position"""
-  apy: DecimalValue!
-}
-
-type UserReserveSupplyPosition {
-  """The market address where this position exists"""
-  market: EvmAddress!
-
-  """The currency being supplied"""
-  currency: Currency!
-
-  """The user's supply balance in this reserve"""
-  balance: DecimalValue!
-
-  """The annual percentage yield for this supply position"""
-  apy: DecimalValue!
-
-  """Whether this position is being used as collateral"""
-  isCollateral: Boolean!
-
-  """If the asset can be used for collateral"""
-  canBeCollateral: Boolean!
+  """The chain id"""
+  chainId: ChainId!
 }
 
 input UserSuppliesRequest {
-  """The market addresses to query"""
-  markets: [EvmAddress!]!
+  """The market addresses and chains ids to query"""
+  markets: [MarketInput!]!
 
   """The user address to get supply positions for"""
   user: EvmAddress!
@@ -985,21 +956,60 @@ type Vault {
   """The current fee percentage set for the vault."""
   fee: BigDecimal!
 
+  """How much this vault has made by yield"""
+  feesFromYield: TokenAmount!
+
   """
   The last recorded balance of the vault's AToken. This value is updated when yield is accrued.
   """
   balance: TokenAmount!
-
-  """
-  Reports the total assets managed by the vault, net of fees, for vault share logic.
-  """
-  totalAssets: TokenAmount!
 
   """The chain id the vault lives on"""
   chainId: ChainId!
 
   """The user's shares on the vault"""
   userShares: DecimalValue
+}
+
+input VaultClaimRewardsRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """Who the rewards go to - if not supplied, it goes to the owner"""
+  sendTo: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input VaultDeployRequest {
+  """Underlying token address."""
+  underlyingToken: EvmAddress!
+
+  """The market address."""
+  market: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """
+  The address to set as which deploys the vault and will become a owner of the vault.
+  """
+  deployer: EvmAddress!
+
+  """The initial fee to set, expressed in %."""
+  initialFee: BigDecimal!
+
+  """The name to set for the vault's shares."""
+  shareName: String!
+
+  """The symbol to set for the vault's shares."""
+  shareSymbol: String!
+
+  """
+  The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
+  """
+  initialLockDeposit: BigDecimal!
 }
 
 input VaultDepositRequest {
@@ -1016,6 +1026,25 @@ input VaultDepositRequest {
 
   """
   The address to which vault shares will be minted to - defaults to depositor.
+  """
+  sharesRecipient: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input VaultMintSharesRequest {
+  """The vault address"""
+  vault: EvmAddress!
+
+  """The amount of shares to mint"""
+  shares: VaultShareInput!
+
+  """The user who is wanting to mint the shares"""
+  minter: EvmAddress!
+
+  """
+  The address to which vault shares will be minted to - defaults to minter.
   """
   sharesRecipient: EvmAddress
 
@@ -1040,7 +1069,9 @@ input VaultRedeemSharesRequest {
   """
   authorizedUser: EvmAddress
 
-  """The address to which the underlying assets will be sent."""
+  """
+  The address to which the underlying assets will be sent; if not set it will go to the sharesOwner
+  """
   recipient: EvmAddress
 
   """The chain id"""
@@ -1048,8 +1079,8 @@ input VaultRedeemSharesRequest {
 }
 
 input VaultRequest {
-  """The vault address"""
-  address: EvmAddress!
+  """The retrieve criteria"""
+  by: VaultRequestBy!
 
   """The chain id the vault is deployed on"""
   chainId: ChainId!
@@ -1060,15 +1091,78 @@ input VaultRequest {
   user: EvmAddress
 }
 
+input VaultRequestBy @oneOf {
+  """The vault address"""
+  address: EvmAddress
+
+  """
+  You can use this if you deployed a vault and want to get the vault information using the tx hash after the receipt is given
+  """
+  txHash: TxHash
+}
+
+input VaultSetFeeRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The new fee to set, expressed in %."""
+  newFee: BigDecimal!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
 input VaultShareInput {
-  """The amount of vault shares to redeem."""
+  """The amount of vault shares"""
   amount: BigDecimal!
 
-  """Whether the amount should be sent as aToken."""
+  """Whether the amount should be sent/received as aToken."""
   asAToken: Boolean! = false
 
   """The authorization to redeem the shares."""
   signature: ERC712Signature
+}
+
+input VaultWithdrawFeesRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """
+  Who the withdrawal fees will go to - if not supplied, it goes to the owner
+  """
+  sendTo: EvmAddress
+
+  """Human-formatted amount"""
+  amount: BigDecimal!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input VaultWithdrawRequest {
+  """The vault address"""
+  vault: EvmAddress!
+
+  """The shares to withdraw."""
+  shares: VaultShareInput!
+
+  """
+  The address from which vault shares will be burned (normally your own wallet).
+  """
+  sharesOwner: EvmAddress!
+
+  """
+  If you are doing the withdrawal from a trusted wallet which can move funds on behalf of the shares owner (advanced usage)
+  """
+  authorizedUser: EvmAddress
+
+  """
+  The address to which the underlying assets will be sent - defaults to sharesOwner.
+  """
+  recipient: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
 }
 
 input VaultsRequest {
@@ -1136,50 +1230,6 @@ input WithdrawRequest {
   """
   The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
   their own wallet, or use a different address if the beneficiary is a different wallet
-  """
-  recipient: EvmAddress
-
-  """The chain id"""
-  chainId: ChainId!
-}
-
-input WithdrawVaultFeesRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
-
-  """
-  Who the withdrawal fees will go to - if not supplied, it goes to the owner
-  """
-  sendTo: EvmAddress
-
-  """Human-formatted amount"""
-  amount: BigDecimal!
-
-  """The chain id"""
-  chainId: ChainId!
-}
-
-input WithdrawVaultRequest {
-  """The vault address"""
-  vault: EvmAddress!
-
-  """
-  The amount of assets to withdraw - you can pass in the underlying or the aToken if you pass in the aToken address it will withdraw with the aToke
-  """
-  amount: Erc20AmountInput!
-
-  """
-  The address from which vault shares will be burned (normally your own wallet).
-  """
-  sharesOwner: EvmAddress!
-
-  """
-  If you are doing the withdrawal from a trusted wallet which can move funds on behalf of the shares owner (advanced usage)
-  """
-  authorizedUser: EvmAddress
-
-  """
-  The address to which the underlying assets will be sent - defaults to sharesOwner.
   """
   recipient: EvmAddress
 

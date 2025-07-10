@@ -24,6 +24,7 @@ export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
 export const EmodeReserveInfoFragment = graphql(
   `fragment EmodeReserveInfo on EmodeReserveInfo {
     __typename
+    categoryId
     label
     maxLTV {
       ...DecimalValue
@@ -34,9 +35,8 @@ export const EmodeReserveInfoFragment = graphql(
     liquidationPenalty {
       ...DecimalValue
     }
-    userEnabled
     canBeCollateral
-    canBeBorrowable
+    canBeBorrowed
   }`,
   [DecimalValueFragment],
 );
@@ -98,8 +98,26 @@ export const ReserveBorrowInfoFragment = graphql(
 );
 export type ReserveBorrowInfo = FragmentOf<typeof ReserveBorrowInfoFragment>;
 
-export const ReserveUserAvailabilityFragment = graphql(
-  `fragment ReserveUserAvailability on ReserveUserAvailability {
+export const ReserveIsolationModeConfigFragment = graphql(
+  `fragment ReserveIsolationModeConfig on ReserveIsolationModeConfig {
+    __typename
+    canBeCollateral
+    canBeBorrowed
+    debtCeiling {
+      ...TokenAmount
+    }
+    totalBorrows {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type ReserveIsolationModeConfig = FragmentOf<
+  typeof ReserveIsolationModeConfigFragment
+>;
+
+export const ReserveUserStateFragment = graphql(
+  `fragment ReserveUserState on ReserveUserState {
     __typename
     balance {
       ...TokenAmount
@@ -110,12 +128,16 @@ export const ReserveUserAvailabilityFragment = graphql(
     borrowable {
       ...TokenAmount
     }
+    emode {
+      ...EmodeReserveInfo
+    }
+    canBeCollateral
+    canBeBorrowed
+    isInIsolationMode
   }`,
-  [TokenAmountFragment],
+  [TokenAmountFragment, EmodeReserveInfoFragment],
 );
-export type ReserveUserAvailability = FragmentOf<
-  typeof ReserveUserAvailabilityFragment
->;
+export type ReserveUserState = FragmentOf<typeof ReserveUserStateFragment>;
 
 export const ReserveFragment = graphql(
   `fragment Reserve on Reserve {
@@ -142,17 +164,21 @@ export const ReserveFragment = graphql(
     usdOracleAddress
     isFrozen
     isPaused
+    flashLoanEnabled
     supplyInfo {
       ...ReserveSupplyInfo
     }
     borrowInfo {
       ...ReserveBorrowInfo
     }
+    isolationModeConfig {
+      ...ReserveIsolationModeConfig
+    }
     eModeInfo {
       ...EmodeReserveInfo
     }
-    userAvailability {
-      ...ReserveUserAvailability
+    userState {
+      ...ReserveUserState
     }
   }`,
   [
@@ -162,8 +188,9 @@ export const ReserveFragment = graphql(
     TokenAmountFragment,
     ReserveSupplyInfoFragment,
     ReserveBorrowInfoFragment,
+    ReserveIsolationModeConfigFragment,
     EmodeReserveInfoFragment,
-    ReserveUserAvailabilityFragment,
+    ReserveUserStateFragment,
   ],
 );
 export type Reserve = FragmentOf<typeof ReserveFragment>;

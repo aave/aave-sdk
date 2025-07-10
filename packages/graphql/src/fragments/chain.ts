@@ -5,6 +5,7 @@ export const ChainFragment = graphql(
   `fragment Chain on Chain {
     __typename
     name
+    icon
     chainId
   }`,
 );

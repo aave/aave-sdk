@@ -1,36 +1,50 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
-import { CurrencyFragment, DecimalValueFragment } from './common';
+import {
+  CurrencyFragment,
+  DecimalValueFragment,
+  TokenAmountFragment,
+} from './common';
+import { MarketInfoFragment } from './reserve';
 
-export const UserReserveBorrowPositionFragment = graphql(
-  `fragment UserReserveBorrowPosition on UserReserveBorrowPosition {
+export const MarketUserReserveBorrowPositionFragment = graphql(
+  `fragment MarketUserReserveBorrowPosition on MarketUserReserveBorrowPosition {
     __typename
-    market
+    market {
+      ...MarketInfo
+    }
     currency {
       ...Currency
     }
     debt {
-      ...DecimalValue
+      ...TokenAmount
     }
     apy {
       ...DecimalValue
     }
   }`,
-  [CurrencyFragment, DecimalValueFragment],
+  [
+    MarketInfoFragment,
+    CurrencyFragment,
+    TokenAmountFragment,
+    DecimalValueFragment,
+  ],
 );
-export type UserReserveBorrowPosition = FragmentOf<
-  typeof UserReserveBorrowPositionFragment
+export type MarketUserReserveBorrowPosition = FragmentOf<
+  typeof MarketUserReserveBorrowPositionFragment
 >;
 
-export const UserReserveSupplyPositionFragment = graphql(
-  `fragment UserReserveSupplyPosition on UserReserveSupplyPosition {
+export const MarketUserReserveSupplyPositionFragment = graphql(
+  `fragment MarketUserReserveSupplyPosition on MarketUserReserveSupplyPosition {
     __typename
-    market
+    market {
+      ...MarketInfo
+    }
     currency {
       ...Currency
     }
     balance {
-      ...DecimalValue
+      ...TokenAmount
     }
     apy {
       ...DecimalValue
@@ -38,8 +52,13 @@ export const UserReserveSupplyPositionFragment = graphql(
     isCollateral
     canBeCollateral
   }`,
-  [CurrencyFragment, DecimalValueFragment],
+  [
+    MarketInfoFragment,
+    CurrencyFragment,
+    TokenAmountFragment,
+    DecimalValueFragment,
+  ],
 );
-export type UserReserveSupplyPosition = FragmentOf<
-  typeof UserReserveSupplyPositionFragment
+export type MarketUserReserveSupplyPosition = FragmentOf<
+  typeof MarketUserReserveSupplyPositionFragment
 >;

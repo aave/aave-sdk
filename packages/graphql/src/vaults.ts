@@ -2,7 +2,7 @@ import {
   PaginatedVaultsResultFragment,
   VaultFragment,
 } from './fragments/vaults';
-import { graphql } from './graphql';
+import { graphql, type RequestOf } from './graphql';
 
 /**
  * @internal
@@ -15,7 +15,7 @@ export const VaultQuery = graphql(
   }`,
   [VaultFragment],
 );
-export type VaultRequest = ReturnType<typeof graphql.scalar<'VaultRequest'>>;
+export type VaultRequest = RequestOf<typeof VaultQuery>;
 
 /**
  * @internal
@@ -28,7 +28,7 @@ export const VaultsQuery = graphql(
   }`,
   [PaginatedVaultsResultFragment],
 );
-export type VaultsRequest = ReturnType<typeof graphql.scalar<'VaultsRequest'>>;
+export type VaultsRequest = RequestOf<typeof VaultsQuery>;
 
 /**
  * @internal
@@ -41,6 +41,4 @@ export const UserVaultsQuery = graphql(
   }`,
   [PaginatedVaultsResultFragment],
 );
-export type UserVaultsRequest = ReturnType<
-  typeof graphql.scalar<'UserVaultsRequest'>
->;
+export type UserVaultsRequest = RequestOf<typeof UserVaultsQuery>;
