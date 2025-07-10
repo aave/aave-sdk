@@ -19,8 +19,9 @@
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
     "prepublish": "pnpm run build",
+    "test:client": "vitest --project client",
     "test:react": "vitest --project react",
-    "test": "vitest --passWithNoTests"
+    "test": "test:react"
   },
   "license": "MIT",
   "devDependencies": {

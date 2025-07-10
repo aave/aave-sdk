@@ -3,6 +3,7 @@
 import { local, staging } from '@aave/env';
 import type { AnyVariables } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
+import { chainId } from '@aave/types';
 import type { TypedDocumentNode } from '@urql/core';
 import { validate } from 'graphql';
 import type { ValidationRule } from 'graphql/validation/ValidationContext';
@@ -16,6 +17,8 @@ import { GraphQLErrorCode } from './errors';
 export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
   import.meta.env.ENVIRONMENT === 'local' ? local : staging;
+
+export const tenderlyFork = chainId(99999999);
 
 export const client = AaveClient.create({
   environment,
