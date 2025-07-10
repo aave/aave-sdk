@@ -54,23 +54,23 @@ export function useAaveChains({
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useHealth({
+ * const { data } = useAaveHealth({
  *   suspense: true,
  * });
  * ```
  */
-export function useHealth(args: Suspendable): SuspenseResult<boolean>;
+export function useAaveHealth(args: Suspendable): SuspenseResult<boolean>;
 
 /**
  * Health check query.
  *
  * ```tsx
- * const { data, loading } = useHealth();
+ * const { data, loading } = useAaveHealth();
  * ```
  */
-export function useHealth(): ReadResult<boolean>;
+export function useAaveHealth(): ReadResult<boolean>;
 
-export function useHealth({
+export function useAaveHealth({
   suspense = false,
 }: {
   suspense?: boolean;

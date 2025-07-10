@@ -549,7 +549,7 @@ type Query {
   liquidate(request: LiquidateRequest!): TransactionRequest!
 
   """Returns the user account market data across all the reserves."""
-  userMarketStats(request: UserMarketStatsRequest!): MarketUserState!
+  userMarketState(request: UserMarketStateRequest!): MarketUserState!
 
   """The usd exchange rates for different tokens on a given market"""
   usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
@@ -846,7 +846,7 @@ input UserBorrowsRequestOrderBy @oneOf {
   apy: OrderDirection
 }
 
-input UserMarketStatsRequest {
+input UserMarketStateRequest {
   """The pool address for the market"""
   market: EvmAddress!
 

@@ -1,13 +1,15 @@
+import type {
+  MarketUserReserveBorrowPosition,
+  MarketUserReserveSupplyPosition,
+  MarketUserState,
+  UserBorrowsRequest,
+  UserMarketStateRequest,
+  UserSuppliesRequest,
+} from '@aave/graphql';
 import {
-  type MarketUserStats,
   UserBorrowsQuery,
-  type UserBorrowsRequest,
-  UserMarketStatsQuery,
-  type UserMarketStatsRequest,
-  type UserReserveBorrowPosition,
-  type UserReserveSupplyPosition,
+  UserMarketStateQuery,
   UserSuppliesQuery,
-  type UserSuppliesRequest,
 } from '@aave/graphql';
 import type {
   ReadResult,
@@ -26,8 +28,8 @@ export type UseUserSuppliesArgs = UserSuppliesRequest;
  *
  * ```tsx
  * const { data } = useUserSupplies({
- *   markets: [evmAddress('0x87870bca...')],
- *   user: evmAddress('0x742d35cc...'),
+ *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
+ *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
  *   suspense: true,
  * });
@@ -35,35 +37,36 @@ export type UseUserSuppliesArgs = UserSuppliesRequest;
  */
 export function useUserSupplies(
   args: UseUserSuppliesArgs & Suspendable,
-): SuspenseResult<UserReserveSupplyPosition[]>;
+): SuspenseResult<MarketUserReserveSupplyPosition[]>;
 
 /**
  * Fetch all user supply positions.
  *
  * ```tsx
  * const { data, loading } = useUserSupplies({
- *   markets: [evmAddress('0x87870bca...')],
- *   user: evmAddress('0x742d35cc...'),
+ *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
+ *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
  * });
  * ```
  */
 export function useUserSupplies(
   args: UseUserSuppliesArgs,
-): ReadResult<UserReserveSupplyPosition[]>;
+): ReadResult<MarketUserReserveSupplyPosition[]>;
 
 export function useUserSupplies({
   suspense = false,
   markets,
   user,
+  collateralsOnly,
   orderBy,
 }: UseUserSuppliesArgs & {
   suspense?: boolean;
-}): SuspendableResult<UserReserveSupplyPosition[]> {
+}): SuspendableResult<MarketUserReserveSupplyPosition[]> {
   return useSuspendableQuery({
     document: UserSuppliesQuery,
     variables: {
-      request: { markets, user, orderBy },
+      request: { markets, user, collateralsOnly, orderBy },
     },
     suspense,
   });
@@ -78,8 +81,8 @@ export type UseUserBorrowsArgs = UserBorrowsRequest;
  *
  * ```tsx
  * const { data } = useUserBorrows({
- *   markets: [evmAddress('0x87870bca...')],
- *   user: evmAddress('0x742d35cc...'),
+ *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
+ *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
  *   suspense: true
  * });
@@ -87,22 +90,22 @@ export type UseUserBorrowsArgs = UserBorrowsRequest;
  */
 export function useUserBorrows(
   args: UseUserBorrowsArgs & Suspendable,
-): SuspenseResult<UserReserveBorrowPosition[]>;
+): SuspenseResult<MarketUserReserveBorrowPosition[]>;
 
 /**
  * Fetch all user borrow positions.
  *
  * ```tsx
  * const { data, loading } = useUserBorrows({
- *   markets: [evmAddress('0x87870bca...')],
- *   user: evmAddress('0x742d35cc...'),
+ *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
+ *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
  * });
  * ```
  */
 export function useUserBorrows(
   args: UseUserBorrowsArgs,
-): ReadResult<UserReserveBorrowPosition[]>;
+): ReadResult<MarketUserReserveBorrowPosition[]>;
 
 export function useUserBorrows({
   suspense = false,
@@ -111,7 +114,7 @@ export function useUserBorrows({
   orderBy,
 }: UseUserBorrowsArgs & {
   suspense?: boolean;
-}): SuspendableResult<UserReserveBorrowPosition[]> {
+}): SuspendableResult<MarketUserReserveBorrowPosition[]> {
   return useSuspendableQuery({
     document: UserBorrowsQuery,
     variables: {
@@ -121,7 +124,7 @@ export function useUserBorrows({
   });
 }
 
-export type UseUserMarketStatsArgs = UserMarketStatsRequest;
+export type UseUserStateArgs = UserMarketStateRequest;
 
 /**
  * Fetch user account market data across all reserves.
@@ -129,7 +132,7 @@ export type UseUserMarketStatsArgs = UserMarketStatsRequest;
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useUserMarketStats({
+ * const { data } = useUserMarketState({
  *   market: evmAddress('0x1234…'),
  *   user: evmAddress('0x5678…'),
  *   chainId: chainId(1),
@@ -137,35 +140,35 @@ export type UseUserMarketStatsArgs = UserMarketStatsRequest;
  * });
  * ```
  */
-export function useUserMarketStats(
-  args: UseUserMarketStatsArgs & Suspendable,
-): SuspenseResult<MarketUserStats>;
+export function useUserMarketState(
+  args: UseUserStateArgs & Suspendable,
+): SuspenseResult<MarketUserState>;
 
 /**
  * Fetch user account market data across all reserves.
  *
  * ```tsx
- * const { data, loading } = useUserMarketStats({
+ * const { data, loading } = useUserMarketState({
  *   market: evmAddress('0x1234…'),
  *   user: evmAddress('0x5678…'),
  *   chainId: chainId(1),
  * });
  * ```
  */
-export function useUserMarketStats(
-  args: UseUserMarketStatsArgs,
-): ReadResult<MarketUserStats>;
+export function useUserMarketState(
+  args: UseUserStateArgs,
+): ReadResult<MarketUserState>;
 
-export function useUserMarketStats({
+export function useUserMarketState({
   suspense = false,
   market,
   user,
   chainId,
-}: UseUserMarketStatsArgs & {
+}: UseUserStateArgs & {
   suspense?: boolean;
-}): SuspendableResult<MarketUserStats> {
+}): SuspendableResult<MarketUserState> {
   return useSuspendableQuery({
-    document: UserMarketStatsQuery,
+    document: UserMarketStateQuery,
     variables: {
       request: { market, user, chainId },
     },

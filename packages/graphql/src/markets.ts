@@ -31,8 +31,8 @@ export type MarketRequest = RequestOf<typeof MarketQuery>;
  * @internal
  */
 export const UserMarketStateQuery = graphql(
-  `query UserMarketState($request: UserMarketStatsRequest!) {
-    value: userMarketStats(request: $request) {
+  `query UserMarketState($request: UserMarketStateRequest!) {
+    value: userMarketState(request: $request) {
       ...MarketUserState
     }
   }`,

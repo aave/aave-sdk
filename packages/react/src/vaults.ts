@@ -25,7 +25,9 @@ export type UseVaultArgs = VaultRequest;
  *
  * ```tsx
  * const { data } = useVault({
- *   address: evmAddress('0x1234…'),
+ *   by: {
+ *     address: evmAddress('0x1234…'),
+ *   },
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678…'),
  *   suspense: true,
@@ -51,7 +53,7 @@ export function useVault(args: UseVaultArgs): ReadResult<Vault | null>;
 
 export function useVault({
   suspense = false,
-  address,
+  by,
   chainId,
   user,
 }: UseVaultArgs & {
@@ -60,7 +62,7 @@ export function useVault({
   return useSuspendableQuery({
     document: VaultQuery,
     variables: {
-      request: { address, chainId, user },
+      request: { by, chainId, user },
     },
     suspense,
   });

@@ -15,9 +15,23 @@ import type { UnexpectedError } from '../errors';
 /**
  * Fetches a specific vault by address and chain ID.
  *
+ * **Example: By Address**
  * ```ts
  * const result = await vault(client, {
- *   address: evmAddress('0x1234…'),
+ *   by: {
+ *     address: evmAddress('0x1234…'),
+ *   },
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678…'),
+ * });
+ * ```
+ *
+ * **Example: Tx Hash**
+ * ```ts
+ * const result = await vault(client, {
+ *   by: {
+ *     txHash: txHash('0x1234…'),
+ *   },
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678…'),
  * });
