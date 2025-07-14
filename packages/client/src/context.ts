@@ -1,4 +1,4 @@
-import type { EnvironmentConfig } from '@aave/env';
+import { type EnvironmentConfig, production } from '@aave/env';
 
 import type { ClientConfig } from './config';
 import { FragmentResolver } from './fragments';
@@ -18,7 +18,7 @@ export type Context = {
  */
 export function configureContext(from: ClientConfig): Context {
   return {
-    environment: from.environment,
+    environment: from.environment ?? production,
     cache: from.cache ?? false,
     debug: from.debug ?? false,
     fragments: FragmentResolver.from(from.fragments ?? []),

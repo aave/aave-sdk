@@ -6,9 +6,10 @@ import type { TypedDocumentNode } from '@urql/core';
  */
 export type ClientConfig = {
   /**
-   * The environment configuration to use (e.g. `mainnet`, `testnet`).
+   * @internal
+   * @defaultValue `production`
    */
-  environment: EnvironmentConfig;
+  environment?: EnvironmentConfig;
   /**
    * Whether to enable caching.
    *
@@ -23,6 +24,8 @@ export type ClientConfig = {
   debug?: boolean;
   /**
    * The custom fragments to use.
+   *
+   * @experimental This is an experimental API and may be subject to breaking changes.
    */
   fragments?: TypedDocumentNode[];
 };

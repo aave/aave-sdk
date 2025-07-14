@@ -60,8 +60,8 @@ export class AaveClient {
    * @param options - The options to configure the client.
    * @returns The new instance of the client.
    */
-  static create(options: ClientConfig): AaveClient {
-    return new AaveClient(configureContext(options));
+  static create(options?: ClientConfig): AaveClient {
+    return new AaveClient(configureContext(options ?? {}));
   }
 
   /**
