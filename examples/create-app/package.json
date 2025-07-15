@@ -8,9 +8,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@aave/client": "file:../../packages/client",
-    "@aave/env": "file:../../packages/env",
-    "@aave/react": "file:../../packages/react",
+    "@aave/react": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
