@@ -21,6 +21,27 @@ export const MarketInfoFragment = graphql(
 );
 export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
 
+export const ReserveInfoFragment = graphql(
+  `fragment ReserveInfo on ReserveInfo {
+    __typename
+    market {
+      ...MarketInfo
+    }
+    underlyingToken {
+      ...Currency
+    }
+    aToken {
+      ...Currency
+    }
+    vToken {
+      ...Currency
+    }
+    usdExchangeRate
+  }`,
+  [MarketInfoFragment, CurrencyFragment],
+);
+export type ReserveInfo = FragmentOf<typeof ReserveInfoFragment>;
+
 export const EmodeReserveInfoFragment = graphql(
   `fragment EmodeReserveInfo on EmodeReserveInfo {
     __typename
@@ -89,6 +110,15 @@ export const ReserveBorrowInfoFragment = graphql(
       ...TokenAmount
     }
     utilizationRate {
+      ...DecimalValue
+    }
+    variableRateSlope1 {
+      ...DecimalValue
+    }
+    variableRateSlope2 {
+      ...DecimalValue
+    }
+    optimalUsageRate {
       ...DecimalValue
     }
     borrowingState

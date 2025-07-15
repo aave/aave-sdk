@@ -246,6 +246,16 @@ input LiquidateRequest {
   chainId: ChainId!
 }
 
+type LiquidationCollateral {
+  reserve: ReserveInfo!
+  amount: TokenAmount
+}
+
+type LiquidationRepaidDebt {
+  reserve: ReserveInfo!
+  amount: TokenAmount!
+}
+
 type Market {
   """The human-friendly name for the market"""
   name: String!
@@ -285,7 +295,10 @@ type MarketInfo {
 }
 
 input MarketInput {
+  """The address of the market pool"""
   address: EvmAddress!
+
+  """The chain id the market is deployed on"""
   chainId: ChainId!
 }
 
@@ -460,6 +473,11 @@ type PaginatedResultInfo {
   next: Cursor
 }
 
+type PaginatedUserTransactionHistoryResult {
+  items: [UserTransactionItem!]!
+  pageInfo: PaginatedResultInfo!
+}
+
 type PaginatedVaultsResult {
   items: [Vault!]!
   pageInfo: PaginatedResultInfo!
@@ -562,6 +580,9 @@ type Query {
 
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
+
+  """The user's transaction history"""
+  userTransactionHistory: PaginatedUserTransactionHistoryResult!
   _service: _Service!
 }
 
@@ -662,6 +683,25 @@ type ReserveBorrowInfo {
   utilizationRate: DecimalValue!
 
   """
+  Variable rate slope 1 - the rate of interest increase when utilization rate is below optimal
+  This is the slope of the interest rate curve in the first segment (0% to optimal utilization)
+  """
+  variableRateSlope1: DecimalValue!
+
+  """
+  Variable rate slope 2 - the rate of interest increase when utilization rate is above optimal
+  This is the slope of the interest rate curve in the second segment (optimal to 100% utilization)
+  Typically much steeper than slope1 to discourage over-utilization
+  """
+  variableRateSlope2: DecimalValue!
+
+  """
+  The optimal usage rate - the utilization rate at which the variable rate curve transitions
+  from slope1 to slope2. This represents the target utilization rate for the reserve
+  """
+  optimalUsageRate: DecimalValue!
+
+  """
   Borrowing can have different states based on the criteria of the user or the market
   """
   borrowingState: ReserveBorrowingState!
@@ -682,6 +722,23 @@ enum ReserveBorrowingState {
 
   """The user emode settings make this underlying not able to be borrowed"""
   USER_EMODE_DISABLED_BORROW
+}
+
+type ReserveInfo {
+  """The market information the reserve is under"""
+  market: MarketInfo!
+
+  """The reserve underlying currency"""
+  underlyingToken: Currency!
+
+  """The reserve a token"""
+  aToken: Currency!
+
+  """The reserve v token"""
+  vToken: Currency!
+
+  """The usd exchange rate for the underlying token"""
+  usdExchangeRate: BigDecimal!
 }
 
 type ReserveIsolationModeConfig {
@@ -824,6 +881,14 @@ input UsdExchangeRatesRequest {
   chainId: ChainId!
 }
 
+type UserBorrowTransaction {
+  amount: TokenAmount!
+  reserve: ReserveInfo!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
 input UserBorrowsRequest {
   """The market addresses and chains ids to query"""
   markets: [MarketInput!]!
@@ -846,6 +911,14 @@ input UserBorrowsRequestOrderBy @oneOf {
   apy: OrderDirection
 }
 
+type UserLiquidationCallTransaction {
+  collateral: LiquidationCollateral!
+  debtRepaid: LiquidationRepaidDebt!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
 input UserMarketStateRequest {
   """The pool address for the market"""
   market: EvmAddress!
@@ -855,6 +928,14 @@ input UserMarketStateRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type UserRepayTransaction {
+  amount: TokenAmount!
+  reserve: ReserveInfo!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
 }
 
 input UserSetEmodeRequest {
@@ -901,9 +982,38 @@ input UserSuppliesRequestOrderBy @oneOf {
   isCollateralized: OrderByUserCriteria
 }
 
+type UserSupplyTransaction {
+  amount: TokenAmount!
+  reserve: ReserveInfo!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
+union UserTransactionItem = UserSupplyTransaction | UserWithdrawTransaction | UserBorrowTransaction | UserRepayTransaction | UserUsageAsCollateralTransaction | UserLiquidationCallTransaction
+
+type UserUsageAsCollateralTransaction {
+  enabled: Boolean!
+  reserve: ReserveInfo!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
+type UserVaultShares {
+  """The user's shares on the vault"""
+  shares: TokenAmount!
+
+  """The amount they have deposited on the vault"""
+  amountDeposited: TokenAmount!
+
+  """The amount they have withdrawn on the vault"""
+  amountWithdrawn: TokenAmount!
+}
+
 input UserVaultsFilter {
-  """Filter by market addresses"""
-  markets: [EvmAddress!]
+  """Filter by markets"""
+  markets: [VaultInput!]
 
   """Filter by underlying token addresses"""
   underlyingTokens: [EvmAddress!]
@@ -937,6 +1047,14 @@ input UserVaultsRequest {
   cursor: Cursor
 }
 
+type UserWithdrawTransaction {
+  amount: TokenAmount!
+  reserve: ReserveInfo!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
 type Vault {
   """The vault address"""
   address: EvmAddress!
@@ -956,8 +1074,8 @@ type Vault {
   """The current fee percentage set for the vault."""
   fee: BigDecimal!
 
-  """How much this vault has made by yield"""
-  feesFromYield: TokenAmount!
+  """How much this vault has made in revenue"""
+  totalFeeRevenue: TokenAmount!
 
   """
   The last recorded balance of the vault's AToken. This value is updated when yield is accrued.
@@ -967,8 +1085,8 @@ type Vault {
   """The chain id the vault lives on"""
   chainId: ChainId!
 
-  """The user's shares on the vault"""
-  userShares: DecimalValue
+  """The user's shares info on the vault"""
+  userShares: UserVaultShares
 }
 
 input VaultClaimRewardsRequest {
@@ -993,9 +1111,12 @@ input VaultDeployRequest {
   chainId: ChainId!
 
   """
-  The address to set as which deploys the vault and will become a owner of the vault.
+  The address to set as which deploys the vault and will become an owner of the vault.
   """
   deployer: EvmAddress!
+
+  """The owner of the vault - if not defined, it will be the deployer"""
+  owner: EvmAddress
 
   """The initial fee to set, expressed in %."""
   initialFee: BigDecimal!
@@ -1030,6 +1151,14 @@ input VaultDepositRequest {
   sharesRecipient: EvmAddress
 
   """The chain id"""
+  chainId: ChainId!
+}
+
+input VaultInput {
+  """The address of the fault"""
+  address: EvmAddress!
+
+  """The chain id the vault is on"""
   chainId: ChainId!
 }
 
@@ -1183,7 +1312,7 @@ input VaultsRequest {
 
 input VaultsRequestFilterCriteria @oneOf {
   """Filter by specific vault addresses"""
-  vaults: [EvmAddress!]
+  vaults: [VaultInput!]
 
   """Filter by owner addresses"""
   ownedBy: [EvmAddress!]
