@@ -2,6 +2,7 @@ import type {
   MarketUserReserveBorrowPosition,
   MarketUserReserveSupplyPosition,
   MarketUserState,
+  PaginatedUserTransactionHistoryResult,
   UserBorrowsRequest,
   UserMarketStateRequest,
   UserSuppliesRequest,
@@ -10,6 +11,7 @@ import {
   UserBorrowsQuery,
   UserMarketStateQuery,
   UserSuppliesQuery,
+  UserTransactionHistoryQuery,
 } from '@aave/graphql';
 import type {
   ReadResult,
@@ -172,6 +174,42 @@ export function useUserMarketState({
     variables: {
       request: { market, user, chainId },
     },
+    suspense,
+  });
+}
+
+/**
+ * Fetch user transaction history.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useUserTransactionHistory({
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useUserTransactionHistory(
+  args: Suspendable,
+): SuspenseResult<PaginatedUserTransactionHistoryResult>;
+
+/**
+ * Fetch user transaction history.
+ *
+ * ```tsx
+ * const { data, loading } = useUserTransactionHistory();
+ * ```
+ */
+export function useUserTransactionHistory(): ReadResult<PaginatedUserTransactionHistoryResult>;
+
+export function useUserTransactionHistory({
+  suspense = false,
+}: {
+  suspense?: boolean;
+} = {}): SuspendableResult<PaginatedUserTransactionHistoryResult> {
+  return useSuspendableQuery({
+    document: UserTransactionHistoryQuery,
+    variables: {},
     suspense,
   });
 }

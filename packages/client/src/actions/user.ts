@@ -1,10 +1,12 @@
 import {
   type MarketUserReserveBorrowPosition,
   type MarketUserReserveSupplyPosition,
+  type PaginatedUserTransactionHistoryResult,
   UserBorrowsQuery,
   type UserBorrowsRequest,
   UserSuppliesQuery,
   type UserSuppliesRequest,
+  UserTransactionHistoryQuery,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -50,4 +52,20 @@ export function userBorrows(
   request: UserBorrowsRequest,
 ): ResultAsync<MarketUserReserveBorrowPosition[], UnexpectedError> {
   return client.query(UserBorrowsQuery, { request });
+}
+
+/**
+ * Fetches the user's transaction history.
+ *
+ * ```ts
+ * const result = await userTransactionHistory(client);
+ * ```
+ *
+ * @param client - Aave client.
+ * @returns The user's paginated transaction history.
+ */
+export function userTransactionHistory(
+  client: AaveClient,
+): ResultAsync<PaginatedUserTransactionHistoryResult, UnexpectedError> {
+  return client.query(UserTransactionHistoryQuery, {});
 }
