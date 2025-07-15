@@ -47,7 +47,6 @@ import { type UseAsyncTask, useAsyncTask } from './helpers';
  *
  * const loading = supplying.loading && sending.loading;
  * const error = supplying.error || sending.error;
- * const data = supplying.data || sending.data;
  *
  * // …
  *
@@ -98,7 +97,6 @@ export function useSupply(): UseAsyncTask<
  *
  * const loading = borrowing.loading && sending.loading;
  * const error = borrowing.error || sending.error;
- * const data = borrowing.data || sending.data;
  *
  * // …
  *
@@ -149,7 +147,6 @@ export function useBorrow(): UseAsyncTask<
  *
  * const loading = repaying.loading && sending.loading;
  * const error = repaying.error || sending.error;
- * const data = repaying.data || sending.data;
  *
  * // …
  *
@@ -200,7 +197,6 @@ export function useRepay(): UseAsyncTask<
  *
  * const loading = withdrawing.loading && sending.loading;
  * const error = withdrawing.error || sending.error;
- * const data = withdrawing.data || sending.data;
  *
  * // …
  *
@@ -251,7 +247,6 @@ export function useWithdraw(): UseAsyncTask<
  *
  * const loading = setting.loading && sending.loading;
  * const error = setting.error || sending.error;
- * const data = setting.data || sending.data;
  *
  * // …
  *
@@ -304,7 +299,6 @@ export function useUserEMode(): UseAsyncTask<
  *
  * const loading = toggling.loading && sending.loading;
  * const error = toggling.error || sending.error;
- * const data = toggling.data || sending.data;
  *
  * // …
  *
@@ -340,7 +334,6 @@ export function useCollateralToggle(): UseAsyncTask<
  *
  * const loading = liquidating.loading && sending.loading;
  * const error = liquidating.error || sending.error;
- * const data = liquidating.data || sending.data;
  *
  * // …
  *
@@ -376,7 +369,6 @@ export function useLiquidate(): UseAsyncTask<
  *
  * const loading = depositing.loading && sending.loading;
  * const error = depositing.error || sending.error;
- * const data = depositing.data || sending.data;
  *
  * // …
  *
@@ -429,7 +421,6 @@ export function useVaultDeposit(): UseAsyncTask<
  *
  * const loading = minting.loading && sending.loading;
  * const error = minting.error || sending.error;
- * const data = minting.data || sending.data;
  *
  * // …
  *
@@ -482,7 +473,6 @@ export function useVaultMintShares(): UseAsyncTask<
  *
  * const loading = redeeming.loading && sending.loading;
  * const error = redeeming.error || sending.error;
- * const data = redeeming.data || sending.data;
  *
  * // …
  *
@@ -535,7 +525,6 @@ export function useVaultRedeemShares(): UseAsyncTask<
  *
  * const loading = withdrawing.loading && sending.loading;
  * const error = withdrawing.error || sending.error;
- * const data = withdrawing.data || sending.data;
  *
  * // …
  *
@@ -588,7 +577,6 @@ export function useVaultWithdraw(): UseAsyncTask<
  *
  * const loading = deploying.loading && sending.loading;
  * const error = deploying.error || sending.error;
- * const data = deploying.data || sending.data;
  *
  * // …
  *
@@ -641,7 +629,6 @@ export function useVaultDeploy(): UseAsyncTask<
  *
  * const loading = setting.loading && sending.loading;
  * const error = setting.error || sending.error;
- * const data = setting.data || sending.data;
  *
  * // …
  *
@@ -694,7 +681,6 @@ export function useVaultSetFee(): UseAsyncTask<
  *
  * const loading = withdrawing.loading && sending.loading;
  * const error = withdrawing.error || sending.error;
- * const data = withdrawing.data || sending.data;
  *
  * // …
  *
@@ -747,7 +733,6 @@ export function useVaultWithdrawFees(): UseAsyncTask<
  *
  * const loading = claiming.loading && sending.loading;
  * const error = claiming.error || sending.error;
- * const data = claiming.data || sending.data;
  *
  * // …
  *
