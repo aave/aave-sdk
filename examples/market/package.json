@@ -1,6 +1,6 @@
 {
-  "name": "create-app",
-  "description": "xample-create-app",
+  "name": "markets-example",
+  "description": "Fetching Aave Markets",
   "private": true,
   "version": "0.0.0",
   "type": "module",
