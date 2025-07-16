@@ -12,7 +12,7 @@ import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
-const defaultMarketReservesRequestOrderBy: MarketReservesRequestOrderBy = {
+export const defaultMarketReservesRequestOrderBy: MarketReservesRequestOrderBy = {
   tokenName: OrderDirection.Asc,
 };
 

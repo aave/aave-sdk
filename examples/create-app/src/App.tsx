@@ -2,24 +2,21 @@ import { AaveProvider, useAaveChains, useAaveMarkets } from '@aave/react';
 import { chainId } from '@aave/types';
 import { client } from './client';
 
-console.log("client", client);
 
 function MarketDisplay() {
   const { data: markets, loading, error } = useAaveMarkets({
-    chainIds: [chainId(1)], // Mainnet
+    chainIds: [chainId(1)]
   });
 
-  const { data: chains, loading: chainsLoading, error: chainsError } = useAaveChains();
-
-  console.log("chains", chains);
-  console.log("markets", markets);
   if (loading) return <div>Loading mainnet market...</div>;
-  console.error("error", error);
 
   if (error) return <div>Error loading market</div>;
   if (!markets || markets.length === 0) return <div>No markets found</div>;
 
-  const mainnetMarket = markets[0];
+
+  const mainnetMarket = markets.find((market: any) => market.name === "AaveV3Ethereum");
+
+  if (!mainnetMarket) return <div>Mainnet market not found</div>;
 
   return (
     <div>
@@ -36,9 +33,9 @@ function MarketDisplay() {
         
         {mainnetMarket.supplyReserves && mainnetMarket.supplyReserves.length > 0 && (
           <div>
-            <h3>First few supply reserves:</h3>
+            <h3>Supply Reserves:</h3>
             <ul>
-              {mainnetMarket.supplyReserves.slice(0, 3).map((reserve: any, index: number) => (
+              {mainnetMarket.supplyReserves.map((reserve: any, index: number) => (
                 <li key={index}>
                   {reserve.underlyingToken.name} ({reserve.underlyingToken.symbol})
                 </li>
@@ -55,12 +52,9 @@ export function App() {
   return (
     <AaveProvider client={client}>
       <header>
-        <h1>example-create-app</h1>
+        <h1>Fetching Aave Markets</h1>
       </header>
       <div>
-        <p>
-          Edit <code>src/App.tsx</code>.
-        </p>
         <MarketDisplay />
       </div>
     </AaveProvider>
