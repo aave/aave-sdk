@@ -46,7 +46,7 @@ export type MarketsRequest = {
  *
  * ```ts
  * const result = await markets(client, {
- *   chainIds: [chainId(1), chainId(137)],
+ *   chainIds: [chainId(1), chainId(8453)],
  * });
  * ```
  *

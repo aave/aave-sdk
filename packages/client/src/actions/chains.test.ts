@@ -100,6 +100,18 @@ describe('Given the Aave client', () => {
             "icon": "https://statics.aave.com/zksync-era-light.svg",
             "name": "zkSync",
           },
+          {
+            "__typename": "Chain",
+            "chainId": 324,
+            "icon": "https://statics.aave.com/zksync-era-light.svg",
+            "name": "zkSync",
+          },
+          {
+            "__typename": "Chain",
+            "chainId": 5000,
+            "icon": "https://statics.aave.com/mantle.svg",
+            "name": "Mantle",
+          },
         ]
       `);
     });

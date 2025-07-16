@@ -71,7 +71,7 @@ export type UseAaveMarketsArgs = MarketsRequest;
  *
  * ```tsx
  * const { data } = useAaveMarkets({
- *   chainIds: [chainId(1), chainId(137)],
+ *   chainIds: [chainId(1), chainId(8453)],
  *   user: evmAddress('0x742d35cc...'),
  *   suspense: true
  * });
@@ -86,7 +86,7 @@ export function useAaveMarkets(
  *
  * ```tsx
  * const { data, loading } = useAaveMarkets({
- *   chainIds: [chainId(1), chainId(137)],
+ *   chainIds: [chainId(1), chainId(8453)],
  *   user: evmAddress('0x742d35cc...'),
  * });
  * ```
