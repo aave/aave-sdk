@@ -21,7 +21,7 @@
     "prepublish": "pnpm run build",
     "test:client": "vitest --project client",
     "test:react": "vitest --project react",
-    "test": "test:react"
+    "test": "vitest"
   },
   "license": "MIT",
   "devDependencies": {

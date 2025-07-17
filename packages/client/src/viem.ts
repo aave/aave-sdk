@@ -27,7 +27,7 @@ async function sendTransaction(
     data: request.data,
     to: request.to,
     value: BigInt(request.value),
-    chain: request.chainId,
+    chain: walletClient.chain,
   });
 }
 

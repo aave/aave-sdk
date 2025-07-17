@@ -16,9 +16,7 @@ import { supply, userSupplies } from '@aave/client/actions';
 import { sendWith } from '@aave/client/viem';
 
 // Create client
-const client = new AaveClient({
-  environment: mainnet,
-});
+const client = AaveClient.create();
 
 // Query user positions
 const positions = await userSupplies(client, {
