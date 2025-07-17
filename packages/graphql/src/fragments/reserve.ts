@@ -15,6 +15,7 @@ export const MarketInfoFragment = graphql(
     chain {
       ...Chain
     }
+    address
     icon
   }`,
   [ChainFragment],
