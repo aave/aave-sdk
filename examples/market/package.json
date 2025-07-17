@@ -9,9 +9,6 @@
   },
   "dependencies": {
     "@aave/react": "workspace:*",
-    "@aave/types": "workspace:*",
-    "@aave/env": "workspace:*",
-    "@aave/client": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

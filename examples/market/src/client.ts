@@ -1,5 +1,4 @@
-import { AaveClient } from '@aave/client';
-import { staging } from '@aave/env';
+import { AaveClient, staging } from '@aave/react';
 
 export const client = AaveClient.create({
   environment: staging,
