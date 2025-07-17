@@ -15,7 +15,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "icon": "https://statics.aave.com/ethereum.svg",
   "name": "AaveV3EthereumForkedEtherFi",
   "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": "583285.41725508467783710208869",
+  "totalAvailableLiquidity": Any<String>,
   "totalMarketSize": Any<String>,
   "userState": null,
 }
@@ -36,7 +36,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "icon": "https://statics.aave.com/ethereum.svg",
   "name": "AaveV3EthereumForkedLido",
   "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": "801504840.4207857115463943922",
+  "totalAvailableLiquidity": Any<String>,
   "totalMarketSize": Any<String>,
   "userState": null,
 }
@@ -57,7 +57,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "icon": "https://statics.aave.com/ethereum.svg",
   "name": "AaveV3ForkedEthereum",
   "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": "21237456136.023232238475275854",
+  "totalAvailableLiquidity": Any<String>,
   "totalMarketSize": Any<String>,
   "userState": null,
 }

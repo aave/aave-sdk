@@ -1,4 +1,9 @@
-import { AaveProvider, useAaveMarkets } from '@aave/react';
+import {
+  AaveProvider,
+  type Market,
+  type Reserve,
+  useAaveMarkets,
+} from '@aave/react';
 import { chainId } from '@aave/types';
 import { client } from './client';
 
@@ -17,7 +22,7 @@ function MarketDisplay() {
   if (!markets || markets.length === 0) return <div>No markets found</div>;
 
   const mainnetMarket = markets.find(
-    (market: any) => market.name === 'AaveV3Ethereum',
+    (market: Market) => market.name === 'AaveV3Ethereum',
   );
 
   if (!mainnetMarket) return <div>Mainnet market not found</div>;
@@ -59,16 +64,12 @@ function MarketDisplay() {
             <div>
               <h3>Supply Reserves:</h3>
               <ul>
-                {mainnetMarket.supplyReserves.map(
-                  (reserve: any, index: number) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: keep it simple
-                    <li key={index}>
-                      simple
-                      {reserve.underlyingToken.name} (
-                      {reserve.underlyingToken.symbol})
-                    </li>
-                  ),
-                )}
+                {mainnetMarket.supplyReserves.map((reserve: Reserve) => (
+                  <li key={reserve.underlyingToken.address}>
+                    {reserve.underlyingToken.name} (
+                    {reserve.underlyingToken.symbol})
+                  </li>
+                ))}
               </ul>
             </div>
           )}

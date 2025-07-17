@@ -42,6 +42,43 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.7)(happy-dom@18.0.1)(tsx@4.20.3)
 
+  examples/market:
+    dependencies:
+      '@aave/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@aave/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@aave/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@aave/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.7.2
+        version: 3.10.2(vite@5.4.19(@types/node@24.0.7))
+      typescript:
+        specifier: ^5.6.3
+        version: 5.8.3
+      vite:
+        specifier: ^5.4.9
+        version: 5.4.19(@types/node@24.0.7)
+
   packages/client:
     dependencies:
       '@aave/env':
