@@ -40,8 +40,7 @@ describe('Given the Aave Protocol v3', () => {
           fundNativeAddress(
             evmAddress(wallet.account!.address),
             bigDecimal('1'),
-          )
-            .map(() => wallet)
+          ).map(() => wallet),
         )
         .andThen((wallet) =>
           supply(client, {
@@ -83,8 +82,7 @@ describe('Given the Aave Protocol v3', () => {
             WETH_ADDRESS,
             evmAddress(wallet.account!.address),
             bigDecimal('1'),
-          )
-            .map(() => wallet)
+          ).map(() => wallet),
         )
         .andThen((wallet) =>
           supply(client, {
