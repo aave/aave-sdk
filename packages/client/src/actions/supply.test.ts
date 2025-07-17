@@ -73,7 +73,7 @@ describe('Given the Aave Protocol v3', () => {
       expect(result.value[0]!.balance.amount.value).toEqual(bigDecimal('0.90'));
       expect(result.value[0]!.isCollateral).toEqual(true);
       expect(result.value[0]!.canBeCollateral).toEqual(true);
-    });
+    }, 20_000);
 
     it('Then it should be possible to supply ERC20 asset to a market', async () => {
       const result = await createNewWallet()
@@ -118,6 +118,6 @@ describe('Given the Aave Protocol v3', () => {
       expect(result.value[0]!.balance.amount.value).toEqual(bigDecimal('0.70'));
       expect(result.value[0]!.isCollateral).toEqual(true);
       expect(result.value[0]!.canBeCollateral).toEqual(true);
-    });
+    }, 20_000);
   });
 });

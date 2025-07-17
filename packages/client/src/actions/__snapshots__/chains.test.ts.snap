@@ -76,7 +76,7 @@ exports[`Given the Aave client > When using the 'chains(client)' action > Then i
   },
   {
     "__typename": "Chain",
-    "chainId": 1946,
+    "chainId": 1868,
     "icon": "https://statics.aave.com/soneium.svg",
     "name": "Soneium",
   },

@@ -57,7 +57,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "icon": "https://statics.aave.com/ethereum.svg",
   "name": "AaveV3ForkedEthereum",
   "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": "21237359499.682046533445133830",
+  "totalAvailableLiquidity": "21237456136.023232238475275854",
   "totalMarketSize": Any<String>,
   "userState": null,
 }
