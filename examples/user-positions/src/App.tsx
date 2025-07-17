@@ -1,16 +1,14 @@
-import { AaveProvider, useUserSupplies, useUserBorrows, evmAddress, chainId, useAaveMarkets  } from '@aave/react';
+import { AaveProvider, useUserSupplies, useUserBorrows, evmAddress, chainId, useAaveMarkets, ZERO_ADDRESS  } from '@aave/react';
 import { client } from './client';
 
-const user = evmAddress("0x58f2aA5b752E284C45894ab0D435d0D53A8794CC");
+// TODO: change to your address or any address you want to query
+const user = evmAddress("ZERO_ADDRESS");
 
 function UserPositions() {
   const { data: markets, loading: marketsLoading } = useAaveMarkets({
     chainIds: [chainId(1), chainId(8453)],
   });
 
-  console.log(markets);
-
-  // Transform markets to extract address and chainId
   const marketAddresses = markets?.map(market => ({
     address: market.address,
     chainId: market.chain.chainId,
@@ -29,9 +27,6 @@ function UserPositions() {
   if (userSuppliesLoading || userBorrowsLoading || marketsLoading) {
     return <p>Loading positions...</p>;
   }
-
-  console.log("userSupplies", userSupplies);
-  console.log("userBorrows", userBorrows);
 
   return (
     <>
