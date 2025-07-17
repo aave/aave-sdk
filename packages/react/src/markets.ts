@@ -1,4 +1,5 @@
 import type { MarketRequest, MarketsRequest } from '@aave/client/actions';
+import { defaultMarketReservesRequestOrderBy } from '@aave/client/actions';
 import { type Market, MarketQuery, MarketsQuery } from '@aave/graphql';
 import type {
   ReadResult,
@@ -46,8 +47,8 @@ export function useAaveMarket({
   address,
   chainId,
   user,
-  borrowsOrderBy,
-  suppliesOrderBy,
+  borrowsOrderBy = defaultMarketReservesRequestOrderBy,
+  suppliesOrderBy = defaultMarketReservesRequestOrderBy,
 }: UseAaveMarketArgs & {
   suspense?: boolean;
 }): SuspendableResult<Market | null> {
@@ -97,8 +98,8 @@ export function useAaveMarkets({
   suspense = false,
   chainIds,
   user,
-  borrowsOrderBy,
-  suppliesOrderBy,
+  borrowsOrderBy = defaultMarketReservesRequestOrderBy,
+  suppliesOrderBy = defaultMarketReservesRequestOrderBy,
 }: UseAaveMarketsArgs & {
   suspense?: boolean;
 }): SuspendableResult<Market[]> {
