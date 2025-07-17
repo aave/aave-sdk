@@ -23,14 +23,10 @@ export const production: EnvironmentConfig = new Proxy<EnvironmentConfig>(
 /**
  * @internal
  */
-export const staging: EnvironmentConfig = new Proxy<EnvironmentConfig>(
-  {} as EnvironmentConfig,
-  {
-    get: () => {
-      never(`The 'staging' environment is not available (yet)`);
-    },
-  },
-);
+export const staging: EnvironmentConfig = {
+  name: 'staging',
+  backend: 'https://api.v3.staging.aave.com/graphql',
+};
 
 /**
  * @internal

@@ -1,0 +1,64 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Given the Aave Protocol v3 > When fetching markets data > Then it should be possible to fetch markets for a given chain ID 1`] = `
+{
+  "__typename": "Market",
+  "address": "0x0AA97c284e98396202b6A04024F5E2c65026F3c0",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 99999999,
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "ForkedEthereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumForkedEtherFi",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": "583285.41725508467783710208869",
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets data > Then it should be possible to fetch markets for a given chain ID 2`] = `
+{
+  "__typename": "Market",
+  "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 99999999,
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "ForkedEthereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumForkedLido",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": "801504840.4207857115463943922",
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets data > Then it should be possible to fetch markets for a given chain ID 3`] = `
+{
+  "__typename": "Market",
+  "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 99999999,
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "ForkedEthereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3ForkedEthereum",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": "21235993152.103032104308741052",
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
