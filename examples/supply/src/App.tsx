@@ -1,28 +1,40 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { AaveProvider, useSupply, evmAddress, chainId, useAaveMarkets } from "@aave/react";
 import { useSendTransaction } from "@aave/react/viem";
 import { client } from './client';
+import { walletClient, address } from './wallet';
+
+const CHAIN_ID = 1; // use whatever chain id you want 
 
 function SupplyExample() {
-  // All hooks must be called at the top level, before any conditional returns
   const { data: markets, loading: marketsLoading, error: marketsError } = useAaveMarkets({
-    chainIds: [chainId(1)]
+    chainIds: [chainId(CHAIN_ID)]
   });
 
   const [supply, supplying] = useSupply();
-  const [sendTransaction, sending] = useSendTransaction(undefined); // In a real app, pass the wallet client here
+  const [sendTransaction, sending] = useSendTransaction(walletClient);
   
-  // Form state
-  const [marketAddress, setMarketAddress] = useState("0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2"); // Aave V3 Ethereum
-  const [tokenAddress, setTokenAddress] = useState("0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c"); // Example token
+  const [marketAddress, setMarketAddress] = useState(""); 
+  const [tokenAddress, setTokenAddress] = useState(""); 
   const [amount, setAmount] = useState("1000");
-  const [supplierAddress, setSupplierAddress] = useState("0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234"); // Example supplier
+  const [supplierAddress, setSupplierAddress] = useState(address as string);
   
-  // Transaction status
   const [txStatus, setTxStatus] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
 
-  // Early returns after all hooks are called
+  useEffect(() => {
+    if (markets && !marketsLoading && !marketsError) {
+      const mainnetMarket = markets.find((market: any) => market.name === "AaveV3Ethereum");
+      const usdcToken = mainnetMarket?.supplyReserves.find((reserve: any) => reserve.underlyingToken.symbol.toLowerCase() === "usdc");
+      if (mainnetMarket && usdcToken) {
+        setMarketAddress(mainnetMarket.address);
+        setTokenAddress(usdcToken.underlyingToken.address);
+      }
+    }
+  }, [markets, marketsLoading, marketsError]);
+
+  
+
   if (marketsLoading) return <div>Loading mainnet market...</div>;
   if (marketsError) return <div>Error loading market</div>;
   if (!markets || markets.length === 0) return <div>No markets found</div>;
@@ -47,7 +59,7 @@ function SupplyExample() {
           },
         },
         supplier: evmAddress(supplierAddress),
-        chainId: chainId(1),
+        chainId: chainId(CHAIN_ID),
       }).andThen((plan) => {
         switch (plan.__typename) {
           case "TransactionRequest":
@@ -87,6 +99,15 @@ function SupplyExample() {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <h2>Aave Supply Example</h2>
+      <div style={{ 
+        backgroundColor: '#e8f5e8', 
+        border: '1px solid #4CAF50', 
+        padding: '10px', 
+        borderRadius: '4px', 
+        marginBottom: '20px' 
+      }}>
+        <strong>✅ Wallet Connected:</strong> {address}
+      </div>
       <p style={{ color: '#666', marginBottom: '30px' }}>
         This example demonstrates how to supply assets to an Aave market using the SDK.
       </p>
@@ -103,7 +124,7 @@ function SupplyExample() {
               value={marketAddress}
               onChange={(e) => setMarketAddress(e.target.value)}
               style={{ width: '100%', padding: '8px', fontFamily: 'monospace', fontSize: '12px' }}
-              placeholder="Aave market address"
+              placeholder="Auto-populated from mainnet market"
             />
             <small style={{ color: '#666' }}>Default: Aave V3 Ethereum mainnet</small>
           </div>
@@ -147,7 +168,7 @@ function SupplyExample() {
               style={{ width: '100%', padding: '8px', fontFamily: 'monospace', fontSize: '12px' }}
               placeholder="Address that will supply the tokens"
             />
-            <small style={{ color: '#666' }}>The wallet address supplying the tokens</small>
+            <small style={{ color: '#666' }}>Connected wallet address (auto-populated)</small>
           </div>
         </div>
       </div>
@@ -186,7 +207,6 @@ function SupplyExample() {
         </button>
       </div>
 
-      {/* Status Display */}
       {(txStatus || error) && (
         <div style={{
           padding: '15px',
