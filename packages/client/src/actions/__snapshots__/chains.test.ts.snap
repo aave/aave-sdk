@@ -94,12 +94,6 @@ exports[`Given the Aave client > When using the 'chains(client)' action > Then i
   },
   {
     "__typename": "Chain",
-    "chainId": 324,
-    "icon": "https://statics.aave.com/zksync-era-light.svg",
-    "name": "zkSync",
-  },
-  {
-    "__typename": "Chain",
     "chainId": 5000,
     "icon": "https://statics.aave.com/mantle.svg",
     "name": "Mantle",
