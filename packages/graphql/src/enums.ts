@@ -13,3 +13,11 @@ export enum PageSize {
   Ten = 'TEN',
   Fifty = 'FIFTY',
 }
+
+export enum TimeWindow {
+  LastDay = 'LAST_DAY',
+  LastWeek = 'LAST_WEEK',
+  LastMonth = 'LAST_MONTH',
+  LastSixMonths = 'LAST_SIX_MONTHS',
+  LastYear = 'LAST_YEAR',
+}
