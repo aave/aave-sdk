@@ -14,6 +14,7 @@ describe('Given the Aave Protocol v3', () => {
 
       result.value.forEach((market) => {
         expect(market).toMatchSnapshot({
+          totalAvailableLiquidity: expect.any(String),
           totalMarketSize: expect.any(String),
           borrowReserves: expect.any(Array),
           supplyReserves: expect.any(Array),
