@@ -8,10 +8,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@aave/client": "workspace:*",
-    "@aave/env": "workspace:*",
     "@aave/react": "workspace:*",
-    "@aave/types": "workspace:*",
     "@tanstack/react-query": "^5.83.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
