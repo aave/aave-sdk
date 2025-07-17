@@ -42,11 +42,20 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.7)(happy-dom@18.0.1)(tsx@4.20.3)
 
-  examples/create-app:
+  examples/market:
     dependencies:
+      '@aave/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@aave/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@aave/react':
         specifier: workspace:*
         version: link:../../packages/react
+      '@aave/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       react:
         specifier: ^19.1.0
         version: 19.1.0

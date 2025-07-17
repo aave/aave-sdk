@@ -7,6 +7,7 @@ export const ChainFragment = graphql(
     name
     icon
     chainId
+    explorerUrl
   }`,
 );
 export type Chain = FragmentOf<typeof ChainFragment>;

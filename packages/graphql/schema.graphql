@@ -1,3 +1,11 @@
+type APRSample {
+  """The avg rate"""
+  avgRate: DecimalValue!
+
+  """The date"""
+  date: DateTime!
+}
+
 input AmountInput @oneOf {
   """The native amount"""
   native: BigDecimal
@@ -30,6 +38,20 @@ scalar BigInt
 
 scalar BlockchainData
 
+input BorrowAPRHistoryRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token for the reserve"""
+  underlyingToken: EvmAddress!
+
+  """The time windows for the history"""
+  window: TimeWindow!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
 input BorrowRequest {
   """The market pool address"""
   market: EvmAddress!
@@ -58,6 +80,9 @@ type Chain {
 
   """The chain id"""
   chainId: ChainId!
+
+  """Explorer URL"""
+  explorerUrl: String!
 }
 
 scalar ChainId
@@ -246,13 +271,21 @@ input LiquidateRequest {
   chainId: ChainId!
 }
 
+"""Information about collateral liquidated in a liquidation call."""
 type LiquidationCollateral {
+  """Reserve of the collateral."""
   reserve: ReserveInfo!
+
+  """Amount of collateral liquidated"""
   amount: TokenAmount
 }
 
+"""Information about debt repaid in a liquidation call."""
 type LiquidationRepaidDebt {
+  """Reserve of the repaid debt."""
   reserve: ReserveInfo!
+
+  """Amount of debt repaid."""
   amount: TokenAmount!
 }
 
@@ -289,6 +322,9 @@ type MarketInfo {
 
   """The chain"""
   chain: Chain!
+
+  """The liquidity pool address for the market"""
+  address: EvmAddress!
 
   """The market icon"""
   icon: String!
@@ -473,8 +509,12 @@ type PaginatedResultInfo {
   next: Cursor
 }
 
+"""Paginated result of user transaction history."""
 type PaginatedUserTransactionHistoryResult {
+  """List of user transaction items."""
   items: [UserTransactionItem!]!
+
+  """Pagination information."""
   pageInfo: PaginatedResultInfo!
 }
 
@@ -578,11 +618,17 @@ type Query {
   """Get all the user supplies positions"""
   userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
 
+  """Get the borrow APR history"""
+  borrowAPRHistory(request: BorrowAPRHistoryRequest!): [APRSample!]!
+
+  """Get the supply APR history"""
+  supplyAPRHistory(request: SupplyAPRHistoryRequest!): [APRSample!]!
+
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
 
   """The user's transaction history"""
-  userTransactionHistory: PaginatedUserTransactionHistoryResult!
+  userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
   _service: _Service!
 }
 
@@ -821,6 +867,20 @@ type ReserveUserState {
 
 scalar Signature
 
+input SupplyAPRHistoryRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token for the reserve"""
+  underlyingToken: EvmAddress!
+
+  """The time windows for the history"""
+  window: TimeWindow!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
 input SupplyRequest {
   """The market pool address"""
   market: EvmAddress!
@@ -840,6 +900,14 @@ input SupplyRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+enum TimeWindow {
+  LAST_DAY
+  LAST_WEEK
+  LAST_MONTH
+  LAST_SIX_MONTHS
+  LAST_YEAR
 }
 
 type TokenAmount {
@@ -881,11 +949,21 @@ input UsdExchangeRatesRequest {
   chainId: ChainId!
 }
 
+"""A transaction where the user borrowed assets from a reserve."""
 type UserBorrowTransaction {
+  """Amount borrowed."""
   amount: TokenAmount!
+
+  """Reserve from which assets were borrowed."""
   reserve: ReserveInfo!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
 }
 
@@ -911,11 +989,21 @@ input UserBorrowsRequestOrderBy @oneOf {
   apy: OrderDirection
 }
 
+"""A transaction where the user was involved in a liquidation call."""
 type UserLiquidationCallTransaction {
+  """Collateral liquidated."""
   collateral: LiquidationCollateral!
+
+  """Debt repaid."""
   debtRepaid: LiquidationRepaidDebt!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
 }
 
@@ -930,11 +1018,21 @@ input UserMarketStateRequest {
   chainId: ChainId!
 }
 
+"""A transaction where the user repaid borrowed assets."""
 type UserRepayTransaction {
+  """Amount repaid."""
   amount: TokenAmount!
+
+  """Reserve to which assets were repaid."""
   reserve: ReserveInfo!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
 }
 
@@ -982,21 +1080,92 @@ input UserSuppliesRequestOrderBy @oneOf {
   isCollateralized: OrderByUserCriteria
 }
 
+"""A transaction where the user supplied assets to a reserve."""
 type UserSupplyTransaction {
+  """Amount supplied."""
   amount: TokenAmount!
+
+  """Reserve to which assets were supplied."""
   reserve: ReserveInfo!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
+}
+
+input UserTransactionHistoryRequest {
+  """The market address"""
+  market: EvmAddress!
+
+  """The filter to optionally filter the transactions by type"""
+  filter: [UserTransactionType!]! = [SUPPLY, WITHDRAW, BORROW, REPAY, USAGE_AS_COLLATERAL, LIQUIDATION_CALL]
+
+  """The order by object to sort the transactions by"""
+  orderBy: UserTransactionHistoryRequestOrderBy! = {date: ASC}
+
+  """The user that sent the transactions"""
+  user: EvmAddress!
+
+  """The chain id where the transactions were sent"""
+  chainId: ChainId!
+
+  """The page size"""
+  pageSize: PageSize! = FIFTY
+
+  """Pagination cursor"""
+  cursor: Cursor
+}
+
+input UserTransactionHistoryRequestOrderBy {
+  """Order by the date of the transaction"""
+  date: OrderDirection
 }
 
 union UserTransactionItem = UserSupplyTransaction | UserWithdrawTransaction | UserBorrowTransaction | UserRepayTransaction | UserUsageAsCollateralTransaction | UserLiquidationCallTransaction
 
+"""The type of user transaction in the protocol."""
+enum UserTransactionType {
+  """User supplied assets to the protocol."""
+  SUPPLY
+
+  """User borrowed assets from the protocol."""
+  BORROW
+
+  """User enabled or disabled usage of an asset as collateral."""
+  USAGE_AS_COLLATERAL
+
+  """User was involved in a liquidation call."""
+  LIQUIDATION_CALL
+
+  """User repaid a borrowed amount."""
+  REPAY
+
+  """User withdrew supplied assets."""
+  WITHDRAW
+}
+
+"""
+A transaction where the user enabled or disabled usage of an asset as collateral.
+"""
 type UserUsageAsCollateralTransaction {
+  """Whether collateral usage was enabled."""
   enabled: Boolean!
+
+  """Reserve for which collateral usage was changed."""
   reserve: ReserveInfo!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
 }
 
@@ -1013,7 +1182,7 @@ type UserVaultShares {
 
 input UserVaultsFilter {
   """Filter by markets"""
-  markets: [VaultInput!]
+  vaults: [VaultInput!]
 
   """Filter by underlying token addresses"""
   underlyingTokens: [EvmAddress!]
@@ -1047,11 +1216,21 @@ input UserVaultsRequest {
   cursor: Cursor
 }
 
+"""A transaction where the user withdrew assets from a reserve."""
 type UserWithdrawTransaction {
+  """Amount withdrawn."""
   amount: TokenAmount!
+
+  """Reserve from which assets were withdrawn."""
   reserve: ReserveInfo!
+
+  """URL to view the transaction on a block explorer."""
   blockExplorerUrl: String!
+
+  """Transaction hash."""
   txHash: TxHash!
+
+  """Timestamp of the transaction."""
   timestamp: DateTime!
 }
 
