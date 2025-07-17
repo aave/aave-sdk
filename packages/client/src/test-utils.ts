@@ -8,6 +8,9 @@ import {
   bigDecimal,
   chainId,
   type EvmAddress,
+  evmAddress,
+  okAsync,
+  ResultAsync,
 } from '@aave/types';
 import type { TypedDocumentNode } from '@urql/core';
 import { validate } from 'graphql';
@@ -15,15 +18,15 @@ import type { ValidationRule } from 'graphql/validation/ValidationContext';
 import {
   createPublicClient,
   createWalletClient,
+  defineChain,
   http,
   parseEther,
   type WalletClient,
 } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { sepolia } from 'viem/chains';
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { expect } from 'vitest';
 import { AaveClient } from './client';
-import { GraphQLErrorCode } from './errors';
+import { GraphQLErrorCode, UnexpectedError } from './errors';
 
 export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
@@ -31,11 +34,29 @@ export const environment =
 
 export const ETHEREUM_FORK_ID = chainId(99999999);
 
+export const WETH_ADDRESS = evmAddress(
+  '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+);
+export const USDC_ADDRESS = evmAddress(
+  '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+);
+
 export const ETHEREUM_FORK_RPC_URL =
   'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';
 
+export const ETHEREUM_FORK_RPC_URL_ADMIN =
+  'https://virtual.mainnet.rpc.tenderly.co/95925d93-2ca7-4986-8b4f-e606f6b243bd';
+
 // Re-export for convenience
 export { bigDecimal } from '@aave/types';
+
+const ethereumForkChain = defineChain({
+  id: ETHEREUM_FORK_ID,
+  name: 'Ethereum Fork',
+  network: 'ethereum-fork',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: [ETHEREUM_FORK_RPC_URL] } },
+});
 
 export const client = AaveClient.create({
   environment,
@@ -43,14 +64,33 @@ export const client = AaveClient.create({
 
 export const wallet: WalletClient = createWalletClient({
   account: signer,
-  chain: sepolia,
+  chain: ethereumForkChain,
   transport: http(),
 });
+
+export function createNewWallet(): ResultAsync<WalletClient, Error> {
+  const privateKey = generatePrivateKey();
+  // Log private key to debug test issues
+  console.log(`private key ${privateKey}`);
+  const wallet = createWalletClient({
+    account: privateKeyToAccount(privateKey),
+    chain: ethereumForkChain,
+    transport: http(),
+  });
+  return okAsync(wallet);
+}
 
 // Tenderly RPC type for setBalance
 type TSetBalanceRpc = {
   Method: 'tenderly_setBalance';
   Parameters: [addresses: string[], amount: string];
+  ReturnType: string;
+};
+
+// Tenderly RPC type for set ERC20 balance
+type TSetErc20BalanceRpc = {
+  Method: 'tenderly_setErc20Balance';
+  Parameters: [tokenAddress: string, address: string, amount: string];
   ReturnType: string;
 };
 
@@ -60,10 +100,10 @@ type TSetBalanceRpc = {
  * @param amount - Amount in ETH (BigDecimal string, e.g., "1.5" for 1.5 ETH)
  * @returns Transaction hash
  */
-export async function fundAddress(
+export function fundNativeAddress(
   address: EvmAddress,
   amount: BigDecimal = bigDecimal('1.0'), // 1 ETH
-): Promise<string> {
+): ResultAsync<string, UnexpectedError> {
   // Create client with fork chain - you'll need to replace this with your actual fork chain config
   const publicClient = createPublicClient({
     chain: {
@@ -72,21 +112,55 @@ export async function fundAddress(
       network: 'tenderly-fork',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: {
-        default: { http: [ETHEREUM_FORK_RPC_URL] },
+        default: { http: [ETHEREUM_FORK_RPC_URL_ADMIN] },
       },
     },
-    transport: http(ETHEREUM_FORK_RPC_URL),
+    transport: http(ETHEREUM_FORK_RPC_URL_ADMIN),
   });
 
   const amountInWei = parseEther(amount);
   const amountHex = `0x${amountInWei.toString(16)}`;
 
-  const txHash = await publicClient.request<TSetBalanceRpc>({
-    method: 'tenderly_setBalance',
-    params: [[address], amountHex],
+  return ResultAsync.fromPromise(
+    publicClient.request<TSetBalanceRpc>({
+      method: 'tenderly_setBalance',
+      params: [[address], amountHex],
+    }),
+    (err) => UnexpectedError.from(err),
+  );
+}
+
+export function fundErc20Address(
+  tokenAddress: EvmAddress,
+  address: EvmAddress,
+  amount: BigDecimal,
+  decimals = 18,
+): ResultAsync<string, UnexpectedError> {
+  const publicClient = createPublicClient({
+    chain: {
+      id: ETHEREUM_FORK_ID,
+      name: 'Tenderly Fork',
+      network: 'tenderly-fork',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: {
+        default: { http: [ETHEREUM_FORK_RPC_URL_ADMIN] },
+      },
+    },
+    transport: http(ETHEREUM_FORK_RPC_URL_ADMIN),
   });
 
-  return txHash;
+  // Convert amount to the smallest unit (e.g., wei for 18 decimals)
+  const multiplier = BigInt(10) ** BigInt(decimals);
+  const amountInSmallestUnit = BigInt(amount) * multiplier;
+  const amountHex = `0x${amountInSmallestUnit.toString(16)}`;
+
+  return ResultAsync.fromPromise(
+    publicClient.request<TSetErc20BalanceRpc>({
+      method: 'tenderly_setErc20Balance',
+      params: [tokenAddress, address, amountHex],
+    }),
+    (err) => UnexpectedError.from(err),
+  );
 }
 
 const messages: Record<GraphQLErrorCode, string> = {

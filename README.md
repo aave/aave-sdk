@@ -113,10 +113,10 @@ The project uses [Biome](https://biomejs.dev/) to format and lint the code. You 
 
 9. Merge the pull request to the `main` branch.
 
-
 ## Contributing
 
 We welcome contributions to the Aave SDK! If you're interested in contributing, please follow these steps:
+
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix.
 3. Make your changes and commit them with clear messages.
