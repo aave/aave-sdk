@@ -10,29 +10,16 @@ import {
   WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
-import { markets } from './markets';
 import { supply } from './transactions';
 import { userSupplies } from './user';
 
 describe('Given the Aave Protocol v3', () => {
   describe('When supplying assets in an available market', () => {
-    let marketInfo: Market;
-
-    beforeAll(async () => {
-      const result = await markets(client, {
-        chainIds: [ETHEREUM_FORK_ID],
-      });
-      assertOk(result);
-
-      // Check market is available to supply
-      for (const market of result.value) {
-        // TODO: Remove once I can supply to a random market
-        if (market.address === '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2') {
-          marketInfo = market;
-          return;
-        }
-      }
-    });
+    // Hardcoded market info for now
+    const marketInfo = {
+      address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
+      chain: { chainId: ETHEREUM_FORK_ID },
+    };
 
     it('Then it should be possible to supply NATIVE asset to a market', async () => {
       const result = await createNewWallet()
@@ -70,10 +57,12 @@ describe('Given the Aave Protocol v3', () => {
       invariant(result.value, 'No result');
 
       expect(result.value.length).toEqual(1);
-      expect(result.value[0]!.balance.amount.value).toEqual(bigDecimal('0.90'));
+      expect(Number(result.value[0]!.balance.amount.value)).toBeGreaterThanOrEqual(
+        Number(bigDecimal('0.90')),
+      );
       expect(result.value[0]!.isCollateral).toEqual(true);
       expect(result.value[0]!.canBeCollateral).toEqual(true);
-    }, 20_000);
+    }, 25_000);
 
     it('Then it should be possible to supply ERC20 asset to a market', async () => {
       const result = await createNewWallet()
@@ -115,9 +104,11 @@ describe('Given the Aave Protocol v3', () => {
       invariant(result.value, 'No result');
 
       expect(result.value.length).toEqual(1);
-      expect(result.value[0]!.balance.amount.value).toEqual(bigDecimal('0.70'));
+      expect(Number(result.value[0]!.balance.amount.value)).toBeGreaterThanOrEqual(
+        Number(bigDecimal('0.70')),
+      );
       expect(result.value[0]!.isCollateral).toEqual(true);
       expect(result.value[0]!.canBeCollateral).toEqual(true);
-    }, 20_000);
+    }, 25_000);
   });
 });

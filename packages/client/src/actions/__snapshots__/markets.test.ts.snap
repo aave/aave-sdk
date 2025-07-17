@@ -8,6 +8,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "chain": {
     "__typename": "Chain",
     "chainId": 99999999,
+    "explorerUrl": Any<Array>,
     "icon": "https://statics.aave.com/ethereum.svg",
     "name": "Forked Ethereum",
   },
@@ -29,6 +30,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "chain": {
     "__typename": "Chain",
     "chainId": 99999999,
+    "explorerUrl": Any<Array>,
     "icon": "https://statics.aave.com/ethereum.svg",
     "name": "Forked Ethereum",
   },
@@ -50,6 +52,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "chain": {
     "__typename": "Chain",
     "chainId": 99999999,
+    "explorerUrl": Any<Array>,
     "icon": "https://statics.aave.com/ethereum.svg",
     "name": "Forked Ethereum",
   },
