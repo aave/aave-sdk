@@ -73,7 +73,9 @@ describe('Given the Aave Protocol v3 Market', () => {
         user: evmAddress(wallet.account!.address),
       });
       assertOk(supplyInfo);
-      expect(Number(supplyInfo.value[0]?.balance.amount.value)).toBeGreaterThan(0);
+      expect(Number(supplyInfo.value[0]?.balance.amount.value)).toBeGreaterThan(
+        0,
+      );
 
       const result = await withdraw(client, {
         market: marketInfo.address,
