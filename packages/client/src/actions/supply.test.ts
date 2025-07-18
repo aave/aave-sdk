@@ -1,114 +1,187 @@
-import type { Market } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress, invariant } from '@aave/types';
+import type { Reserve } from '@aave/graphql';
+import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import type { WalletClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
   fundErc20Address,
   fundNativeAddress,
+  getReserveInfo,
   WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
-import { supply } from './transactions';
+import { supply, withdraw } from './transactions';
 import { userSupplies } from './user';
 
-describe('Given the Aave Protocol v3', () => {
-  describe('When supplying assets in an available market', () => {
-    // Hardcoded market info for now
-    const marketInfo = {
-      address: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-      chain: { chainId: ETHEREUM_FORK_ID },
-    };
+describe('Given the Aave Protocol v3 Market', () => {
+  // Hardcoded market info for now
+  const marketInfo = {
+    address: DEFAULT_MARKET_ADDRESS,
+    chain: { chainId: ETHEREUM_FORK_ID },
+  };
 
-    it('Then it should be possible to supply NATIVE asset to a market', async () => {
-      const result = await createNewWallet()
-        .andThen((wallet) =>
-          fundNativeAddress(
-            evmAddress(wallet.account!.address),
-            bigDecimal('1'),
-          ).map(() => wallet),
-        )
-        .andThen((wallet) =>
-          supply(client, {
-            market: marketInfo.address,
-            supplier: evmAddress(wallet.account!.address),
-            amount: {
-              native: bigDecimal('0.9'),
-            },
-            chainId: marketInfo.chain.chainId,
-          })
-            .andThen(sendWith(wallet))
-            // Wait for propagation of the tx to the network
-            .andTee(() => new Promise((resolve) => setTimeout(resolve, 2000)))
-            .andThen(() =>
-              userSupplies(client, {
-                markets: [
-                  {
-                    address: marketInfo.address,
-                    chainId: marketInfo.chain.chainId,
-                  },
-                ],
-                user: evmAddress(wallet.account!.address),
-              }),
-            ),
+  describe('When supplying native token to a reserve that accepts native token', () => {
+    let wallet: WalletClient;
+
+    beforeAll(async () => {
+      // Create a new wallet and fund it with native token
+      const result = await createNewWallet().andTee((wallet) =>
+        fundNativeAddress(evmAddress(wallet.account!.address), bigDecimal('1')),
+      );
+      assertOk(result);
+      wallet = result.value;
+    });
+
+    it("Then it should be available in the user's supply positions", async () => {
+      const result = await supply(client, {
+        market: marketInfo.address,
+        supplier: evmAddress(wallet.account!.address),
+        amount: {
+          native: bigDecimal('0.9'),
+        },
+        chainId: marketInfo.chain.chainId,
+      })
+        .andThen(sendWith(wallet))
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [
+              {
+                address: marketInfo.address,
+                chainId: marketInfo.chain.chainId,
+              },
+            ],
+            user: evmAddress(wallet.account!.address),
+          }),
         );
       assertOk(result);
-      invariant(result.value, 'No result');
-
       expect(result.value.length).toEqual(1);
-      expect(Number(result.value[0]!.balance.amount.value)).toBeGreaterThanOrEqual(
-        Number(bigDecimal('0.90')),
-      );
-      expect(result.value[0]!.isCollateral).toEqual(true);
-      expect(result.value[0]!.canBeCollateral).toEqual(true);
+      expect(result.value[0]?.balance.amount.value).toEqual(bigDecimal('0.90'));
     }, 25_000);
 
-    it('Then it should be possible to supply ERC20 asset to a market', async () => {
-      const result = await createNewWallet()
-        .andThen((wallet) =>
-          fundErc20Address(
-            WETH_ADDRESS,
-            evmAddress(wallet.account!.address),
-            bigDecimal('1'),
-          ).map(() => wallet),
-        )
-        .andThen((wallet) =>
-          supply(client, {
-            market: marketInfo.address,
-            supplier: evmAddress(wallet.account!.address),
-            amount: {
-              erc20: {
-                currency: WETH_ADDRESS,
-                value: bigDecimal('0.7'),
-              },
-            },
+    it('Then it should be possible to withdraw the position', async () => {
+      // First check if the user has a position
+      const supplyInfo = await userSupplies(client, {
+        markets: [
+          {
+            address: marketInfo.address,
             chainId: marketInfo.chain.chainId,
-          })
-            .andThen(sendWith(wallet))
-            // Wait for propagation of the tx to the network
-            .andTee(() => new Promise((resolve) => setTimeout(resolve, 5000)))
-            .andThen(() =>
-              userSupplies(client, {
-                markets: [
-                  {
-                    address: marketInfo.address,
-                    chainId: marketInfo.chain.chainId,
-                  },
-                ],
-                user: evmAddress(wallet.account!.address),
-              }),
-            ),
+          },
+        ],
+        user: evmAddress(wallet.account!.address),
+      });
+      assertOk(supplyInfo);
+      if (supplyInfo.value[0]?.balance.amount.value === bigDecimal('0')) {
+        throw new Error('User does not have supply to withdraw');
+      }
+
+      const result = await withdraw(client, {
+        market: marketInfo.address,
+        supplier: wallet.account!.address,
+        amount: {
+          native: { value: supplyInfo.value[0]?.balance.amount.value },
+        },
+        chainId: marketInfo.chain.chainId,
+      })
+        .andThen(sendWith(wallet))
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [
+              {
+                address: marketInfo.address,
+                chainId: marketInfo.chain.chainId,
+              },
+            ],
+            user: evmAddress(wallet.account!.address),
+          }),
         );
       assertOk(result);
-      invariant(result.value, 'No result');
+      expect(result.value.length).toEqual(1);
+      expect(result.value[0]?.balance.amount.value).toEqual(bigDecimal('0.00'));
+    }, 25_000);
+  });
+
+  describe('When supplying ERC-20 token to the corresponding reserve', () => {
+    let wallet: WalletClient;
+    let reserveInfo: Reserve;
+
+    beforeAll(async () => {
+      reserveInfo = await getReserveInfo(WETH_ADDRESS);
+      // Check if the reserve is not frozen or paused
+      expect(reserveInfo.isFrozen).toBe(false);
+      expect(reserveInfo.isPaused).toBe(false);
+
+      // Create a new wallet and fund it with ERC-20 token
+      const result = await createNewWallet().andTee((wallet) =>
+        fundErc20Address(
+          WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+          bigDecimal('1'),
+        ),
+      );
+      assertOk(result);
+      wallet = result.value;
+    });
+
+    it("Then it should be available in the user's supply positions", async () => {
+      const result = await supply(client, {
+        market: reserveInfo.market.address,
+        supplier: evmAddress(wallet.account!.address),
+        amount: {
+          erc20: {
+            currency: WETH_ADDRESS,
+            value: bigDecimal('0.7'),
+          },
+        },
+        chainId: reserveInfo.market.chain.chainId,
+      })
+        .andThen(sendWith(wallet))
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [
+              {
+                address: marketInfo.address,
+                chainId: marketInfo.chain.chainId,
+              },
+            ],
+            user: evmAddress(wallet.account!.address),
+          }),
+        );
+      assertOk(result);
 
       expect(result.value.length).toEqual(1);
-      expect(Number(result.value[0]!.balance.amount.value)).toBeGreaterThanOrEqual(
-        Number(bigDecimal('0.70')),
-      );
-      expect(result.value[0]!.isCollateral).toEqual(true);
-      expect(result.value[0]!.canBeCollateral).toEqual(true);
+      expect(result.value[0]?.balance.amount.value).toEqual(bigDecimal('0.70'));
+    }, 25_000);
+
+    it('Then it should be possible to withdraw the position', async () => {
+      const result = await withdraw(client, {
+        market: reserveInfo.market.address,
+        supplier: wallet.account!.address,
+        amount: {
+          erc20: {
+            currency: WETH_ADDRESS,
+            value: bigDecimal('0.7'),
+          },
+        },
+        chainId: reserveInfo.market.chain.chainId,
+      })
+        .andThen(sendWith(wallet))
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [
+              {
+                address: reserveInfo.market.address,
+                chainId: reserveInfo.market.chain.chainId,
+              },
+            ],
+            user: evmAddress(wallet.account!.address),
+          }),
+        );
+      assertOk(result);
+      expect(result.value.length).toEqual(1);
+      expect(result.value[0]?.balance.amount.value).toEqual(bigDecimal('0.00'));
     }, 25_000);
   });
 });

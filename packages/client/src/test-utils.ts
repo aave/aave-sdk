@@ -1,14 +1,16 @@
 /// <reference path="../../../vite-env.d.ts" />
 
 import { local, staging } from '@aave/env';
-import type { AnyVariables } from '@aave/graphql';
+import type { AnyVariables, Reserve } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
 import {
+  assertOk,
   type BigDecimal,
   bigDecimal,
   chainId,
   type EvmAddress,
   evmAddress,
+  nonNullable,
   okAsync,
   ResultAsync,
 } from '@aave/types';
@@ -25,6 +27,7 @@ import {
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { expect } from 'vitest';
+import { reserve } from './actions';
 import { AaveClient } from './client';
 import { GraphQLErrorCode, UnexpectedError } from './errors';
 
@@ -39,6 +42,9 @@ export const WETH_ADDRESS = evmAddress(
 );
 export const USDC_ADDRESS = evmAddress(
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+);
+export const DEFAULT_MARKET_ADDRESS = evmAddress(
+  '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
 
 export const ETHEREUM_FORK_RPC_URL =
@@ -68,7 +74,7 @@ export const wallet: WalletClient = createWalletClient({
   transport: http(),
 });
 
-export function createNewWallet(): ResultAsync<WalletClient, Error> {
+export function createNewWallet(): ResultAsync<WalletClient, UnexpectedError> {
   const privateKey = generatePrivateKey();
   // Log private key to debug test issues
   console.log(`private key ${privateKey}`);
@@ -94,12 +100,6 @@ type TSetErc20BalanceRpc = {
   ReturnType: string;
 };
 
-/**
- * Fund an address on Tenderly fork with specified ETH amount
- * @param address - Address to fund
- * @param amount - Amount in ETH (BigDecimal string, e.g., "1.5" for 1.5 ETH)
- * @returns Transaction hash
- */
 export function fundNativeAddress(
   address: EvmAddress,
   amount: BigDecimal = bigDecimal('1.0'), // 1 ETH
@@ -161,6 +161,19 @@ export function fundErc20Address(
     }),
     (err) => UnexpectedError.from(err),
   );
+}
+
+export async function getReserveInfo(
+  tokenAddress: EvmAddress,
+  marketAddress = DEFAULT_MARKET_ADDRESS,
+): Promise<Reserve> {
+  const result = await reserve(client, {
+    chainId: ETHEREUM_FORK_ID,
+    market: marketAddress,
+    underlyingToken: tokenAddress,
+  }).map(nonNullable);
+  assertOk(result);
+  return result.value;
 }
 
 const messages: Record<GraphQLErrorCode, string> = {
