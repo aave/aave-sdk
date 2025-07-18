@@ -11,7 +11,6 @@ import {
   type EvmAddress,
   evmAddress,
   nonNullable,
-  okAsync,
   ResultAsync,
 } from '@aave/types';
 import type { TypedDocumentNode } from '@urql/core';
@@ -23,6 +22,7 @@ import {
   defineChain,
   http,
   parseEther,
+  parseUnits,
   type WalletClient,
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
@@ -74,7 +74,7 @@ export const wallet: WalletClient = createWalletClient({
   transport: http(),
 });
 
-export function createNewWallet(): ResultAsync<WalletClient, UnexpectedError> {
+export function createNewWallet(): WalletClient {
   const privateKey = generatePrivateKey();
   // Log private key to debug test issues
   console.log(`private key ${privateKey}`);
@@ -83,7 +83,7 @@ export function createNewWallet(): ResultAsync<WalletClient, UnexpectedError> {
     chain: ethereumForkChain,
     transport: http(),
   });
-  return okAsync(wallet);
+  return wallet;
 }
 
 // Tenderly RPC type for setBalance
@@ -150,8 +150,7 @@ export function fundErc20Address(
   });
 
   // Convert amount to the smallest unit (e.g., wei for 18 decimals)
-  const multiplier = BigInt(10) ** BigInt(decimals);
-  const amountInSmallestUnit = BigInt(amount) * multiplier;
+  const amountInSmallestUnit = parseUnits(amount, decimals);
   const amountHex = `0x${amountInSmallestUnit.toString(16)}`;
 
   return ResultAsync.fromPromise(
