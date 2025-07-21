@@ -1,6 +1,6 @@
 {
-  "name": "markets-example",
-  "description": "Fetching Aave Markets",
+  "name": "supply",
+  "description": "Aave supply example",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "@aave/react": "workspace:*",
+    "@tanstack/react-query": "^5.83.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "viem": "^2.31.6",
+    "wagmi": "^2.15.6"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",
