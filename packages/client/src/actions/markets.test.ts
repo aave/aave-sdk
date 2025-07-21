@@ -28,7 +28,7 @@ describe('Given the Aave Protocol v3', () => {
     });
   });
   describe('When fetching a market data for a given address', () => {
-    it('Then it should be possible to fetch market data for a given address', async () => {
+    it('Then it should be possible to fetch market data for a given market address and chain ID', async () => {
       const result = await market(client, {
         address: DEFAULT_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,

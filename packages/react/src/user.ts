@@ -6,6 +6,7 @@ import type {
   UserBorrowsRequest,
   UserMarketStateRequest,
   UserSuppliesRequest,
+  UserTransactionHistoryRequest,
 } from '@aave/graphql';
 import {
   UserBorrowsQuery,
@@ -178,6 +179,8 @@ export function useUserMarketState({
   });
 }
 
+export type UseUserTransactionHistoryArgs = UserTransactionHistoryRequest;
+
 /**
  * Fetch user transaction history.
  *
@@ -190,7 +193,7 @@ export function useUserMarketState({
  * ```
  */
 export function useUserTransactionHistory(
-  args: Suspendable,
+  args: UseUserTransactionHistoryArgs & Suspendable,
 ): SuspenseResult<PaginatedUserTransactionHistoryResult>;
 
 /**
@@ -200,16 +203,19 @@ export function useUserTransactionHistory(
  * const { data, loading } = useUserTransactionHistory();
  * ```
  */
-export function useUserTransactionHistory(): ReadResult<PaginatedUserTransactionHistoryResult>;
+export function useUserTransactionHistory(
+  args: UseUserTransactionHistoryArgs,
+): ReadResult<PaginatedUserTransactionHistoryResult>;
 
 export function useUserTransactionHistory({
   suspense = false,
-}: {
+  ...request
+}: UseUserTransactionHistoryArgs & {
   suspense?: boolean;
-} = {}): SuspendableResult<PaginatedUserTransactionHistoryResult> {
+}): SuspendableResult<PaginatedUserTransactionHistoryResult> {
   return useSuspendableQuery({
     document: UserTransactionHistoryQuery,
-    variables: {},
+    variables: { request },
     suspense,
   });
 }
