@@ -7,6 +7,7 @@ import {
   UserSuppliesQuery,
   type UserSuppliesRequest,
   UserTransactionHistoryQuery,
+  type UserTransactionHistoryRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -66,6 +67,7 @@ export function userBorrows(
  */
 export function userTransactionHistory(
   client: AaveClient,
+  request: UserTransactionHistoryRequest,
 ): ResultAsync<PaginatedUserTransactionHistoryResult, UnexpectedError> {
-  return client.query(UserTransactionHistoryQuery, {});
+  return client.query(UserTransactionHistoryQuery, { request });
 }

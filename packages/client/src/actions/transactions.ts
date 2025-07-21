@@ -291,7 +291,7 @@ export function vaultRedeemShares(
 }
 
 /**
- * Creates a transaction to deploy a new vault.
+ * Creates an execution plan to deploy a new vault.
  *
  * ```ts
  * const result = await vaultDeploy(client, {
@@ -306,7 +306,7 @@ export function vaultRedeemShares(
  * }).andThen(sendWith(wallet));
  *
  * if (result.isErr()) {
- *   // Handle error, e.g. signing error, etc.
+ *   // Handle error, e.g. signing error, insufficient balance, etc.
  *   return;
  * }
  *
@@ -315,12 +315,12 @@ export function vaultRedeemShares(
  *
  * @param client - Aave client.
  * @param request - The deploy vault request parameters.
- * @returns The transaction request data to deploy a vault.
+ * @returns The execution plan data to deploy a vault. May require approval transactions.
  */
 export function vaultDeploy(
   client: AaveClient,
   request: VaultDeployRequest,
-): ResultAsync<TransactionRequest, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(VaultDeployQuery, { request });
 }
 
