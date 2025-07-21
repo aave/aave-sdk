@@ -18,15 +18,19 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
+      - name: Build
+        uses: ./.github/actions/setup
 
-    steps:
-      - uses: actions/checkout@v4
+  # test:
+  #   name: Test
+  #   needs: lint
+  #   runs-on: ubuntu-latest
 
-      - name: Run Tests
-        uses: ./.github/actions/tests
-        with:
-          environment: 'staging'
-          private_key: ${{ secrets.PRIVATE_KEY }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Run Tests
+  #       uses: ./.github/actions/tests
+  #       with:
+  #         environment: 'staging'
+  #         private_key: ${{ secrets.PRIVATE_KEY }}

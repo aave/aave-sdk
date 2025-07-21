@@ -56,13 +56,18 @@ export function userBorrows(
 }
 
 /**
- * Fetches the user's transaction history.
+ * Fetches the user's transaction history for a given market.
  *
  * ```ts
- * const result = await userTransactionHistory(client);
+ * const result = await userTransactionHistory(client, {
+ *   chainId: chainId(1),
+ *   market: evmAddress('0x87870bca…'),
+ *   user: evmAddress('0x742d35cc…'),
+ * });
  * ```
  *
  * @param client - Aave client.
+ * @param request - The user transaction history request parameters.
  * @returns The user's paginated transaction history.
  */
 export function userTransactionHistory(
