@@ -1,17 +1,13 @@
+import 'viem/window';
+
 import { type Address, createWalletClient, custom } from 'viem';
 import { mainnet } from 'viem/chains';
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
 const chain = mainnet;
 
-const [address] = (await window.ethereum!.request({
+const [address]: [Address] = await window.ethereum!.request({
   method: 'eth_requestAccounts',
-})) as [Address];
+});
 
 export const walletClient = createWalletClient({
   account: address,
@@ -29,4 +25,4 @@ if (chainId !== chain.id) {
   }
 }
 
-export { address }; 
+export { address };

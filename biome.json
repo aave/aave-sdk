@@ -108,7 +108,10 @@
 				"rules": {
 					"style": {
 						"noNonNullAssertion": "off"
-					}
+					},
+          "a11y": {
+            "noLabelWithoutControl": "off"
+          }
 				}
 			}
 		}
