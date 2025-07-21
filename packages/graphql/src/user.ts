@@ -25,12 +25,11 @@ export const UserBorrowsQuery = graphql(
 export type UserBorrowsRequest = RequestOf<typeof UserBorrowsQuery>;
 
 export const UserTransactionHistoryQuery = graphql(
-  `query UserTransactionHistory {
-    value: userTransactionHistory {
+  `query UserTransactionHistory($request: UserTransactionHistoryRequest!) {
+    value: userTransactionHistory(request: $request) {
       ...PaginatedUserTransactionHistoryResult
     }
   }`,
   [PaginatedUserTransactionHistoryResultFragment],
 );
-
 export type UserSuppliesRequest = RequestOf<typeof UserSuppliesQuery>;

@@ -87,6 +87,7 @@ type Chain {
   explorerUrl: String!
 }
 
+"""A supported blockchain chain ID"""
 scalar ChainId
 
 input CollateralToggleRequest {
@@ -368,17 +369,8 @@ input MarketReservesRequestOrderBy @oneOf {
   """Order by the supply APY"""
   supplyApy: OrderDirection
 
-  """Order by whether the asset can be used as collateral"""
-  canBeCollateralized: OrderDirection
-
   """Order by the token name"""
   tokenName: OrderDirection
-
-  """Order by the amount available for the user to borrow"""
-  userAvailableToBorrow: OrderByUserCriteria
-
-  """Order by the user's balance of this asset"""
-  userBalance: OrderByUserCriteria
 }
 
 enum MarketReservesRequestType {
@@ -485,14 +477,6 @@ type NativeCurrency {
   chainId: ChainId!
 }
 
-input OrderByUserCriteria {
-  """The address of the user"""
-  address: EvmAddress!
-
-  """The order direction"""
-  direction: OrderDirection! = DESC
-}
-
 enum OrderDirection {
   ASC
   DESC
@@ -552,7 +536,7 @@ type Query {
   userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
 
   """Deploy a vault and earn fees from the yield"""
-  vaultDeploy(request: VaultDeployRequest!): TransactionRequest!
+  vaultDeploy(request: VaultDeployRequest!): ExecutionPlan!
 
   """
   Update a vault's fee. You MUST be the owner of the vault to send this tx request.
@@ -982,7 +966,7 @@ input UserBorrowsRequest {
 
 input UserBorrowsRequestOrderBy @oneOf {
   """Order by the user's debt amount"""
-  debt: OrderByUserCriteria
+  debt: OrderDirection
 
   """Order by the asset name"""
   name: OrderDirection
@@ -1070,7 +1054,7 @@ input UserSuppliesRequest {
 
 input UserSuppliesRequestOrderBy @oneOf {
   """Order by the user's supply balance"""
-  balance: OrderByUserCriteria
+  balance: OrderDirection
 
   """Order by the asset name"""
   name: OrderDirection
@@ -1079,7 +1063,7 @@ input UserSuppliesRequestOrderBy @oneOf {
   apy: OrderDirection
 
   """Order by whether the position is used as collateral"""
-  isCollateralized: OrderByUserCriteria
+  isCollateralized: OrderDirection
 }
 
 """A transaction where the user supplied assets to a reserve."""
@@ -1175,11 +1159,8 @@ type UserVaultShares {
   """The user's shares on the vault"""
   shares: TokenAmount!
 
-  """The amount they have deposited on the vault"""
-  amountDeposited: TokenAmount!
-
-  """The amount they have withdrawn on the vault"""
-  amountWithdrawn: TokenAmount!
+  """The amount of underlying tokens they have in the vault."""
+  balance: TokenAmount!
 }
 
 input UserVaultsFilter {
@@ -1343,12 +1324,23 @@ input VaultInput {
   chainId: ChainId!
 }
 
+input VaultMintShareInput {
+  """The amount of vault shares"""
+  amount: BigDecimal!
+
+  """Whether the amount should be received as aToken."""
+  asAToken: Boolean! = false
+
+  """The authorization to redeem the shares."""
+  signature: ERC712Signature
+}
+
 input VaultMintSharesRequest {
   """The vault address"""
   vault: EvmAddress!
 
   """The amount of shares to mint"""
-  shares: VaultShareInput!
+  shares: VaultMintShareInput!
 
   """The user who is wanting to mint the shares"""
   minter: EvmAddress!
@@ -1362,12 +1354,23 @@ input VaultMintSharesRequest {
   chainId: ChainId!
 }
 
+input VaultRedeemShareInput {
+  """The amount of vault shares"""
+  amount: BigDecimal!
+
+  """Whether the amount should be sent as aToken."""
+  asAToken: Boolean! = false
+
+  """The authorization to redeem the shares."""
+  signature: ERC712Signature
+}
+
 input VaultRedeemSharesRequest {
   """The vault address"""
   vault: EvmAddress!
 
   """The shares to redeem."""
-  shares: VaultShareInput!
+  shares: VaultRedeemShareInput!
 
   """
   The address from which vault shares will be burned (normally your own wallet).
@@ -1422,17 +1425,6 @@ input VaultSetFeeRequest {
   chainId: ChainId!
 }
 
-input VaultShareInput {
-  """The amount of vault shares"""
-  amount: BigDecimal!
-
-  """Whether the amount should be sent/received as aToken."""
-  asAToken: Boolean! = false
-
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
-}
-
 input VaultWithdrawFeesRequest {
   """The vault deployed address"""
   vault: EvmAddress!
@@ -1449,12 +1441,23 @@ input VaultWithdrawFeesRequest {
   chainId: ChainId!
 }
 
+input VaultWithdrawInput {
+  """The amount of assets to withdraw."""
+  amount: BigDecimal!
+
+  """Whether the amount should be sent/received as aToken."""
+  asAToken: Boolean! = false
+
+  """The authorization to redeem the shares."""
+  signature: ERC712Signature
+}
+
 input VaultWithdrawRequest {
   """The vault address"""
   vault: EvmAddress!
 
-  """The shares to withdraw."""
-  shares: VaultShareInput!
+  """The details of the underlying token to withdraw."""
+  underlyingToken: VaultWithdrawInput!
 
   """
   The address from which vault shares will be burned (normally your own wallet).
