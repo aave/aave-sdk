@@ -1,4 +1,4 @@
-type APRSample {
+type APYSample {
   """The avg rate"""
   avgRate: DecimalValue!
 
@@ -38,7 +38,7 @@ scalar BigInt
 
 scalar BlockchainData
 
-input BorrowAPRHistoryRequest {
+input BorrowAPYHistoryRequest {
   """The market pool address"""
   market: EvmAddress!
 
@@ -63,7 +63,9 @@ input BorrowRequest {
   borrower: EvmAddress!
 
   """
-  This should be the address of the borrower if they want to borrow against their own collateral,
+  If not supplied, this will use `borrower` in most cases this is what the user wants if they want
+  to borrow against their own collateral. You can also pass in the credit delegator if the caller has
+  been given credit delegation allowance
   """
   onBehalfOf: EvmAddress
 
@@ -618,11 +620,11 @@ type Query {
   """Get all the user supplies positions"""
   userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
 
-  """Get the borrow APR history"""
-  borrowAPRHistory(request: BorrowAPRHistoryRequest!): [APRSample!]!
+  """Get the borrow APY history"""
+  borrowAPYHistory(request: BorrowAPYHistoryRequest!): [APYSample!]!
 
-  """Get the supply APR history"""
-  supplyAPRHistory(request: SupplyAPRHistoryRequest!): [APRSample!]!
+  """Get the supply APY history"""
+  supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
 
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
@@ -867,7 +869,7 @@ type ReserveUserState {
 
 scalar Signature
 
-input SupplyAPRHistoryRequest {
+input SupplyAPYHistoryRequest {
   """The market pool address"""
   market: EvmAddress!
 
