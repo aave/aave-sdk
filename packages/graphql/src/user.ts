@@ -13,6 +13,7 @@ export const UserSuppliesQuery = graphql(
   }`,
   [MarketUserReserveSupplyPositionFragment],
 );
+export type UserSuppliesRequest = RequestOf<typeof UserSuppliesQuery>;
 
 export const UserBorrowsQuery = graphql(
   `query UserBorrows($request: UserBorrowsRequest!) {
@@ -32,4 +33,6 @@ export const UserTransactionHistoryQuery = graphql(
   }`,
   [PaginatedUserTransactionHistoryResultFragment],
 );
-export type UserSuppliesRequest = RequestOf<typeof UserSuppliesQuery>;
+export type UserTransactionHistoryRequest = RequestOf<
+  typeof UserTransactionHistoryQuery
+>;
