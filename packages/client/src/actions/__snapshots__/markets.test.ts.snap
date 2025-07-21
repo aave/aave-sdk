@@ -87,3 +87,19 @@ exports[`Given the Aave Protocol v3 > When fetching markets data > Then it shoul
   "userState": null,
 }
 `;
+
+exports[`Given the Aave Protocol v3 > When fetching user market state > Then it should be possible to fetch user market state for a given user, market address and chain ID 1`] = `
+{
+  "__typename": "MarketUserState",
+  "availableBorrowsBase": Any<String>,
+  "currentLiquidationThreshold": Any<String>,
+  "eModeEnabled": Any<Boolean>,
+  "healthFactor": Any<String>,
+  "isInIsolationMode": Any<Boolean>,
+  "ltv": Any<String>,
+  "netAPY": Any<String>,
+  "netWorth": Any<String>,
+  "totalCollateralBase": Any<String>,
+  "totalDebtBase": Any<String>,
+}
+`;
