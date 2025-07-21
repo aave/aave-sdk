@@ -610,7 +610,7 @@ export function useVaultWithdraw(): UseAsyncTask<
  */
 export function useVaultDeploy(): UseAsyncTask<
   VaultDeployRequest,
-  TransactionRequest,
+  ExecutionPlan,
   UnexpectedError
 > {
   const client = useAaveClient();

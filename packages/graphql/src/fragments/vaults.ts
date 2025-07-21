@@ -9,10 +9,7 @@ export const UserVaultSharesFragment = graphql(
     shares {
       ...TokenAmount
     }
-    amountDeposited {
-      ...TokenAmount
-    }
-    amountWithdrawn {
+    balance {
       ...TokenAmount
     }
   }`,
