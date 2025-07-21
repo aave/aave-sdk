@@ -1,5 +1,27 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Given the Aave Protocol v3 > When fetching a market data for a given address > Then it should be possible to fetch market data for a given address 1`] = `
+{
+  "__typename": "Market",
+  "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 99999999,
+    "explorerUrl": "https://dashboard.tenderly.co/explorer/vnet/27ff3c60-0e2c-4d46-8190-f5170dc7da8c",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "Forked Ethereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3ForkedEthereum",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
 exports[`Given the Aave Protocol v3 > When fetching markets data > Then it should be possible to fetch markets for a given chain ID 1`] = `
 {
   "__typename": "Market",
