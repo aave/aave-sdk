@@ -12,38 +12,75 @@ import {
   createNewWallet,
   DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
+  fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  getReserveInfo,
   WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';
 import { userSupplies } from './user';
 
-const supplyAndGetUserSupplies = async (
-  requestSupply: SupplyRequest,
+async function supplyAndGetUserSupplies(
   wallet: WalletClient,
-  userSuppliesRequest: UserSuppliesRequest,
-) => {
-  const result = await supply(client, requestSupply)
+  marketAddress: string,
+  chainId: number,
+  amount: SupplyRequest['amount'],
+) {
+  const userAddress = evmAddress(wallet.account!.address);
+  const result = await supply(client, {
+    market: marketAddress,
+    supplier: userAddress,
+    amount,
+    chainId,
+  })
     .andThen(sendWith(wallet))
-    .andThen(() => userSupplies(client, userSuppliesRequest));
+    .andThen(() =>
+      userSupplies(client, {
+        markets: [{ address: marketAddress, chainId }],
+        user: userAddress,
+      }),
+    );
   assertOk(result);
   return result.value;
-};
+}
 
-const withdrawAndGetUserSupplies = async (
-  requestWithdraw: WithdrawRequest,
+async function withdrawAndGetUserSupplies(
   wallet: WalletClient,
-  userSuppliesRequest: UserSuppliesRequest,
-) => {
-  const result = await withdraw(client, requestWithdraw)
+  marketAddress: string,
+  chainId: number,
+  amount: WithdrawRequest['amount'],
+) {
+  const userAddress = evmAddress(wallet.account!.address);
+  const result = await withdraw(client, {
+    market: marketAddress,
+    supplier: userAddress,
+    amount,
+    chainId,
+  })
     .andThen(sendWith(wallet))
-    .andThen(() => userSupplies(client, userSuppliesRequest));
+    .andThen(() =>
+      userSupplies(client, {
+        markets: [{ address: marketAddress, chainId }],
+        user: userAddress,
+      }),
+    );
   assertOk(result);
   return result.value;
-};
+}
+
+async function getUserSupplies(
+  wallet: WalletClient,
+  marketAddress: string,
+  chainId: number,
+) {
+  const userAddress = evmAddress(wallet.account!.address);
+  const userSuppliesRequest: UserSuppliesRequest = {
+    markets: [{ address: marketAddress, chainId }],
+    user: userAddress,
+  };
+  return userSupplies(client, userSuppliesRequest);
+}
 
 describe('Given the Aave Protocol v3 Market', () => {
   // Hardcoded market info for now
@@ -56,15 +93,6 @@ describe('Given the Aave Protocol v3 Market', () => {
     const wallet = createNewWallet();
     const amountToSupply = '0.90';
     const amountToFund = bigDecimal('1.0');
-    const userSuppliesRequest: UserSuppliesRequest = {
-      markets: [
-        {
-          address: marketInfo.address,
-          chainId: marketInfo.chain.chainId,
-        },
-      ],
-      user: evmAddress(wallet.account!.address),
-    };
 
     beforeAll(async () => {
       // Create a new wallet and fund it with native token
@@ -76,22 +104,18 @@ describe('Given the Aave Protocol v3 Market', () => {
 
     it("Then it should be available in the user's supply positions", async () => {
       const result = await supplyAndGetUserSupplies(
-        {
-          market: marketInfo.address,
-          supplier: evmAddress(wallet.account!.address),
-          amount: {
-            native: amountToSupply,
-          },
-          chainId: marketInfo.chain.chainId,
-        },
         wallet,
-        userSuppliesRequest,
+        marketInfo.address,
+        marketInfo.chain.chainId,
+        {
+          native: amountToSupply,
+        },
       );
       expect(result).toEqual([
         expect.objectContaining({
           balance: expect.objectContaining({
             amount: expect.objectContaining({
-              value: amountToSupply,
+              value: expect.toBeNumericStringCloseTo(Number(amountToSupply)),
             }),
           }),
         }),
@@ -100,43 +124,39 @@ describe('Given the Aave Protocol v3 Market', () => {
 
     it('Then it should be possible to withdraw the position', async () => {
       // Supply if the user has no position
-      const supplyInfo = await userSupplies(client, userSuppliesRequest);
+      const supplyInfo = await getUserSupplies(
+        wallet,
+        marketInfo.address,
+        marketInfo.chain.chainId,
+      );
       assertOk(supplyInfo);
       if (
         Number(supplyInfo.value[0]?.balance.amount.value) === 0 ||
         supplyInfo.value.length === 0
       ) {
         await supplyAndGetUserSupplies(
-          {
-            market: marketInfo.address,
-            supplier: wallet.account!.address,
-            amount: {
-              native: amountToSupply,
-            },
-            chainId: marketInfo.chain.chainId,
-          },
           wallet,
-          userSuppliesRequest,
+          marketInfo.address,
+          marketInfo.chain.chainId,
+          {
+            native: amountToSupply,
+          },
         );
       }
 
       const result = await withdrawAndGetUserSupplies(
-        {
-          market: marketInfo.address,
-          supplier: wallet.account!.address,
-          amount: {
-            native: { value: supplyInfo.value[0]?.balance.amount.value },
-          },
-          chainId: marketInfo.chain.chainId,
-        },
         wallet,
-        userSuppliesRequest,
+        marketInfo.address,
+        marketInfo.chain.chainId,
+        {
+          native: { value: supplyInfo.value[0]?.balance.amount.value },
+        },
       );
       expect(result).toEqual([
         expect.objectContaining({
           balance: expect.objectContaining({
             amount: expect.objectContaining({
-              value: '0.00',
+              value: expect.toBeNumericStringCloseTo(0),
             }),
           }),
         }),
@@ -146,26 +166,15 @@ describe('Given the Aave Protocol v3 Market', () => {
 
   describe('When supplying ERC-20 token to the corresponding reserve', () => {
     let reserveInfo: Reserve;
-    let userSuppliesRequest: UserSuppliesRequest;
     const wallet = createNewWallet();
     const amountToFund = bigDecimal('1.0');
     const amountToSupply = '0.80';
 
     beforeAll(async () => {
-      reserveInfo = await getReserveInfo(WETH_ADDRESS);
+      reserveInfo = await fetchReserve(WETH_ADDRESS);
       // Check if the reserve is not frozen or paused
       expect(reserveInfo.isFrozen).toBe(false);
       expect(reserveInfo.isPaused).toBe(false);
-
-      userSuppliesRequest = {
-        markets: [
-          {
-            address: reserveInfo.market.address,
-            chainId: reserveInfo.market.chain.chainId,
-          },
-        ],
-        user: evmAddress(wallet.account!.address),
-      };
 
       // Fund the wallet with ERC-20 token
       await fundErc20Address(
@@ -177,82 +186,68 @@ describe('Given the Aave Protocol v3 Market', () => {
 
     it("Then it should be available in the user's supply positions", async () => {
       const result = await supplyAndGetUserSupplies(
-        {
-          market: reserveInfo.market.address,
-          supplier: wallet.account!.address,
-          amount: {
-            erc20: {
-              currency: WETH_ADDRESS,
-              value: amountToSupply,
-            },
-          },
-          chainId: reserveInfo.market.chain.chainId,
-        },
         wallet,
-        userSuppliesRequest,
+        reserveInfo.market.address,
+        reserveInfo.market.chain.chainId,
+        {
+          erc20: {
+            currency: WETH_ADDRESS,
+            value: amountToSupply,
+          },
+        },
       );
       expect(result).toEqual([
         expect.objectContaining({
           balance: expect.objectContaining({
             amount: expect.objectContaining({
-              value: expect.any(String),
+              value: expect.toBeNumericStringCloseTo(Number(amountToSupply)),
             }),
           }),
         }),
       ]);
-      // Check that the value is close to the expected amount
-      const actualValue = Number.parseFloat(
-        result[0]?.balance.amount.value || '0',
-      );
-      const expectedValue = Number.parseFloat(amountToSupply.toString());
-      expect(actualValue).toBeCloseTo(expectedValue, 2);
     }, 25_000);
 
     it('Then it should be possible to withdraw the position', async () => {
       // Supply if the user has no position
-      const supplyInfo = await userSupplies(client, userSuppliesRequest);
+      const supplyInfo = await getUserSupplies(
+        wallet,
+        reserveInfo.market.address,
+        reserveInfo.market.chain.chainId,
+      );
       assertOk(supplyInfo);
       if (
         Number(supplyInfo.value[0]?.balance.amount.value) === 0 ||
         supplyInfo.value.length === 0
       ) {
         await supplyAndGetUserSupplies(
-          {
-            market: reserveInfo.market.address,
-            supplier: wallet.account!.address,
-            amount: {
-              erc20: {
-                currency: WETH_ADDRESS,
-                value: amountToSupply,
-              },
-            },
-            chainId: reserveInfo.market.chain.chainId,
-          },
           wallet,
-          userSuppliesRequest,
-        );
-      }
-
-      const result = await withdrawAndGetUserSupplies(
-        {
-          market: reserveInfo.market.address,
-          supplier: wallet.account!.address,
-          amount: {
+          reserveInfo.market.address,
+          reserveInfo.market.chain.chainId,
+          {
             erc20: {
               currency: WETH_ADDRESS,
               value: amountToSupply,
             },
           },
-          chainId: reserveInfo.market.chain.chainId,
-        },
+        );
+      }
+
+      const result = await withdrawAndGetUserSupplies(
         wallet,
-        userSuppliesRequest,
+        reserveInfo.market.address,
+        reserveInfo.market.chain.chainId,
+        {
+          erc20: {
+            currency: WETH_ADDRESS,
+            value: amountToSupply,
+          },
+        },
       );
       expect(result).toEqual([
         expect.objectContaining({
           balance: expect.objectContaining({
             amount: expect.objectContaining({
-              value: '0.00',
+              value: expect.toBeNumericStringCloseTo(0),
             }),
           }),
         }),

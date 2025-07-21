@@ -162,13 +162,10 @@ export function fundErc20Address(
   );
 }
 
-export async function getReserveInfo(
-  tokenAddress: EvmAddress,
-  marketAddress = DEFAULT_MARKET_ADDRESS,
-): Promise<Reserve> {
+export async function fetchReserve(tokenAddress: EvmAddress): Promise<Reserve> {
   const result = await reserve(client, {
     chainId: ETHEREUM_FORK_ID,
-    market: marketAddress,
+    market: DEFAULT_MARKET_ADDRESS,
     underlyingToken: tokenAddress,
   }).map(nonNullable);
   assertOk(result);
