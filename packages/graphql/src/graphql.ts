@@ -3,6 +3,7 @@ import type {
   BigIntString,
   BlockchainData,
   ChainId,
+  Cursor,
   DateTime,
   EvmAddress,
   FixedBytes32,
@@ -32,6 +33,7 @@ export const graphql = initGraphQLTada<{
     BlockchainData: BlockchainData;
     Boolean: boolean;
     ChainId: ChainId;
+    Cursor: Cursor;
     DateTime: DateTime;
     EvmAddress: EvmAddress;
     FixedBytes32: FixedBytes32;
