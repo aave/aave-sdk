@@ -11,8 +11,8 @@ import { market, markets, userMarketState } from './markets';
 describe('Given the Aave Protocol v3', () => {
   const wallet = createNewWallet();
 
-  describe('When fetching markets data', () => {
-    it('Then it should be possible to fetch markets for a given chain ID', async () => {
+  describe('When fetching markets across one or more chains', () => {
+    it('Then it should return the expected data for each market', async () => {
       const result = await markets(client, {
         chainIds: [chainId(1)],
       });
@@ -31,8 +31,8 @@ describe('Given the Aave Protocol v3', () => {
     });
   });
 
-  describe('When fetching a market data for a given address', () => {
-    it('Then it should be possible to fetch market data for a given market address and chain ID', async () => {
+  describe('When fetching a single market', () => {
+    it('Then it should return the expected data for the market', async () => {
       const result = await market(client, {
         address: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
@@ -50,8 +50,8 @@ describe('Given the Aave Protocol v3', () => {
     });
   });
 
-  describe('When fetching user market state', () => {
-    it('Then it should be possible to fetch user market state for a given user, market address and chain ID', async () => {
+  describe('When fetching user market state for a new user', () => {
+    it('Then it should return the expected data for a user that has never interacted with the market', async () => {
       const result = await userMarketState(client, {
         market: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
