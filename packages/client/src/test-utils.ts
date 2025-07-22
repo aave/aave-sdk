@@ -46,6 +46,7 @@ export const USDC_ADDRESS = evmAddress(
 export const DEFAULT_MARKET_ADDRESS = evmAddress(
   '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
+export const DEFAULT_MARKET_EMODE_CATEGORY = 1;
 
 export const ETHEREUM_FORK_RPC_URL =
   'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';

@@ -2,13 +2,15 @@ import { assertOk, chainId, evmAddress } from '@aave/types';
 import { describe, expect, it } from 'vitest';
 import {
   client,
+  createNewWallet,
   DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
-  wallet,
 } from '../test-utils';
 import { market, markets, userMarketState } from './markets';
 
 describe('Given the Aave Protocol v3', () => {
+  const wallet = createNewWallet();
+
   describe('When fetching markets data', () => {
     it('Then it should be possible to fetch markets for a given chain ID', async () => {
       const result = await markets(client, {
