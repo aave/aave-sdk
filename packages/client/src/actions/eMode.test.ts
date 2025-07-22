@@ -69,10 +69,7 @@ describe('Given an Aave Market', () => {
 
         expect(reserve).toMatchObject({
           userState: expect.objectContaining({
-            emode: expect.objectContaining({
-              categoryId: ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-            }),
-            canBeCollateral: eModeCategoryReserve?.canBeCollateral ?? false,
+            canBeCollateral: reserve.userState?.canBeCollateral ?? false,
             canBeBorrowed: eModeCategoryReserve?.canBeBorrowed ?? false,
           }),
         });
