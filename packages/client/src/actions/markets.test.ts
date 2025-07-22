@@ -60,9 +60,7 @@ describe('Given the Aave Protocol v3', () => {
       expect(result.value).toMatchSnapshot({
         availableBorrowsBase: expect.any(String),
         currentLiquidationThreshold: expect.any(String),
-        eModeEnabled: expect.any(Boolean),
         healthFactor: expect.any(String),
-        isInIsolationMode: expect.any(Boolean),
         ltv: expect.any(String),
         netAPY: expect.any(String),
         netWorth: expect.any(String),

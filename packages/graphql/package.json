@@ -40,7 +40,8 @@
     "gql:download:staging": "gql-tada generate schema 'https://api.v3.staging.aave.com/graphql' --output './schema.graphql'",
     "gql:download:local": "gql-tada generate schema 'http://localhost:3011/graphql' --output './schema.graphql'",
     "gql:generate": "gql-tada generate output",
-    "gql:turbo": "gql-tada turbo"
+    "gql:turbo": "gql-tada turbo",
+    "prebuild": "pnpm run gql:turbo"
   },
   "dependencies": {
     "@aave/types": "workspace:*",
