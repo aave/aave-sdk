@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
-  DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
+  ETHEREUM_MARKET_ADDRESS,
 } from '../test-utils';
 import { market, markets, userMarketState } from './markets';
 
@@ -34,7 +34,7 @@ describe('Given the Aave Protocol v3', () => {
   describe('When fetching a market data for a given address', () => {
     it('Then it should be possible to fetch market data for a given market address and chain ID', async () => {
       const result = await market(client, {
-        address: DEFAULT_MARKET_ADDRESS,
+        address: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
       });
 
@@ -53,7 +53,7 @@ describe('Given the Aave Protocol v3', () => {
   describe('When fetching user market state', () => {
     it('Then it should be possible to fetch user market state for a given user, market address and chain ID', async () => {
       const result = await userMarketState(client, {
-        market: DEFAULT_MARKET_ADDRESS,
+        market: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
         user: evmAddress(wallet.account!.address),
       });

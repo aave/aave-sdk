@@ -46,10 +46,10 @@ export const USDC_ADDRESS = evmAddress(
 export const DAI_ADDRESS = evmAddress(
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 );
-export const DEFAULT_MARKET_ADDRESS = evmAddress(
+export const ETHEREUM_MARKET_ADDRESS = evmAddress(
   '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
-export const DEFAULT_MARKET_EMODE_CATEGORY = 1;
+export const ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY = 1;
 
 export const ETHEREUM_FORK_RPC_URL =
   'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';
@@ -172,7 +172,7 @@ export async function fetchReserve(
 ): Promise<Reserve> {
   const result = await reserve(client, {
     chainId: ETHEREUM_FORK_ID,
-    market: DEFAULT_MARKET_ADDRESS,
+    market: ETHEREUM_MARKET_ADDRESS,
     underlyingToken: tokenAddress,
     user: user,
   }).map(nonNullable);
