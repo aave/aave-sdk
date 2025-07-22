@@ -2,7 +2,7 @@ import { AaveProvider, useUserSupplies, useUserBorrows, evmAddress, chainId, use
 import { client } from './client';
 
 // TODO: change to your address or any address you want to query
-const user = evmAddress("ZERO_ADDRESS");
+const user = evmAddress(ZERO_ADDRESS);
 
 function UserPositions() {
   const { data: markets, loading: marketsLoading } = useAaveMarkets({
