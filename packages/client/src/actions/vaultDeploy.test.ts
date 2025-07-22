@@ -3,8 +3,6 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
-  DEFAULT_MARKET_ADDRESS,
-  ETHEREUM_FORK_ID,
   fetchReserve,
   fundErc20Address,
   WETH_ADDRESS,
