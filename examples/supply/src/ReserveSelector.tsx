@@ -15,6 +15,7 @@ export function ReserveSelector({
     const selectedReserve = reserves.find(
       (reserve) => reserve.underlyingToken.address === event.target.value,
     );
+    console.log(selectedReserve);
     if (selectedReserve) {
       onChange(selectedReserve);
     }

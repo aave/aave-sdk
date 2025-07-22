@@ -35,7 +35,7 @@ export function MarketSelector({
   }
 
   return (
-    <label>
+    <label style={{ marginBottom: '5px' }}>
       <strong style={{ display: 'block' }}>Market:</strong>
       <select
         onChange={handleChange}
