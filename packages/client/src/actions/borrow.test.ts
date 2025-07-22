@@ -13,8 +13,8 @@ import {
   ETHEREUM_FORK_ID,
   fetchReserve,
   fundErc20Address,
-  wait,
   WETH_ADDRESS,
+  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
@@ -92,7 +92,10 @@ describe('Given an Aave Market', () => {
     describe('When user set the supply as collateral', async () => {
       it('Then it should be possible to borrow from the reserve', async () => {
         // Borrow from the reserve
-        const borrowReserve = await fetchReserve(WETH_ADDRESS, evmAddress(wallet.account!.address));
+        const borrowReserve = await fetchReserve(
+          WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+        );
         const borrowResult = await borrow(client, {
           market: marketInfo.address,
           chainId: marketInfo.chain.chainId,

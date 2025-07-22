@@ -9,8 +9,8 @@ import {
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  wait,
   WETH_ADDRESS,
+  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';

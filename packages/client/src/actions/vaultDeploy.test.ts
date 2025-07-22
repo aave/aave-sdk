@@ -2,13 +2,13 @@ import { assertOk, bigDecimal, evmAddress } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
+  createNewWallet,
   DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
   fetchReserve,
-  WETH_ADDRESS,
-  createNewWallet,
-  wait,
   fundErc20Address,
+  WETH_ADDRESS,
+  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { vaultDeploy } from './transactions';
@@ -19,7 +19,11 @@ describe('Given the Aave Protocol v3', () => {
     const wallet = createNewWallet();
 
     beforeAll(async () => {
-      await fundErc20Address(WETH_ADDRESS, evmAddress(wallet.account!.address), bigDecimal('1'));
+      await fundErc20Address(
+        WETH_ADDRESS,
+        evmAddress(wallet.account!.address),
+        bigDecimal('1'),
+      );
     });
 
     it('Then vault is created', async () => {
@@ -35,7 +39,9 @@ describe('Given the Aave Protocol v3', () => {
         shareSymbol: 'avWETH',
         underlyingToken: reserve.underlyingToken.address,
       })
-        .andTee((result) => console.log(`result: ${JSON.stringify(result, null, 2)}`))
+        .andTee((result) =>
+          console.log(`result: ${JSON.stringify(result, null, 2)}`),
+        )
         .andThen(sendWith(wallet))
         .andTee((tx) => console.log(`transaction: ${tx}`));
       assertOk(result);
