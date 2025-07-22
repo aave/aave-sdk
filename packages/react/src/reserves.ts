@@ -53,17 +53,14 @@ export function useAaveReserve(
 
 export function useAaveReserve({
   suspense = false,
-  market,
-  underlyingToken,
-  chainId,
-  user,
+  ...request
 }: UseAaveReserveArgs & {
   suspense?: boolean;
 }): SuspendableResult<Reserve | null> {
   return useSuspendableQuery({
     document: ReserveQuery,
     variables: {
-      request: { market, underlyingToken, chainId, user },
+      request,
     },
     suspense,
   });
