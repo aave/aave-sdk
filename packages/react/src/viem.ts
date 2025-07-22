@@ -1,22 +1,12 @@
-import type {
-  SigningError,
-  UnexpectedError,
-  ValidationError,
-} from '@aave/client';
+import type { SigningError, UnexpectedError } from '@aave/client';
 import { sendTransactionAndWait } from '@aave/client/viem';
-import type {
-  InsufficientBalanceError,
-  TransactionRequest,
-} from '@aave/graphql';
+import type { TransactionRequest } from '@aave/graphql';
 import { invariant } from '@aave/types';
 import type { WalletClient } from 'viem';
 import type { TxHash } from '../../types/dist';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError =
-  | SigningError
-  | ValidationError<InsufficientBalanceError>
-  | UnexpectedError;
+export type TransactionError = SigningError | UnexpectedError;
 
 /**
  * A hook that provides a way to send Aave transactions using a viem WalletClient instance.
@@ -81,6 +71,10 @@ export type TransactionError =
  *           return sendTransaction(plan.approval).andThen(() =>
  *             sendTransaction(plan.originalTransaction),
  *           );
+ *
+ *         case 'InsufficientBalanceError':
+ *           console.error(`Insufficient balance: ${error.cause.required.value} required.`);
+ *           break;
  *        }
  *      });
  *
@@ -90,8 +84,8 @@ export type TransactionError =
  *          console.error(`Failed to sign the transaction: ${error.message}`);
  *          break;
  *
- *        case 'ValidationError':
- *          console.error(`Insufficient balance: ${error.cause.required.value} required.`);
+ *        case 'UnexpectedError':
+ *          console.error(`Unexpected error: ${error.message}`);
  *          break;
  *      }
  *      return;
