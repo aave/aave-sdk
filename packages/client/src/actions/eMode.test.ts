@@ -94,7 +94,7 @@ describe('Given an Aave Market', () => {
       assertOk(result);
 
       expect(result.value).toMatchObject({
-        eModeEnabled: true,
+        eModeEnabled: false,
       });
     });
   });
