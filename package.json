@@ -23,6 +23,7 @@
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
     "test:borrow": "vitest --project client packages/client/src/actions/borrow.test.ts",
+    "test:vaultDeploy": "vitest --project client packages/client/src/actions/vaultDeploy.test.ts",
     "test:856": "vitest --project client packages/client/src/actions/eMode.test.ts -t 'Then they should be able to disable it at any time'",
     "test:857": "vitest --project client packages/client/src/actions/eMode.test.ts -t \"Then the market's reserves should have user state that reflects the selected E-Mode category settings\"",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",

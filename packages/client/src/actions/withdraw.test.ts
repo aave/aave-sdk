@@ -10,6 +10,7 @@ import {
   fundErc20Address,
   fundNativeAddress,
   WETH_ADDRESS,
+  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';
@@ -90,6 +91,9 @@ describe('Given an Aave Market', () => {
           chainId: reserveInfo.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
+          .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
+          // Wait for the transaction to be mined
+          .andTee(() => wait(5000))
           .andThen(() =>
             userSupplies(client, {
               markets: [
@@ -111,7 +115,7 @@ describe('Given an Aave Market', () => {
             }),
           }),
         ]);
-      });
+      }, 25_000);
     });
   });
 
@@ -153,6 +157,8 @@ describe('Given an Aave Market', () => {
           chainId: reserveInfo.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
+          .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
+          .andTee(() => wait(5000))
           .andThen(() =>
             userSupplies(client, {
               markets: [
@@ -178,7 +184,7 @@ describe('Given an Aave Market', () => {
           address: evmAddress(wallet.account!.address),
         });
         expect(balanceAfter).toBeGreaterThan(balanceBefore);
-      });
+      }, 25_000);
     });
   });
 });
