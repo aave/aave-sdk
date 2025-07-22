@@ -119,16 +119,14 @@ export function useUsdExchangeRates(
 
 export function useUsdExchangeRates({
   suspense = false,
-  market,
-  underlyingTokens,
-  chainId,
+  ...request
 }: UseUsdExchangeRatesArgs & {
   suspense?: boolean;
 }): SuspendableResult<UsdExchangeRate[]> {
   return useSuspendableQuery({
     document: UsdExchangeRatesQuery,
     variables: {
-      request: { market, underlyingTokens, chainId },
+      request,
     },
     suspense,
   });
