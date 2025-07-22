@@ -43,6 +43,7 @@ export const WETH_ADDRESS = evmAddress(
 export const USDC_ADDRESS = evmAddress(
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 );
+export const DAI_ADDRESS = evmAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F');
 export const DEFAULT_MARKET_ADDRESS = evmAddress(
   '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
@@ -162,11 +163,12 @@ export function fundErc20Address(
   );
 }
 
-export async function fetchReserve(tokenAddress: EvmAddress): Promise<Reserve> {
+export async function fetchReserve(tokenAddress: EvmAddress, user?: EvmAddress): Promise<Reserve> {
   const result = await reserve(client, {
     chainId: ETHEREUM_FORK_ID,
     market: DEFAULT_MARKET_ADDRESS,
     underlyingToken: tokenAddress,
+    user: user,
   }).map(nonNullable);
   assertOk(result);
   return result.value;
@@ -204,4 +206,8 @@ export function assertTypedDocumentSatisfies<
   rules: ReadonlyArray<ValidationRule>,
 ) {
   expect(validate(schema, document, rules)).toEqual([]);
+}
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
