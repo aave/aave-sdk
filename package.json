@@ -22,6 +22,8 @@
     "test:client": "vitest --project client",
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
+    "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
+    "test:borrow": "vitest --project client packages/client/src/actions/borrow.test.ts",
     "test": "vitest"
   },
   "license": "MIT",
