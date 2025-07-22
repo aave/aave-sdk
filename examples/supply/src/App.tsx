@@ -13,9 +13,9 @@ export function App() {
   const [market, setMarket] = useState<Market | null>(null);
   const [reserve, setReserve] = useState<Reserve | null>(null);
 
-  const handleMarketSelect = (market: Market) => {
+  const handleMarketSelect = (market: Market | null) => {
     setMarket(market);
-    setReserve(market.supplyReserves[0]);
+    setReserve(market?.supplyReserves[0] ?? null);
   };
 
   return (
