@@ -21,16 +21,17 @@ jobs:
       - name: Build
         uses: ./.github/actions/setup
 
-  # test:
-  #   name: Test
-  #   needs: lint
-  #   runs-on: ubuntu-latest
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    continue-on-error: true
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Run Tests
-  #       uses: ./.github/actions/tests
-  #       with:
-  #         environment: 'staging'
-  #         private_key: ${{ secrets.PRIVATE_KEY }}
+      - name: Run Tests
+        uses: ./.github/actions/tests
+        with:
+          environment: 'staging'
+          private_key: ${{ secrets.PRIVATE_KEY }}
