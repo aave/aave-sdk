@@ -6,6 +6,7 @@ import type {
   UserBorrowsRequest,
   UserMarketStateRequest,
   UserSuppliesRequest,
+  UserTransactionHistoryRequest,
 } from '@aave/graphql';
 import {
   UserBorrowsQuery,
@@ -58,17 +59,14 @@ export function useUserSupplies(
 
 export function useUserSupplies({
   suspense = false,
-  markets,
-  user,
-  collateralsOnly,
-  orderBy,
+  ...request
 }: UseUserSuppliesArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserReserveSupplyPosition[]> {
   return useSuspendableQuery({
     document: UserSuppliesQuery,
     variables: {
-      request: { markets, user, collateralsOnly, orderBy },
+      request,
     },
     suspense,
   });
@@ -111,16 +109,14 @@ export function useUserBorrows(
 
 export function useUserBorrows({
   suspense = false,
-  markets,
-  user,
-  orderBy,
+  ...request
 }: UseUserBorrowsArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserReserveBorrowPosition[]> {
   return useSuspendableQuery({
     document: UserBorrowsQuery,
     variables: {
-      request: { markets, user, orderBy },
+      request,
     },
     suspense,
   });
@@ -163,20 +159,20 @@ export function useUserMarketState(
 
 export function useUserMarketState({
   suspense = false,
-  market,
-  user,
-  chainId,
+  ...request
 }: UseUserStateArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserState> {
   return useSuspendableQuery({
     document: UserMarketStateQuery,
     variables: {
-      request: { market, user, chainId },
+      request,
     },
     suspense,
   });
 }
+
+export type UseUserTransactionHistoryArgs = UserTransactionHistoryRequest;
 
 /**
  * Fetch user transaction history.
@@ -190,7 +186,7 @@ export function useUserMarketState({
  * ```
  */
 export function useUserTransactionHistory(
-  args: Suspendable,
+  args: UseUserTransactionHistoryArgs & Suspendable,
 ): SuspenseResult<PaginatedUserTransactionHistoryResult>;
 
 /**
@@ -200,16 +196,19 @@ export function useUserTransactionHistory(
  * const { data, loading } = useUserTransactionHistory();
  * ```
  */
-export function useUserTransactionHistory(): ReadResult<PaginatedUserTransactionHistoryResult>;
+export function useUserTransactionHistory(
+  args: UseUserTransactionHistoryArgs,
+): ReadResult<PaginatedUserTransactionHistoryResult>;
 
 export function useUserTransactionHistory({
   suspense = false,
-}: {
+  ...request
+}: UseUserTransactionHistoryArgs & {
   suspense?: boolean;
-} = {}): SuspendableResult<PaginatedUserTransactionHistoryResult> {
+}): SuspendableResult<PaginatedUserTransactionHistoryResult> {
   return useSuspendableQuery({
     document: UserTransactionHistoryQuery,
-    variables: {},
+    variables: { request },
     suspense,
   });
 }

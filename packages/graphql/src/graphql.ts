@@ -3,6 +3,7 @@ import type {
   BigIntString,
   BlockchainData,
   ChainId,
+  Cursor,
   DateTime,
   EvmAddress,
   FixedBytes32,
@@ -18,7 +19,7 @@ import {
   type TadaDocumentNode,
 } from 'gql.tada';
 import type { StandardData } from './common';
-import type { OrderDirection, PageSize } from './enums';
+import type { OrderDirection, PageSize, TimeWindow } from './enums';
 import type { introspection } from './graphql-env';
 
 export type { FragmentOf } from 'gql.tada';
@@ -32,6 +33,7 @@ export const graphql = initGraphQLTada<{
     BlockchainData: BlockchainData;
     Boolean: boolean;
     ChainId: ChainId;
+    Cursor: Cursor;
     DateTime: DateTime;
     EvmAddress: EvmAddress;
     FixedBytes32: FixedBytes32;
@@ -44,6 +46,7 @@ export const graphql = initGraphQLTada<{
     String: string;
     TxHash: TxHash;
     Void: Void;
+    TimeWindow: TimeWindow;
   };
 }>();
 

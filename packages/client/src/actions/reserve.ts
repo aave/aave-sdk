@@ -1,4 +1,13 @@
-import { type Reserve, ReserveQuery, type ReserveRequest } from '@aave/graphql';
+import {
+  type APYSample,
+  BorrowAPYHistoryQuery,
+  type BorrowAPYHistoryRequest,
+  type Reserve,
+  ReserveQuery,
+  type ReserveRequest,
+  SupplyAPYHistoryQuery,
+  type SupplyAPYHistoryRequest,
+} from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
@@ -23,6 +32,46 @@ export function reserve(
   request: ReserveRequest,
 ): ResultAsync<Reserve | null, UnexpectedError> {
   return client.query(ReserveQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches historical borrow APY data for a given underlying asset on a specific market,
+ * within a defined time window.
+ *
+ * The returned data represents APY samples over time, or `null` if unavailable.
+ *
+ * @param client - The Aave client instance used to perform the query.
+ * @param request - The borrow APY history request parameters.
+ * @returns A `ResultAsync` containing an array of APY samples, or `null` if not found.
+ */
+
+export function borrowAPYHistory(
+  client: AaveClient,
+  request: BorrowAPYHistoryRequest,
+): ResultAsync<APYSample[] | null, UnexpectedError> {
+  return client.query(BorrowAPYHistoryQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches historical supply APY data for a given underlying asset on a specific market,
+ * within a defined time window.
+ *
+ * The returned data represents APY samples over time, or `null` if unavailable.
+ *
+ * @param client - The Aave client instance used to perform the query.
+ * @param request - The supply APY history request parameters.
+ * @returns A `ResultAsync` containing an array of APY samples, or `null` if not found.
+ */
+
+export function supplyAPYHistory(
+  client: AaveClient,
+  request: SupplyAPYHistoryRequest,
+): ResultAsync<APYSample[] | null, UnexpectedError> {
+  return client.query(SupplyAPYHistoryQuery, {
     request,
   });
 }

@@ -53,16 +53,14 @@ export function useVault(args: UseVaultArgs): ReadResult<Vault | null>;
 
 export function useVault({
   suspense = false,
-  by,
-  chainId,
-  user,
+  ...request
 }: UseVaultArgs & {
   suspense?: boolean;
 }): SuspendableResult<Vault | null> {
   return useSuspendableQuery({
     document: VaultQuery,
     variables: {
-      request: { by, chainId, user },
+      request,
     },
     suspense,
   });
@@ -109,17 +107,14 @@ export function useVaults(
 
 export function useVaults({
   suspense = false,
-  criteria,
-  pageSize,
-  cursor,
-  user,
+  ...request
 }: UseVaultsArgs & {
   suspense?: boolean;
 }): SuspendableResult<PaginatedVaultsResult> {
   return useSuspendableQuery({
     document: VaultsQuery,
     variables: {
-      request: { criteria, pageSize, cursor, user },
+      request,
     },
     suspense,
   });
@@ -168,18 +163,14 @@ export function useUserVaults(
 
 export function useUserVaults({
   suspense = false,
-  user,
-  filters,
-  orderBy,
-  pageSize,
-  cursor,
+  ...request
 }: UseUserVaultsArgs & {
   suspense?: boolean;
 }): SuspendableResult<PaginatedVaultsResult> {
   return useSuspendableQuery({
     document: UserVaultsQuery,
     variables: {
-      request: { user, filters, orderBy, pageSize, cursor },
+      request,
     },
     suspense,
   });

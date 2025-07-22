@@ -44,18 +44,16 @@ export function useAaveMarket(
 
 export function useAaveMarket({
   suspense = false,
-  address,
-  chainId,
-  user,
   borrowsOrderBy = defaultMarketReservesRequestOrderBy,
   suppliesOrderBy = defaultMarketReservesRequestOrderBy,
+  ...request
 }: UseAaveMarketArgs & {
   suspense?: boolean;
 }): SuspendableResult<Market | null> {
   return useSuspendableQuery({
     document: MarketQuery,
     variables: {
-      request: { address, chainId, user },
+      request,
       borrowsOrderBy,
       suppliesOrderBy,
     },
@@ -96,17 +94,16 @@ export function useAaveMarkets(args: UseAaveMarketsArgs): ReadResult<Market[]>;
 
 export function useAaveMarkets({
   suspense = false,
-  chainIds,
-  user,
   borrowsOrderBy = defaultMarketReservesRequestOrderBy,
   suppliesOrderBy = defaultMarketReservesRequestOrderBy,
+  ...request
 }: UseAaveMarketsArgs & {
   suspense?: boolean;
 }): SuspendableResult<Market[]> {
   return useSuspendableQuery({
     document: MarketsQuery,
     variables: {
-      request: { chainIds, user },
+      request,
       borrowsOrderBy,
       suppliesOrderBy,
     },

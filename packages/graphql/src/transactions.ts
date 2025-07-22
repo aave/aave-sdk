@@ -98,10 +98,10 @@ export type VaultRedeemSharesRequest = RequestOf<typeof VaultRedeemSharesQuery>;
 export const VaultDeployQuery = graphql(
   `query VaultDeploy($request: VaultDeployRequest!) {
     value: vaultDeploy(request: $request) {
-      ...TransactionRequest
+      ...ExecutionPlan
     }
   }`,
-  [TransactionRequestFragment],
+  [ExecutionPlanFragment],
 );
 export type VaultDeployRequest = RequestOf<typeof VaultDeployQuery>;
 
