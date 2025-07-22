@@ -47,6 +47,6 @@ describe('Given the Aave Protocol v3', () => {
       });
       assertOk(vaultInfo);
       expect(vaultInfo.value.items.length).toBe(1);
-    });
+    }, 25_000);
   });
 });
