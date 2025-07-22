@@ -9,8 +9,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
-  DEFAULT_MARKET_ADDRESS,
   ETHEREUM_FORK_ID,
+  ETHEREUM_MARKET_ADDRESS,
   fetchReserve,
   fundErc20Address,
   WETH_ADDRESS,
@@ -61,7 +61,7 @@ describe('Given an Aave Market', () => {
   beforeAll(async () => {
     // Set up market info first
     const result = await market(client, {
-      address: DEFAULT_MARKET_ADDRESS,
+      address: ETHEREUM_MARKET_ADDRESS,
       chainId: ETHEREUM_FORK_ID,
     });
     assertOk(result);
