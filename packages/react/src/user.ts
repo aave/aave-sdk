@@ -59,17 +59,14 @@ export function useUserSupplies(
 
 export function useUserSupplies({
   suspense = false,
-  markets,
-  user,
-  collateralsOnly,
-  orderBy,
+  ...request
 }: UseUserSuppliesArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserReserveSupplyPosition[]> {
   return useSuspendableQuery({
     document: UserSuppliesQuery,
     variables: {
-      request: { markets, user, collateralsOnly, orderBy },
+      request,
     },
     suspense,
   });
@@ -112,16 +109,14 @@ export function useUserBorrows(
 
 export function useUserBorrows({
   suspense = false,
-  markets,
-  user,
-  orderBy,
+  ...request
 }: UseUserBorrowsArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserReserveBorrowPosition[]> {
   return useSuspendableQuery({
     document: UserBorrowsQuery,
     variables: {
-      request: { markets, user, orderBy },
+      request,
     },
     suspense,
   });
@@ -164,16 +159,14 @@ export function useUserMarketState(
 
 export function useUserMarketState({
   suspense = false,
-  market,
-  user,
-  chainId,
+  ...request
 }: UseUserStateArgs & {
   suspense?: boolean;
 }): SuspendableResult<MarketUserState> {
   return useSuspendableQuery({
     document: UserMarketStateQuery,
     variables: {
-      request: { market, user, chainId },
+      request,
     },
     suspense,
   });
