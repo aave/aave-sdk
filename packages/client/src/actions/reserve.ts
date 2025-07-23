@@ -37,16 +37,22 @@ export function reserve(
 }
 
 /**
- * Fetches historical borrow APY data for a given underlying asset on a specific market,
+ * Fetches historical borrow APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
- * The returned data represents APY samples over time, or `null` if unavailable.
+ * ```ts
+ * const result = await borrowAPYHistory(client, {
+ *   chainId: chainId(1),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   window: TimeWindow.LastWeek,
+ * });
+ * ```
  *
- * @param client - The Aave client instance used to perform the query.
+ * @param client - Aave client.
  * @param request - The borrow APY history request parameters.
- * @returns A `ResultAsync` containing an array of APY samples, or `null` if not found.
+ * @returns The array of APY samples over time, or null if not found.
  */
-
 export function borrowAPYHistory(
   client: AaveClient,
   request: BorrowAPYHistoryRequest,
@@ -57,16 +63,22 @@ export function borrowAPYHistory(
 }
 
 /**
- * Fetches historical supply APY data for a given underlying asset on a specific market,
+ * Fetches historical supply APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
- * The returned data represents APY samples over time, or `null` if unavailable.
+ * ```ts
+ * const result = await supplyAPYHistory(client, {
+ *   chainId: chainId(1),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   window: TimeWindow.LastWeek,
+ * });
+ * ```
  *
- * @param client - The Aave client instance used to perform the query.
+ * @param client - Aave client.
  * @param request - The supply APY history request parameters.
- * @returns A `ResultAsync` containing an array of APY samples, or `null` if not found.
+ * @returns The array of APY samples over time, or null if not found.
  */
-
 export function supplyAPYHistory(
   client: AaveClient,
   request: SupplyAPYHistoryRequest,

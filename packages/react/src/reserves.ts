@@ -72,19 +72,21 @@ export type UseBorrowAPYHistoryArgs = BorrowAPYHistoryRequest;
  * Fetches historical borrow APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
+ * The returned data contains APY samples with average rates and timestamps, allowing you
+ * to visualize borrow rate trends over the specified time period.
+ *
  * This signature supports React Suspense:
  *
  * ```tsx
  * const { data } = useBorrowAPYHistory({
  *   chainId: chainId(1),
  *   underlyingToken: evmAddress('0x742d35cc…'),
- *   market: evmAddress('0x24dc35d3c…'),
- *   window: TimeWindow.LastWeek
+ *   market: evmAddress('0x87870bca…'),
+ *   window: TimeWindow.LastWeek,
  *   suspense: true
  * });
  * ```
  */
-
 export function useBorrowAPYHistory(
   args: UseBorrowAPYHistoryArgs & Suspendable,
 ): SuspenseResult<APYSample[]>;
@@ -93,16 +95,18 @@ export function useBorrowAPYHistory(
  * Fetches historical borrow APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
+ * The returned data contains APY samples with average rates and timestamps, allowing you
+ * to visualize borrow rate trends over the specified time period.
+ *
  * ```tsx
- * const { data } = useBorrowAPYHistory({
+ * const { data, loading } = useBorrowAPYHistory({
  *   chainId: chainId(1),
  *   underlyingToken: evmAddress('0x742d35cc…'),
- *   market: evmAddress('0x24dc35d3c…'),
+ *   market: evmAddress('0x87870bca…'),
  *   window: TimeWindow.LastWeek
  * });
  * ```
  */
-
 export function useBorrowAPYHistory(
   args: UseBorrowAPYHistoryArgs,
 ): ReadResult<APYSample[]>;
@@ -128,13 +132,16 @@ export type UseSupplyAPYHistoryArgs = SupplyAPYHistoryRequest;
  * Fetches historical supply APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
+ * The returned data contains APY samples with average rates and timestamps, allowing you
+ * to visualize supply rate trends over the specified time period.
+ *
  * This signature supports React Suspense:
  *
  * ```tsx
  * const { data } = useSupplyAPYHistory({
  *   chainId: chainId(1),
  *   underlyingToken: evmAddress('0x742d35cc…'),
- *   market: evmAddress('0x24dc35d3c…'),
+ *   market: evmAddress('0x87870bca…'),
  *   window: TimeWindow.LastWeek,
  *   suspense: true
  * });
@@ -148,11 +155,14 @@ export function useSupplyAPYHistory(
  * Fetches historical supply APY data for a given underlying asset on a specific market
  * within a defined time window.
  *
+ * The returned data contains APY samples with average rates and timestamps, allowing you
+ * to visualize supply rate trends over the specified time period.
+ *
  * ```tsx
- * const { data } = useSupplyAPYHistory({
+ * const { data, loading } = useSupplyAPYHistory({
  *   chainId: chainId(1),
  *   underlyingToken: evmAddress('0x742d35cc…'),
- *   market: evmAddress('0x24dc35d3c…'),
+ *   market: evmAddress('0x87870bca…'),
  *   window: TimeWindow.LastWeek
  * });
  * ```
