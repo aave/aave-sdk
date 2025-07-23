@@ -10,7 +10,7 @@ import {
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { vaultDeploy } from './transactions';
-import { vaults } from './vaults';
+import { vault } from './vaults';
 
 describe('Given the Aave Protocol v3', () => {
   describe('When user deploys a vault for wETH on default market', () => {
@@ -41,16 +41,17 @@ describe('Given the Aave Protocol v3', () => {
           console.log(`result: ${JSON.stringify(result, null, 2)}`),
         )
         .andThen(sendWith(wallet))
-        .andTee((tx) => console.log(`transaction: ${tx}`));
+        .andTee((tx) => console.log(`transaction: ${tx}`))
+        .andTee(() => wait(1000))
+        .andThen((tx) =>
+          vault(client, {
+            by: { txHash: tx },
+            chainId: reserve.market.chain.chainId,
+          }),
+        );
       assertOk(result);
-      await wait(5000);
-      const vaultInfo = await vaults(client, {
-        criteria: {
-          ownedBy: [evmAddress(wallet.account!.address)],
-        },
-      });
-      assertOk(vaultInfo);
-      expect(vaultInfo.value.items.length).toBe(1);
+      console.log(`Vault with address ${result.value?.address}`);
+      expect(result.value?.owner).toEqual(wallet.account!.address);
     }, 25_000);
   });
 });
