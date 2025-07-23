@@ -1,4 +1,4 @@
-import { assertOk, evmAddress } from '@aave/client';
+import { assertOk, chainId, evmAddress } from '@aave/client';
 import { TimeWindow } from '@aave/graphql';
 import { describe, expect, it } from 'vitest';
 import {
@@ -61,11 +61,12 @@ describe('Given an Aave Market reserve', () => {
       async (window) => {
         const result = await borrowAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
+          chainId: chainId(1),
           underlyingToken: WETH_ADDRESS,
           window,
         });
         assertOk(result);
+        expect(result.value?.length).toBeGreaterThan(0);
         expect(result.value).toEqual(
           result.value?.map(() =>
             expect.objectContaining({
@@ -84,11 +85,12 @@ describe('Given an Aave Market reserve', () => {
       async (window) => {
         const result = await supplyAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
+          chainId: chainId(1),
           underlyingToken: WETH_ADDRESS,
           window,
         });
         assertOk(result);
+        expect(result.value?.length).toBeGreaterThan(0);
         expect(result.value).toEqual(
           result.value?.map(() =>
             expect.objectContaining({

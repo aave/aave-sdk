@@ -37,13 +37,10 @@ describe('Given the Aave Protocol v3', () => {
         shareSymbol: 'avWETH',
         underlyingToken: reserve.underlyingToken.address,
       })
-        .andTee((result) =>
-          console.log(`result: ${JSON.stringify(result, null, 2)}`),
-        )
         .andThen(sendWith(wallet))
         .andTee((tx) => console.log(`transaction: ${tx}`));
       assertOk(result);
-      await wait(5000);
+      await wait(1000); //TODO: improve the wait time
       const vaultInfo = await vaults(client, {
         criteria: {
           ownedBy: [evmAddress(wallet.account!.address)],
@@ -51,6 +48,8 @@ describe('Given the Aave Protocol v3', () => {
       });
       assertOk(vaultInfo);
       expect(vaultInfo.value.items.length).toBe(1);
+      console.log(`Vault with address ${vaultInfo.value.items[0]?.address}`);
+      expect(vaultInfo.value.items[0]?.owner).toEqual(wallet.account!.address);
     }, 25_000);
   });
 });
