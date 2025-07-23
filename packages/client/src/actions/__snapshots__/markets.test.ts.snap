@@ -22,7 +22,7 @@ exports[`Given the Aave Protocol v3 > When fetching a single market > Then it sh
 }
 `;
 
-exports[`Given the Aave Protocol v3 > When fetching markets across one or more chains > Then it should return the expected data for each market 1`] = `
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 1`] = `
 {
   "__typename": "Market",
   "address": "0x0AA97c284e98396202b6A04024F5E2c65026F3c0",
@@ -44,7 +44,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets across one or more c
 }
 `;
 
-exports[`Given the Aave Protocol v3 > When fetching markets across one or more chains > Then it should return the expected data for each market 2`] = `
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 2`] = `
 {
   "__typename": "Market",
   "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
@@ -66,7 +66,7 @@ exports[`Given the Aave Protocol v3 > When fetching markets across one or more c
 }
 `;
 
-exports[`Given the Aave Protocol v3 > When fetching markets across one or more chains > Then it should return the expected data for each market 3`] = `
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 3`] = `
 {
   "__typename": "Market",
   "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
