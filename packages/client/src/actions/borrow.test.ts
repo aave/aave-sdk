@@ -13,12 +13,13 @@ import {
   ETHEREUM_MARKET_ADDRESS,
   fetchReserve,
   fundErc20Address,
+  fundNativeAddress,
   WETH_ADDRESS,
   wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
-import { borrow, collateralToggle, supply } from './transactions';
+import { borrow, supply } from './transactions';
 import { userBorrows, userSupplies } from './user';
 
 async function supplyAndCheck(
@@ -55,30 +56,31 @@ async function supplyAndCheck(
 }
 
 describe('Given an Aave Market', () => {
-  let marketInfo: Market;
-  const wallet: WalletClient = createNewWallet();
-
-  beforeAll(async () => {
-    // Set up market info first
-    const result = await market(client, {
-      address: ETHEREUM_MARKET_ADDRESS,
-      chainId: ETHEREUM_FORK_ID,
-    });
-    assertOk(result);
-    marketInfo = result.value!;
-
-    // Set up wallet and supply position
-    await fundErc20Address(
-      WETH_ADDRESS,
-      evmAddress(wallet.account!.address),
-      bigDecimal('0.011'),
-    );
-  });
-
   describe('And a user with a supply position', () => {
-    describe('When user set the supply as collateral', async () => {
-      it('Then it should be possible to borrow from the reserve', async () => {
-        const supplyResult = await supplyAndCheck(wallet, {
+    describe('When the user set the supply as collateral', async () => {
+      let marketInfo: Market;
+      const wallet: WalletClient = createNewWallet();
+
+      beforeAll(async () => {
+        // Set up market info first
+        const result = await market(client, {
+          address: ETHEREUM_MARKET_ADDRESS,
+          chainId: ETHEREUM_FORK_ID,
+        });
+        assertOk(result);
+        marketInfo = result.value!;
+
+        // Set up wallet and supply position
+        await fundErc20Address(
+          WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+          bigDecimal('0.011'),
+        );
+      });
+
+      it('Then it should be possible to borrow ERC20 from the reserve', async () => {
+        // NOTE: first time supply is set as collateral automatically
+        await supplyAndCheck(wallet, {
           market: marketInfo.address,
           chainId: marketInfo.chain.chainId,
           supplier: evmAddress(wallet.account!.address),
@@ -89,35 +91,6 @@ describe('Given an Aave Market', () => {
             },
           },
         });
-
-        if (!supplyResult[0]!.isCollateral) {
-          // Enable collateral
-          const result = await collateralToggle(client, {
-            market: marketInfo.address,
-            underlyingToken: WETH_ADDRESS,
-            chainId: marketInfo.chain.chainId,
-            user: evmAddress(wallet.account!.address),
-          })
-            .andThen(sendWith(wallet))
-            .andTee((tx) => console.log(`tx to enable collateral: ${tx}`))
-            .andThen(() => {
-              return userSupplies(client, {
-                markets: [
-                  {
-                    address: marketInfo.address,
-                    chainId: marketInfo.chain.chainId,
-                  },
-                ],
-                user: evmAddress(wallet.account!.address),
-              });
-            });
-          assertOk(result);
-          expect(result.value).toEqual([
-            expect.objectContaining({
-              isCollateral: true,
-            }),
-          ]);
-        }
 
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
@@ -133,6 +106,69 @@ describe('Given an Aave Market', () => {
               currency: borrowReserve.underlyingToken.address,
               value: borrowReserve.userState!.borrowable.amount.value,
             },
+          },
+        })
+          .andThen(sendWith(wallet))
+          .andTee((tx) => console.log(`tx to borrow: ${tx}`))
+          .andTee(() => wait(5000))
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [
+                {
+                  address: marketInfo.address,
+                  chainId: marketInfo.chain.chainId,
+                },
+              ],
+              user: evmAddress(wallet.account!.address),
+            }),
+          );
+        assertOk(borrowResult);
+        expect(borrowResult.value.length).toBe(1);
+      }, 25_000);
+    });
+
+    describe('When the user set the supply as collateral', async () => {
+      let marketInfo: Market;
+      const wallet: WalletClient = createNewWallet();
+
+      beforeAll(async () => {
+        // Set up market info first
+        const result = await market(client, {
+          address: ETHEREUM_MARKET_ADDRESS,
+          chainId: ETHEREUM_FORK_ID,
+        });
+        assertOk(result);
+        marketInfo = result.value!;
+
+        // Set up wallet and supply position
+        await fundNativeAddress(
+          evmAddress(wallet.account!.address),
+          bigDecimal('0.2'),
+        );
+      });
+
+      it('Then it should be possible to borrow native from the reserve', async () => {
+        // NOTE: first time supply is set as collateral automatically
+        await supplyAndCheck(wallet, {
+          market: marketInfo.address,
+          chainId: marketInfo.chain.chainId,
+          supplier: evmAddress(wallet.account!.address),
+          amount: {
+            native: '0.1',
+          },
+        });
+
+        // Borrow from the reserve
+        const borrowReserve = await fetchReserve(
+          WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+        );
+        const borrowResult = await borrow(client, {
+          market: marketInfo.address,
+          chainId: marketInfo.chain.chainId,
+          borrower: evmAddress(wallet.account!.address),
+          amount: {
+            native: borrowReserve.userState!.borrowable.amount.value,
           },
         })
           .andThen(sendWith(wallet))
