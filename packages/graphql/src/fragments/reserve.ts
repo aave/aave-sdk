@@ -5,6 +5,7 @@ import {
   CurrencyFragment,
   DecimalValueFragment,
   NativeCurrencyFragment,
+  PercentValueFragment,
   TokenAmountFragment,
 } from './common';
 
@@ -49,18 +50,18 @@ export const EmodeReserveInfoFragment = graphql(
     categoryId
     label
     maxLTV {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationThreshold {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationPenalty {
-      ...DecimalValue
+      ...PercentValue
     }
     canBeCollateral
     canBeBorrowed
   }`,
-  [DecimalValueFragment],
+  [PercentValueFragment],
 );
 export type EmodeReserveInfo = FragmentOf<typeof EmodeReserveInfoFragment>;
 
@@ -68,19 +69,19 @@ export const ReserveSupplyInfoFragment = graphql(
   `fragment ReserveSupplyInfo on ReserveSupplyInfo {
     __typename
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
     total {
       ...DecimalValue
     }
     maxLTV {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationThreshold {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationBonus {
-      ...DecimalValue
+      ...PercentValue
     }
     canBeCollateral
     supplyCap {
@@ -88,7 +89,7 @@ export const ReserveSupplyInfoFragment = graphql(
     }
     supplyCapReached
   }`,
-  [DecimalValueFragment, TokenAmountFragment],
+  [DecimalValueFragment, TokenAmountFragment, PercentValueFragment],
 );
 export type ReserveSupplyInfo = FragmentOf<typeof ReserveSupplyInfoFragment>;
 
@@ -96,7 +97,7 @@ export const ReserveBorrowInfoFragment = graphql(
   `fragment ReserveBorrowInfo on ReserveBorrowInfo {
     __typename
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
     total {
       ...TokenAmount
@@ -105,27 +106,27 @@ export const ReserveBorrowInfoFragment = graphql(
       ...TokenAmount
     }
     reserveFactor {
-      ...DecimalValue
+      ...PercentValue
     }
     availableLiquidity {
       ...TokenAmount
     }
     utilizationRate {
-      ...DecimalValue
+      ...PercentValue
     }
     variableRateSlope1 {
-      ...DecimalValue
+      ...PercentValue
     }
     variableRateSlope2 {
-      ...DecimalValue
+      ...PercentValue
     }
     optimalUsageRate {
-      ...DecimalValue
+      ...PercentValue
     }
     borrowingState
     borrowCapReached
   }`,
-  [DecimalValueFragment, TokenAmountFragment],
+  [DecimalValueFragment, TokenAmountFragment, PercentValueFragment],
 );
 export type ReserveBorrowInfo = FragmentOf<typeof ReserveBorrowInfoFragment>;
 

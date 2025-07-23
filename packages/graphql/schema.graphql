@@ -1,6 +1,6 @@
 type APYSample {
   """The avg rate"""
-  avgRate: DecimalValue!
+  avgRate: PercentValue!
 
   """The date"""
   date: DateTime!
@@ -165,13 +165,13 @@ type EmodeMarketCategory {
   label: String!
 
   """The maximum loan-to-value ratio in efficiency mode"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold in efficiency mode"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation penalty applied in efficiency mode"""
-  liquidationPenalty: DecimalValue!
+  liquidationPenalty: PercentValue!
 
   """The list of reserves which will tailor for this eMode"""
   reserves: [EmodeMarketReserveInfo!]!
@@ -197,13 +197,13 @@ type EmodeReserveInfo {
   label: String!
 
   """The maximum loan-to-value ratio in efficiency mode"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold in efficiency mode"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation penalty applied in efficiency mode"""
-  liquidationPenalty: DecimalValue!
+  liquidationPenalty: PercentValue!
 
   """If the underlying token can be collateral with this eMode on"""
   canBeCollateral: Boolean!
@@ -392,7 +392,7 @@ type MarketUserReserveBorrowPosition {
   debt: TokenAmount!
 
   """The annual percentage yield for this borrow position"""
-  apy: DecimalValue!
+  apy: PercentValue!
 }
 
 type MarketUserReserveSupplyPosition {
@@ -406,7 +406,7 @@ type MarketUserReserveSupplyPosition {
   balance: TokenAmount!
 
   """The annual percentage yield for this supply position"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """Whether this position is being used as collateral"""
   isCollateral: Boolean!
@@ -420,7 +420,7 @@ type MarketUserState {
   netWorth: BigDecimal!
 
   """The user's net annual percentage yield across all positions"""
-  netAPY: BigDecimal!
+  netAPY: PercentValue!
 
   """The user's health factor (risk metric for liquidation)"""
   healthFactor: BigDecimal!
@@ -442,10 +442,10 @@ type MarketUserState {
   availableBorrowsBase: BigDecimal!
 
   """The liquidation threshold of the user"""
-  currentLiquidationThreshold: BigDecimal!
+  currentLiquidationThreshold: PercentValue!
 
   """The loan to value of the user"""
-  ltv: BigDecimal!
+  ltv: PercentValue!
 
   """One of the user collateral is in isolation mode"""
   isInIsolationMode: Boolean!
@@ -509,6 +509,23 @@ type PaginatedUserTransactionHistoryResult {
 type PaginatedVaultsResult {
   items: [Vault!]!
   pageInfo: PaginatedResultInfo!
+}
+
+type PercentValue {
+  """The raw none normalized percentage (the value that lives onchain)"""
+  raw: BigInt!
+
+  """The decimals representing the precision of the onchain raw value"""
+  decimals: Int!
+
+  """The normalized percentage (1.0 = 100%)"""
+  value: BigDecimal!
+
+  """
+  The human-readable formatted value you can render on a UI straight away.
+  For example, this will turn `0.01232343` to `1.23`, it will always round to `2` decimal points.
+  """
+  formatted: BigDecimal!
 }
 
 type Query {
@@ -720,38 +737,38 @@ type Reserve {
 
 type ReserveBorrowInfo {
   """The annual percentage yield for borrowing this asset"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """The total amount borrowed from this reserve"""
   total: TokenAmount!
 
   """The reserve factor percentage"""
-  reserveFactor: DecimalValue!
+  reserveFactor: PercentValue!
 
   """The available liquidity"""
   availableLiquidity: TokenAmount!
 
   """The reserve utilization rate"""
-  utilizationRate: DecimalValue!
+  utilizationRate: PercentValue!
 
   """
   Variable rate slope 1 - the rate of interest increase when utilization rate is below optimal
   This is the slope of the interest rate curve in the first segment (0% to optimal utilization)
   """
-  variableRateSlope1: DecimalValue!
+  variableRateSlope1: PercentValue!
 
   """
   Variable rate slope 2 - the rate of interest increase when utilization rate is above optimal
   This is the slope of the interest rate curve in the second segment (optimal to 100% utilization)
   Typically much steeper than slope1 to discourage over-utilization
   """
-  variableRateSlope2: DecimalValue!
+  variableRateSlope2: PercentValue!
 
   """
   The optimal usage rate - the utilization rate at which the variable rate curve transitions
   from slope1 to slope2. This represents the target utilization rate for the reserve
   """
-  optimalUsageRate: DecimalValue!
+  optimalUsageRate: PercentValue!
 
   """
   Borrowing can have different states based on the criteria of the user or the market
@@ -822,16 +839,16 @@ input ReserveRequest {
 
 type ReserveSupplyInfo {
   """The annual percentage yield for supplying this asset"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """The maximum loan-to-value ratio when used as collateral"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold for this asset"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation bonus applied when liquidated"""
-  liquidationBonus: DecimalValue!
+  liquidationBonus: PercentValue!
 
   """If the asset can be used for collateral"""
   canBeCollateral: Boolean!
@@ -1251,7 +1268,7 @@ type Vault {
   usedReserve: Reserve!
 
   """The current fee percentage set for the vault."""
-  fee: BigDecimal!
+  fee: PercentValue!
 
   """How much this vault has made in revenue"""
   totalFeeRevenue: TokenAmount!

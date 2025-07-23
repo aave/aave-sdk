@@ -59,3 +59,14 @@ export const PaginatedResultInfoFragment = graphql(
 export type PaginatedResultInfo = FragmentOf<
   typeof PaginatedResultInfoFragment
 >;
+
+export const PercentValueFragment = graphql(
+  `fragment PercentValue on PercentValue {
+    __typename
+    raw
+    decimals
+    value
+    formatted
+  }`,
+);
+export type PercentValue = FragmentOf<typeof PercentValueFragment>;

@@ -1,6 +1,10 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
-import { PaginatedResultInfoFragment, TokenAmountFragment } from './common';
+import {
+  PaginatedResultInfoFragment,
+  PercentValueFragment,
+  TokenAmountFragment,
+} from './common';
 import { ReserveFragment } from './reserve';
 
 export const UserVaultSharesFragment = graphql(
@@ -27,7 +31,9 @@ export const VaultFragment = graphql(
     usedReserve {
       ...Reserve
     }
-    fee
+    fee {
+      ...PercentValue
+    }
     totalFeeRevenue {
       ...TokenAmount
     }
@@ -39,7 +45,12 @@ export const VaultFragment = graphql(
       ...UserVaultShares
     }
   }`,
-  [ReserveFragment, TokenAmountFragment, UserVaultSharesFragment],
+  [
+    ReserveFragment,
+    TokenAmountFragment,
+    UserVaultSharesFragment,
+    PercentValueFragment,
+  ],
 );
 export type Vault = FragmentOf<typeof VaultFragment>;
 
