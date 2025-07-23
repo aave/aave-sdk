@@ -127,7 +127,7 @@ describe('Given an Aave Market', () => {
       }, 25_000);
     });
 
-    describe('When user set the supply as collateral', async () => {
+    describe('When the user set the supply as collateral', async () => {
       let marketInfo: Market;
       const wallet: WalletClient = createNewWallet();
 
