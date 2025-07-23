@@ -6,6 +6,8 @@ type APYSample {
   date: DateTime!
 }
 
+scalar AlwaysTrue
+
 input AmountInput @oneOf {
   """The native amount"""
   native: BigDecimal
@@ -133,7 +135,7 @@ input DebtToCover @oneOf {
   exact: BigDecimal
 
   """Maximum debt amount (equivalent to uint(-1))"""
-  max: Boolean
+  max: AlwaysTrue
 }
 
 type DecimalValue {
@@ -563,6 +565,26 @@ type Query {
   """
   vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
 
+  """
+  Allows a user to simulate a deposit at the current block, given current on-chain conditions.
+  """
+  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Allows a user to simulate a mint at the current block, given current on-chain conditions.
+  """
+  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Allows a user to simulate a withdraw at the current block, given current on-chain conditions.
+  """
+  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Allows a user to simulate a redeem at the current block, given current on-chain conditions.
+  """
+  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
 
@@ -692,9 +714,7 @@ type Reserve {
   """A list eModes the reserve can support"""
   eModeInfo: [EmodeReserveInfo!]!
 
-  """
-  The state of the user in the context of this reserve, note this can change borrow and supply criteria
-  """
+  """Get the user state on the reserve"""
   userState: ReserveUserState
 }
 
@@ -1159,7 +1179,7 @@ type UserVaultShares {
   """The user's shares on the vault"""
   shares: TokenAmount!
 
-  """The amount of underlying tokens they have in the vault."""
+  """The balance you can withdraw"""
   balance: TokenAmount!
 }
 
@@ -1174,9 +1194,6 @@ input UserVaultsFilter {
 input UserVaultsOrderBy @oneOf {
   """Order by shares"""
   shares: OrderDirection
-
-  """Order by deposited amount in USD"""
-  depositedInUsd: OrderDirection
 
   """Order by fee"""
   fee: OrderDirection
@@ -1354,6 +1371,17 @@ input VaultMintSharesRequest {
   chainId: ChainId!
 }
 
+input VaultOperationPreviewRequest {
+  """The vault"""
+  vault: EvmAddress!
+
+  """The chain id the vault is deployed on"""
+  chainId: ChainId!
+
+  """The amount in human-readable form"""
+  amount: BigDecimal!
+}
+
 input VaultRedeemShareInput {
   """The amount of vault shares"""
   amount: BigDecimal!
@@ -1502,6 +1530,14 @@ input VaultsRequestFilterCriteria @oneOf {
   ownedBy: [EvmAddress!]
 }
 
+input WithdrawAmount @oneOf {
+  """Exact amount to withdraw, remember interest is generated on each block"""
+  exact: BigDecimal
+
+  """Withdraw all the position completely"""
+  max: AlwaysTrue
+}
+
 input WithdrawAmountInput @oneOf {
   """The native amount"""
   native: WithdrawNativeAmountInput
@@ -1517,12 +1553,12 @@ input WithdrawErc20AmountInput {
   """
   Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g., wei).
   """
-  value: BigDecimal!
+  value: WithdrawAmount!
 }
 
 input WithdrawNativeAmountInput {
   """The native value"""
-  value: BigDecimal!
+  value: WithdrawAmount!
 
   """The permit for the transaction if required"""
   permit: ERC712Signature
