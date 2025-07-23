@@ -37,12 +37,9 @@ describe('Given the Aave Protocol v3', () => {
         shareSymbol: 'avWETH',
         underlyingToken: reserve.underlyingToken.address,
       })
-        .andTee((result) =>
-          console.log(`result: ${JSON.stringify(result, null, 2)}`),
-        )
         .andThen(sendWith(wallet))
         .andTee((tx) => console.log(`transaction: ${tx}`))
-        .andTee(() => wait(1000))
+        .andTee(() => wait(2000))
         .andThen((tx) =>
           vault(client, {
             by: { txHash: tx },
