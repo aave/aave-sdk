@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Given the Aave client > When using the 'reserve(client)' action > Then it should return the reserve information 1`] = `
+exports[`Given the Aave client > When fetching the reserve information for an asset > Then it should return the reserve information for the asset 1`] = `
 {
   "__typename": "Reserve",
   "aToken": Any<Object>,
