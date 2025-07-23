@@ -57,7 +57,7 @@ async function supplyAndCheck(
 
 describe('Given an Aave Market', () => {
   describe('And a user with a supply position', () => {
-    describe('When user set the supply as collateral', async () => {
+    describe('When the user set the supply as collateral', async () => {
       let marketInfo: Market;
       const wallet: WalletClient = createNewWallet();
 
