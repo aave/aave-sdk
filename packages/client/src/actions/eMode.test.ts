@@ -173,14 +173,13 @@ describe('Given an Aave Market', () => {
             currency: expect.objectContaining({
               address: USDC_ADDRESS,
             }),
-            // USDC is not in the E-Mode category, so it should be false
-            canBeCollateral: false,
+            // E-Mode affects only borrow-side, so supply-side should not be affected
+            canBeCollateral: true,
           }),
           expect.objectContaining({
             currency: expect.objectContaining({
               address: WETH_ADDRESS,
             }),
-            // WETH is part of ETH-correlated E-Mode category, so it should be true
             canBeCollateral: true,
           }),
         ]);
