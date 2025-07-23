@@ -110,7 +110,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
-          .andTee(() => wait(5000))
+          .andTee(() => wait(2000))
           .andThen(() =>
             userBorrows(client, {
               markets: [
@@ -124,6 +124,9 @@ describe('Given an Aave Market', () => {
           );
         assertOk(borrowResult);
         expect(borrowResult.value.length).toBe(1);
+        expect(borrowResult.value[0]?.debt.amount).toEqual(
+          borrowReserve.userState!.borrowable,
+        );
       }, 25_000);
     });
 
@@ -173,7 +176,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
-          .andTee(() => wait(5000))
+          .andTee(() => wait(2000))
           .andThen(() =>
             userBorrows(client, {
               markets: [
@@ -187,6 +190,9 @@ describe('Given an Aave Market', () => {
           );
         assertOk(borrowResult);
         expect(borrowResult.value.length).toBe(1);
+        expect(borrowResult.value[0]?.debt.amount).toEqual(
+          borrowReserve.userState!.borrowable,
+        );
       }, 25_000);
     });
   });
