@@ -77,7 +77,7 @@ describe('Given an Aave Market', () => {
       });
     });
 
-    describe('When the user withdraws their supply  ', () => {
+    describe('When the user withdraws their supply', () => {
       it('Then it should be reflected in the user supply positions', async () => {
         const result = await withdraw(client, {
           market: reserveInfo.market.address,
