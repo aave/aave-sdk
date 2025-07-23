@@ -69,9 +69,7 @@ describe('Given an Aave Market', () => {
 
         expect(reserve).toMatchObject({
           userState: expect.objectContaining({
-            canBeCollateral:
-              reserve.userState?.canBeCollateral ??
-              false,
+            canBeCollateral: reserve.userState?.canBeCollateral ?? false,
             canBeBorrowed: eModeCategoryReserve?.canBeBorrowed ?? false,
           }),
         });
