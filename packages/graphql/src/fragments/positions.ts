@@ -2,7 +2,6 @@ import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import {
   CurrencyFragment,
-  DecimalValueFragment,
   PercentValueFragment,
   TokenAmountFragment,
 } from './common';
