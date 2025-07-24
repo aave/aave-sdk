@@ -1,0 +1,190 @@
+import type { Vault } from '@aave/graphql';
+import {
+  assertOk,
+  bigDecimal,
+  errAsync,
+  evmAddress,
+  okAsync,
+  type ResultAsync,
+} from '@aave/types';
+import { describe, expect, it } from 'vitest';
+import {
+  client,
+  createNewWallet,
+  ETHEREUM_FORK_ID,
+  ETHEREUM_MARKET_ADDRESS,
+  fundErc20Address,
+  WETH_ADDRESS,
+  wait,
+} from '../test-utils';
+import { sendWith } from '../viem';
+import { reserve } from './reserve';
+import { vaultDeploy, vaultDeposit } from './transactions';
+import { userVaults, vault, vaults } from './vaults';
+
+const organization = createNewWallet();
+const user = createNewWallet();
+
+function createVault(): ResultAsync<Vault, Error> {
+  return fundErc20Address(
+    WETH_ADDRESS,
+    evmAddress(organization.account!.address),
+    bigDecimal('2'),
+  ).andThen(() => {
+    return reserve(client, {
+      chainId: ETHEREUM_FORK_ID,
+      underlyingToken: WETH_ADDRESS,
+      market: ETHEREUM_MARKET_ADDRESS,
+    }).andThen((reserve) => {
+      return vaultDeploy(client, {
+        chainId: reserve!.market.chain.chainId,
+        market: reserve!.market.address,
+        deployer: evmAddress(organization.account!.address),
+        owner: evmAddress(organization.account!.address),
+        initialFee: bigDecimal('3'),
+        initialLockDeposit: bigDecimal('1'),
+        shareName: 'Aave WETH Vault Shares',
+        shareSymbol: 'avWETH',
+        underlyingToken: reserve!.underlyingToken.address,
+      })
+        .andThen(sendWith(organization))
+        .andTee(() => wait(2000)) // wait for the vault to be deployed
+        .andThen((tx) =>
+          vault(client, { by: { txHash: tx }, chainId: ETHEREUM_FORK_ID }),
+        )
+        .andTee((vault) => console.log(`vault address: ${vault?.address}`))
+        .andThen((vault) => {
+          if (vault === null) {
+            return errAsync(new Error('Vault was not found after deployment'));
+          }
+          return okAsync(vault);
+        });
+    });
+  });
+}
+
+function deposit(amount: number) {
+  return (vault: Vault): ResultAsync<Vault, Error> => {
+    return fundErc20Address(
+      WETH_ADDRESS,
+      evmAddress(user.account!.address),
+      bigDecimal(amount + 1),
+    ).andThen(() => {
+      return vaultDeposit(client, {
+        amount: {
+          value: bigDecimal('1'),
+          currency: WETH_ADDRESS,
+        },
+        vault: vault.address,
+        depositor: evmAddress(user.account!.address),
+        chainId: vault.chainId,
+      })
+        .andTee((req) => console.log(`req: ${JSON.stringify(req)}`))
+        .andThen(sendWith(user))
+        .andTee((tx) => console.log(`tx to deposit in vault: ${tx}`))
+        .andThen(() => okAsync(vault));
+    });
+  };
+}
+
+describe('Given the Aave Vaults', () => {
+  describe('When an organization deploys a new vault', () => {
+    it('Then it should be available in the organization vaults', async () => {
+      const initialVault = await createVault();
+      assertOk(initialVault);
+
+      const result = await vaults(client, {
+        criteria: {
+          ownedBy: [evmAddress(organization.account!.address)],
+        },
+      });
+
+      assertOk(result);
+      expect(result.value.items[0]?.owner).toEqual(
+        organization.account!.address,
+      );
+      expect(result.value.items[0]?.address).toEqual(
+        initialVault.value?.address,
+      );
+    });
+  });
+
+  describe('And a deployed organization vault', () => {
+    describe('When a user deposits into the vault', () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+        const initialVault = await createVault()
+          .andThen(deposit(1))
+          .andTee(() => wait(2000)); // wait for the deposit to be processed
+        assertOk(initialVault);
+
+        const userPositions = await userVaults(client, {
+          user: evmAddress(user.account!.address),
+        });
+
+        assertOk(userPositions);
+
+        const vaultState = await vault(client, {
+          by: { address: initialVault.value?.address },
+          chainId: ETHEREUM_FORK_ID,
+        });
+
+        assertOk(vaultState);
+      });
+    });
+
+    describe(`When the user mints some vault's shares`, () => {
+      it.todo(
+        `Then the operation should be reflected in the user's vault positions`,
+        async () => {
+          // assert vault.userState.shares
+        },
+      );
+    });
+
+    describe('When the user withdraws their assets from the vault', () => {
+      it.todo(
+        `Then the operation should be reflected in the user's vault positions`,
+        async () => {
+          // assert vault.userState.balance
+        },
+      );
+    });
+
+    describe('When the user redeems their shares', () => {
+      it.todo(
+        `Then the operation should be reflected in the user's vault positions`,
+        async () => {
+          // assert vault.userState.shares
+        },
+      );
+    });
+
+    describe(`When the organization changes the vault's fee`, () => {
+      it.todo(
+        'Then the new fee should be reflected in the vault object',
+        async () => {
+          // assert vault.fee
+        },
+      );
+    });
+
+    describe('When users borrow from the underlying vault reserve', () => {
+      // const borrower = createNewWallet();
+
+      it.todo('Then the vault should accrue its fees', () => {
+        // const setup = createVault().andThen(deposit(100));
+        // assertOk(result);
+        // assert vault.totalFeeRevenue
+      });
+    });
+
+    describe(`When the organization withdraws the vault's fees`, () => {
+      // const borrower = createNewWallet();
+
+      it.todo(
+        'Then they shoudl receive the expected ERC-20 amount',
+        async () => {},
+      );
+    });
+  });
+});
