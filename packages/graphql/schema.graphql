@@ -568,11 +568,6 @@ type Query {
   vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
 
   """
-  Claim rewards from the specified vault. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultClaimRewards(request: VaultClaimRewardsRequest!): TransactionRequest!
-
-  """
   Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
   """
   vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
@@ -727,8 +722,6 @@ type Reserve {
 
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
-
-  """A list eModes the reserve can support"""
   eModeInfo: [EmodeReserveInfo!]!
 
   """Get the user state on the reserve"""
@@ -1283,17 +1276,9 @@ type Vault {
 
   """The user's shares info on the vault"""
   userShares: UserVaultShares
-}
 
-input VaultClaimRewardsRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
-
-  """Who the rewards go to - if not supplied, it goes to the owner"""
-  sendTo: EvmAddress
-
-  """The chain id"""
-  chainId: ChainId!
+  """The total fees the owner can claim currently for the vault"""
+  feesBalance: TokenAmount!
 }
 
 input VaultDeployRequest {
@@ -1480,7 +1465,7 @@ input VaultWithdrawFeesRequest {
   sendTo: EvmAddress
 
   """Human-formatted amount"""
-  amount: BigDecimal!
+  amount: WithdrawAmount!
 
   """The chain id"""
   chainId: ChainId!
