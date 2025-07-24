@@ -1,23 +1,30 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import { ChainFragment } from './chain';
-import { CurrencyFragment, DecimalValueFragment } from './common';
+import { CurrencyFragment, PercentValueFragment } from './common';
 import { ReserveFragment } from './reserve';
 
 export const MarketUserStateFragment = graphql(
   `fragment MarketUserState on MarketUserState {
     __typename
     netWorth
-    netAPY
+    netAPY {
+      ...PercentValue
+    }
     healthFactor
     eModeEnabled
     totalCollateralBase
     totalDebtBase
     availableBorrowsBase
-    currentLiquidationThreshold
-    ltv
+    currentLiquidationThreshold {
+      ...PercentValue
+    }
+    ltv {
+      ...PercentValue
+    }
     isInIsolationMode
   }`,
+  [PercentValueFragment],
 );
 export type MarketUserState = FragmentOf<typeof MarketUserStateFragment>;
 
@@ -42,19 +49,19 @@ export const EmodeMarketCategoryFragment = graphql(
     id
     label
     maxLTV {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationThreshold {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationPenalty {
-      ...DecimalValue
+      ...PercentValue
     }
     reserves {
       ...EmodeMarketReserveInfo
     }
   }`,
-  [DecimalValueFragment, EmodeMarketReserveInfoFragment],
+  [PercentValueFragment, EmodeMarketReserveInfoFragment],
 );
 export type EmodeMarketCategory = FragmentOf<
   typeof EmodeMarketCategoryFragment
