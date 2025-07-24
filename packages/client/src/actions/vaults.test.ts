@@ -19,7 +19,13 @@ import {
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { reserve } from './reserve';
-import { vaultDeploy, vaultDeposit, vaultMintShares } from './transactions';
+import {
+  vaultDeploy,
+  vaultDeposit,
+  vaultMintShares,
+  vaultRedeemShares,
+  vaultWithdraw,
+} from './transactions';
 import { userVaults, vault, vaults } from './vaults';
 
 const organization = createNewWallet();
@@ -68,7 +74,7 @@ function deposit(amount: number) {
     return fundErc20Address(
       WETH_ADDRESS,
       evmAddress(user.account!.address),
-      bigDecimal(amount + 1),
+      bigDecimal(amount + 0.1),
     ).andThen(() => {
       return vaultDeposit(client, {
         amount: {
@@ -79,9 +85,30 @@ function deposit(amount: number) {
         depositor: evmAddress(user.account!.address),
         chainId: vault.chainId,
       })
-        .andTee((req) => console.log(`req: ${JSON.stringify(req)}`))
         .andThen(sendWith(user))
         .andTee((tx) => console.log(`tx to deposit in vault: ${tx}`))
+        .andThen(() => okAsync(vault));
+    });
+  };
+}
+
+function mintShares(amount: number) {
+  return (vault: Vault): ResultAsync<Vault, Error> => {
+    return fundErc20Address(
+      WETH_ADDRESS,
+      evmAddress(user.account!.address),
+      bigDecimal(amount + 0.1),
+    ).andThen(() => {
+      return vaultMintShares(client, {
+        shares: {
+          amount: bigDecimal(amount),
+        },
+        vault: vault.address,
+        minter: evmAddress(user.account!.address),
+        chainId: vault.chainId,
+      })
+        .andThen(sendWith(user))
+        .andTee((tx) => console.log(`tx to mint shares: ${tx}`))
         .andThen(() => okAsync(vault));
     });
   };
@@ -131,27 +158,10 @@ describe('Given the Aave Vaults', () => {
 
     describe(`When the user mints some vault's shares`, () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault();
-        assertOk(initialVault);
-
-        await fundErc20Address(
-          WETH_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('1.1'),
-        );
-
-        const mintResult = await vaultMintShares(client, {
-          vault: initialVault.value?.address,
-          chainId: initialVault.value?.chainId,
-          minter: evmAddress(user.account!.address),
-          shares: {
-            amount: bigDecimal('1'),
-          },
-        })
-          .andThen(sendWith(user))
-          .andTee((tx) => console.log(`tx to mint shares: ${tx}`))
+        const initialVault = await createVault()
+          .andThen(mintShares(1))
           .andTee(() => wait(2000)); // wait for the mint to be processed
-        assertOk(mintResult);
+        assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
           user: evmAddress(user.account!.address),
@@ -164,21 +174,65 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When the user withdraws their assets from the vault', () => {
-      it.todo(
-        `Then the operation should be reflected in the user's vault positions`,
-        async () => {
-          // assert vault.userState.balance
-        },
-      );
+      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
+        const initialVault = await createVault()
+          .andThen(deposit(1))
+          .andTee(() => wait(2000)); // wait for the deposit to be processed
+        assertOk(initialVault);
+
+        const withdrawResult = await vaultWithdraw(client, {
+          chainId: initialVault.value?.chainId,
+          sharesOwner: evmAddress(user.account!.address),
+          underlyingToken: {
+            amount: bigDecimal('1'),
+          },
+          vault: initialVault.value?.address,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => console.log(`tx to withdraw from vault: ${tx}`))
+          .andTee(() => wait(2000)); // wait for the withdraw to be processed
+        assertOk(withdrawResult);
+
+        const userPositions = await userVaults(client, {
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(userPositions);
+        expect(
+          userPositions.value.items[0]?.balance.amount.value,
+        ).toBeBigDecimalCloseTo(0, 2);
+
+        // TODO: check balance in the wallet after withdraw
+      });
     });
 
     describe('When the user redeems their shares', () => {
-      it.todo(
-        `Then the operation should be reflected in the user's vault positions`,
-        async () => {
-          // assert vault.userState.shares
-        },
-      );
+      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
+        const initialVault = await createVault()
+          .andThen(mintShares(1))
+          .andTee(() => wait(2000)); // wait for the mint to be processed
+        assertOk(initialVault);
+
+        const redeemResult = await vaultRedeemShares(client, {
+          shares: {
+            amount: bigDecimal('1'),
+          },
+          vault: initialVault.value!.address,
+          chainId: initialVault.value!.chainId,
+          sharesOwner: evmAddress(user.account!.address),
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
+          .andTee(() => wait(2000)); // wait for the redeem to be processed
+        assertOk(redeemResult);
+
+        const userPositions = await userVaults(client, {
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(userPositions);
+        expect(
+          userPositions.value.items[0]?.userShares?.shares.amount.value,
+        ).toBeBigDecimalCloseTo(0, 4);
+      });
     });
 
     describe(`When the organization changes the vault's fee`, () => {
