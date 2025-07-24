@@ -19,7 +19,6 @@ import {
 import { sendWith } from '../viem';
 import { market, userMarketState } from './markets';
 import { supply, userSetEmode } from './transactions';
-import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
   describe('When a user enables an E-Mode category for the given market', () => {
