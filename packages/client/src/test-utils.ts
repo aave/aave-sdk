@@ -217,3 +217,50 @@ export function assertTypedDocumentSatisfies<
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// Function to get balance ERC20 token
+export async function getBalance(
+  address: EvmAddress,
+  tokenAddress: EvmAddress,
+): Promise<number> {
+  const publicClient = createPublicClient({
+    chain: ethereumForkChain,
+    transport: http(ETHEREUM_FORK_RPC_URL),
+  });
+
+  const [balance, decimals] = await Promise.all([
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: [
+        {
+          inputs: [
+            { internalType: 'address', name: 'account', type: 'address' },
+          ],
+          name: 'balanceOf',
+          outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'balanceOf',
+      args: [address],
+    }),
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'decimals',
+    }),
+  ]);
+
+  return Number.parseFloat(
+    (Number(balance) / 10 ** Number(decimals)).toFixed(6),
+  );
+}

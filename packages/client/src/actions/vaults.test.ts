@@ -14,6 +14,7 @@ import {
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   fundErc20Address,
+  getBalance,
   WETH_ADDRESS,
   wait,
 } from '../test-utils';
@@ -174,16 +175,21 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When the user withdraws their assets from the vault', () => {
-      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(deposit(1))
           .andTee(() => wait(2000)); // wait for the deposit to be processed
         assertOk(initialVault);
 
+        const balanceBefore = await getBalance(
+          evmAddress(user.account!.address),
+          WETH_ADDRESS,
+        );
         const withdrawResult = await vaultWithdraw(client, {
           chainId: initialVault.value?.chainId,
           sharesOwner: evmAddress(user.account!.address),
           underlyingToken: {
+            asAToken: false,
             amount: bigDecimal('1'),
           },
           vault: initialVault.value?.address,
@@ -197,6 +203,11 @@ describe('Given the Aave Vaults', () => {
           user: evmAddress(user.account!.address),
         });
         assertOk(userPositions);
+        const balanceAfter = await getBalance(
+          evmAddress(user.account!.address),
+          WETH_ADDRESS,
+        );
+        expect(balanceAfter).toBeGreaterThan(balanceBefore);
         expect(
           userPositions.value.items[0]?.balance.amount.value,
         ).toBeBigDecimalCloseTo(0, 2);
@@ -206,7 +217,7 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When the user redeems their shares', () => {
-      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(mintShares(1))
           .andTee(() => wait(2000)); // wait for the mint to be processed
