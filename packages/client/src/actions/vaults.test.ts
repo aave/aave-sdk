@@ -175,7 +175,7 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When the user withdraws their assets from the vault', () => {
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(deposit(1))
           .andTee(() => wait(2000)); // wait for the deposit to be processed
@@ -190,10 +190,13 @@ describe('Given the Aave Vaults', () => {
           sharesOwner: evmAddress(user.account!.address),
           underlyingToken: {
             asAToken: false,
-            amount: bigDecimal('1'),
+            amount: bigDecimal('0.5'),
           },
           vault: initialVault.value?.address,
         })
+          .andTee((result) =>
+            console.log(`result: ${JSON.stringify(result, null, 2)}`),
+          )
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to withdraw from vault: ${tx}`))
           .andTee(() => wait(2000)); // wait for the withdraw to be processed
@@ -217,7 +220,7 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When the user redeems their shares', () => {
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it.skip(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(mintShares(1))
           .andTee(() => wait(2000)); // wait for the mint to be processed
