@@ -262,6 +262,6 @@ export async function getBalance(
   ]);
 
   return Number.parseFloat(
-    (Number(balance) / 10 ** Number(decimals)).toFixed(6),
+    (Number(balance) / 10 ** Number(decimals)).toFixed(decimals),
   );
 }

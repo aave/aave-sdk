@@ -27,6 +27,7 @@ import {
   vaultRedeemShares,
   vaultSetFee,
   vaultWithdraw,
+  vaultWithdrawFees,
 } from './transactions';
 import { userVaults, vault, vaults } from './vaults';
 
@@ -286,12 +287,55 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization withdraws the vault's fees`, () => {
-      // const borrower = createNewWallet();
+      it('Then they shoudl receive the expected ERC-20 amount', async () => {
+        const initialVault = await createVault()
+          .andThen(deposit(1))
+          .andThen(mintShares(1))
+          .andTee(() => wait(2000));
+        assertOk(initialVault);
 
-      it.todo(
-        'Then they shoudl receive the expected ERC-20 amount',
-        async () => {},
-      );
+        // Check vault contains fees
+        const vaultInfoBefore = await vault(client, {
+          by: { address: initialVault.value.address },
+          chainId: initialVault.value.chainId,
+        });
+        assertOk(vaultInfoBefore);
+        expect(
+          Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
+        ).toBeGreaterThan(0);
+        const balanceBefore = await getBalance(
+          evmAddress(organization.account!.address),
+          WETH_ADDRESS,
+        );
+
+        const withdrawResult = await vaultWithdrawFees(client, {
+          chainId: initialVault.value.chainId,
+          vault: initialVault.value.address,
+          sendTo: evmAddress(organization.account!.address),
+          amount: { max: true },
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => console.log(`tx to withdraw fees: ${tx}`))
+          .andTee(() => wait(5000)); // wait for the withdraw to be processed
+        assertOk(withdrawResult);
+
+        // Check vault contains fees
+        const vaultInfoAfter = await vault(client, {
+          by: { address: initialVault.value.address },
+          chainId: initialVault.value.chainId,
+        });
+        assertOk(vaultInfoAfter);
+
+        const balanceAfter = await getBalance(
+          evmAddress(organization.account!.address),
+          WETH_ADDRESS,
+        );
+        // TODO: check properly the balance of the organization wallet
+        expect(balanceAfter).toBeGreaterThan(balanceBefore);
+        expect(
+          vaultInfoAfter.value?.totalFeeRevenue.amount.value,
+        ).toBeBigDecimalCloseTo(bigDecimal('0.00'), 18);
+      });
     });
   });
 });
