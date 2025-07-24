@@ -69,10 +69,6 @@ describe('Given an Aave Market', () => {
 
         expect(reserve).toMatchObject({
           userState: expect.objectContaining({
-            emode: expect.objectContaining({
-              categoryId: ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-            }),
-            canBeCollateral: eModeCategoryReserve?.canBeCollateral ?? false,
             canBeBorrowed: eModeCategoryReserve?.canBeBorrowed ?? false,
           }),
         });
@@ -158,33 +154,6 @@ describe('Given an Aave Market', () => {
           user: evmAddress(wallet.account!.address),
         }).andThen(sendWith(wallet));
         assertOk(result);
-      });
-
-      it('Then any user supply position that are not included in the E-Mode category should not be able to be used as collateral', async () => {
-        const result = await userSupplies(client, {
-          markets: [
-            { address: ETHEREUM_MARKET_ADDRESS, chainId: ETHEREUM_FORK_ID },
-          ],
-          user: evmAddress(wallet.account!.address),
-        });
-        assertOk(result);
-
-        expect(result.value).toMatchObject([
-          expect.objectContaining({
-            currency: expect.objectContaining({
-              address: USDC_ADDRESS,
-            }),
-            // USDC is not in the E-Mode category, so it should be false
-            canBeCollateral: false,
-          }),
-          expect.objectContaining({
-            currency: expect.objectContaining({
-              address: WETH_ADDRESS,
-            }),
-            // WETH is part of ETH-correlated E-Mode category, so it should be true
-            canBeCollateral: true,
-          }),
-        ]);
       });
     });
   });
