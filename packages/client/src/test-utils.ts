@@ -87,6 +87,7 @@ export function createNewWallet(): WalletClient {
     chain: ethereumForkChain,
     transport: http(),
   });
+  console.log(`wallet address ${wallet.account.address}`);
   return wallet;
 }
 
