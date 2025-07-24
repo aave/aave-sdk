@@ -1,5 +1,13 @@
+import type { UnexpectedError } from '@aave/client';
+import {
+  vaultPreviewDeposit,
+  vaultPreviewMint,
+  vaultPreviewRedeem,
+  vaultPreviewWithdraw,
+} from '@aave/client/actions';
 import {
   type PaginatedVaultsResult,
+  SupplyRequest,
   type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
@@ -17,13 +25,15 @@ import {
   VaultsQuery,
   type VaultsRequest,
 } from '@aave/graphql';
+import { useAaveClient } from './context';
 import type {
   ReadResult,
   Suspendable,
   SuspendableResult,
   SuspenseResult,
+  UseAsyncTask,
 } from './helpers';
-import { useSuspendableQuery } from './helpers';
+import { useAsyncTask, useSuspendableQuery } from './helpers';
 
 export type UseVaultArgs = VaultRequest;
 
@@ -185,57 +195,41 @@ export function useUserVaults({
   });
 }
 
-export type UseVaultPreviewDepositArgs = VaultPreviewDepositRequest;
-
 /**
  * Determines the amount of shares that would be received for a deposit.
  *
- * This signature supports React Suspense:
+ * ```ts
+ * const [preview, previewing] = useVaultDepositPreview();
  *
- * ```tsx
- * const { data } = useVaultPreviewDeposit({
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   amount: bigDecimal('1000'),
- *   suspense: true,
- * });
- * ```
- */
-export function useVaultPreviewDeposit(
-  args: UseVaultPreviewDepositArgs & Suspendable,
-): SuspenseResult<TokenAmount>;
-
-/**
- * Simulate a deposit into a vault at the current block with current on-chain conditions.
+ * const loading = previewing.loading;
+ * const error = previewing.error;
  *
- * ```tsx
- * const { data, loading } = useVaultPreviewDeposit({
+ * // …
+ *
+ * const result = await preview({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('1000'),
  * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
  * ```
  */
-export function useVaultPreviewDeposit(
-  args: UseVaultPreviewDepositArgs,
-): ReadResult<TokenAmount>;
+export function useVaultDepositPreview(): UseAsyncTask<
+  VaultPreviewDepositRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
 
-export function useVaultPreviewDeposit({
-  suspense = false,
-  ...request
-}: UseVaultPreviewDepositArgs & {
-  suspense?: boolean;
-}): SuspendableResult<TokenAmount> {
-  return useSuspendableQuery({
-    document: VaultPreviewDepositQuery,
-    variables: {
-      request,
-    },
-    suspense,
-  });
+  return useAsyncTask((request: VaultPreviewDepositRequest) =>
+    vaultPreviewDeposit(client, request),
+  );
 }
-
-export type UseVaultPreviewMintArgs = VaultPreviewMintRequest;
 
 /**
  * Determines the amount of assets that would be required to mint a specific amount of vault shares.
@@ -243,7 +237,7 @@ export type UseVaultPreviewMintArgs = VaultPreviewMintRequest;
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useVaultPreviewMint({
+ * const { data } = useVaultMintPreview({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('500'),
@@ -251,136 +245,88 @@ export type UseVaultPreviewMintArgs = VaultPreviewMintRequest;
  * });
  * ```
  */
-export function useVaultPreviewMint(
-  args: UseVaultPreviewMintArgs & Suspendable,
-): SuspenseResult<TokenAmount>;
+export function useVaultMintPreview(): UseAsyncTask<
+  VaultPreviewMintRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
 
-/**
- * Simulate minting exact vault shares at the current block with current on-chain conditions.
- *
- * ```tsx
- * const { data, loading } = useVaultPreviewMint({
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   amount: bigDecimal('500'),
- * });
- * ```
- */
-export function useVaultPreviewMint(
-  args: UseVaultPreviewMintArgs,
-): ReadResult<TokenAmount>;
-
-export function useVaultPreviewMint({
-  suspense = false,
-  ...request
-}: UseVaultPreviewMintArgs & {
-  suspense?: boolean;
-}): SuspendableResult<TokenAmount> {
-  return useSuspendableQuery({
-    document: VaultPreviewMintQuery,
-    variables: {
-      request,
-    },
-    suspense,
-  });
+  return useAsyncTask((request: VaultPreviewMintRequest) =>
+    vaultPreviewMint(client, request),
+  );
 }
-
-export type UseVaultPreviewWithdrawArgs = VaultPreviewWithdrawRequest;
 
 /**
  * Determines the amount of shares that would be burned for a withdrawal.
  *
- * This signature supports React Suspense:
+ * ```ts
+ * const [preview, previewing] = useVaultWithdrawPreview();
  *
- * ```tsx
- * const { data } = useVaultPreviewWithdraw({
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   amount: bigDecimal('750'),
- *   suspense: true,
- * });
- * ```
- */
-export function useVaultPreviewWithdraw(
-  args: UseVaultPreviewWithdrawArgs & Suspendable,
-): SuspenseResult<TokenAmount>;
-
-/**
- * Simulate withdrawing assets from a vault at the current block with current on-chain conditions.
+ * const loading = previewing.loading;
+ * const error = previewing.error;
  *
- * ```tsx
- * const { data, loading } = useVaultPreviewWithdraw({
+ * // …
+ *
+ * const result = await preview({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('750'),
  * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
  * ```
  */
-export function useVaultPreviewWithdraw(
-  args: UseVaultPreviewWithdrawArgs,
-): ReadResult<TokenAmount>;
+export function useVaultWithdrawPreview(): UseAsyncTask<
+  VaultPreviewWithdrawRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
 
-export function useVaultPreviewWithdraw({
-  suspense = false,
-  ...request
-}: UseVaultPreviewWithdrawArgs & {
-  suspense?: boolean;
-}): SuspendableResult<TokenAmount> {
-  return useSuspendableQuery({
-    document: VaultPreviewWithdrawQuery,
-    variables: {
-      request,
-    },
-    suspense,
-  });
+  return useAsyncTask((request: VaultPreviewWithdrawRequest) =>
+    vaultPreviewWithdraw(client, request),
+  );
 }
-
-export type UseVaultPreviewRedeemArgs = VaultPreviewRedeemRequest;
 
 /**
  * Determines the amount of assets that would be received for redeeming a specific amount of vault shares.
  *
  * This signature supports React Suspense:
  *
- * ```tsx
- * const { data } = useVaultPreviewRedeem({
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   amount: bigDecimal('200'),
- *   suspense: true,
- * });
- * ```
- */
-export function useVaultPreviewRedeem(
-  args: UseVaultPreviewRedeemArgs & Suspendable,
-): SuspenseResult<TokenAmount>;
-
-/**
- * Simulate redeeming vault shares at the current block with current on-chain conditions.
+ * ```ts
+ * const [preview, previewing] = useVaultRedeemPreview();
  *
- * ```tsx
- * const { data, loading } = useVaultPreviewRedeem({
+ * const loading = previewing.loading;
+ * const error = previewing.error;
+ *
+ * // …
+ *
+ * const result = await preview({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('200'),
  * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
  * ```
  */
-export function useVaultPreviewRedeem(
-  args: UseVaultPreviewRedeemArgs,
-): ReadResult<TokenAmount>;
+export function useVaultRedeemPreview(): UseAsyncTask<
+  VaultPreviewRedeemRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
 
-export function useVaultPreviewRedeem({
-  suspense = false,
-  ...request
-}: UseVaultPreviewRedeemArgs & {
-  suspense?: boolean;
-}): SuspendableResult<TokenAmount> {
-  return useSuspendableQuery({
-    document: VaultPreviewRedeemQuery,
-    variables: {
-      request,
-    },
-    suspense,
-  });
+  return useAsyncTask((request: VaultPreviewRedeemRequest) =>
+    vaultPreviewRedeem(client, request),
+  );
 }
