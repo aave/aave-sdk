@@ -252,7 +252,7 @@ describe('Given the Aave Vaults', () => {
         const initialVault = await createVault();
         assertOk(initialVault);
 
-        const newFee = bigDecimal('4.6');
+        const newFee = bigDecimal('4.60');
         const updateResult = await vaultSetFee(client, {
           chainId: initialVault.value.chainId,
           vault: initialVault.value.address,
@@ -268,7 +268,10 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value.chainId,
         });
         assertOk(newVaultInfo);
-        expect(newVaultInfo.value?.fee.formatted).toEqual(newFee);
+        expect(newVaultInfo.value?.fee.formatted).toBeBigDecimalCloseTo(
+          newFee,
+          2,
+        );
       }, 25_000);
     });
 
