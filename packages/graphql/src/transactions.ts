@@ -134,19 +134,6 @@ export type VaultWithdrawFeesRequest = RequestOf<typeof VaultWithdrawFeesQuery>;
 /**
  * @internal
  */
-export const VaultClaimRewardsQuery = graphql(
-  `query VaultClaimRewards($request: VaultClaimRewardsRequest!) {
-    value: vaultClaimRewards(request: $request) {
-      ...TransactionRequest
-    }
-  }`,
-  [TransactionRequestFragment],
-);
-export type VaultClaimRewardsRequest = RequestOf<typeof VaultClaimRewardsQuery>;
-
-/**
- * @internal
- */
 export const VaultWithdrawQuery = graphql(
   `query VaultWithdraw($request: VaultWithdrawRequest!) {
     value: vaultWithdraw(request: $request) {

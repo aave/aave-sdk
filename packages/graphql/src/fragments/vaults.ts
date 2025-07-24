@@ -40,6 +40,9 @@ export const VaultFragment = graphql(
     balance {
       ...TokenAmount
     }
+    feesBalance {
+      ...TokenAmount
+    }
     chainId
     userShares {
       ...UserVaultShares
