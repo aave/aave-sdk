@@ -25,6 +25,7 @@ import {
   vaultDeposit,
   vaultMintShares,
   vaultRedeemShares,
+  vaultSetFee,
   vaultWithdraw,
 } from './transactions';
 import { userVaults, vault, vaults } from './vaults';
@@ -247,12 +248,28 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization changes the vault's fee`, () => {
-      it.todo(
-        'Then the new fee should be reflected in the vault object',
-        async () => {
-          // assert vault.fee
-        },
-      );
+      it('Then the new fee should be reflected in the vault object', async () => {
+        const initialVault = await createVault();
+        assertOk(initialVault);
+
+        const newFee = bigDecimal('4.6');
+        const updateResult = await vaultSetFee(client, {
+          chainId: initialVault.value.chainId,
+          vault: initialVault.value.address,
+          newFee: newFee,
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => console.log(`tx to set fee: ${tx}`))
+          .andTee(() => wait(5000)); // wait for the update to be processed
+        assertOk(updateResult);
+
+        const newVaultInfo = await vault(client, {
+          by: { address: initialVault.value.address },
+          chainId: initialVault.value.chainId,
+        });
+        assertOk(newVaultInfo);
+        expect(newVaultInfo.value?.fee.formatted).toEqual(newFee);
+      }, 25_000);
     });
 
     describe('When users borrow from the underlying vault reserve', () => {

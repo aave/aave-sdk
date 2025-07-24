@@ -27,6 +27,7 @@
     "test:867": "vitest --project client packages/client/src/actions/markets.test.ts -t \"Then it should return supply reserves APYs in the expected order of magnitude\"",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:vaultRedeem": "vitest --project client packages/client/src/actions/vaults.test.ts -t \"When the user redeems their shares\"",
+    "test:vaultSetFee": "vitest --project client packages/client/src/actions/vaults.test.ts -t \"When the organization changes the vault's fee\"",
     "test": "vitest"
   },
   "license": "MIT",
