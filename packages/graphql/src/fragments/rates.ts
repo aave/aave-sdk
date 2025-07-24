@@ -1,16 +1,15 @@
 import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
+import { PercentValueFragment } from './common';
 
 export const APYSampleFragment = graphql(
   `fragment APYSample on APYSample {
     __typename
     avgRate {
-      __typename
-      value
-      raw
-      decimals
+      ...PercentValue
     }
     date
   }`,
+  [PercentValueFragment],
 );
 export type APYSample = FragmentOf<typeof APYSampleFragment>;
