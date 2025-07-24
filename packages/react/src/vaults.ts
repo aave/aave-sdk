@@ -7,18 +7,13 @@ import {
 } from '@aave/client/actions';
 import {
   type PaginatedVaultsResult,
-  SupplyRequest,
   type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
-  VaultPreviewDepositQuery,
   type VaultPreviewDepositRequest,
-  VaultPreviewMintQuery,
   type VaultPreviewMintRequest,
-  VaultPreviewRedeemQuery,
   type VaultPreviewRedeemRequest,
-  VaultPreviewWithdrawQuery,
   type VaultPreviewWithdrawRequest,
   VaultQuery,
   type VaultRequest,
@@ -199,10 +194,7 @@ export function useUserVaults({
  * Determines the amount of shares that would be received for a deposit.
  *
  * ```ts
- * const [preview, previewing] = useVaultDepositPreview();
- *
- * const loading = previewing.loading;
- * const error = previewing.error;
+ * const [preview, { loading, error }] = useVaultDepositPreview();
  *
  * // …
  *
@@ -234,15 +226,22 @@ export function useVaultDepositPreview(): UseAsyncTask<
 /**
  * Determines the amount of assets that would be required to mint a specific amount of vault shares.
  *
- * This signature supports React Suspense:
+ * ```ts
+ * const [preview, { loading, error }] = useVaultMintPreview();
  *
- * ```tsx
- * const { data } = useVaultMintPreview({
+ * // …
+ *
+ * const result = await preview({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('500'),
- *   suspense: true,
  * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
  * ```
  */
 export function useVaultMintPreview(): UseAsyncTask<
@@ -261,10 +260,7 @@ export function useVaultMintPreview(): UseAsyncTask<
  * Determines the amount of shares that would be burned for a withdrawal.
  *
  * ```ts
- * const [preview, previewing] = useVaultWithdrawPreview();
- *
- * const loading = previewing.loading;
- * const error = previewing.error;
+ * const [preview, { loading, error }] = useVaultWithdrawPreview();
  *
  * // …
  *
@@ -299,10 +295,7 @@ export function useVaultWithdrawPreview(): UseAsyncTask<
  * This signature supports React Suspense:
  *
  * ```ts
- * const [preview, previewing] = useVaultRedeemPreview();
- *
- * const loading = previewing.loading;
- * const error = previewing.error;
+ * const [preview, { loading, error }] = useVaultRedeemPreview();
  *
  * // …
  *
