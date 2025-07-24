@@ -19,7 +19,7 @@ import {
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { reserve } from './reserve';
-import { vaultDeploy, vaultDeposit } from './transactions';
+import { vaultDeploy, vaultDeposit, vaultMintShares } from './transactions';
 import { userVaults, vault, vaults } from './vaults';
 
 const organization = createNewWallet();
@@ -122,23 +122,45 @@ describe('Given the Aave Vaults', () => {
         });
 
         assertOk(userPositions);
-
-        const vaultState = await vault(client, {
-          by: { address: initialVault.value?.address },
-          chainId: ETHEREUM_FORK_ID,
-        });
-
-        assertOk(vaultState);
+        expect(userPositions.value.items.length).toBe(1);
+        expect(
+          userPositions.value.items[0]?.balance.amount.value,
+        ).toBeBigDecimalCloseTo(1, 2);
       });
     });
 
     describe(`When the user mints some vault's shares`, () => {
-      it.todo(
-        `Then the operation should be reflected in the user's vault positions`,
-        async () => {
-          // assert vault.userState.shares
-        },
-      );
+      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+        const initialVault = await createVault();
+        assertOk(initialVault);
+
+        await fundErc20Address(
+          WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('1.1'),
+        );
+
+        const mintResult = await vaultMintShares(client, {
+          vault: initialVault.value?.address,
+          chainId: initialVault.value?.chainId,
+          minter: evmAddress(user.account!.address),
+          shares: {
+            amount: bigDecimal('1'),
+          },
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => console.log(`tx to mint shares: ${tx}`))
+          .andTee(() => wait(2000)); // wait for the mint to be processed
+        assertOk(mintResult);
+
+        const userPositions = await userVaults(client, {
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(userPositions);
+        expect(
+          userPositions.value.items[0]?.userShares?.shares.amount.value,
+        ).toBeBigDecimalCloseTo(1, 4);
+      });
     });
 
     describe('When the user withdraws their assets from the vault', () => {
