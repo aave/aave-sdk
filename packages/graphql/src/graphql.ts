@@ -28,6 +28,7 @@ export const graphql = initGraphQLTada<{
   disableMasking: true;
   introspection: introspection;
   scalars: {
+    AlwaysTrue: true;
     BigDecimal: BigDecimal;
     BigInt: BigIntString;
     BlockchainData: BlockchainData;

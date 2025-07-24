@@ -85,7 +85,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: WETH_ADDRESS,
-              value: amountToSupply,
+              value: { exact: amountToSupply },
             },
           },
           chainId: reserveInfo.market.chain.chainId,
@@ -122,7 +122,7 @@ describe('Given an Aave Market', () => {
   describe('And the reserve allows withdrawals in native tokens', () => {
     describe('When the user withdraws from the reserve in native tokens', () => {
       const wallet = createNewWallet();
-      const amountToSupply = '0.01';
+      const amount = '0.01';
 
       beforeAll(async () => {
         // Fund the wallet with WETH
@@ -136,7 +136,7 @@ describe('Given an Aave Market', () => {
           chainId: reserveInfo.market.chain.chainId,
           supplier: evmAddress(wallet.account!.address),
           amount: {
-            native: amountToSupply,
+            native: amount,
           },
         });
       });
@@ -151,7 +151,7 @@ describe('Given an Aave Market', () => {
           supplier: evmAddress(wallet.account!.address),
           amount: {
             native: {
-              value: amountToSupply,
+              value: { exact: amount },
             },
           },
           chainId: reserveInfo.market.chain.chainId,

@@ -150,7 +150,7 @@ export function repay(
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
- *       value: '750',
+ *       value: { exact: '750' },
  *     },
  *   },
  *   supplier: evmAddress('0x9abc…'),
