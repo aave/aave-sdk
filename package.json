@@ -22,8 +22,6 @@
     "test:client": "vitest --project client",
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
-    "test:borrow": "vitest --project client packages/client/src/actions/borrow.test.ts",
-    "test:vaultDeploy": "vitest --project client packages/client/src/actions/vaultDeploy.test.ts",
     "test:857": "vitest --project client packages/client/src/actions/eMode.test.ts -t \"Then the market's reserves should have user state that reflects the selected E-Mode category settings\"",
     "test:858": "vitest --project client packages/client/src/actions/eMode.test.ts -t \"Then any user supply position that are not included in the E-Mode category should not be able to be used as collateral\"",
     "test:867": "vitest --project client packages/client/src/actions/markets.test.ts -t \"Then it should return supply reserves APYs in the expected order of magnitude\"",
