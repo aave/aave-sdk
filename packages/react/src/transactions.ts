@@ -6,7 +6,6 @@ import {
   repay,
   supply,
   userSetEmode,
-  vaultClaimRewards,
   vaultDeploy,
   vaultDeposit,
   vaultMintShares,
@@ -25,7 +24,6 @@ import type {
   SupplyRequest,
   TransactionRequest,
   UserSetEmodeRequest,
-  VaultClaimRewardsRequest,
   VaultDeployRequest,
   VaultDepositRequest,
   VaultMintSharesRequest,
@@ -721,57 +719,5 @@ export function useVaultWithdrawFees(): UseAsyncTask<
 
   return useAsyncTask((request: VaultWithdrawFeesRequest) =>
     vaultWithdrawFees(client, request),
-  );
-}
-
-/**
- * A hook that provides a way to claim vault rewards.
- *
- * ```ts
- * const [claim, claiming] = useVaultClaimRewards();
- * const [sendTransaction, sending] = useSendTransaction(wallet);
- *
- * const loading = claiming.loading && sending.loading;
- * const error = claiming.error || sending.error;
- *
- * // …
- *
- * const result = await claim({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
- *
- * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
- *   return;
- * }
- *
- * console.log('Transaction sent with hash:', result.value);
- * ```
- */
-export function useVaultClaimRewards(): UseAsyncTask<
-  VaultClaimRewardsRequest,
-  TransactionRequest,
-  UnexpectedError
-> {
-  const client = useAaveClient();
-
-  return useAsyncTask((request: VaultClaimRewardsRequest) =>
-    vaultClaimRewards(client, request),
   );
 }

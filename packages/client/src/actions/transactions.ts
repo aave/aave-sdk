@@ -13,8 +13,6 @@ import {
   type TransactionRequest,
   UserSetEmodeQuery,
   type UserSetEmodeRequest,
-  VaultClaimRewardsQuery,
-  type VaultClaimRewardsRequest,
   VaultDeployQuery,
   type VaultDeployRequest,
   VaultDepositQuery,
@@ -380,34 +378,6 @@ export function vaultWithdrawFees(
   request: VaultWithdrawFeesRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
   return client.query(VaultWithdrawFeesQuery, { request });
-}
-
-/**
- * Creates a transaction to claim rewards from a vault (owner only).
- *
- * ```ts
- * const result = await vaultClaimRewards(client, {
- *   vault: evmAddress('0x1234…'),
- *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
- *
- * if (result.isErr()) {
- *   // Handle error, e.g. signing error, etc.
- *   return;
- * }
- *
- * // result.value: TxHash
- * ```
- *
- * @param client - Aave client.
- * @param request - The claim vault rewards request parameters.
- * @returns The transaction request data to claim vault rewards.
- */
-export function vaultClaimRewards(
-  client: AaveClient,
-  request: VaultClaimRewardsRequest,
-): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(VaultClaimRewardsQuery, { request });
 }
 
 /**
