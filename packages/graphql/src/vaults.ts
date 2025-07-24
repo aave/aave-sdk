@@ -1,3 +1,4 @@
+import { TokenAmountFragment } from './fragments/common';
 import {
   PaginatedVaultsResultFragment,
   VaultFragment,
@@ -42,3 +43,61 @@ export const UserVaultsQuery = graphql(
   [PaginatedVaultsResultFragment],
 );
 export type UserVaultsRequest = RequestOf<typeof UserVaultsQuery>;
+
+/**
+ * @internal
+ */
+export const VaultPreviewDepositQuery = graphql(
+  `query VaultPreviewDeposit($request: VaultOperationPreviewRequest!) {
+    value: vaultPreviewDeposit(request: $request) {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultPreviewDepositRequest = RequestOf<
+  typeof VaultPreviewDepositQuery
+>;
+
+/**
+ * @internal
+ */
+export const VaultPreviewMintQuery = graphql(
+  `query VaultPreviewMint($request: VaultOperationPreviewRequest!) {
+    value: vaultPreviewMint(request: $request) {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultPreviewMintRequest = RequestOf<typeof VaultPreviewMintQuery>;
+
+/**
+ * @internal
+ */
+export const VaultPreviewWithdrawQuery = graphql(
+  `query VaultPreviewWithdraw($request: VaultOperationPreviewRequest!) {
+    value: vaultPreviewWithdraw(request: $request) {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultPreviewWithdrawRequest = RequestOf<
+  typeof VaultPreviewWithdrawQuery
+>;
+
+/**
+ * @internal
+ */
+export const VaultPreviewRedeemQuery = graphql(
+  `query VaultPreviewRedeem($request: VaultOperationPreviewRequest!) {
+    value: vaultPreviewRedeem(request: $request) {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultPreviewRedeemRequest = RequestOf<
+  typeof VaultPreviewRedeemQuery
+>;
