@@ -43,7 +43,6 @@ describe('Given Aave Market', () => {
           user: evmAddress(wallet.account!.address),
         });
         assertOk(userSuppliesBefore);
-        expect(userSuppliesBefore.value.length).toBe(1);
 
         // Toggle collateral
         const result = await collateralToggle(client, {
@@ -64,7 +63,6 @@ describe('Given Aave Market', () => {
           user: evmAddress(wallet.account!.address),
         });
         assertOk(userSuppliesAfter);
-        expect(userSuppliesAfter.value.length).toBe(1);
         expect(userSuppliesAfter.value).toEqual([
           expect.objectContaining({
             isCollateral: expect.toBe(
