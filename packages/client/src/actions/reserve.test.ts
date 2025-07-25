@@ -13,13 +13,13 @@ import { borrowAPYHistory, reserve, supplyAPYHistory } from './reserve';
 function windowToDate(window: TimeWindow): Date {
   switch (window) {
     case TimeWindow.LastDay:
-      return new Date(Date.now() - 1000 * 60 * 60 * 24);
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 - 1000 * 60 * 10);
     case TimeWindow.LastWeek:
-      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 7);
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 8);
     case TimeWindow.LastMonth:
-      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 30);
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 31);
     case TimeWindow.LastYear:
-      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 366);
     default:
       throw new Error(`Unknown window: ${window}`);
   }
@@ -67,14 +67,16 @@ describe('Given an Aave Market reserve', () => {
         });
         assertOk(result);
         expect(result.value?.length).toBeGreaterThan(0);
-        expect(result.value).toEqual(
-          result.value?.map(() =>
+        for (const point of result.value!) {
+          expect(point).toEqual(
             expect.objectContaining({
-              avgRate: expect.any(Object),
-              date: expect.toBeBetween(windowToDate(window), new Date()),
+              avgRate: expect.objectContaining({
+                formatted: expect.toBeWithinBigDecimal(0, 5),
+              }),
+              date: expect.toBeBetweenDates(windowToDate(window), new Date()),
             }),
-          ),
-        );
+          );
+        }
       },
     );
   });
@@ -95,7 +97,7 @@ describe('Given an Aave Market reserve', () => {
           result.value?.map(() =>
             expect.objectContaining({
               avgRate: expect.any(Object),
-              date: expect.toBeBetween(windowToDate(window), new Date()),
+              date: expect.toBeBetweenDates(windowToDate(window), new Date()),
             }),
           ),
         );
