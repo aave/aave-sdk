@@ -50,7 +50,7 @@ describe('Given the Aave Protocol v3', () => {
       });
     });
 
-    it('Then it should return supply reserves APYs in the expected order of magnitude', async () => {
+    it('Then it should support sorting supply reserves by APY', async () => {
       const result = await market(client, {
         address: ETHEREUM_MARKET_ADDRESS,
         chainId: chainId(1),
@@ -67,9 +67,44 @@ describe('Given the Aave Protocol v3', () => {
       }));
 
       for (let i = 1; i < apys.length; i++) {
-        expect(apys[i]).toEqual({
-          apy: expect.toBeInRange(0, apys[i - 1]!.apy),
-        });
+        expect(apys[i]).toEqual(
+          expect.objectContaining({
+            apy: expect.toBeWithin(
+              0,
+              // expect.toBeWithin is wrongly typed but actually supports bigint
+              (apys[i - 1]!.apy + 1n) as unknown as number,
+            ),
+          }),
+        );
+      }
+    });
+
+    it('Then it should support sorting borrow reserves by APY', async () => {
+      const result = await market(client, {
+        address: ETHEREUM_MARKET_ADDRESS,
+        chainId: chainId(1),
+        borrowsOrderBy: {
+          borrowApy: OrderDirection.Desc,
+        },
+      }).map(nonNullable);
+
+      assertOk(result);
+
+      const apys = result.value.borrowReserves.map((r) => ({
+        token: r.underlyingToken.symbol,
+        apy: BigInt(r.borrowInfo!.apy.raw),
+      }));
+
+      for (let i = 1; i < apys.length; i++) {
+        expect(apys[i]).toEqual(
+          expect.objectContaining({
+            apy: expect.toBeWithin(
+              0,
+              // expect.toBeWithin is wrongly typed but actually supports bigint
+              (apys[i - 1]!.apy + 1n) as unknown as number,
+            ),
+          }),
+        );
       }
     });
   });
@@ -85,10 +120,10 @@ describe('Given the Aave Protocol v3', () => {
       assertOk(result);
       expect(result.value).toMatchSnapshot({
         availableBorrowsBase: expect.any(String),
-        currentLiquidationThreshold: expect.any(String),
+        currentLiquidationThreshold: expect.any(Object),
         healthFactor: expect.any(String),
-        ltv: expect.any(String),
-        netAPY: expect.any(String),
+        ltv: expect.any(Object),
+        netAPY: expect.any(Object),
         netWorth: expect.any(String),
         totalCollateralBase: expect.any(String),
         totalDebtBase: expect.any(String),
