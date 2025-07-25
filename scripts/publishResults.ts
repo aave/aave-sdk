@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 
-async function sendMessage(message, status, title, emoji = ':test_tube:') {
+async function sendMessage(
+  message: string,
+  status: string,
+  title: string,
+  emoji = ':test_tube:',
+): Promise<void> {
   const response = await fetch(
     `https://hooks.slack.com/services/${process.env.SLACK_WEBHOOK}`,
     {
@@ -15,6 +20,7 @@ async function sendMessage(message, status, title, emoji = ':test_tube:') {
       }),
     },
   );
+
   if (!response.ok) {
     const errorText = await response.text();
     console.error('Response status:', response.status);
@@ -25,10 +31,15 @@ async function sendMessage(message, status, title, emoji = ':test_tube:') {
   }
 }
 
-function createMessageTestResults(success, failure, testSuiteName) {
+function createMessageTestResults(
+  success: number,
+  failure: number,
+  testSuiteName: string,
+) {
   const result = { status: '', message: '' };
   const totalTests = success + failure;
   const percent = (success / totalTests).toFixed(2);
+
   if (Number.parseFloat(percent) >= 0.98) {
     result.status = '#069C56';
   } else if (
@@ -39,6 +50,7 @@ function createMessageTestResults(success, failure, testSuiteName) {
   } else {
     result.status = '#D3212C';
   }
+
   result.message = `${testSuiteName}\n`;
   result.message += `Total tests ${totalTests}\n Pass ${success} / Fail ${failure}`;
   const reportUrl = `https://github.com/aave/aave-sdk/actions/runs/${process.env.GITHUB_RUN_ID || ''}/`;
@@ -46,7 +58,7 @@ function createMessageTestResults(success, failure, testSuiteName) {
   return result;
 }
 
-const main = async () => {
+const main = async (): Promise<void> => {
   // Parse the test results
   const testResults = readFileSync('test-results.json', {
     encoding: 'utf8',
