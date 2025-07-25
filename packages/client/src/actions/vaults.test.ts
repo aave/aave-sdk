@@ -124,7 +124,6 @@ describe('Given the Aave Vaults', () => {
       });
 
       assertOk(result);
-      expect(result.value.items.length).toBe(1);
       expect(result.value.items).toEqual([
         expect.objectContaining({
           owner: organization.account!.address,

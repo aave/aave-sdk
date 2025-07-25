@@ -65,10 +65,13 @@ describe('Given Aave Market', () => {
         });
         assertOk(userSuppliesAfter);
         expect(userSuppliesAfter.value.length).toBe(1);
-
-        expect(userSuppliesAfter.value[0]?.isCollateral).toEqual(
-          !userSuppliesBefore.value[0]?.isCollateral,
-        );
+        expect(userSuppliesAfter.value).toEqual([
+          expect.objectContaining({
+            isCollateral: expect.toBe(
+              !userSuppliesBefore.value[0]?.isCollateral,
+            ),
+          }),
+        ]);
       });
     });
   });
