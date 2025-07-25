@@ -79,7 +79,7 @@ describe('Given an Aave Market', () => {
           supplier: evmAddress(wallet.account!.address),
           amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
         });
-      });
+      }, 30_000);
 
       it('Then it should be reflected in the user borrow positions', async () => {
         const result = await repay(client, {
@@ -140,7 +140,7 @@ describe('Given an Aave Market', () => {
             supplier: evmAddress(wallet.account!.address),
             amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
           });
-        });
+        }, 30_000);
 
         it('Then it should be reflected in the user borrow positions', async () => {
           const result = await repay(client, {

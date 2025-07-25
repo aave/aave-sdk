@@ -234,7 +234,7 @@ describe('Given the Aave Vaults', () => {
       }, 40_000);
     });
 
-    describe('When the user redeems their shares', () => {
+    describe('When the user redeems total amount of their shares', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(mintShares(1))
@@ -259,6 +259,44 @@ describe('Given the Aave Vaults', () => {
         });
         assertOk(userPositions);
         expect(userPositions.value.items.length).toEqual(0);
+      }, 40_000);
+    });
+
+    describe('When the user redeems partial amount of their shares', () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+        const initialVault = await createVault()
+          .andThen(mintShares(1))
+          .andTee(() => wait(2000)); // wait for the mint to be processed
+        assertOk(initialVault);
+
+        const redeemResult = await vaultRedeemShares(client, {
+          shares: {
+            amount: bigDecimal('0.5'),
+          },
+          vault: initialVault.value!.address,
+          chainId: initialVault.value!.chainId,
+          sharesOwner: evmAddress(user.account!.address),
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
+          .andTee(() => wait(3000)); // wait for the redeem to be processed
+        assertOk(redeemResult);
+
+        const userPositions = await userVaults(client, {
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(userPositions);
+        expect(userPositions.value.items).toEqual([
+          expect.objectContaining({
+            userShares: expect.objectContaining({
+              shares: expect.objectContaining({
+                amount: expect.objectContaining({
+                  value: expect.toBeBigDecimalCloseTo(0.5, 4),
+                }),
+              }),
+            }),
+          }),
+        ]);
       }, 40_000);
     });
 
@@ -358,7 +396,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         );
-      }, 35_000);
+      }, 40_000);
     });
   });
 });
