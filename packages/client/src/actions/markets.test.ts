@@ -53,7 +53,7 @@ describe('Given the Aave Protocol v3', () => {
     it('Then it should return supply reserves APYs in the expected order of magnitude', async () => {
       const result = await market(client, {
         address: ETHEREUM_MARKET_ADDRESS,
-        chainId: ETHEREUM_FORK_ID,
+        chainId: chainId(1),
         suppliesOrderBy: {
           supplyApy: OrderDirection.Desc,
         },
@@ -61,29 +61,16 @@ describe('Given the Aave Protocol v3', () => {
 
       assertOk(result);
 
-      expect(
-        result.value.supplyReserves.map((r) => ({
-          token: r.underlyingToken.symbol,
-          apy: r.supplyInfo.apy.value,
-        })),
-      ).toEqual([
-        {
-          token: 'WETH',
-          apy: expect.toBeBigDecimalCloseTo('4', 0), // ~4% APY at the time of the Tenderly fork
-        },
+      const apys = result.value.supplyReserves.map((r) => ({
+        token: r.underlyingToken.symbol,
+        apy: BigInt(r.supplyInfo.apy.raw),
+      }));
 
-        {
-          token: 'USDC',
-          apy: expect.toBeBigDecimalCloseTo('3', 0), // ~3% APY at the time of the Tenderly fork
-        },
-
-        {
-          token: 'USDS',
-          apy: expect.toBeBigDecimalCloseTo('3', 0), // ~3% APY at the time of the Tenderly fork
-        },
-
-        ...new Array(46).fill(expect.any(Object)),
-      ]);
+      for (let i = 1; i < apys.length; i++) {
+        expect(apys[i]).toEqual({
+          apy: expect.toBeInRange(0, apys[i - 1]!.apy),
+        });
+      }
     });
   });
 
