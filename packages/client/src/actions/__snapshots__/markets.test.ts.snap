@@ -25,50 +25,6 @@ exports[`Given the Aave Protocol v3 > When fetching a single market > Then it sh
 exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 1`] = `
 {
   "__typename": "Market",
-  "address": "0x0AA97c284e98396202b6A04024F5E2c65026F3c0",
-  "borrowReserves": Any<Array>,
-  "chain": {
-    "__typename": "Chain",
-    "chainId": 1,
-    "explorerUrl": "https://etherscan.io",
-    "icon": "https://statics.aave.com/ethereum.svg",
-    "name": "Ethereum",
-  },
-  "eModeCategories": Any<Array>,
-  "icon": "https://statics.aave.com/ethereum.svg",
-  "name": "AaveV3EthereumEtherFi",
-  "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": Any<String>,
-  "totalMarketSize": Any<String>,
-  "userState": null,
-}
-`;
-
-exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 2`] = `
-{
-  "__typename": "Market",
-  "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
-  "borrowReserves": Any<Array>,
-  "chain": {
-    "__typename": "Chain",
-    "chainId": 1,
-    "explorerUrl": "https://etherscan.io",
-    "icon": "https://statics.aave.com/ethereum.svg",
-    "name": "Ethereum",
-  },
-  "eModeCategories": Any<Array>,
-  "icon": "https://statics.aave.com/ethereum.svg",
-  "name": "AaveV3EthereumLido",
-  "supplyReserves": Any<Array>,
-  "totalAvailableLiquidity": Any<String>,
-  "totalMarketSize": Any<String>,
-  "userState": null,
-}
-`;
-
-exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 3`] = `
-{
-  "__typename": "Market",
   "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
   "borrowReserves": Any<Array>,
   "chain": {
@@ -88,18 +44,46 @@ exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > The
 }
 `;
 
-exports[`Given the Aave Protocol v3 > When fetching user market state for a new user > Then it should return the expected data for a user that has never interacted with the market 1`] = `
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 2`] = `
 {
-  "__typename": "MarketUserState",
-  "availableBorrowsBase": Any<String>,
-  "currentLiquidationThreshold": Any<String>,
-  "eModeEnabled": false,
-  "healthFactor": Any<String>,
-  "isInIsolationMode": false,
-  "ltv": Any<String>,
-  "netAPY": Any<String>,
-  "netWorth": Any<String>,
-  "totalCollateralBase": Any<String>,
-  "totalDebtBase": Any<String>,
+  "__typename": "Market",
+  "address": "0x0AA97c284e98396202b6A04024F5E2c65026F3c0",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "Ethereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumEtherFi",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 3`] = `
+{
+  "__typename": "Market",
+  "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "Ethereum",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumLido",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
 }
 `;

@@ -1,10 +1,4 @@
-import {
-  assertOk,
-  bigDecimal,
-  evmAddress,
-  never,
-  nonNullable,
-} from '@aave/types';
+import { assertOk, evmAddress, never, nonNullable } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
@@ -12,13 +6,10 @@ import {
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-  fundErc20Address,
-  USDC_ADDRESS,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market, userMarketState } from './markets';
-import { supply, userSetEmode } from './transactions';
+import { userSetEmode } from './transactions';
 
 describe('Given an Aave Market', () => {
   describe('When a user enables an E-Mode category for the given market', () => {
@@ -93,66 +84,6 @@ describe('Given an Aave Market', () => {
 
       expect(result.value).toMatchObject({
         eModeEnabled: false,
-      });
-    });
-  });
-
-  describe('And the user has some supply positions', () => {
-    const wallet = createNewWallet();
-
-    beforeAll(async () => {
-      await Promise.all([
-        fundErc20Address(
-          USDC_ADDRESS,
-          evmAddress(wallet.account!.address),
-          bigDecimal('0.02'),
-        ),
-        fundErc20Address(
-          WETH_ADDRESS,
-          evmAddress(wallet.account!.address),
-          bigDecimal('0.02'),
-        ),
-      ]);
-
-      const result = await supply(client, {
-        chainId: ETHEREUM_FORK_ID,
-        market: ETHEREUM_MARKET_ADDRESS,
-        supplier: evmAddress(wallet.account!.address),
-        amount: {
-          erc20: {
-            currency: USDC_ADDRESS,
-            value: '0.01',
-          },
-        },
-      })
-        .andThen(sendWith(wallet))
-        .andThen(() =>
-          supply(client, {
-            chainId: ETHEREUM_FORK_ID,
-            market: ETHEREUM_MARKET_ADDRESS,
-            supplier: evmAddress(wallet.account!.address),
-            amount: {
-              erc20: {
-                currency: WETH_ADDRESS,
-                value: '0.01',
-              },
-            },
-          }),
-        )
-        .andThen(sendWith(wallet));
-
-      assertOk(result);
-    });
-
-    describe('When the user enables an E-Mode category involving some of the supply positions', () => {
-      beforeAll(async () => {
-        const result = await userSetEmode(client, {
-          chainId: ETHEREUM_FORK_ID,
-          market: ETHEREUM_MARKET_ADDRESS,
-          categoryId: ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-          user: evmAddress(wallet.account!.address),
-        }).andThen(sendWith(wallet));
-        assertOk(result);
       });
     });
   });
