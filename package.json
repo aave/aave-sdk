@@ -19,6 +19,7 @@
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
     "prepublish": "pnpm run build",
+    "publish:results": "node scripts/publishResults.js",
     "test:client": "vitest --project client",
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
