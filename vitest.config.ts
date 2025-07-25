@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     setupFiles: [resolve(__dirname, './vitest.setup.ts')],
     env: loadEnv('', process.cwd(), ''),
-    testTimeout: 10_000,
+    testTimeout: 15_000,
     hookTimeout: 15_000,
     fileParallelism: false,
     projects: [

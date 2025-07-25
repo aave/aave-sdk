@@ -4,6 +4,7 @@ import {
   bigDecimal,
   errAsync,
   evmAddress,
+  nonNullable,
   okAsync,
   type ResultAsync,
 } from '@aave/types';
@@ -55,17 +56,11 @@ function createVault(): ResultAsync<Vault, Error> {
         underlyingToken: reserve!.underlyingToken.address,
       })
         .andThen(sendWith(organization))
-        .andTee(() => wait(2000)) // wait for the vault to be deployed
-        .andThen((tx) =>
-          vault(client, { by: { txHash: tx }, chainId: ETHEREUM_FORK_ID }),
+        .andThen((txHash) =>
+          vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
         )
         .andTee((vault) => console.log(`vault address: ${vault?.address}`))
-        .andThen((vault) => {
-          if (vault === null) {
-            return errAsync(new Error('Vault was not found after deployment'));
-          }
-          return okAsync(vault);
-        });
+        .map(nonNullable);
     });
   });
 }
@@ -87,7 +82,7 @@ function deposit(amount: number) {
         chainId: vault.chainId,
       })
         .andThen(sendWith(user))
-        .andTee((tx) => console.log(`tx to deposit in vault: ${tx}`))
+        .andTee((txHash) => console.log(`tx to deposit in vault: ${txHash}`))
         .andThen(() => okAsync(vault));
     });
   };
