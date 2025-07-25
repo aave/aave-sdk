@@ -12,7 +12,11 @@ on:
         type: choice
         options:
         - staging
-        
+
+concurrency:
+  group: ${{ github.workflow }}-tests-on-demand
+  cancel-in-progress: true
+     
 jobs:   
   run-tests-stage:
     name: Aave SDK V3 - E2E tests against STAGE
