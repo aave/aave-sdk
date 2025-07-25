@@ -87,6 +87,7 @@ export function createNewWallet(): WalletClient {
     chain: ethereumForkChain,
     transport: http(),
   });
+  console.log(`wallet address ${wallet.account.address}`);
   return wallet;
 }
 
@@ -261,6 +262,6 @@ export async function getBalance(
   ]);
 
   return Number.parseFloat(
-    (Number(balance) / 10 ** Number(decimals)).toFixed(6),
+    (Number(balance) / 10 ** Number(decimals)).toFixed(decimals),
   );
 }

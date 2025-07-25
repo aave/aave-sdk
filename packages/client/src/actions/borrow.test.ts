@@ -173,7 +173,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
-          .andTee(() => wait(1000)) //TODO: improve the wait time
+          .andTee(() => wait(2000)) //TODO: improve the wait time
           .andThen(() =>
             userBorrows(client, {
               markets: [
