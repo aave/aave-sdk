@@ -1,9 +1,8 @@
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 async function sendMessage(message, status, title, emoji = ':test_tube:') {
-  console.log(message, status, title, emoji);
   const response = await fetch(
-    'https://hooks.slack.com/services/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', // ${process.env.SLACK_WEBHOOK_URL}
+    `https://hooks.slack.com/services/${process.env.SLACK_WEBHOOK}`,
     {
       method: 'POST',
       headers: {
@@ -20,16 +19,13 @@ async function sendMessage(message, status, title, emoji = ':test_tube:') {
     const errorText = await response.text();
     console.error('Response status:', response.status);
     console.error('Response body:', errorText);
-    throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+    throw new Error(
+      `HTTP error! status: ${response.status}, body: ${errorText}`,
+    );
   }
 }
 
-function createMessageTestResults(
-  success,
-  failure,
-  totalTime,
-  testSuiteName,
-) {
+function createMessageTestResults(success, failure, totalTime, testSuiteName) {
   const result = { status: '', message: '' };
   const totalTests = success + failure;
   const percent = (success / totalTests).toFixed(2);
