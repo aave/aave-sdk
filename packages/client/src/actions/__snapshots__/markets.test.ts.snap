@@ -87,3 +87,19 @@ exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > The
   "userState": null,
 }
 `;
+
+exports[`Given the Aave Protocol v3 > When fetching user market state for a new user > Then it should return the expected data for a user that has never interacted with the market 1`] = `
+{
+  "__typename": "MarketUserState",
+  "availableBorrowsBase": Any<String>,
+  "currentLiquidationThreshold": Any<Object>,
+  "eModeEnabled": false,
+  "healthFactor": Any<String>,
+  "isInIsolationMode": false,
+  "ltv": Any<Object>,
+  "netAPY": Any<Object>,
+  "netWorth": Any<String>,
+  "totalCollateralBase": Any<String>,
+  "totalDebtBase": Any<String>,
+}
+`;
