@@ -10,6 +10,7 @@ import {
   WETH_ADDRESS,
   wait,
 } from '../test-utils';
+import { sendWith } from '../viem';
 import { borrow, supply } from './transactions';
 import { userTransactionHistory } from './user';
 
@@ -53,7 +54,9 @@ describe('Given an Aave Market', () => {
             },
           },
           chainId: ETHEREUM_FORK_ID,
-        });
+        })
+          .andThen(sendWith(user))
+          .andTee(() => wait(3000));
         assertOk(resultSupply);
 
         const resultBorrow = await borrow(client, {
@@ -63,11 +66,11 @@ describe('Given an Aave Market', () => {
             erc20: { value: '0.04', currency: WETH_ADDRESS },
           },
           chainId: ETHEREUM_FORK_ID,
-        });
+        })
+          .andThen(sendWith(user))
+          .andTee(() => wait(3000));
         assertOk(resultBorrow);
-
-        await wait(5000);
-      });
+      }, 60_000);
 
       it('Then it should be possible so sort them by date', async () => {
         const listTxOrderDesc = await userTransactionHistory(client, {
