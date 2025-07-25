@@ -23,9 +23,7 @@
     "test:client": "vitest --project client",
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
-    "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
-    "test:vaultRedeem": "vitest --project client packages/client/src/actions/vaults.test.ts -t \"When the user redeems their shares\"",
-    "test:vaultSetFee": "vitest --project client packages/client/src/actions/vaults.test.ts -t \"When the organization changes the vault's fee\"",
+    "test:userHistory": "vitest --project client packages/client/src/actions/history.test.ts",
     "test": "vitest"
   },
   "license": "MIT",
