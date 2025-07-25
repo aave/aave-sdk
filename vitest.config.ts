@@ -9,7 +9,6 @@ export default defineConfig({
     env: loadEnv('', process.cwd(), ''),
     testTimeout: 15_000,
     hookTimeout: 15_000,
-    fileParallelism: false,
     reporters: ['json', 'github-actions', 'default'],
     outputFile: {
       json: 'test-results.json',
