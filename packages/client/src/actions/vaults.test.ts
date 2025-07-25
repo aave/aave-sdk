@@ -2,7 +2,6 @@ import type { Vault } from '@aave/graphql';
 import {
   assertOk,
   bigDecimal,
-  errAsync,
   evmAddress,
   nonNullable,
   okAsync,
@@ -125,12 +124,13 @@ describe('Given the Aave Vaults', () => {
       });
 
       assertOk(result);
-      expect(result.value.items[0]?.owner).toEqual(
-        organization.account!.address,
-      );
-      expect(result.value.items[0]?.address).toEqual(
-        initialVault.value?.address,
-      );
+      expect(result.value.items.length).toBe(1);
+      expect(result.value.items).toEqual([
+        expect.objectContaining({
+          owner: organization.account!.address,
+          address: initialVault.value!.address,
+        }),
+      ]);
     });
   });
 
@@ -139,7 +139,7 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(deposit(1))
-          .andTee(() => wait(2000)); // wait for the deposit to be processed
+          .andTee(() => wait(4000)); // wait for the deposit to be processed
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
@@ -147,28 +147,42 @@ describe('Given the Aave Vaults', () => {
         });
 
         assertOk(userPositions);
-        expect(userPositions.value.items.length).toBe(1);
-        expect(
-          userPositions.value.items[0]?.balance.amount.value,
-        ).toBeBigDecimalCloseTo(1, 2);
-      }, 20_000);
+        expect(userPositions.value.items.length).toEqual(1);
+        expect(userPositions.value.items).toEqual([
+          expect.objectContaining({
+            balance: expect.objectContaining({
+              amount: expect.objectContaining({
+                value: expect.toBeBigDecimalCloseTo(1, 4),
+              }),
+            }),
+          }),
+        ]);
+      }, 30_000);
     });
 
     describe(`When the user mints some vault's shares`, () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault()
           .andThen(mintShares(1))
-          .andTee(() => wait(2000)); // wait for the mint to be processed
+          .andTee(() => wait(4000)); // wait for the mint to be processed
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
           user: evmAddress(user.account!.address),
         });
         assertOk(userPositions);
-        expect(
-          userPositions.value.items[0]?.userShares?.shares.amount.value,
-        ).toBeBigDecimalCloseTo(1, 4);
-      }, 20_000);
+        expect(userPositions.value.items).toEqual([
+          expect.objectContaining({
+            userShares: expect.objectContaining({
+              shares: expect.objectContaining({
+                amount: expect.objectContaining({
+                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                }),
+              }),
+            }),
+          }),
+        ]);
+      }, 30_000);
     });
 
     describe('When the user withdraws their assets from the vault', () => {
@@ -195,7 +209,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to withdraw from vault: ${tx}`))
-          .andTee(() => wait(5000)); // wait for the withdraw to be processed
+          .andTee(() => wait(3000)); // wait for the withdraw to be processed
         assertOk(withdrawResult);
 
         const userPositions = await userVaults(client, {
@@ -207,10 +221,18 @@ describe('Given the Aave Vaults', () => {
           WETH_ADDRESS,
         );
         expect(balanceAfter).toEqual(balanceBefore + amountToWithdraw);
-        expect(
-          userPositions.value.items[0]?.userShares?.shares.amount.value,
-        ).toBeBigDecimalCloseTo(0, 4);
-      }, 35_000);
+        expect(userPositions.value.items).toEqual([
+          expect.objectContaining({
+            userShares: expect.objectContaining({
+              shares: expect.objectContaining({
+                amount: expect.objectContaining({
+                  value: expect.toBeBigDecimalCloseTo(0, 4),
+                }),
+              }),
+            }),
+          }),
+        ]);
+      }, 40_000);
     });
 
     describe('When the user redeems their shares', () => {
@@ -230,17 +252,15 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
-          .andTee(() => wait(5000)); // wait for the redeem to be processed
+          .andTee(() => wait(3000)); // wait for the redeem to be processed
         assertOk(redeemResult);
 
         const userPositions = await userVaults(client, {
           user: evmAddress(user.account!.address),
         });
         assertOk(userPositions);
-        expect(
-          userPositions.value.items[0]?.userShares?.shares.amount.value,
-        ).toBeBigDecimalCloseTo(0, 4);
-      }, 30_000);
+        expect(userPositions.value.items.length).toEqual(0);
+      }, 40_000);
     });
 
     describe(`When the organization changes the vault's fee`, () => {
@@ -256,7 +276,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(organization))
           .andTee((tx) => console.log(`tx to set fee: ${tx}`))
-          .andTee(() => wait(5000)); // wait for the update to be processed
+          .andTee(() => wait(4000)); // wait for the update to be processed
         assertOk(updateResult);
 
         const newVaultInfo = await vault(client, {
@@ -264,11 +284,14 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value.chainId,
         });
         assertOk(newVaultInfo);
-        expect(newVaultInfo.value?.fee.formatted).toBeBigDecimalCloseTo(
-          newFee,
-          2,
+        expect(newVaultInfo.value).toEqual(
+          expect.objectContaining({
+            fee: expect.objectContaining({
+              formatted: expect.toBeBigDecimalCloseTo(newFee, 4),
+            }),
+          }),
         );
-      }, 25_000);
+      }, 30_000);
     });
 
     describe('When users borrow from the underlying vault reserve', () => {
@@ -282,7 +305,7 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization withdraws the vault's fees`, () => {
-      it('Then they shoudl receive the expected ERC-20 amount', async () => {
+      it('Then they should receive the expected ERC-20 amount', async () => {
         const initialVault = await createVault()
           .andThen(deposit(1))
           .andThen(mintShares(1))
@@ -311,7 +334,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(organization))
           .andTee((tx) => console.log(`tx to withdraw fees: ${tx}`))
-          .andTee(() => wait(5000)); // wait for the withdraw to be processed
+          .andTee(() => wait(3000)); // wait for the withdraw to be processed
         assertOk(withdrawResult);
 
         // Check vault contains fees
@@ -327,9 +350,15 @@ describe('Given the Aave Vaults', () => {
         );
         // TODO: check properly the balance of the organization wallet
         expect(balanceAfter).toBeGreaterThan(balanceBefore);
-        expect(
-          vaultInfoAfter.value?.totalFeeRevenue.amount.value,
-        ).toBeBigDecimalCloseTo(bigDecimal('0.00'), 18);
+        expect(vaultInfoAfter.value).toEqual(
+          expect.objectContaining({
+            totalFeeRevenue: expect.objectContaining({
+              amount: expect.objectContaining({
+                value: expect.toBeBigDecimalCloseTo(0, 18),
+              }),
+            }),
+          }),
+        );
       }, 35_000);
     });
   });
