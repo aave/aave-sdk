@@ -2,7 +2,6 @@ import type { Vault } from '@aave/graphql';
 import {
   assertOk,
   bigDecimal,
-  errAsync,
   evmAddress,
   nonNullable,
   okAsync,
