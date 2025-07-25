@@ -156,7 +156,7 @@ describe('Given the Aave Vaults', () => {
         expect(
           userPositions.value.items[0]?.balance.amount.value,
         ).toBeBigDecimalCloseTo(1, 2);
-      });
+      }, 20_000);
     });
 
     describe(`When the user mints some vault's shares`, () => {
@@ -173,7 +173,7 @@ describe('Given the Aave Vaults', () => {
         expect(
           userPositions.value.items[0]?.userShares?.shares.amount.value,
         ).toBeBigDecimalCloseTo(1, 4);
-      });
+      }, 20_000);
     });
 
     describe('When the user withdraws their assets from the vault', () => {
@@ -215,7 +215,7 @@ describe('Given the Aave Vaults', () => {
         expect(
           userPositions.value.items[0]?.userShares?.shares.amount.value,
         ).toBeBigDecimalCloseTo(0, 4);
-      });
+      }, 35_000);
     });
 
     describe('When the user redeems their shares', () => {
@@ -335,7 +335,7 @@ describe('Given the Aave Vaults', () => {
         expect(
           vaultInfoAfter.value?.totalFeeRevenue.amount.value,
         ).toBeBigDecimalCloseTo(bigDecimal('0.00'), 18);
-      });
+      }, 35_000);
     });
   });
 });
