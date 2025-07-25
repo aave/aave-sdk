@@ -13,7 +13,7 @@ import { borrowAPYHistory, reserve, supplyAPYHistory } from './reserve';
 function windowToDate(window: TimeWindow): Date {
   switch (window) {
     case TimeWindow.LastDay:
-      return new Date(Date.now() - 1000 * 60 * 60 * 24 - 1000 * 60 * 5);
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 - 1000 * 60 * 10);
     case TimeWindow.LastWeek:
       return new Date(Date.now() - 1000 * 60 * 60 * 24 * 8);
     case TimeWindow.LastMonth:
