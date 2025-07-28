@@ -60,7 +60,7 @@ function createMessageTestResults(
 
 const main = async (): Promise<void> => {
   // Parse the test results
-  const testResults = readFileSync('test-results.json', {
+  const testResults = readFileSync('reports/test-results.json', {
     encoding: 'utf8',
   });
   const testResultsJson = JSON.parse(testResults);
