@@ -69,9 +69,7 @@ describe('Given Aave Market', () => {
         assertOk(userSuppliesAfter);
         expect(userSuppliesAfter.value).toEqual([
           expect.objectContaining({
-            isCollateral: expect.toBe(
-              !userSuppliesBefore.value[0]?.isCollateral,
-            ),
+            isCollateral: !userSuppliesBefore.value[0]?.isCollateral,
           }),
         ]);
       }, 25_000);
