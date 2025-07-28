@@ -52,6 +52,14 @@ corepack install
 
 to install the correct version once. After that corepack will automatically use the correct version of `pnpm` when entering the project folder.
 
+Create a `.env` file copying the `.env.example` file:
+
+```bash
+cp .env.example .env
+```
+
+Update the `.env` file with the correct values.
+
 ### Usage <!-- omit in toc -->
 
 Run the tests:

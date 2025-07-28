@@ -5,7 +5,6 @@ import type {
 } from '@aave/graphql';
 import {
   errAsync,
-  invariant,
   nonNullable,
   ResultAsync,
   type TxHash,
@@ -46,15 +45,13 @@ export function sendTransactionAndWait(
  *
  * Handles {@link TransactionRequest} by signing and sending, {@link ApprovalRequired} by sending both approval and original transactions, and returns validation errors for {@link InsufficientBalanceError}.
  */
-export function sendWith(signer: Signer | undefined): ExecutionPlanHandler {
+export function sendWith(signer: Signer): ExecutionPlanHandler {
   return (
     result: ExecutionPlan,
   ): ResultAsync<
     TxHash,
     SigningError | ValidationError<InsufficientBalanceError>
   > => {
-    invariant(signer, 'Expected a Signer to handle the operation result.');
-
     switch (result.__typename) {
       case 'TransactionRequest':
         return sendTransactionAndWait(signer, result);

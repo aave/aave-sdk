@@ -2,7 +2,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig(() => ({
-  entry: ['src/index.ts', 'src/ethers.ts', 'src/viem.ts'],
+  entry: ['src/index.ts', 'src/ethers.ts', 'src/privy.ts', 'src/viem.ts'],
   outDir: 'dist',
   splitting: false,
   sourcemap: true,
