@@ -8,7 +8,6 @@ import {
   ETHEREUM_MARKET_ADDRESS,
   fundErc20Address,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { collateralToggle, supply } from './transactions';
@@ -25,14 +24,19 @@ describe('Given Aave Market', () => {
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         );
+        console.log('funding done');
 
         const result = await supply(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
           supplier: evmAddress(wallet.account!.address),
           amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
-        }).andThen(sendWith(wallet));
+        })
+          .andThen(sendWith(wallet))
+          .andThen(client.waitForTransaction);
         assertOk(result);
+
+        console.log('supply tx: ', result.value);
       });
 
       it('Then it should be reflected in the user supply positions', async () => {
@@ -53,7 +57,7 @@ describe('Given Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to toggle collateral: ${tx}`))
-          .andTee(() => wait(1000));
+          .andThen(client.waitForTransaction);
         assertOk(result);
 
         const userSuppliesAfter = await userSupplies(client, {
@@ -70,7 +74,7 @@ describe('Given Aave Market', () => {
             ),
           }),
         ]);
-      });
+      }, 25_000);
     });
   });
 });

@@ -8,7 +8,6 @@ import {
   ETHEREUM_MARKET_ADDRESS,
   fundErc20Address,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { borrow, supply } from './transactions';
@@ -56,7 +55,7 @@ describe('Given an Aave Market', () => {
           chainId: ETHEREUM_FORK_ID,
         })
           .andThen(sendWith(user))
-          .andTee(() => wait(3000));
+          .andThen(client.waitForTransaction);
         assertOk(resultSupply);
 
         const resultBorrow = await borrow(client, {
@@ -68,7 +67,7 @@ describe('Given an Aave Market', () => {
           chainId: ETHEREUM_FORK_ID,
         })
           .andThen(sendWith(user))
-          .andTee(() => wait(3000));
+          .andThen(client.waitForTransaction);
         assertOk(resultBorrow);
       }, 60_000);
 

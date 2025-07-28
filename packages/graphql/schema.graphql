@@ -149,6 +149,13 @@ type DecimalValue {
   value: BigDecimal!
 }
 
+type DomainData {
+  name: String!
+  version: String!
+  chainId: ChainId!
+  verifyingContract: EvmAddress!
+}
+
 input ERC712Signature {
   """The signature for the erc721"""
   value: Signature!
@@ -462,6 +469,14 @@ input MarketsRequest {
   user: EvmAddress
 }
 
+type MessageData {
+  owner: EvmAddress!
+  spender: EvmAddress!
+  value: BigInt!
+  nonce: String!
+  deadline: Int!
+}
+
 type NativeCurrency {
   """The token image"""
   imageUrl: String!
@@ -526,6 +541,35 @@ type PercentValue {
   For example, this will turn `0.01232343` to `1.23`, it will always round to `2` decimal points.
   """
   formatted: BigDecimal!
+}
+
+input PermitRequest {
+  """The pool address for the market"""
+  market: EvmAddress!
+
+  """The underlying token for the reserve"""
+  underlyingToken: EvmAddress!
+
+  """
+  The amount to permit - in human-readable form aka 0.001 eth is 0.001 eth here
+  """
+  amount: BigDecimal!
+
+  """The chain id the pool is deployed on"""
+  chainId: ChainId!
+
+  """The spender address"""
+  spender: EvmAddress!
+
+  """The owner of the funds"""
+  owner: EvmAddress!
+}
+
+type PermitTypedDataResponse {
+  types: TypeDefinition!
+  primaryType: String!
+  domain: DomainData!
+  message: MessageData!
 }
 
 type Query {
@@ -644,11 +688,23 @@ type Query {
   """Get the supply APY history"""
   supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
 
+  """Generate EIP-712 typed data for permit signature"""
+  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
+
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
 
   """The user's transaction history"""
   userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
+
+  """
+  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
+  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
+  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
+  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
+  cater for the race condition.
+  """
+  hasProcessedKnownTransaction(txHash: TxHash!): Boolean!
   _service: _Service!
 }
 
@@ -722,6 +778,11 @@ type Reserve {
 
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
+
+  """Does the underlying reserve support permit"""
+  permitSupported: Boolean!
+
+  """The emode information for the reserve"""
   eModeInfo: [EmodeReserveInfo!]!
 
   """Get the user state on the reserve"""
@@ -801,6 +862,9 @@ type ReserveInfo {
 
   """The usd exchange rate for the underlying token"""
   usdExchangeRate: BigDecimal!
+
+  """Does the underlying reserve support permit"""
+  permitSupported: Boolean!
 }
 
 type ReserveIsolationModeConfig {
@@ -948,6 +1012,16 @@ type TransactionRequest {
 }
 
 scalar TxHash
+
+type TypeDefinition {
+  EIP712Domain: [TypeField!]!
+  Permit: [TypeField!]!
+}
+
+type TypeField {
+  name: String!
+  type: String!
+}
 
 type UsdExchangeRate {
   currency: Currency!

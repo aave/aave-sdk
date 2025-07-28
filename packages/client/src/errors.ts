@@ -1,4 +1,4 @@
-import type { TypedSelectionSet } from '@aave/graphql';
+import type { TransactionRequest, TypedSelectionSet } from '@aave/graphql';
 import { ResultAwareError } from '@aave/types';
 import type { CombinedError } from '@urql/core';
 
@@ -43,13 +43,17 @@ export class SigningError extends ResultAwareError {
  */
 export class TransactionError extends ResultAwareError {
   name = 'TransactionError' as const;
+
+  constructor(message: string, cause: TransactionRequest) {
+    super(message, { cause });
+  }
 }
 
 /**
- * Error indicating a transaction failed to index.
+ * Error indicating a timeout occurred.
  */
-export class TransactionIndexingError extends ResultAwareError {
-  name = 'TransactionIndexingError' as const;
+export class TimeoutError extends ResultAwareError {
+  name = 'TimeoutError' as const;
 }
 
 /**

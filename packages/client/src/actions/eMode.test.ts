@@ -21,7 +21,9 @@ describe('Given an Aave Market', () => {
         market: ETHEREUM_MARKET_ADDRESS,
         categoryId: ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
         user: evmAddress(wallet.account!.address),
-      }).andThen(sendWith(wallet));
+      })
+        .andThen(sendWith(wallet))
+        .andThen(client.waitForTransaction);
       assertOk(result);
     });
 
@@ -73,6 +75,7 @@ describe('Given an Aave Market', () => {
         user: evmAddress(wallet.account!.address),
       })
         .andThen(sendWith(wallet))
+        .andThen(client.waitForTransaction)
         .andThen(() =>
           userMarketState(client, {
             market: ETHEREUM_MARKET_ADDRESS,
