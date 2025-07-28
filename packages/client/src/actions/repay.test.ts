@@ -10,7 +10,6 @@ import {
   fundErc20Address,
   fundNativeAddress,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
@@ -23,6 +22,7 @@ async function supplyAndBorrow(wallet: WalletClient, request: SupplyRequest) {
   const result = await supply(client, request)
     .andThen(sendWith(wallet))
     .andTee((tx) => console.log(`Supplied tx: ${tx}`))
+    .andThen(client.waitForTransaction)
     .andThen(() =>
       reserve(client, {
         market: request.market,
@@ -46,7 +46,8 @@ async function supplyAndBorrow(wallet: WalletClient, request: SupplyRequest) {
       }),
     )
     .andThen(sendWith(wallet))
-    .andTee((tx) => console.log(`Borrowed tx: ${tx}`));
+    .andTee((tx) => console.log(`Borrowed tx: ${tx}`))
+    .andThen(client.waitForTransaction);
   assertOk(result);
 }
 
@@ -90,7 +91,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`Repaid tx: ${tx}`))
-          .andTee(() => wait(5000))
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
               markets: [
@@ -151,7 +152,7 @@ describe('Given an Aave Market', () => {
           })
             .andThen(sendWith(wallet))
             .andTee((tx) => console.log(`Repaid tx: ${tx}`))
-            .andTee(() => wait(5000))
+            .andThen(client.waitForTransaction)
             .andThen(() =>
               userBorrows(client, {
                 markets: [

@@ -6,6 +6,8 @@ import { never } from '@aave/types';
 export type EnvironmentConfig = {
   name: string;
   backend: string;
+  indexingTimeout: number;
+  pollingInterval: number;
 };
 
 /**
@@ -26,6 +28,8 @@ export const production: EnvironmentConfig = new Proxy<EnvironmentConfig>(
 export const staging: EnvironmentConfig = {
   name: 'staging',
   backend: 'https://api.v3.staging.aave.com/graphql',
+  indexingTimeout: 10000,
+  pollingInterval: 100,
 };
 
 /**
@@ -34,4 +38,6 @@ export const staging: EnvironmentConfig = {
 export const local: EnvironmentConfig = {
   name: 'local',
   backend: 'http://localhost:3011/graphql',
+  indexingTimeout: 10000,
+  pollingInterval: 100,
 };

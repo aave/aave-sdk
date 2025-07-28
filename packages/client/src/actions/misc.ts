@@ -1,12 +1,13 @@
 import {
   type Chain,
   ChainsQuery,
+  HasProcessedKnownTransactionQuery,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
   type UsdExchangeRatesRequest,
 } from '@aave/graphql';
-import type { ResultAsync } from '@aave/types';
+import type { ResultAsync, TxHash } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
@@ -58,4 +59,49 @@ export function usdExchangeRates(
   request: UsdExchangeRatesRequest,
 ): ResultAsync<UsdExchangeRate[], UnexpectedError> {
   return client.query(UsdExchangeRatesQuery, { request });
+}
+
+/**
+ * Checks if the API has processed a known transaction hash.
+ *
+ * This is useful to know when cached data has been invalidated after
+ * a transaction is complete, as the API uses caching and has an
+ * invalidation task that may take 100-200ms longer.
+ *
+ * ```ts
+ * const result = await borrow(client, request)
+ *   .andThen(sendWith(wallet))
+ *   .andThen(client.waitForTransaction);
+ *
+ * if (result.isErr()) {
+ *   // Handle error
+ *   return;
+ * }
+ *
+ * // Check if the transaction has been processed by the API
+ * const processed = await hasProcessedKnownTransaction(client, result.value);
+ *
+ * if (processed.isErr()) {
+ *   // Handle error
+ *   return;
+ * }
+ *
+ * if (processed.value) {
+ *   // Transaction processed, cached data is up to date
+ *   console.log('Transaction processed, data is fresh');
+ * } else {
+ *   // Transaction not yet processed, may need to wait
+ *   console.log('Transaction not yet processed');
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param txHash - The transaction hash to check.
+ * @returns True if the transaction has been processed, false otherwise.
+ */
+export function hasProcessedKnownTransaction(
+  client: AaveClient,
+  txHash: TxHash,
+): ResultAsync<boolean, UnexpectedError> {
+  return client.query(HasProcessedKnownTransactionQuery, { txHash });
 }

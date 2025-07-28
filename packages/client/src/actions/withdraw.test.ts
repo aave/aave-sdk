@@ -10,7 +10,6 @@ import {
   fundErc20Address,
   fundNativeAddress,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';
@@ -20,6 +19,7 @@ async function supplyAndCheck(wallet: WalletClient, request: SupplyRequest) {
   const userAddress = evmAddress(wallet.account!.address);
   const result = await supply(client, request)
     .andThen(sendWith(wallet))
+    .andThen(client.waitForTransaction)
     .andThen(() =>
       userSupplies(client, {
         markets: [{ address: request.market, chainId: request.chainId }],
@@ -93,7 +93,7 @@ describe('Given an Aave Market', () => {
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
           // Wait for the transaction to be mined
-          .andTee(() => wait(5000))
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
               markets: [
@@ -158,7 +158,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
-          .andTee(() => wait(5000))
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
               markets: [
