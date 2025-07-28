@@ -3,13 +3,19 @@ import type {
   InsufficientBalanceError,
   TransactionRequest,
 } from '@aave/graphql';
-import { errAsync, ResultAsync, type TxHash, txHash } from '@aave/types';
+import {
+  errAsync,
+  okAsync,
+  ResultAsync,
+  type TxHash,
+  txHash,
+} from '@aave/types';
 import type { PrivyClient } from '@privy-io/server-auth';
 import { createPublicClient, http } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
-import { SigningError, ValidationError } from './errors';
+import { SigningError, type TransactionError, ValidationError } from './errors';
 import type { ExecutionPlanHandler } from './types';
-import { supportedChains } from './viem';
+import { supportedChains, transactionError } from './viem';
 
 async function sendTransaction(
   privy: PrivyClient,
@@ -37,7 +43,7 @@ function sendTransactionAndWait(
   privy: PrivyClient,
   request: TransactionRequest,
   walletId: string,
-): ResultAsync<TxHash, SigningError> {
+): ResultAsync<TxHash, SigningError | TransactionError> {
   // TODO: verify it's on the correct chain, ask to switch if possible
   // TODO: verify if wallet account is correct, switch if possible
   const publicClient = createPublicClient({
@@ -48,14 +54,25 @@ function sendTransactionAndWait(
   return ResultAsync.fromPromise(
     sendTransaction(privy, request, walletId),
     (err) => SigningError.from(err),
-  ).map(async (hash) =>
-    waitForTransactionReceipt(publicClient, {
-      hash,
-      pollingInterval: 100,
-      retryCount: 20,
-      retryDelay: 50,
-    }),
-  );
+  )
+    .map(async (hash) =>
+      waitForTransactionReceipt(publicClient, {
+        hash,
+        pollingInterval: 100,
+        retryCount: 20,
+        retryDelay: 50,
+      }),
+    )
+    .andThen((receipt) => {
+      const hash = txHash(receipt.transactionHash);
+
+      if (receipt.status === 'reverted') {
+        return errAsync(
+          transactionError(supportedChains[request.chainId], hash, request),
+        );
+      }
+      return okAsync(hash);
+    });
 }
 
 /**
@@ -71,7 +88,7 @@ export function sendWith(
     result: ExecutionPlan,
   ): ResultAsync<
     TxHash,
-    SigningError | ValidationError<InsufficientBalanceError>
+    SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
     switch (result.__typename) {
       case 'TransactionRequest':

@@ -7,6 +7,7 @@ import {
   type ChainId,
   chainId,
   errAsync,
+  okAsync,
   ResultAsync,
   type TxHash,
   txHash,
@@ -33,7 +34,7 @@ import {
   scroll,
   zksync,
 } from 'viem/chains';
-import { SigningError, ValidationError } from './errors';
+import { SigningError, TransactionError, ValidationError } from './errors';
 import type { ExecutionPlanHandler } from './types';
 
 // Other chains
@@ -136,10 +137,27 @@ async function sendTransaction(
 /**
  * @internal
  */
+export function transactionError(
+  chain: Chain | undefined,
+  txHash: TxHash,
+  request: TransactionRequest,
+): TransactionError {
+  const baseUrl = chain?.blockExplorers?.default?.url;
+  const link = baseUrl ? `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}` : null;
+  const message = link
+    ? `Transaction failed: ${txHash}\n→ View on explorer: ${link}`
+    : `Transaction failed: ${txHash}`;
+
+  return new TransactionError(message, request);
+}
+
+/**
+ * @internal
+ */
 export function sendTransactionAndWait(
   walletClient: WalletClient,
   request: TransactionRequest,
-): ResultAsync<TxHash, SigningError> {
+): ResultAsync<TxHash, SigningError | TransactionError> {
   // TODO: verify it's on the correct chain, ask to switch if possible
   // TODO: verify if wallet account is correct, switch if possible
 
@@ -155,7 +173,14 @@ export function sendTransactionAndWait(
         retryDelay: 50,
       }),
     )
-    .map((receipt) => txHash(receipt.transactionHash));
+    .andThen((receipt) => {
+      const hash = txHash(receipt.transactionHash);
+
+      if (receipt.status === 'reverted') {
+        return errAsync(transactionError(walletClient.chain, hash, request));
+      }
+      return okAsync(hash);
+    });
 }
 
 /**
@@ -168,7 +193,7 @@ export function sendWith(walletClient: WalletClient): ExecutionPlanHandler {
     result: ExecutionPlan,
   ): ResultAsync<
     TxHash,
-    SigningError | ValidationError<InsufficientBalanceError>
+    SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
     switch (result.__typename) {
       case 'TransactionRequest':
