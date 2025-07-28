@@ -84,14 +84,6 @@ export function createNewWallet(): WalletClient {
   return wallet;
 }
 
-export function loadWallet(privateKey: `0x${string}`): WalletClient {
-  return createWalletClient({
-    account: privateKeyToAccount(privateKey),
-    chain: ethereumForkChain,
-    transport: http(),
-  });
-}
-
 // Tenderly RPC type for setBalance
 type TSetBalanceRpc = {
   Method: 'tenderly_setBalance';
