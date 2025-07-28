@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   root: './',
   test: {
+    fileParallelism: false,
     setupFiles: [resolve(__dirname, './vitest.setup.ts')],
     env: loadEnv('', process.cwd(), ''),
     testTimeout: 15_000,
