@@ -1,6 +1,7 @@
 import {
   type SigningError,
   type TimeoutError,
+  type TransactionError,
   UnexpectedError,
 } from '@aave/client';
 import { sendTransactionAndWait, supportedChains } from '@aave/client/viem';
@@ -11,7 +12,11 @@ import { createWalletClient, custom } from 'viem';
 import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError = SigningError | TimeoutError | UnexpectedError;
+export type SendTransactionError =
+  | SigningError
+  | TimeoutError
+  | TransactionError
+  | UnexpectedError;
 
 /**
  * A hook that provides a way to send Aave transactions using a Privy wallet.
@@ -38,7 +43,7 @@ export type TransactionError = SigningError | TimeoutError | UnexpectedError;
  *     .andThen(sendTransaction);
  *
  *   if (result.isErr()) {
- *     console.error(`Failed to sign the transaction: ${error.message}`);
+ *     console.error(result.error);
  *     return;
  *   }
  *
@@ -80,20 +85,12 @@ export type TransactionError = SigningError | TimeoutError | UnexpectedError;
  *        }
  *      });
  *
- *    if (result.isErr()) {
- *      switch (error.name) {
- *        case 'SigningError':
- *          console.error(`Failed to sign the transaction: ${error.message}`);
- *          break;
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
  *
- *        case 'UnexpectedError':
- *          console.error(`Unexpected error: ${error.message}`);
- *          break;
- *      }
- *      return;
- *    }
- *
- *    console.log('Transaction sent with hash:', result.value);
+ *   console.log('Transaction sent with hash:', result.value);
  * }
  * ```
  *
@@ -102,7 +99,7 @@ export type TransactionError = SigningError | TimeoutError | UnexpectedError;
 export function useSendTransaction(): UseAsyncTask<
   TransactionRequest,
   TxHash,
-  TransactionError
+  SendTransactionError
 > {
   const client = useAaveClient();
   const { wallets } = useWallets();
