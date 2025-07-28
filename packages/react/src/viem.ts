@@ -1,12 +1,13 @@
-import type { SigningError, UnexpectedError } from '@aave/client';
+import type { SigningError, TimeoutError, UnexpectedError } from '@aave/client';
 import { sendTransactionAndWait } from '@aave/client/viem';
 import type { TransactionRequest } from '@aave/graphql';
 import type { TxHash } from '@aave/types';
 import { invariant } from '@aave/types';
 import type { WalletClient } from 'viem';
+import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError = SigningError | UnexpectedError;
+export type TransactionError = SigningError | TimeoutError | UnexpectedError;
 
 /**
  * A hook that provides a way to send Aave transactions using a viem WalletClient instance.
@@ -99,12 +100,16 @@ export type TransactionError = SigningError | UnexpectedError;
 export function useSendTransaction(
   walletClient: WalletClient | undefined,
 ): UseAsyncTask<TransactionRequest, TxHash, TransactionError> {
+  const client = useAaveClient();
+
   return useAsyncTask((request: TransactionRequest) => {
     invariant(
       walletClient,
       'Expected a WalletClient to handle the operation result.',
     );
 
-    return sendTransactionAndWait(walletClient, request);
+    return sendTransactionAndWait(walletClient, request).andThen(
+      client.waitForTransaction,
+    );
   });
 }

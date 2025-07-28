@@ -48,7 +48,7 @@ import type { UnexpectedError } from '../errors';
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -83,7 +83,7 @@ export function borrow(
  *   },
  *   supplier: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -118,7 +118,7 @@ export function supply(
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -153,7 +153,7 @@ export function repay(
  *   },
  *   supplier: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -184,7 +184,7 @@ export function withdraw(
  *   user: evmAddress('0x5678…'),
  *   categoryId: market.eModeCategories[0].id,
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -201,7 +201,7 @@ export function withdraw(
  *   user: evmAddress('0x5678…'),
  *   categoryId: null,
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -234,7 +234,7 @@ export function userSetEmode(
  *   },
  *   depositor: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -267,7 +267,7 @@ export function vaultDeposit(
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -301,7 +301,7 @@ export function vaultRedeemShares(
  *   shareSymbol: 'avs',
  *   initialLockDeposit: '1000',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, insufficient balance, etc.
@@ -330,7 +330,7 @@ export function vaultDeploy(
  *   vault: evmAddress('0x1234…'),
  *   newFee: '0.2',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -359,7 +359,7 @@ export function vaultSetFee(
  *   vault: evmAddress('0x1234…'),
  *   amount: '100',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -392,7 +392,7 @@ export function vaultWithdrawFees(
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -425,7 +425,7 @@ export function vaultWithdraw(
  *   },
  *   minter: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -455,7 +455,7 @@ export function vaultMintShares(
  *   underlyingToken: market.supplyReserves[n].underlyingToken.address,
  *   user: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -486,7 +486,7 @@ export function collateralToggle(
  *   user: evmAddress('0x9abc…'),
  *   debtToCover: { max: true },
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.

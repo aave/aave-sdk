@@ -15,7 +15,6 @@ import {
   fundErc20Address,
   fundNativeAddress,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
@@ -29,6 +28,7 @@ async function supplyAndCheck(
   const userAddress = evmAddress(wallet.account!.address);
   const result = await supply(client, request)
     .andThen(sendWith(wallet))
+    .andThen(client.waitForTransaction)
     .andThen(() =>
       userSupplies(client, {
         markets: [{ address: request.market, chainId: request.chainId }],
@@ -110,7 +110,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
-          .andTee(() => wait(1000)) //TODO: improve the wait time
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
               markets: [
@@ -173,7 +173,7 @@ describe('Given an Aave Market', () => {
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
-          .andTee(() => wait(2000)) //TODO: improve the wait time
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
               markets: [

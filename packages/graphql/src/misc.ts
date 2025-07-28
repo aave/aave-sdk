@@ -23,6 +23,15 @@ export const ChainsQuery = graphql(
   [ChainFragment],
 );
 
+/**
+ * @internal
+ */
+export const HasProcessedKnownTransactionQuery = graphql(
+  `query HasProcessedKnownTransaction($txHash: TxHash!) {
+    value: hasProcessedKnownTransaction(txHash: $txHash)
+  }`,
+);
+
 export const UsdExchangeRateFragment = graphql(
   `fragment UsdExchangeRate on UsdExchangeRate {
     __typename

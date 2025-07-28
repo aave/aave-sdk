@@ -46,10 +46,10 @@ export class TransactionError extends ResultAwareError {
 }
 
 /**
- * Error indicating a transaction failed to index.
+ * Error indicating a timeout occurred.
  */
-export class TransactionIndexingError extends ResultAwareError {
-  name = 'TransactionIndexingError' as const;
+export class TimeoutError extends ResultAwareError {
+  name = 'TimeoutError' as const;
 }
 
 /**

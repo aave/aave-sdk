@@ -7,7 +7,6 @@ import {
   getBalance,
   USDC_ADDRESS,
   WETH_ADDRESS,
-  wait,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import {
@@ -55,9 +54,9 @@ describe('Given the Aave Vaults', () => {
   describe('And a deployed organization vault', () => {
     describe('When a user deposits into the vault', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization)
-          .andThen(deposit(user, 1))
-          .andTee(() => wait(4000)); // wait for the deposit to be processed
+        const initialVault = await createVault(organization).andThen(
+          deposit(user, 1),
+        );
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
@@ -99,9 +98,9 @@ describe('Given the Aave Vaults', () => {
 
     describe(`When the user mints some vault's shares`, () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization)
-          .andThen(mintShares(user, 1))
-          .andTee(() => wait(4000)); // wait for the mint to be processed
+        const initialVault = await createVault(organization).andThen(
+          mintShares(user, 1),
+        );
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
@@ -144,9 +143,9 @@ describe('Given the Aave Vaults', () => {
     describe('When the user withdraws their assets from the vault', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const amountToWithdraw = 1.0;
-        const initialVault = await createVault(organization)
-          .andThen(deposit(user, amountToWithdraw))
-          .andTee(() => wait(2000)); // wait for the deposit to be processed
+        const initialVault = await createVault(organization).andThen(
+          deposit(user, amountToWithdraw),
+        );
         assertOk(initialVault);
 
         const balanceBefore = await getBalance(
@@ -165,7 +164,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to withdraw from vault: ${tx}`))
-          .andTee(() => wait(3000)); // wait for the withdraw to be processed
+          .andThen(client.waitForTransaction);
         assertOk(withdrawResult);
 
         const userPositions = await userVaults(client, {
@@ -212,9 +211,9 @@ describe('Given the Aave Vaults', () => {
 
     describe('When the user redeems total amount of their shares', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization)
-          .andThen(mintShares(user, 1))
-          .andTee(() => wait(2000)); // wait for the mint to be processed
+        const initialVault = await createVault(organization).andThen(
+          mintShares(user, 1),
+        );
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
@@ -227,7 +226,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
-          .andTee(() => wait(3000)); // wait for the redeem to be processed
+          .andThen(client.waitForTransaction);
         assertOk(redeemResult);
 
         const userPositions = await userVaults(client, {
@@ -259,9 +258,9 @@ describe('Given the Aave Vaults', () => {
 
     describe('When the user redeems partial amount of their shares', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization)
-          .andThen(mintShares(user, 1))
-          .andTee(() => wait(2000)); // wait for the mint to be processed
+        const initialVault = await createVault(organization).andThen(
+          mintShares(user, 1),
+        );
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
@@ -274,7 +273,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
-          .andTee(() => wait(3000)); // wait for the redeem to be processed
+          .andThen(client.waitForTransaction);
         assertOk(redeemResult);
 
         const userPositions = await userVaults(client, {
@@ -308,7 +307,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(organization))
           .andTee((tx) => console.log(`tx to set fee: ${tx}`))
-          .andTee(() => wait(4000)); // wait for the update to be processed
+          .andThen(client.waitForTransaction);
         assertOk(updateResult);
 
         const newVaultInfo = await vault(client, {
@@ -340,8 +339,7 @@ describe('Given the Aave Vaults', () => {
       it('Then they should receive the expected ERC-20 amount', async () => {
         const initialVault = await createVault(organization)
           .andThen(deposit(user, 1))
-          .andThen(mintShares(user, 1))
-          .andTee(() => wait(2000));
+          .andThen(mintShares(user, 1));
         assertOk(initialVault);
 
         // Check vault contains fees
@@ -366,7 +364,7 @@ describe('Given the Aave Vaults', () => {
         })
           .andThen(sendWith(organization))
           .andTee((tx) => console.log(`tx to withdraw fees: ${tx}`))
-          .andTee(() => wait(3000)); // wait for the withdraw to be processed
+          .andThen(client.waitForTransaction);
         assertOk(withdrawResult);
 
         // Check vault contains fees
@@ -416,8 +414,6 @@ describe('Given the Aave Vaults', () => {
         },
       }).andThen(mintShares(user, 5, USDC_ADDRESS));
       assertOk(vault2);
-
-      await wait(5000);
     }, 60_000);
 
     it('Then it should be possible so sort them by the amount of shares they have', async () => {

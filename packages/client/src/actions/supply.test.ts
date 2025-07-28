@@ -45,6 +45,7 @@ describe('Given an Aave Market', () => {
         chainId: reserveInfo.market.chain.chainId,
       })
         .andThen(sendWith(wallet))
+        .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
             markets: [
@@ -102,6 +103,7 @@ describe('Given an Aave Market', () => {
           chainId: reserveInfo.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
+          .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
               markets: [
