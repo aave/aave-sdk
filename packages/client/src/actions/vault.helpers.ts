@@ -48,6 +48,7 @@ export function createVault(
         underlyingToken: reserve!.underlyingToken.address,
       })
         .andThen(sendWith(organization))
+        .andThen(client.waitForTransaction)
         .andThen((txHash) =>
           vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
         )
@@ -75,6 +76,7 @@ export function deposit(user: WalletClient, amount: number) {
       })
         .andThen(sendWith(user))
         .andTee((txHash) => console.log(`tx to deposit in vault: ${txHash}`))
+        .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
   };
@@ -101,6 +103,7 @@ export function mintShares(
       })
         .andThen(sendWith(user))
         .andTee((tx) => console.log(`tx to mint shares: ${tx}`))
+        .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
   };

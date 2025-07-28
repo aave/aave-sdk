@@ -1,5 +1,11 @@
 import type { StandardData } from '@aave/graphql';
-import { errAsync, invariant, okAsync, ResultAsync } from '@aave/types';
+import {
+  errAsync,
+  invariant,
+  okAsync,
+  ResultAsync,
+  type TxHash,
+} from '@aave/types';
 import {
   type AnyVariables,
   createClient,
@@ -10,11 +16,13 @@ import {
   type TypedDocumentNode,
   type Client as UrqlClient,
 } from '@urql/core';
+import { hasProcessedKnownTransaction } from './actions';
 import { BatchQueryBuilder } from './batch';
 import type { ClientConfig } from './config';
 import { type Context, configureContext } from './context';
-import { UnexpectedError } from './errors';
+import { TimeoutError, UnexpectedError } from './errors';
 import { Logger, LogLevel } from './logger';
+import { delay } from './utils';
 
 function takeValue<T>({
   data,
@@ -366,6 +374,49 @@ export class AaveClient {
         builder.resolve(data);
       })
       .andThen(() => combined);
+  }
+
+  /**
+   * Given the transaction hash of an Aave protocol transaction, wait for the transaction to be
+   * processed by the Aave v3 API.
+   *
+   * Returns a {@link TimeoutError} if the transaction is not processed within the expected timeout period.
+   *
+   * @param hash - The transaction hash to wait for.
+   * @returns The transaction hash or a TimeoutError
+   */
+  readonly waitForTransaction = (
+    txHash: TxHash,
+  ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
+    return ResultAsync.fromPromise(
+      this.pollTransactionStatus(txHash),
+      (err) => {
+        if (err instanceof TimeoutError || err instanceof UnexpectedError) {
+          return err;
+        }
+        return UnexpectedError.from(err);
+      },
+    );
+  };
+
+  protected async pollTransactionStatus(txHash: TxHash): Promise<TxHash> {
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt < this.context.environment.indexingTimeout) {
+      const processed = await hasProcessedKnownTransaction(this, txHash).match(
+        (ok) => ok,
+        (err) => {
+          throw err;
+        },
+      );
+
+      if (processed) {
+        return txHash;
+      }
+
+      await delay(this.context.environment.pollingInterval);
+    }
+    throw TimeoutError.from(`Timeout waiting for transaction ${txHash}`);
   }
 
   protected exchanges(): Exchange[] {

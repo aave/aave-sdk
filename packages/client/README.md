@@ -10,7 +10,7 @@ The `@aave/client` package contains the core functionality to query markets, exe
 
 ## Usage
 
-```typescript
+```ts
 import { AaveClient, evmAddress, chainId } from '@aave/client';
 import { supply, userSupplies } from '@aave/client/actions';
 import { sendWith } from '@aave/client/viem';
@@ -35,5 +35,7 @@ const result = await supply(client, {
   },
   supplier: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
   chainId: chainId(1),
-}).andThen(sendWith(wallet));
+})
+  .andThen(sendWith(wallet))
+  .andThen(client.waitForTransaction);
 ```

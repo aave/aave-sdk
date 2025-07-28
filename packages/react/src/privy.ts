@@ -1,12 +1,17 @@
-import { type SigningError, UnexpectedError } from '@aave/client';
+import {
+  type SigningError,
+  type TimeoutError,
+  UnexpectedError,
+} from '@aave/client';
 import { sendTransactionAndWait, supportedChains } from '@aave/client/viem';
 import type { TransactionRequest } from '@aave/graphql';
 import { invariant, ResultAsync, type TxHash } from '@aave/types';
 import { useWallets } from '@privy-io/react-auth';
 import { createWalletClient, custom } from 'viem';
+import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError = SigningError | UnexpectedError;
+export type TransactionError = SigningError | TimeoutError | UnexpectedError;
 
 /**
  * A hook that provides a way to send Aave transactions using a Privy wallet.
@@ -99,6 +104,7 @@ export function useSendTransaction(): UseAsyncTask<
   TxHash,
   TransactionError
 > {
+  const client = useAaveClient();
   const { wallets } = useWallets();
 
   return useAsyncTask((request: TransactionRequest) => {
@@ -123,6 +129,7 @@ export function useSendTransaction(): UseAsyncTask<
         });
 
         return sendTransactionAndWait(walletClient, request);
-      });
+      })
+      .andThen(client.waitForTransaction);
   });
 }
