@@ -1,9 +1,9 @@
 import type { SigningError, UnexpectedError } from '@aave/client';
 import { sendTransactionAndWait } from '@aave/client/viem';
 import type { TransactionRequest } from '@aave/graphql';
+import type { TxHash } from '@aave/types';
 import { invariant } from '@aave/types';
 import type { WalletClient } from 'viem';
-import type { TxHash } from '../../types/dist';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
 export type TransactionError = SigningError | UnexpectedError;
@@ -73,8 +73,7 @@ export type TransactionError = SigningError | UnexpectedError;
  *           );
  *
  *         case 'InsufficientBalanceError':
- *           console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *           break;
+ *           return errAsync(new Error(`Insufficient balance: ${error.cause.required.value} required.`));
  *        }
  *      });
  *

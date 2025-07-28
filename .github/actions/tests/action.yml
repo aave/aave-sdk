@@ -6,9 +6,6 @@ inputs:
     description: 'Environment to run tests against'
     required: true
     default: 'staging'
-  private_key:
-    description: 'EVM private key of a wallet'
-    required: true
   
 runs:
   using: 'composite'
@@ -25,7 +22,6 @@ runs:
     - name: Setup Environment Variables
       shell: bash
       run: |
-        echo "PRIVATE_KEY=${{ inputs.private_key }}" >> .env
         echo "ENVIRONMENT=${{ inputs.environment }}" >> .env
 
 
