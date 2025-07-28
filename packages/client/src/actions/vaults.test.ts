@@ -17,7 +17,15 @@ import {
   vaultWithdrawFees,
 } from './transactions';
 import { createVault, deposit, mintShares } from './vault.helpers';
-import { userVaults, vault, vaults } from './vaults';
+import {
+  userVaults,
+  vault,
+  vaultPreviewDeposit,
+  vaultPreviewMint,
+  vaultPreviewRedeem,
+  vaultPreviewWithdraw,
+  vaults,
+} from './vaults';
 
 const organization = createNewWallet();
 const user = createNewWallet();
@@ -70,6 +78,25 @@ describe('Given the Aave Vaults', () => {
       }, 30_000);
     });
 
+    describe('When a user previews a deposit into the vault', () => {
+      it('Then it should return the expected amount of shares', async () => {
+        const initialVault = await createVault(organization);
+        assertOk(initialVault);
+
+        const previewDepositResult = await vaultPreviewDeposit(client, {
+          vault: initialVault.value!.address,
+          amount: bigDecimal('1'),
+          chainId: initialVault.value!.chainId,
+        });
+        assertOk(previewDepositResult);
+        expect(previewDepositResult.value).toMatchSnapshot({
+          amount: expect.any(Object),
+          usdPerToken: expect.any(String),
+          usd: expect.any(String),
+        });
+      });
+    });
+
     describe(`When the user mints some vault's shares`, () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization)
@@ -93,6 +120,25 @@ describe('Given the Aave Vaults', () => {
           }),
         ]);
       }, 30_000);
+    });
+
+    describe('When a user previews a minting shares from a vault', () => {
+      it('Then it should return the expected amount of tokens needed to mint', async () => {
+        const initialVault = await createVault(organization);
+        assertOk(initialVault);
+
+        const previewMintResult = await vaultPreviewMint(client, {
+          vault: initialVault.value!.address,
+          amount: bigDecimal('1'),
+          chainId: initialVault.value!.chainId,
+        });
+        assertOk(previewMintResult);
+        expect(previewMintResult.value).toMatchSnapshot({
+          amount: expect.any(Object),
+          usdPerToken: expect.any(String),
+          usd: expect.any(String),
+        });
+      });
     });
 
     describe('When the user withdraws their assets from the vault', () => {
@@ -145,6 +191,25 @@ describe('Given the Aave Vaults', () => {
       }, 40_000);
     });
 
+    describe('When a user previews a withdrawal assets from a vault', () => {
+      it('Then it should return the expected amount of shares to burn', async () => {
+        const initialVault = await createVault(organization);
+        assertOk(initialVault);
+
+        const previewWithdrawResult = await vaultPreviewWithdraw(client, {
+          vault: initialVault.value!.address,
+          amount: bigDecimal('1'),
+          chainId: initialVault.value!.chainId,
+        });
+        assertOk(previewWithdrawResult);
+        expect(previewWithdrawResult.value).toMatchSnapshot({
+          amount: expect.any(Object),
+          usdPerToken: expect.any(String),
+          usd: expect.any(String),
+        });
+      });
+    });
+
     describe('When the user redeems total amount of their shares', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization)
@@ -171,6 +236,25 @@ describe('Given the Aave Vaults', () => {
         assertOk(userPositions);
         expect(userPositions.value.items.length).toEqual(0);
       }, 40_000);
+    });
+
+    describe('When a user previews a redeeming shares from a vault', () => {
+      it('Then it should return the expected amount of assets to receive', async () => {
+        const initialVault = await createVault(organization);
+        assertOk(initialVault);
+
+        const previewRedeemResult = await vaultPreviewRedeem(client, {
+          vault: initialVault.value!.address,
+          amount: bigDecimal('1'),
+          chainId: initialVault.value!.chainId,
+        });
+        assertOk(previewRedeemResult);
+        expect(previewRedeemResult.value).toMatchSnapshot({
+          amount: expect.any(Object),
+          usdPerToken: expect.any(String),
+          usd: expect.any(String),
+        });
+      });
     });
 
     describe('When the user redeems partial amount of their shares', () => {
