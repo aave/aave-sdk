@@ -88,11 +88,13 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value!.chainId,
         });
         assertOk(previewDepositResult);
-        expect(previewDepositResult.value).toMatchSnapshot({
-          amount: expect.any(Object),
-          usdPerToken: expect.any(String),
-          usd: expect.any(String),
-        });
+        expect(previewDepositResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
       });
     });
 
@@ -132,11 +134,13 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value!.chainId,
         });
         assertOk(previewMintResult);
-        expect(previewMintResult.value).toMatchSnapshot({
-          amount: expect.any(Object),
-          usdPerToken: expect.any(String),
-          usd: expect.any(String),
-        });
+        expect(previewMintResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
       });
     });
 
@@ -201,11 +205,13 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value!.chainId,
         });
         assertOk(previewWithdrawResult);
-        expect(previewWithdrawResult.value).toMatchSnapshot({
-          amount: expect.any(Object),
-          usdPerToken: expect.any(String),
-          usd: expect.any(String),
-        });
+        expect(previewWithdrawResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
       });
     });
 
@@ -248,11 +254,13 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value!.chainId,
         });
         assertOk(previewRedeemResult);
-        expect(previewRedeemResult.value).toMatchSnapshot({
-          amount: expect.any(Object),
-          usdPerToken: expect.any(String),
-          usd: expect.any(String),
-        });
+        expect(previewRedeemResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
       });
     });
 
