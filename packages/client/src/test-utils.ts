@@ -31,7 +31,6 @@ import { reserve } from './actions';
 import { AaveClient } from './client';
 import { GraphQLErrorCode, UnexpectedError } from './errors';
 
-export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
   import.meta.env.ENVIRONMENT === 'local' ? local : staging;
 
@@ -51,10 +50,10 @@ export const ETHEREUM_MARKET_ADDRESS = evmAddress(
 );
 export const ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY = 1;
 
-export const ETHEREUM_FORK_RPC_URL =
+const ETHEREUM_FORK_RPC_URL =
   'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';
 
-export const ETHEREUM_FORK_RPC_URL_ADMIN =
+const ETHEREUM_FORK_RPC_URL_ADMIN =
   'https://virtual.mainnet.rpc.tenderly.co/95925d93-2ca7-4986-8b4f-e606f6b243bd';
 
 // Re-export for convenience
@@ -70,12 +69,6 @@ const ethereumForkChain = defineChain({
 
 export const client = AaveClient.create({
   environment,
-});
-
-export const wallet: WalletClient = createWalletClient({
-  account: signer,
-  chain: ethereumForkChain,
-  transport: http(),
 });
 
 export function createNewWallet(): WalletClient {

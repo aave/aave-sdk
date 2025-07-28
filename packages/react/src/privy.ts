@@ -1,29 +1,27 @@
-import type { SigningError, UnexpectedError } from '@aave/client';
-import { sendTransactionAndWait } from '@aave/client/ethers';
+import { type SigningError, UnexpectedError } from '@aave/client';
+import { sendTransactionAndWait, supportedChains } from '@aave/client/viem';
 import type { TransactionRequest } from '@aave/graphql';
-import { invariant, type TxHash } from '@aave/types';
-import type { Signer } from 'ethers';
+import { invariant, ResultAsync, type TxHash } from '@aave/types';
+import { useWallets } from '@privy-io/react-auth';
+import { createWalletClient, custom } from 'viem';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
 export type TransactionError = SigningError | UnexpectedError;
 
 /**
- * A hook that provides a way to send Aave transactions using an ethers Signer instance.
+ * A hook that provides a way to send Aave transactions using a Privy wallet.
  *
- * First, get the `Signer` instance from your ethers provider, then pass it to this hook to create a function that can be used to send transactions.
+ * First, use the `useSendTransaction` hook from `@aave/react/privy` entry point.
  *
  * ```ts
- * const provider = new ethers.providers.Web3Provider(window.ethereum);
- * const signer = provider.getSigner();
- *
- * // …
- *
- * const [sendTransaction, { loading, error, data }] = useSendTransaction(signer);
+ * const [sendTransaction, { loading, error, data }] = useSendTransaction();
  * ```
  *
  * Then, use it to send a {@link TransactionRequest} as shown below.
  *
  * ```ts
+ * const account = useAccount(); // wagmi hook
+ *
  * const [toggle, { loading, error, data }] = useEModeToggle();
  *
  * const run = async () => {
@@ -46,6 +44,8 @@ export type TransactionError = SigningError | UnexpectedError;
  * Or use it to handle an {@link ExecutionPlan} that may require multiple transactions as shown below.
  *
  * ```ts
+ * const account = useAccount(); // wagmi hook
+ *
  * const [supply, { loading, error, data }] = useSupply();
  *
  * const run = async () => {
@@ -92,14 +92,37 @@ export type TransactionError = SigningError | UnexpectedError;
  * }
  * ```
  *
- * @param signer - The ethers Signer to use for sending transactions.
+ * @param walletClient - The wallet client to use for sending transactions.
  */
-export function useSendTransaction(
-  signer: Signer | undefined,
-): UseAsyncTask<TransactionRequest, TxHash, TransactionError> {
-  return useAsyncTask((request: TransactionRequest) => {
-    invariant(signer, 'Expected a Signer to handle the operation result.');
+export function useSendTransaction(): UseAsyncTask<
+  TransactionRequest,
+  TxHash,
+  TransactionError
+> {
+  const { wallets } = useWallets();
 
-    return sendTransactionAndWait(signer, request);
+  return useAsyncTask((request: TransactionRequest) => {
+    const wallet = wallets.find((wallet) => wallet.address === request.from);
+
+    invariant(
+      wallet,
+      `Expected a connected wallet with address ${request.from} to be found.`,
+    );
+
+    return ResultAsync.fromPromise(
+      wallet.switchChain(request.chainId),
+      (error) => UnexpectedError.from(error),
+    )
+      .andTee(async () => wallet.switchChain(request.chainId))
+      .map(() => wallet.getEthereumProvider())
+      .andThen((provider) => {
+        const walletClient = createWalletClient({
+          account: request.from,
+          chain: supportedChains[request.chainId],
+          transport: custom(provider),
+        });
+
+        return sendTransactionAndWait(walletClient, request);
+      });
   });
 }
