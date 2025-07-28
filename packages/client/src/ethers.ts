@@ -6,12 +6,13 @@ import type {
 import {
   errAsync,
   nonNullable,
+  okAsync,
   ResultAsync,
   type TxHash,
   txHash,
 } from '@aave/types';
 import type { Signer, TransactionResponse } from 'ethers';
-import { SigningError, ValidationError } from './errors';
+import { SigningError, TransactionError, ValidationError } from './errors';
 import type { ExecutionPlanHandler } from './types';
 
 async function sendTransaction(
@@ -32,12 +33,21 @@ async function sendTransaction(
 export function sendTransactionAndWait(
   signer: Signer,
   request: TransactionRequest,
-): ResultAsync<TxHash, SigningError> {
+): ResultAsync<TxHash, SigningError | TransactionError> {
   return ResultAsync.fromPromise(sendTransaction(signer, request), (err) =>
     SigningError.from(err),
   )
     .map((tx) => tx.wait())
-    .map((receipt) => txHash(nonNullable(receipt?.hash)));
+    .andThen((receipt) => {
+      const hash = txHash(nonNullable(receipt?.hash));
+
+      if (receipt?.status === 0) {
+        return errAsync(
+          new TransactionError(`Transaction failed: ${txHash}`, request),
+        );
+      }
+      return okAsync(hash);
+    });
 }
 
 /**
@@ -50,7 +60,7 @@ export function sendWith(signer: Signer): ExecutionPlanHandler {
     result: ExecutionPlan,
   ): ResultAsync<
     TxHash,
-    SigningError | ValidationError<InsufficientBalanceError>
+    SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
     switch (result.__typename) {
       case 'TransactionRequest':

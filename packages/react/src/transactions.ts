@@ -61,15 +61,7 @@ import { type UseAsyncTask, useAsyncTask } from './helpers';
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -111,15 +103,7 @@ export function useSupply(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -161,15 +145,7 @@ export function useBorrow(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -211,15 +187,7 @@ export function useRepay(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -261,15 +229,7 @@ export function useWithdraw(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -304,7 +264,7 @@ export function useUserEMode(): UseAsyncTask<
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   console.error(`Failed to sign the transaction: ${error.message}`);
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -339,7 +299,7 @@ export function useCollateralToggle(): UseAsyncTask<
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   console.error(`Failed to sign the transaction: ${error.message}`);
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -383,15 +343,7 @@ export function useLiquidate(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -435,15 +387,7 @@ export function useVaultDeposit(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -487,15 +431,7 @@ export function useVaultMintShares(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -539,15 +475,7 @@ export function useVaultRedeemShares(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -591,15 +519,7 @@ export function useVaultWithdraw(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -643,15 +563,7 @@ export function useVaultDeploy(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -695,15 +607,7 @@ export function useVaultSetFee(): UseAsyncTask<
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
