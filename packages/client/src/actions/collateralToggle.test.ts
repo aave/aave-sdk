@@ -71,7 +71,7 @@ describe('Given Aave Market', () => {
             isCollateral: !userSuppliesBefore.value[0]?.isCollateral,
           }),
         ]);
-      }, 25_000);
+      });
     });
   });
 });
