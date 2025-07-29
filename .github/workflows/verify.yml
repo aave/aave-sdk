@@ -23,6 +23,12 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     continue-on-error: true
+    env:
+      ENVIRONMENT: staging
+      PRIVY_TEST_APP_ID: ${{ vars.PRIVY_TEST_APP_ID }}
+      PRIVY_TEST_APP_SECRET: ${{ secrets.PRIVY_TEST_APP_SECRET }}
+      PRIVY_TEST_WALLET_ID: ${{ vars.PRIVY_TEST_WALLET_ID }}
+      PRIVY_TEST_WALLET_ADDRESS: ${{ vars.PRIVY_TEST_WALLET_ADDRESS }}
 
     steps:
       - name: Setup Repository
@@ -31,11 +37,6 @@ jobs:
       - name: Build
         shell: bash
         run: pnpm build
-
-      - name: Setup Environment Variables
-        shell: bash
-        run: |
-          echo "ENVIRONMENT=${{ inputs.environment }}" >> .env
 
       - name: Run Tests
         shell: bash
