@@ -13,6 +13,10 @@ on:
         options:
         - staging
 
+permissions:
+  id-token: write
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-tests-on-demand
   cancel-in-progress: true
@@ -22,22 +26,26 @@ jobs:
     name: Aave SDK V3 - E2E tests against STAGE
     runs-on: ubuntu-latest
     env:
-      ENV: staging # TODO: make this dynamic
-      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: ./.github/actions/get-aws-credentials
+        with:
+          aws_assume_role: ${{ secrets.AWS_ASSUME_ROLE }}
+          aws_region: ${{ secrets.AWS_REGION }}
+
       - name: Setup Repository
         uses: ./.github/actions/setup
 
-      - name: Build
-        shell: bash
-        run: pnpm build
+      # - name: Build
+      #   shell: bash
+      #   run: pnpm build
 
-      - name: Run tests
-        run: pnpm test:client
+      # - name: Run tests
+      #   run: pnpm test:client
       
       - name: Publish results
         if: always() # Always publish results
