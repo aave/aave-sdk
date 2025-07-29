@@ -1,6 +1,5 @@
 /// <reference path="../../../vite-env.d.ts" />
 
-import { local, staging } from '@aave/env';
 import type { AnyVariables, Reserve } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
 import {
@@ -29,6 +28,7 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { expect } from 'vitest';
 import { reserve } from './actions';
 import { AaveClient } from './client';
+import { local, staging } from './environments';
 import { GraphQLErrorCode, UnexpectedError } from './errors';
 
 export const environment =

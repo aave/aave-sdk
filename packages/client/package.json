@@ -64,7 +64,6 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@aave/env": "workspace:*",
     "@aave/graphql": "workspace:*",
     "@aave/types": "workspace:*",
     "@urql/core": "^5.2.0",
