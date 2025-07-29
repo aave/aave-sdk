@@ -18,9 +18,6 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-      - name: Build
-        uses: ./.github/actions/setup
-
   test:
     name: Test
     needs: lint
@@ -28,9 +25,18 @@ jobs:
     continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup Repository
+        uses: ./.github/actions/setup
+
+      - name: Build
+        shell: bash
+        run: pnpm build
+
+      - name: Setup Environment Variables
+        shell: bash
+        run: |
+          echo "ENVIRONMENT=${{ inputs.environment }}" >> .env
 
       - name: Run Tests
-        uses: ./.github/actions/tests
-        with:
-          environment: 'staging'
+        shell: bash
+        run: pnpm test
