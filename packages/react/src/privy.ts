@@ -1,13 +1,23 @@
 import {
-  type SigningError,
+  SigningError,
   type TimeoutError,
   type TransactionError,
   UnexpectedError,
 } from '@aave/client';
+import { permitTypedData } from '@aave/client/actions';
 import { sendTransactionAndWait, supportedChains } from '@aave/client/viem';
-import type { TransactionRequest } from '@aave/graphql';
-import { invariant, ResultAsync, type TxHash } from '@aave/types';
-import { useWallets } from '@privy-io/react-auth';
+import type {
+  ERC712Signature,
+  PermitTypedDataRequest,
+  TransactionRequest,
+} from '@aave/graphql';
+import {
+  invariant,
+  ResultAsync,
+  signatureFrom,
+  type TxHash,
+} from '@aave/types';
+import { useSignTypedData, useWallets } from '@privy-io/react-auth';
 import { createWalletClient, custom } from 'viem';
 import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
@@ -93,8 +103,6 @@ export type SendTransactionError =
  *   console.log('Transaction sent with hash:', result.value);
  * }
  * ```
- *
- * @param walletClient - The wallet client to use for sending transactions.
  */
 export function useSendTransaction(): UseAsyncTask<
   TransactionRequest,
@@ -116,7 +124,6 @@ export function useSendTransaction(): UseAsyncTask<
       wallet.switchChain(request.chainId),
       (error) => UnexpectedError.from(error),
     )
-      .andTee(async () => wallet.switchChain(request.chainId))
       .map(() => wallet.getEthereumProvider())
       .andThen((provider) => {
         const walletClient = createWalletClient({
@@ -128,5 +135,58 @@ export function useSendTransaction(): UseAsyncTask<
         return sendTransactionAndWait(walletClient, request);
       })
       .andThen(client.waitForTransaction);
+  });
+}
+
+export type SignERC20PermitError = SigningError | UnexpectedError;
+
+/**
+ * A hook that provides a way to sign ERC20 permits using a Privy wallet.
+ *
+ * ```ts
+ * const [signERC20Permit, { loading, error, data }] = useERC20Permit();
+ *
+ * const run = async () => {
+ *   const result = await signERC20Permit({
+ *     chainId: chainId(1), // Ethereum mainnet
+ *     market: evmAddress('0x1234…'),
+ *     underlyingToken: evmAddress('0x5678…'),
+ *     amount: '42.42',
+ *     spender: evmAddress('0x9abc…'),
+ *     owner: evmAddress(account.address!),
+ *   });
+ *
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
+ *
+ *   console.log('ERC20 permit signed:', result.value);
+ * };
+ * ```
+ */
+export function useERC20Permit(): UseAsyncTask<
+  PermitTypedDataRequest,
+  ERC712Signature,
+  SignERC20PermitError
+> {
+  const client = useAaveClient();
+  const { signTypedData } = useSignTypedData();
+
+  return useAsyncTask((request: PermitTypedDataRequest) => {
+    return permitTypedData(client, request).andThen((response) =>
+      ResultAsync.fromPromise(
+        signTypedData({
+          types: response.types,
+          primaryType: response.primaryType,
+          domain: response.domain,
+          message: response.message,
+        }),
+        (error) => SigningError.from(error),
+      ).map(({ signature }) => ({
+        deadline: response.message.deadline,
+        value: signatureFrom(signature),
+      })),
+    );
   });
 }

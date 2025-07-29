@@ -4,14 +4,15 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_USDC_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  USDC_ADDRESS,
-  WETH_ADDRESS,
 } from '../test-utils';
-import { sendWith, signWith } from '../viem';
-import { permitTypedData, supply } from './transactions';
+import { sendWith, signERC20PermitWith } from '../viem';
+import { permitTypedData } from './permits';
+import { supply } from './transactions';
 import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
@@ -37,7 +38,7 @@ describe('Given an Aave Market', () => {
         amount: {
           erc20: {
             value: amountToSupply,
-            currency: WETH_ADDRESS,
+            currency: ETHEREUM_WETH_ADDRESS,
           },
         },
         chainId: reserve.market.chain.chainId,
@@ -96,7 +97,7 @@ describe('Given an Aave Market', () => {
         chainId: reserve.market.chain.chainId,
         spender: evmAddress(user.account!.address),
         owner: evmAddress(owner.account!.address),
-      }).andThen(signWith(owner));
+      }).andThen(signERC20PermitWith(owner));
       assertOk(signature);
 
       const result = await supply(client, {

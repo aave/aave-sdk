@@ -10,8 +10,7 @@ export type HexString = `0x${string}`;
  * Validates whether a given value is a valid hex string with a `0x` prefix.
  */
 export function isValidHexString(value: string): value is HexString {
-  const hexPattern = /^0x[a-fA-F0-9]+$/;
-  return typeof value === 'string' && hexPattern.test(value);
+  return /^0x[a-fA-F0-9]+$/.test(value);
 }
 
 /**
