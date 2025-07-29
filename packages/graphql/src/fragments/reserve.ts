@@ -39,6 +39,7 @@ export const ReserveInfoFragment = graphql(
       ...Currency
     }
     usdExchangeRate
+    permitSupported
   }`,
   [MarketInfoFragment, CurrencyFragment],
 );
@@ -197,6 +198,7 @@ export const ReserveFragment = graphql(
     isFrozen
     isPaused
     flashLoanEnabled
+    permitSupported
     supplyInfo {
       ...ReserveSupplyInfo
     }

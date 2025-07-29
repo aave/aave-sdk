@@ -32,13 +32,13 @@ async function supplyAndBorrow(wallet: WalletClient, request: SupplyRequest) {
           'erc20' in request.amount ? request.amount.erc20.currency : undefined,
       }),
     )
-    .andThen((reserveInfo) =>
+    .andThen((reserve) =>
       borrow(client, {
-        market: reserveInfo?.market.address,
+        market: reserve?.market.address,
         amount: {
           erc20: {
-            currency: reserveInfo?.underlyingToken.address,
-            value: reserveInfo?.userState?.borrowable.amount.value,
+            currency: reserve?.underlyingToken.address,
+            value: reserve?.userState?.borrowable.amount.value,
           },
         },
         borrower: userAddress,
