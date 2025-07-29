@@ -333,16 +333,6 @@ describe('Given the Aave Vaults', () => {
       }, 30_000);
     });
 
-    describe('When users borrow from the underlying vault reserve', () => {
-      // const borrower = createNewWallet();
-
-      it.todo('Then the vault should accrue its fees', () => {
-        // const setup = createVault().andThen(deposit(100));
-        // assertOk(result);
-        // assert vault.totalFeeRevenue
-      });
-    });
-
     describe(`When the organization withdraws the vault's fees`, () => {
       it('Then they should receive the expected ERC-20 amount', async () => {
         const initialVault = await createVault(organization)
