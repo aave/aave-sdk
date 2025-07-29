@@ -37,6 +37,7 @@ function createMessageTestResults(
   success: number,
   failure: number,
   testSuiteName: string,
+  htmlReport?: string,
 ) {
   const result = { status: '', message: '' };
   const totalTests = success + failure;
@@ -57,10 +58,16 @@ function createMessageTestResults(
   result.message += `Total tests ${totalTests}\n Pass ${success} / Fail ${failure}`;
   const reportUrl = `https://github.com/aave/aave-sdk/actions/runs/${process.env.GITHUB_RUN_ID || ''}/`;
   result.message += `\n <${reportUrl}|Link Github Pipeline>`;
+  if (htmlReport) {
+    result.message += `\n <${htmlReport}|Link HTML Report>`;
+  }
   return result;
 }
 
-async function uploadReport(path?: string, s3KeyPrefix?: string) {
+async function uploadReport(
+  path?: string,
+  s3KeyPrefix?: string,
+): Promise<string> {
   const s3Client = new S3({
     region: process.env.AWS_REGION || 'us-east-1',
     credentials: {
@@ -72,6 +79,9 @@ async function uploadReport(path?: string, s3KeyPrefix?: string) {
   const date = Date.now();
   const localPath = path || './reports/';
   const files = readdirSync(localPath);
+
+  // Track the main report URL (usually the index.html or first HTML file)
+  let mainReportUrl: string | undefined;
 
   for (const file of files) {
     const localFilePath = join(localPath, file);
@@ -88,6 +98,10 @@ async function uploadReport(path?: string, s3KeyPrefix?: string) {
       // Set content type based on file extension
       if (file.endsWith('.html')) {
         contentType = 'text/html';
+        // Set the main report URL to the first HTML file found
+        if (!mainReportUrl) {
+          mainReportUrl = `https://assets.aave.com/${s3Key}`;
+        }
       } else if (file.endsWith('.css')) {
         contentType = 'text/css';
       } else if (file.endsWith('.js')) {
@@ -127,6 +141,8 @@ async function uploadReport(path?: string, s3KeyPrefix?: string) {
       }
     }
   }
+  // Return the main report URL or a fallback URL
+  return mainReportUrl || `https://assets.aave.com/reports/${date}/`;
 }
 
 const main = async (): Promise<void> => {
@@ -135,13 +151,14 @@ const main = async (): Promise<void> => {
     encoding: 'utf8',
   });
   const testResultsJson = JSON.parse(testResults);
+  const reportUrl = await uploadReport();
   const message = createMessageTestResults(
     testResultsJson.numPassedTests,
     testResultsJson.numFailedTests,
     'Aave SDK V3 - E2E Tests',
+    reportUrl,
   );
-  // await sendMessage(message.message, message.status, 'Aave SDK V3 - E2E Tests');
-  await uploadReport();
+  await sendMessage(message.message, message.status, 'Aave SDK V3 - E2E Tests');
 };
 
 main();
