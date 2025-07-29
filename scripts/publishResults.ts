@@ -118,6 +118,8 @@ async function uploadReport(
         contentType = 'image/webp';
       } else if (file.endsWith('.gz')) {
         contentType = 'application/gzip';
+      } else if (file.endsWith('.ico')) {
+        contentType = 'image/x-icon';
       }
 
       try {
