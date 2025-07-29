@@ -1,12 +1,14 @@
 import type {
   ExecutionPlan,
   InsufficientBalanceError,
+  PermitTypedDataResponse,
   TransactionRequest,
 } from '@aave/graphql';
 import {
   errAsync,
   okAsync,
   ResultAsync,
+  signatureFrom,
   type TxHash,
   txHash,
 } from '@aave/types';
@@ -14,7 +16,7 @@ import type { PrivyClient } from '@privy-io/server-auth';
 import { createPublicClient, http } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { SigningError, type TransactionError, ValidationError } from './errors';
-import type { ExecutionPlanHandler } from './types';
+import type { ExecutionPlanHandler, PermitHandler } from './types';
 import { supportedChains, transactionError } from './viem';
 
 async function sendTransaction(
@@ -76,7 +78,7 @@ function sendTransactionAndWait(
 }
 
 /**
- * Sends transactions using the provided wallet client.
+ * Sends transactions using the provided Privy client.
  *
  * Handles {@link TransactionRequest} by signing and sending, {@link ApprovalRequired} by sending both approval and original transactions, and returns validation errors for {@link InsufficientBalanceError}.
  */
@@ -103,5 +105,31 @@ export function sendWith(
       case 'InsufficientBalanceError':
         return errAsync(ValidationError.fromGqlNode(result));
     }
+  };
+}
+
+/**
+ * Signs an ERC20 permit using the provided Privy client.
+ */
+export function signERC20PermitWith(
+  privy: PrivyClient,
+  walletId: string,
+): PermitHandler {
+  return (result: PermitTypedDataResponse) => {
+    return ResultAsync.fromPromise(
+      privy.walletApi.ethereum.signTypedData({
+        walletId,
+        typedData: {
+          domain: result.domain,
+          types: result.types,
+          message: result.message,
+          primaryType: result.primaryType,
+        },
+      }),
+      (err) => SigningError.from(err),
+    ).map((response) => ({
+      deadline: result.message.deadline,
+      value: signatureFrom(response.signature),
+    }));
   };
 }

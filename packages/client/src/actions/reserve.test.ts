@@ -6,7 +6,7 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
-  WETH_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
 } from '../test-utils';
 import { borrowAPYHistory, reserve, supplyAPYHistory } from './reserve';
 
@@ -34,14 +34,14 @@ describe('Given an Aave Market reserve', () => {
       const result = await reserve(client, {
         market: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
-        underlyingToken: WETH_ADDRESS,
+        underlyingToken: ETHEREUM_WETH_ADDRESS,
         user: evmAddress(wallet.account!.address),
       });
       assertOk(result);
       expect(result.value).toMatchSnapshot({
         aToken: expect.any(Object),
         underlyingToken: {
-          address: WETH_ADDRESS,
+          address: ETHEREUM_WETH_ADDRESS,
         },
         vToken: expect.any(Object),
         supplyInfo: expect.any(Object),
@@ -62,7 +62,7 @@ describe('Given an Aave Market reserve', () => {
         const result = await borrowAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: chainId(1),
-          underlyingToken: WETH_ADDRESS,
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
           window,
         });
         assertOk(result);
@@ -71,7 +71,7 @@ describe('Given an Aave Market reserve', () => {
           expect(point).toEqual(
             expect.objectContaining({
               avgRate: expect.objectContaining({
-                formatted: expect.toBeWithinBigDecimal(0, 5),
+                formatted: expect.toBeBigDecimalWithin(0, 5),
               }),
               date: expect.toBeBetweenDates(windowToDate(window), new Date()),
             }),
@@ -88,7 +88,7 @@ describe('Given an Aave Market reserve', () => {
         const result = await supplyAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: chainId(1),
-          underlyingToken: WETH_ADDRESS,
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
           window,
         });
         assertOk(result);

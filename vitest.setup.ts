@@ -23,7 +23,7 @@ expect.extend({
     };
   },
 
-  toBeWithinBigDecimal(received: string, start: number, end: number) {
+  toBeBigDecimalWithin(received: string, start: number, end: number) {
     const numValue = Number(received);
 
     const pass =
@@ -51,6 +51,13 @@ expect.extend({
         pass
           ? `expected "${received}" not to be between ${start.toISOString()} and ${end.toISOString()}`
           : `expected "${received}" to be between ${start.toISOString()} and ${end.toISOString()}, but got ${receivedDate.toISOString()}`,
+    };
+  },
+
+  toBeHexString: (received) => {
+    return {
+      pass: /^0x[a-fA-F0-9]+$/.test(received),
+      message: () => `expected ${received} to be an hex string (0x…)`,
     };
   },
 });

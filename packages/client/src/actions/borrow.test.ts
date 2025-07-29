@@ -11,10 +11,10 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
@@ -72,7 +72,7 @@ describe('Given an Aave Market', () => {
 
         // Set up wallet and supply position
         await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
           bigDecimal('0.011'),
         );
@@ -86,7 +86,7 @@ describe('Given an Aave Market', () => {
           supplier: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
-              currency: WETH_ADDRESS,
+              currency: ETHEREUM_WETH_ADDRESS,
               value: '0.01',
             },
           },
@@ -94,7 +94,7 @@ describe('Given an Aave Market', () => {
 
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
         );
         const borrowResult = await borrow(client, {
@@ -160,7 +160,7 @@ describe('Given an Aave Market', () => {
 
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
         );
         const borrowResult = await borrow(client, {

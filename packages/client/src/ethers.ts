@@ -1,6 +1,7 @@
 import type {
   ExecutionPlan,
   InsufficientBalanceError,
+  PermitTypedDataResponse,
   TransactionRequest,
 } from '@aave/graphql';
 import {
@@ -8,12 +9,13 @@ import {
   nonNullable,
   okAsync,
   ResultAsync,
+  signatureFrom,
   type TxHash,
   txHash,
 } from '@aave/types';
 import type { Signer, TransactionResponse } from 'ethers';
 import { SigningError, TransactionError, ValidationError } from './errors';
-import type { ExecutionPlanHandler } from './types';
+import type { ExecutionPlanHandler, PermitHandler } from './types';
 
 async function sendTransaction(
   signer: Signer,
@@ -74,5 +76,20 @@ export function sendWith(signer: Signer): ExecutionPlanHandler {
       case 'InsufficientBalanceError':
         return errAsync(ValidationError.fromGqlNode(result));
     }
+  };
+}
+
+/**
+ * Signs an ERC20 permit using the provided ethers signer.
+ */
+export function signERC20PermitWith(signer: Signer): PermitHandler {
+  return (result: PermitTypedDataResponse) => {
+    return ResultAsync.fromPromise(
+      signer.signTypedData(result.domain, result.types, result.message),
+      (err) => SigningError.from(err),
+    ).map((signature) => ({
+      deadline: result.message.deadline,
+      value: signatureFrom(signature),
+    }));
   };
 }
