@@ -43,13 +43,13 @@ async function supplyAndCheck(wallet: WalletClient, request: SupplyRequest) {
 }
 
 describe('Given an Aave Market', () => {
-  let reserveInfo: Reserve;
+  let reserve: Reserve;
 
   beforeAll(async () => {
-    reserveInfo = await fetchReserve(WETH_ADDRESS);
+    reserve = await fetchReserve(WETH_ADDRESS);
     // Check if the reserve is not frozen or paused
-    expect(reserveInfo.isFrozen).toBe(false);
-    expect(reserveInfo.isPaused).toBe(false);
+    expect(reserve.isFrozen).toBe(false);
+    expect(reserve.isPaused).toBe(false);
   });
 
   describe('And a user with a supply position', () => {
@@ -65,8 +65,8 @@ describe('Given an Aave Market', () => {
       );
 
       await supplyAndCheck(wallet, {
-        market: reserveInfo.market.address,
-        chainId: reserveInfo.market.chain.chainId,
+        market: reserve.market.address,
+        chainId: reserve.market.chain.chainId,
         supplier: evmAddress(wallet.account!.address),
         amount: {
           erc20: {
@@ -80,7 +80,7 @@ describe('Given an Aave Market', () => {
     describe('When the user withdraws their supply', () => {
       it('Then it should be reflected in the user supply positions', async () => {
         const result = await withdraw(client, {
-          market: reserveInfo.market.address,
+          market: reserve.market.address,
           supplier: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
@@ -88,7 +88,7 @@ describe('Given an Aave Market', () => {
               value: { exact: amountToSupply },
             },
           },
-          chainId: reserveInfo.market.chain.chainId,
+          chainId: reserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
@@ -98,8 +98,8 @@ describe('Given an Aave Market', () => {
             userSupplies(client, {
               markets: [
                 {
-                  address: reserveInfo.market.address,
-                  chainId: reserveInfo.market.chain.chainId,
+                  address: reserve.market.address,
+                  chainId: reserve.market.chain.chainId,
                 },
               ],
               user: evmAddress(wallet.account!.address),
@@ -132,8 +132,8 @@ describe('Given an Aave Market', () => {
         );
 
         await supplyAndCheck(wallet, {
-          market: reserveInfo.market.address,
-          chainId: reserveInfo.market.chain.chainId,
+          market: reserve.market.address,
+          chainId: reserve.market.chain.chainId,
           supplier: evmAddress(wallet.account!.address),
           amount: {
             native: amount,
@@ -147,14 +147,14 @@ describe('Given an Aave Market', () => {
         });
 
         const result = await withdraw(client, {
-          market: reserveInfo.market.address,
+          market: reserve.market.address,
           supplier: evmAddress(wallet.account!.address),
           amount: {
             native: {
               value: { exact: amount },
             },
           },
-          chainId: reserveInfo.market.chain.chainId,
+          chainId: reserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
@@ -163,8 +163,8 @@ describe('Given an Aave Market', () => {
             userSupplies(client, {
               markets: [
                 {
-                  address: reserveInfo.market.address,
-                  chainId: reserveInfo.market.chain.chainId,
+                  address: reserve.market.address,
+                  chainId: reserve.market.chain.chainId,
                 },
               ],
               user: evmAddress(wallet.account!.address),
