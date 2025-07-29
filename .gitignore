@@ -32,4 +32,4 @@ examples/*/pnpm-lock.yaml
 *.tsbuildinfo
 
 # test results
-test-results.json
+reports/
