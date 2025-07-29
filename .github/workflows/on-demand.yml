@@ -40,12 +40,12 @@ jobs:
       - name: Setup Repository
         uses: ./.github/actions/setup
 
-      # - name: Build
-      #   shell: bash
-      #   run: pnpm build
+      - name: Build
+        shell: bash
+        run: pnpm build
 
-      # - name: Run tests
-      #   run: pnpm test:client
+      - name: Run tests
+        run: pnpm test:client
       
       - name: Publish results
         if: always() # Always publish results
