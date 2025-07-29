@@ -43,19 +43,19 @@ function onlySupply(
 describe('Given an Aave Market', () => {
   describe('And a user with a supply position', () => {
     describe('When the user set the supply as collateral', async () => {
-      const userBorrowErc20 = createNewWallet();
+      const userErc20 = createNewWallet();
 
       it('Then it should be possible to borrow ERC20 from the reserve', async () => {
         // NOTE: first time supply is set as collateral automatically
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
-          evmAddress(userBorrowErc20.account!.address),
+          evmAddress(userErc20.account!.address),
           bigDecimal('0.011'),
         ).andThen(() =>
-          onlySupply(userBorrowErc20, {
+          onlySupply(userErc20, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(userBorrowErc20.account!.address),
+            supplier: evmAddress(userErc20.account!.address),
             amount: {
               erc20: {
                 currency: ETHEREUM_WETH_ADDRESS,
@@ -69,12 +69,12 @@ describe('Given an Aave Market', () => {
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
-          evmAddress(userBorrowErc20.account!.address),
+          evmAddress(userErc20.account!.address),
         );
         const borrowResult = await borrow(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
-          borrower: evmAddress(userBorrowErc20.account!.address),
+          borrower: evmAddress(userErc20.account!.address),
           amount: {
             erc20: {
               currency: borrowReserve.underlyingToken.address,
@@ -82,7 +82,7 @@ describe('Given an Aave Market', () => {
             },
           },
         })
-          .andThen(sendWith(userBorrowErc20))
+          .andThen(sendWith(userErc20))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
@@ -93,7 +93,7 @@ describe('Given an Aave Market', () => {
                   chainId: ETHEREUM_FORK_ID,
                 },
               ],
-              user: evmAddress(userBorrowErc20.account!.address),
+              user: evmAddress(userErc20.account!.address),
             }),
           );
         assertOk(borrowResult);
@@ -113,18 +113,18 @@ describe('Given an Aave Market', () => {
     });
 
     describe('When the user set the supply as collateral', async () => {
-      const userBorrowNative = createNewWallet();
+      const userNative = createNewWallet();
 
       it('Then it should be possible to borrow native from the reserve', async () => {
         // NOTE: first time supply is set as collateral automatically
         const setup = await fundNativeAddress(
-          evmAddress(userBorrowNative.account!.address),
+          evmAddress(userNative.account!.address),
           bigDecimal('0.2'),
         ).andThen(() =>
-          onlySupply(userBorrowNative, {
+          onlySupply(userNative, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(userBorrowNative.account!.address),
+            supplier: evmAddress(userNative.account!.address),
             amount: {
               native: '0.1',
             },
@@ -135,17 +135,17 @@ describe('Given an Aave Market', () => {
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
-          evmAddress(userBorrowNative.account!.address),
+          evmAddress(userNative.account!.address),
         );
         const borrowResult = await borrow(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
-          borrower: evmAddress(userBorrowNative.account!.address),
+          borrower: evmAddress(userNative.account!.address),
           amount: {
             native: borrowReserve.userState!.borrowable.amount.value,
           },
         })
-          .andThen(sendWith(userBorrowNative))
+          .andThen(sendWith(userNative))
           .andTee((tx) => console.log(`tx to borrow: ${tx}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
@@ -156,7 +156,7 @@ describe('Given an Aave Market', () => {
                   chainId: ETHEREUM_FORK_ID,
                 },
               ],
-              user: evmAddress(userBorrowNative.account!.address),
+              user: evmAddress(userNative.account!.address),
             }),
           );
         assertOk(borrowResult);

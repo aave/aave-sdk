@@ -17,13 +17,13 @@ import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve', () => {
-    const userSupplyErc20 = createNewWallet();
+    const userErc20 = createNewWallet();
     const amountToSupply = '0.01';
 
     it(`Then it should be available in the user's supply positions`, async () => {
       const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
-        evmAddress(userSupplyErc20.account!.address),
+        evmAddress(userErc20.account!.address),
         bigDecimal('0.02'),
       );
       assertOk(setup);
@@ -34,7 +34,7 @@ describe('Given an Aave Market', () => {
 
       const result = await supply(client, {
         market: reserve.market.address,
-        supplier: evmAddress(userSupplyErc20.account!.address),
+        supplier: evmAddress(userErc20.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -43,7 +43,7 @@ describe('Given an Aave Market', () => {
         },
         chainId: reserve.market.chain.chainId,
       })
-        .andThen(sendWith(userSupplyErc20))
+        .andThen(sendWith(userErc20))
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
@@ -53,7 +53,7 @@ describe('Given an Aave Market', () => {
                 chainId: reserve.market.chain.chainId,
               },
             ],
-            user: evmAddress(userSupplyErc20.account!.address),
+            user: evmAddress(userErc20.account!.address),
           }),
         );
       assertOk(result);
@@ -136,12 +136,12 @@ describe('Given an Aave Market', () => {
 
   describe('And the Reserve allows to supply in native tokens', () => {
     describe('When the user supplies to the reserve in native tokens', () => {
-      const userSupplyNative = createNewWallet();
+      const userNative = createNewWallet();
       const amountToSupply = '0.01';
 
       it(`Then it should be available in the user's supply positions`, async () => {
         const setup = await fundNativeAddress(
-          evmAddress(userSupplyNative.account!.address),
+          evmAddress(userNative.account!.address),
           bigDecimal('0.02'),
         );
         assertOk(setup);
@@ -154,13 +154,13 @@ describe('Given an Aave Market', () => {
 
         const result = await supply(client, {
           market: reserve.market.address,
-          supplier: evmAddress(userSupplyNative.account!.address),
+          supplier: evmAddress(userNative.account!.address),
           amount: {
             native: amountToSupply,
           },
           chainId: reserve.market.chain.chainId,
         })
-          .andThen(sendWith(userSupplyNative))
+          .andThen(sendWith(userNative))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
@@ -170,7 +170,7 @@ describe('Given an Aave Market', () => {
                   chainId: reserve.market.chain.chainId,
                 },
               ],
-              user: evmAddress(userSupplyNative.account!.address),
+              user: evmAddress(userNative.account!.address),
             }),
           );
         assertOk(result);
