@@ -6,17 +6,20 @@ import {
   type ResultAsync,
 } from '@aave/types';
 import type { WalletClient } from 'viem';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
+  fetchReserve,
   fundErc20Address,
   fundNativeAddress,
 } from '../test-utils';
-import { sendWith } from '../viem';
+import { sendWith, signERC20PermitWith } from '../viem';
+import { permitTypedData } from './permits';
 import { reserve } from './reserve';
 import { borrow, repay, supply } from './transactions';
 import { userBorrows } from './user';
@@ -79,6 +82,69 @@ describe('Given an Aave Market', () => {
         );
         assertOk(setup);
 
+        const result = await repay(client, {
+          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
+          borrower: evmAddress(userErc20.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+        })
+          .andThen(sendWith(userErc20))
+          .andTee((tx) => console.log(`Repaid tx: ${tx}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [
+                {
+                  address: ETHEREUM_MARKET_ADDRESS,
+                  chainId: ETHEREUM_FORK_ID,
+                },
+              ],
+              user: evmAddress(userErc20.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value.length).toBe(0);
+      }, 50_000);
+    });
+
+    describe('When a delegate user repays their loan via a permit signature', () => {
+      const delegateUser = createNewWallet();
+      const user = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('105'),
+        ).andThen(() =>
+          supplyAndBorrow(user, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            supplier: evmAddress(user.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            },
+          }),
+        );
+        assertOk(setup);
+      });
+
+      it('Then it should be reflected in the user borrow positions', async () => {
+        const reserve = await fetchReserve(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+        );
+        expect(reserve.permitSupported).toBe(true);
+
+        const signature = await permitTypedData(client, {
+          market: reserve.market.address,
+          underlyingToken: reserve.underlyingToken.address,
+          amount: reserve.borrowInfo?.total.amount.value,
+          chainId: reserve.market.chain.chainId,
+          spender: evmAddress(delegateUser.account!.address),
+          owner: evmAddress(user.account!.address),
+        }).andThen(signERC20PermitWith(delegateUser));
+        assertOk(signature);
         const result = await repay(client, {
           amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
           borrower: evmAddress(userErc20.account!.address),
