@@ -1,5 +1,5 @@
 import { OrderDirection } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
@@ -20,64 +20,66 @@ describe('Given an Aave Market', () => {
   describe('And a user with more than one supply positions', () => {
     describe('When fetching those positions', () => {
       beforeAll(async () => {
-        const supplyAndFundWeth = await fundErc20Address(
-          ETHEREUM_WETH_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('1.1'),
-        )
-          .andThen(() =>
-            supply(client, {
-              market: ETHEREUM_MARKET_ADDRESS,
-              supplier: evmAddress(user.account!.address),
-              amount: {
-                erc20: { value: '1', currency: ETHEREUM_WETH_ADDRESS },
-              },
-              chainId: ETHEREUM_FORK_ID,
-            }).andThen(sendWith(user)),
-          )
-          .andThen(client.waitForTransaction);
-        assertOk(supplyAndFundWeth);
+        const funds = await ResultAsync.combine([
+          fundErc20Address(
+            ETHEREUM_WETH_ADDRESS,
+            evmAddress(user.account!.address),
+            bigDecimal('1.1'),
+          ),
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(user.account!.address),
+            bigDecimal('100'),
+            6,
+          ),
+        ]);
+        assertOk(funds);
 
-        const supplyAndFundUsdc = await fundErc20Address(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('100'),
-          6,
-        )
-          .andThen(() =>
-            supply(client, {
-              market: ETHEREUM_MARKET_ADDRESS,
-              supplier: evmAddress(user.account!.address),
-              amount: {
-                erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
-              },
-              chainId: ETHEREUM_FORK_ID,
-            }).andThen(sendWith(user)),
-          )
-          .andThen(client.waitForTransaction);
-        assertOk(supplyAndFundUsdc);
+        const supplies = await client.batch((c) => [
+          supply(c, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            supplier: evmAddress(user.account!.address),
+            amount: {
+              erc20: { value: '1', currency: ETHEREUM_WETH_ADDRESS },
+            },
+            chainId: ETHEREUM_FORK_ID,
+          })
+            .andThen(sendWith(user))
+            .andThen(c.waitForTransaction),
+          supply(c, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            supplier: evmAddress(user.account!.address),
+            amount: {
+              erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
+            },
+            chainId: ETHEREUM_FORK_ID,
+          })
+            .andThen(sendWith(user))
+            .andThen(c.waitForTransaction),
+        ]);
+        assertOk(supplies);
 
-        const borrowAndFundWeth = await borrow(client, {
-          market: ETHEREUM_MARKET_ADDRESS,
-          borrower: evmAddress(user.account!.address),
-          amount: {
-            erc20: { value: '0.005', currency: ETHEREUM_WETH_ADDRESS },
-          },
-          chainId: ETHEREUM_FORK_ID,
-        })
-          .andThen(sendWith(user))
-          .andThen(client.waitForTransaction);
-        assertOk(borrowAndFundWeth);
-
-        const borrowAndFundUsdc = await borrow(client, {
-          market: ETHEREUM_MARKET_ADDRESS,
-          borrower: evmAddress(user.account!.address),
-          amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
-          chainId: ETHEREUM_FORK_ID,
-        })
-          .andThen(sendWith(user))
-          .andThen(client.waitForTransaction);
-        assertOk(borrowAndFundUsdc);
+        const borrows = await client.batch((c) => [
+          borrow(c, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            borrower: evmAddress(user.account!.address),
+            amount: {
+              erc20: { value: '0.005', currency: ETHEREUM_WETH_ADDRESS },
+            },
+            chainId: ETHEREUM_FORK_ID,
+          })
+            .andThen(sendWith(user))
+            .andThen(c.waitForTransaction),
+          borrow(c, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            borrower: evmAddress(user.account!.address),
+            amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
+            chainId: ETHEREUM_FORK_ID,
+          })
+            .andThen(sendWith(user))
+            .andThen(c.waitForTransaction),
+        ]);
+        assertOk(borrows);
       }, 120_000);
 
       it('Then it should be possible so sort them by balance', async () => {
