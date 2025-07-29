@@ -116,6 +116,7 @@ describe('Given an Aave Market', () => {
           ETHEREUM_USDC_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('105'),
+          6,
         ).andThen(() =>
           supplyAndBorrow(user, {
             market: ETHEREUM_MARKET_ADDRESS,
@@ -124,7 +125,14 @@ describe('Given an Aave Market', () => {
             amount: {
               erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
             },
-          }),
+          }).andThen(() =>
+            fundErc20Address(
+              ETHEREUM_USDC_ADDRESS,
+              evmAddress(delegateUser.account!.address),
+              bigDecimal('200'),
+              6,
+            ),
+          ),
         );
         assertOk(setup);
       });
@@ -145,14 +153,20 @@ describe('Given an Aave Market', () => {
           owner: evmAddress(user.account!.address),
         }).andThen(signERC20PermitWith(delegateUser));
         assertOk(signature);
+
         const result = await repay(client, {
-          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
-          borrower: evmAddress(userErc20.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: '100',
+              erc712: signature.value,
+            },
+          },
+          borrower: evmAddress(delegateUser.account!.address),
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
         })
-          .andThen(sendWith(userErc20))
-          .andTee((tx) => console.log(`Repaid tx: ${tx}`))
+          .andThen(sendWith(delegateUser))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -162,7 +176,7 @@ describe('Given an Aave Market', () => {
                   chainId: ETHEREUM_FORK_ID,
                 },
               ],
-              user: evmAddress(userErc20.account!.address),
+              user: evmAddress(user.account!.address),
             }),
           );
         assertOk(result);
