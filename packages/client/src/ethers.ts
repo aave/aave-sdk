@@ -80,9 +80,9 @@ export function sendWith(signer: Signer): ExecutionPlanHandler {
 }
 
 /**
- * Signs a permit request using the provided ethers signer.
+ * Signs an ERC20 permit using the provided ethers signer.
  */
-export function signWith(signer: Signer): PermitHandler {
+export function signERC20PermitWith(signer: Signer): PermitHandler {
   return (result: PermitTypedDataResponse) => {
     return ResultAsync.fromPromise(
       signer.signTypedData(result.domain, result.types, result.message),

@@ -223,9 +223,9 @@ export function sendWith(walletClient: WalletClient): ExecutionPlanHandler {
 }
 
 /**
- * Signs a permit request using the provided wallet client.
+ * Signs an ERC20 permit using the provided wallet client.
  */
-export function signWith(walletClient: WalletClient): PermitHandler {
+export function signERC20PermitWith(walletClient: WalletClient): PermitHandler {
   return (result: PermitTypedDataResponse) => {
     invariant(walletClient.account, 'Wallet account is required');
 

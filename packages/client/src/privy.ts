@@ -109,9 +109,12 @@ export function sendWith(
 }
 
 /**
- * Signs a permit request using the provided Privy client.
+ * Signs an ERC20 permit using the provided Privy client.
  */
-export function signWith(privy: PrivyClient, walletId: string): PermitHandler {
+export function signERC20PermitWith(
+  privy: PrivyClient,
+  walletId: string,
+): PermitHandler {
   return (result: PermitTypedDataResponse) => {
     return ResultAsync.fromPromise(
       privy.walletApi.ethereum.signTypedData({

@@ -10,8 +10,9 @@ import {
   fundErc20Address,
   fundNativeAddress,
 } from '../test-utils';
-import { sendWith, signWith } from '../viem';
-import { permitTypedData, supply } from './transactions';
+import { sendWith, signERC20PermitWith } from '../viem';
+import { permitTypedData } from './permits';
+import { supply } from './transactions';
 import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
@@ -100,7 +101,7 @@ describe('Given an Aave Market', () => {
         chainId: reserve.market.chain.chainId,
         spender: evmAddress(user.account!.address),
         owner: evmAddress(owner.account!.address),
-      }).andThen(signWith(owner));
+      }).andThen(signERC20PermitWith(owner));
       assertOk(signature);
 
       const result = await supply(client, {

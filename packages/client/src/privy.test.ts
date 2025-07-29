@@ -2,7 +2,7 @@ import { assertErr, assertOk, chainId, evmAddress } from '@aave/types';
 import { PrivyClient } from '@privy-io/server-auth';
 import { describe, expect, it } from 'vitest';
 import { permitTypedData, userSetEmode } from './actions/transactions';
-import { sendWith, signWith } from './privy';
+import { sendWith, signERC20PermitWith } from './privy';
 import {
   client,
   ETHEREUM_MARKET_ADDRESS,
@@ -40,7 +40,9 @@ describe('Given a PrivyClient instance', () => {
         chainId: chainId(1),
         spender: evmAddress('0x0000000000000000000000000000000000000000'),
         owner: evmAddress('0x0000000000000000000000000000000000000000'),
-      }).andThen(signWith(privy, import.meta.env.PRIVY_TEST_WALLET_ID));
+      }).andThen(
+        signERC20PermitWith(privy, import.meta.env.PRIVY_TEST_WALLET_ID),
+      );
 
       assertOk(result);
       expect(result.value).toEqual({
