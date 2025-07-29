@@ -45,7 +45,7 @@ jobs:
         run: pnpm build
 
       - name: Run tests
-        run: pnpm test:client
+        run: pnpm test:privy
       
       - name: Publish results
         if: always() # Always publish results

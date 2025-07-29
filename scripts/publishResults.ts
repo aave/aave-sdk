@@ -116,8 +116,8 @@ async function uploadReport(
         contentType = 'image/svg+xml';
       } else if (file.endsWith('.webp')) {
         contentType = 'image/webp';
-      } else if (file.endsWith('.gz')) {
-        contentType = 'application/gzip';
+      } else if (file.endsWith('.json.gz')) {
+        contentType = 'application/json';
       } else if (file.endsWith('.ico')) {
         contentType = 'image/x-icon';
       }
