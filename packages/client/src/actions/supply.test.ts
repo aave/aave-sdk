@@ -4,11 +4,11 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_USDC_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  USDC_ADDRESS,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith, signWith } from '../viem';
 import { permitTypedData, supply } from './transactions';
@@ -22,12 +22,12 @@ describe('Given an Aave Market', () => {
 
     beforeAll(async () => {
       await fundErc20Address(
-        WETH_ADDRESS,
+        ETHEREUM_WETH_ADDRESS,
         evmAddress(wallet.account!.address),
         bigDecimal('0.02'),
       );
 
-      reserve = await fetchReserve(WETH_ADDRESS);
+      reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
       // Check if the reserve is not frozen or paused
       expect(reserve.isFrozen).toBe(false);
       expect(reserve.isPaused).toBe(false);
@@ -40,7 +40,7 @@ describe('Given an Aave Market', () => {
         amount: {
           erc20: {
             value: amountToSupply,
-            currency: WETH_ADDRESS,
+            currency: ETHEREUM_WETH_ADDRESS,
           },
         },
         chainId: reserve.market.chain.chainId,
@@ -71,14 +71,14 @@ describe('Given an Aave Market', () => {
     }, 25_000);
   });
 
-  describe.only('When the user supplies token to the Reserve via a permit signature', () => {
+  describe('When the user supplies token to the Reserve via a permit signature', () => {
     const owner = createNewWallet();
     const user = createNewWallet();
     const amountToSupply = '1.5';
 
     beforeAll(async () => {
       await fundErc20Address(
-        USDC_ADDRESS,
+        ETHEREUM_USDC_ADDRESS,
         evmAddress(owner.account!.address),
         bigDecimal('0.02'),
       );
@@ -90,7 +90,7 @@ describe('Given an Aave Market', () => {
     });
 
     it('Then it should allow the user to supply tokens to the Reserve', async () => {
-      const reserve = await fetchReserve(USDC_ADDRESS);
+      const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.permitSupported).toBe(true);
 
       const signature = await permitTypedData(client, {
@@ -142,7 +142,7 @@ describe('Given an Aave Market', () => {
     let reserve: Reserve;
 
     beforeAll(async () => {
-      reserve = await fetchReserve(WETH_ADDRESS);
+      reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
       // Check if the reserve is not frozen or paused
       expect(reserve.isFrozen).toBe(false);
       expect(reserve.isPaused).toBe(false);

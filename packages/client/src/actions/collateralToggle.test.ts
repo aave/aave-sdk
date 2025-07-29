@@ -6,8 +6,8 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { collateralToggle, supply } from './transactions';
@@ -20,7 +20,7 @@ describe('Given Aave Market', () => {
 
       beforeAll(async () => {
         await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         );
@@ -30,7 +30,7 @@ describe('Given Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
           supplier: evmAddress(wallet.account!.address),
-          amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
         })
           .andThen(sendWith(wallet))
           .andThen(client.waitForTransaction);
@@ -53,7 +53,7 @@ describe('Given Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
           user: evmAddress(wallet.account!.address),
-          underlyingToken: WETH_ADDRESS,
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => console.log(`tx to toggle collateral: ${tx}`))

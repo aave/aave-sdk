@@ -15,7 +15,14 @@ import {
   type TxHash,
   txHash,
 } from '@aave/types';
-import { type Chain, defineChain, type Hash, type WalletClient } from 'viem';
+import {
+  type Chain,
+  defineChain,
+  type Hash,
+  type TypedData,
+  type TypedDataDomain,
+  type WalletClient,
+} from 'viem';
 import {
   sendTransaction as sendEip1559Transaction,
   signTypedData,
@@ -225,17 +232,15 @@ export function signWith(walletClient: WalletClient): PermitHandler {
     return ResultAsync.fromPromise(
       signTypedData(walletClient, {
         account: walletClient.account,
-        domain: result.domain,
-        types: result.types,
-        primaryType: result.primaryType,
+        domain: result.domain as TypedDataDomain,
+        types: result.types as TypedData,
+        primaryType: result.primaryType as keyof typeof result.types,
         message: result.message,
       }),
       (err) => SigningError.from(err),
-    )
-      .map(signatureFrom)
-      .map((value) => ({
-        deadline: result.message.deadline,
-        value,
-      }));
+    ).map((hex) => ({
+      deadline: result.message.deadline,
+      value: signatureFrom(hex),
+    }));
   };
 }

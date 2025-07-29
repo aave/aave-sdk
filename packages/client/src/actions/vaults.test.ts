@@ -4,9 +4,9 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_USDC_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   getBalance,
-  USDC_ADDRESS,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import {
@@ -154,7 +154,7 @@ describe('Given the Aave Vaults', () => {
 
         const balanceBefore = await getBalance(
           evmAddress(user.account!.address),
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
         );
 
         const withdrawResult = await vaultWithdraw(client, {
@@ -177,7 +177,7 @@ describe('Given the Aave Vaults', () => {
         assertOk(userPositions);
         const balanceAfter = await getBalance(
           evmAddress(user.account!.address),
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
         );
         expect(balanceAfter).toEqual(balanceBefore + amountToWithdraw);
         expect(userPositions.value.items).toEqual([
@@ -361,7 +361,7 @@ describe('Given the Aave Vaults', () => {
         ).toBeGreaterThan(0);
         const balanceBefore = await getBalance(
           evmAddress(organization.account!.address),
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
         );
 
         const withdrawResult = await vaultWithdrawFees(client, {
@@ -384,7 +384,7 @@ describe('Given the Aave Vaults', () => {
 
         const balanceAfter = await getBalance(
           evmAddress(organization.account!.address),
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
         );
         // TODO: check properly the balance of the organization wallet
         expect(balanceAfter).toBeGreaterThan(balanceBefore);
@@ -408,7 +408,7 @@ describe('Given the Aave Vaults', () => {
         token: {
           name: 'Aave WETH Vault Shares',
           symbol: 'avWETH',
-          address: WETH_ADDRESS,
+          address: ETHEREUM_WETH_ADDRESS,
         },
       }).andThen(mintShares(user, 10));
       assertOk(vault1);
@@ -418,9 +418,9 @@ describe('Given the Aave Vaults', () => {
         token: {
           name: 'Aave USDC Vault Shares',
           symbol: 'avUSDC',
-          address: USDC_ADDRESS,
+          address: ETHEREUM_USDC_ADDRESS,
         },
-      }).andThen(mintShares(user, 5, USDC_ADDRESS));
+      }).andThen(mintShares(user, 5, ETHEREUM_USDC_ADDRESS));
       assertOk(vault2);
     }, 60_000);
 
@@ -482,7 +482,7 @@ describe('Given the Aave Vaults', () => {
       const listOfVaults = await userVaults(client, {
         user: evmAddress(user.account!.address),
         filters: {
-          underlyingTokens: [WETH_ADDRESS],
+          underlyingTokens: [ETHEREUM_WETH_ADDRESS],
         },
       });
 
@@ -491,7 +491,7 @@ describe('Given the Aave Vaults', () => {
         expect.objectContaining({
           usedReserve: expect.objectContaining({
             underlyingToken: expect.objectContaining({
-              address: WETH_ADDRESS,
+              address: ETHEREUM_WETH_ADDRESS,
             }),
           }),
         }),

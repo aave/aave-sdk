@@ -6,8 +6,8 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { borrow, supply } from './transactions';
@@ -38,7 +38,7 @@ describe('Given an Aave Market', () => {
     describe('When fetching the user transaction history', () => {
       beforeAll(async () => {
         await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('1.1'),
         );
@@ -49,7 +49,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               value: '1',
-              currency: WETH_ADDRESS,
+              currency: ETHEREUM_WETH_ADDRESS,
             },
           },
           chainId: ETHEREUM_FORK_ID,
@@ -62,7 +62,7 @@ describe('Given an Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           borrower: evmAddress(user.account!.address),
           amount: {
-            erc20: { value: '0.04', currency: WETH_ADDRESS },
+            erc20: { value: '0.04', currency: ETHEREUM_WETH_ADDRESS },
           },
           chainId: ETHEREUM_FORK_ID,
         })

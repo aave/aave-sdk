@@ -6,10 +6,10 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';
@@ -46,7 +46,7 @@ describe('Given an Aave Market', () => {
   let reserve: Reserve;
 
   beforeAll(async () => {
-    reserve = await fetchReserve(WETH_ADDRESS);
+    reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
     // Check if the reserve is not frozen or paused
     expect(reserve.isFrozen).toBe(false);
     expect(reserve.isPaused).toBe(false);
@@ -59,7 +59,7 @@ describe('Given an Aave Market', () => {
     beforeAll(async () => {
       // Fund the wallet with WETH
       await fundErc20Address(
-        WETH_ADDRESS,
+        ETHEREUM_WETH_ADDRESS,
         evmAddress(wallet.account!.address),
         bigDecimal('0.02'),
       );
@@ -70,7 +70,7 @@ describe('Given an Aave Market', () => {
         supplier: evmAddress(wallet.account!.address),
         amount: {
           erc20: {
-            currency: WETH_ADDRESS,
+            currency: ETHEREUM_WETH_ADDRESS,
             value: amountToSupply,
           },
         },
@@ -84,7 +84,7 @@ describe('Given an Aave Market', () => {
           supplier: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
-              currency: WETH_ADDRESS,
+              currency: ETHEREUM_WETH_ADDRESS,
               value: { exact: amountToSupply },
             },
           },

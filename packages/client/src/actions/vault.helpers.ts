@@ -7,8 +7,8 @@ import {
   client,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { reserve } from './reserve';
@@ -27,13 +27,13 @@ export function createVault(
   },
 ): ResultAsync<Vault, Error> {
   return fundErc20Address(
-    evmAddress(config?.token?.address ?? WETH_ADDRESS),
+    evmAddress(config?.token?.address ?? ETHEREUM_WETH_ADDRESS),
     evmAddress(organization.account!.address),
     bigDecimal('2'),
   ).andThen(() => {
     return reserve(client, {
       chainId: ETHEREUM_FORK_ID,
-      underlyingToken: config?.token?.address ?? WETH_ADDRESS,
+      underlyingToken: config?.token?.address ?? ETHEREUM_WETH_ADDRESS,
       market: ETHEREUM_MARKET_ADDRESS,
     }).andThen((reserve) => {
       return vaultDeploy(client, {
@@ -61,14 +61,14 @@ export function createVault(
 export function deposit(user: WalletClient, amount: number) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
     return fundErc20Address(
-      WETH_ADDRESS,
+      ETHEREUM_WETH_ADDRESS,
       evmAddress(user.account!.address),
       bigDecimal(amount + 0.1),
     ).andThen(() => {
       return vaultDeposit(client, {
         amount: {
           value: bigDecimal('1'),
-          currency: WETH_ADDRESS,
+          currency: ETHEREUM_WETH_ADDRESS,
         },
         vault: vault.address,
         depositor: evmAddress(user.account!.address),
@@ -89,7 +89,7 @@ export function mintShares(
 ) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
     return fundErc20Address(
-      evmAddress(tokenAddress ?? WETH_ADDRESS),
+      evmAddress(tokenAddress ?? ETHEREUM_WETH_ADDRESS),
       evmAddress(user.account!.address),
       bigDecimal(amount + 0.1),
     ).andThen(() => {

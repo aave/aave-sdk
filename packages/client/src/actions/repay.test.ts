@@ -7,9 +7,9 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
   fundNativeAddress,
-  WETH_ADDRESS,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { market } from './markets';
@@ -68,7 +68,7 @@ describe('Given an Aave Market', () => {
 
         // Set up wallet and supply position
         await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         );
@@ -78,13 +78,13 @@ describe('Given an Aave Market', () => {
           market: marketInfo.address,
           chainId: marketInfo.chain.chainId,
           supplier: evmAddress(wallet.account!.address),
-          amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
         });
       }, 30_000);
 
       it('Then it should be reflected in the user borrow positions', async () => {
         const result = await repay(client, {
-          amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
           borrower: evmAddress(wallet.account!.address),
           chainId: marketInfo.chain.chainId,
           market: marketInfo.address,
@@ -129,7 +129,7 @@ describe('Given an Aave Market', () => {
           );
 
           await fundErc20Address(
-            WETH_ADDRESS,
+            ETHEREUM_WETH_ADDRESS,
             evmAddress(wallet.account!.address),
             bigDecimal('0.02'),
           );
@@ -139,7 +139,9 @@ describe('Given an Aave Market', () => {
             market: marketInfo.address,
             chainId: marketInfo.chain.chainId,
             supplier: evmAddress(wallet.account!.address),
-            amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+            amount: {
+              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            },
           });
         }, 30_000);
 
