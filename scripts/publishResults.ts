@@ -59,18 +59,14 @@ function createMessageTestResults(
   result.message += `\n <${reportUrl}|Link Github Pipeline>`;
   return result;
 }
-const AWS_ACCESS_KEY_ID = 'ASIAZVP63HMYSE4H5UCT';
-const AWS_SECRET_ACCESS_KEY = 'SkbOh3bhgsPS199s7R/WDzGns9Jftv7qeFtUNf5p';
-const AWS_SESSION_TOKEN =
-  'IQoJb3JpZ2luX2VjEH4aCXVzLWVhc3QtMSJHMEUCIQCTvpqWcMHsv8CVGNCX0CAMuWG0XL/Hd/wGcsfuGUhuIQIgKTgw/57jCVDZIHZ7PFHyuFYuVZc5qRiWk1hU6+EQbuUqgAMIp///////////ARACGgw2NjQ2NDM3NzkzNzciDEhy4y68GZkntq2EwyrUAjka301djbGyeSQ2QdWokgtar60eJPjM2tGJbvZTWmAd50FwhRfC1ErvtY8XQ5eBMG6kHRJq8faSJf60VKYGRQSflhxNmwJamF5PNNG1+UfOlNvvTNZ+4PJR5JP8PTLoq6olwjfll0enIYRq1VPikt8i83F6yPoZWakgJwzd3o3m80pteIUCTzc7bCZAPGKrXb4GJVYmjBSu7lNEYNTCQ6KbjProokuHVx2ScS+7EjFbav6PRueApbi4GQkDFU67pMVl4Lvmm+7AoiJqIuSuKUsmFqX/gqR23ve0I+4N5B3yX0UDXkCCPO4E9p7f+2FBdHezaVVn1+/RtqZQETJGd70uAmx3qg63L4wxqOexMFs82NGjdfyGmP8ewn4friXvfRqrlfFCsp6Ds+HbwiwHtTmn8Vvp+0gDyngIXXrcxs2jb2HeYQOQZbL1hcx4HEwwyP3QwGMwo5+jxAY6pwEoJAzq6O5kmdAlHSJ1v8kXDLmdeoInxtc7va3SsM1kZG6KnBIdB4U62gmlFqipHRtJkzbTsEr2HiKWJPSAD0tc+FhMVeHxJSv9abfwbiDApi7v1FOASmg+si3PioLGhO8r1YA4X4QNjwfpXPkjQ9jzymCsjuH+aua5bNTtDRkn3OgYs6asi+C/v1T98MCwU+BBmonOh0myJO8MYRcnwIx6LhfydGY+tw==';
 
 async function uploadReport(path?: string) {
   const s3Client = new S3({
     region: process.env.AWS_REGION || 'us-east-1',
     credentials: {
-      accessKeyId: AWS_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY,
-      sessionToken: AWS_SESSION_TOKEN,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      sessionToken: process.env.AWS_SESSION_TOKEN,
     },
   });
   const date = Date.now();
