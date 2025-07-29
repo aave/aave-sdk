@@ -20,7 +20,7 @@ describe('Given Aave Market', () => {
 
       beforeAll(async () => {
         const result = await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         ).andThen(() =>
@@ -28,7 +28,9 @@ describe('Given Aave Market', () => {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
             supplier: evmAddress(wallet.account!.address),
-            amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+            amount: {
+              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            },
           })
             .andThen(sendWith(wallet))
             .andThen(client.waitForTransaction),

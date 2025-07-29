@@ -38,7 +38,7 @@ describe('Given an Aave Market', () => {
     describe('When fetching the user transaction history', () => {
       beforeAll(async () => {
         const result = await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('1.1'),
         ).andThen(() =>
@@ -48,7 +48,7 @@ describe('Given an Aave Market', () => {
             amount: {
               erc20: {
                 value: '1',
-                currency: WETH_ADDRESS,
+                currency: ETHEREUM_WETH_ADDRESS,
               },
             },
             chainId: ETHEREUM_FORK_ID,

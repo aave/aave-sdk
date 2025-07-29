@@ -22,13 +22,13 @@ describe('Given an Aave Market', () => {
 
     it(`Then it should be available in the user's supply positions`, async () => {
       const setup = await fundErc20Address(
-        WETH_ADDRESS,
+        ETHEREUM_WETH_ADDRESS,
         evmAddress(userSupplyErc20.account!.address),
         bigDecimal('0.02'),
       );
       assertOk(setup);
       // Check if the reserve is not frozen or paused
-      const reserve = await fetchReserve(WETH_ADDRESS);
+      const reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
       expect(reserve.isFrozen).toBe(false);
       expect(reserve.isPaused).toBe(false);
 
@@ -76,7 +76,7 @@ describe('Given an Aave Market', () => {
 
     it('Then it should allow the user to supply tokens to the Reserve', async () => {
       const setup = await fundErc20Address(
-        USDC_ADDRESS,
+        ETHEREUM_USDC_ADDRESS,
         evmAddress(owner.account!.address),
         bigDecimal('0.02'),
       ).andThen(() =>
@@ -87,7 +87,7 @@ describe('Given an Aave Market', () => {
       );
       assertOk(setup);
 
-      const reserve = await fetchReserve(USDC_ADDRESS);
+      const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.permitSupported).toBe(true);
 
       const signature = await permitTypedData(client, {
@@ -147,7 +147,7 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
 
         // Check if the reserve is not frozen or paused and accepts native tokens
-        const reserve = await fetchReserve(WETH_ADDRESS);
+        const reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
         expect(reserve.isFrozen).toBe(false);
         expect(reserve.isPaused).toBe(false);
         expect(reserve.acceptsNative?.symbol).toEqual('ETH');

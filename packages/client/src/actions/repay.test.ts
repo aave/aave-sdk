@@ -64,7 +64,7 @@ describe('Given an Aave Market', () => {
 
       it('Then it should be reflected in the user borrow positions', async () => {
         const setup = await fundErc20Address(
-          WETH_ADDRESS,
+          ETHEREUM_WETH_ADDRESS,
           evmAddress(userRepayErc20.account!.address),
           bigDecimal('0.02'),
         ).andThen(() =>
@@ -72,13 +72,15 @@ describe('Given an Aave Market', () => {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
             supplier: evmAddress(userRepayErc20.account!.address),
-            amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+            amount: {
+              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            },
           }),
         );
         assertOk(setup);
 
         const result = await repay(client, {
-          amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
           borrower: evmAddress(userRepayErc20.account!.address),
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
@@ -113,7 +115,7 @@ describe('Given an Aave Market', () => {
           )
             .andThen(() =>
               fundErc20Address(
-                WETH_ADDRESS,
+                ETHEREUM_WETH_ADDRESS,
                 evmAddress(userRepayNative.account!.address),
                 bigDecimal('0.02'),
               ),
@@ -123,7 +125,9 @@ describe('Given an Aave Market', () => {
                 market: ETHEREUM_MARKET_ADDRESS,
                 chainId: ETHEREUM_FORK_ID,
                 supplier: evmAddress(userRepayNative.account!.address),
-                amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+                amount: {
+                  erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+                },
               }),
             );
           assertOk(setup);
