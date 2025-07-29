@@ -16,27 +16,24 @@ import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve', () => {
-    const wallet = createNewWallet();
+    const userSupplyErc20 = createNewWallet();
     const amountToSupply = '0.01';
-    let reserve: Reserve;
-
-    beforeAll(async () => {
-      await fundErc20Address(
-        WETH_ADDRESS,
-        evmAddress(wallet.account!.address),
-        bigDecimal('0.02'),
-      );
-
-      reserve = await fetchReserve(WETH_ADDRESS);
-      // Check if the reserve is not frozen or paused
-      expect(reserve.isFrozen).toBe(false);
-      expect(reserve.isPaused).toBe(false);
-    });
 
     it(`Then it should be available in the user's supply positions`, async () => {
+      const setup = await fundErc20Address(
+        WETH_ADDRESS,
+        evmAddress(userSupplyErc20.account!.address),
+        bigDecimal('0.02'),
+      );
+      assertOk(setup);
+      // Check if the reserve is not frozen or paused
+      const reserve = await fetchReserve(WETH_ADDRESS);
+      expect(reserve.isFrozen).toBe(false);
+      expect(reserve.isPaused).toBe(false);
+
       const result = await supply(client, {
         market: reserve.market.address,
-        supplier: evmAddress(wallet.account!.address),
+        supplier: evmAddress(userSupplyErc20.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -45,7 +42,7 @@ describe('Given an Aave Market', () => {
         },
         chainId: reserve.market.chain.chainId,
       })
-        .andThen(sendWith(wallet))
+        .andThen(sendWith(userSupplyErc20))
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
@@ -55,7 +52,7 @@ describe('Given an Aave Market', () => {
                 chainId: reserve.market.chain.chainId,
               },
             ],
-            user: evmAddress(wallet.account!.address),
+            user: evmAddress(userSupplyErc20.account!.address),
           }),
         );
       assertOk(result);
@@ -71,25 +68,24 @@ describe('Given an Aave Market', () => {
     }, 25_000);
   });
 
-  describe.only('When the user supplies token to the Reserve via a permit signature', () => {
+  describe('When the user supplies token to the Reserve via a permit signature', () => {
     const owner = createNewWallet();
     const user = createNewWallet();
     const amountToSupply = '1.5';
 
-    beforeAll(async () => {
-      await fundErc20Address(
+    it('Then it should allow the user to supply tokens to the Reserve', async () => {
+      const setup = await fundErc20Address(
         USDC_ADDRESS,
         evmAddress(owner.account!.address),
         bigDecimal('0.02'),
+      ).andThen(() =>
+        fundNativeAddress(
+          evmAddress(user.account!.address),
+          bigDecimal('0.02'),
+        ),
       );
+      assertOk(setup);
 
-      await fundNativeAddress(
-        evmAddress(user.account!.address),
-        bigDecimal('0.02'),
-      );
-    });
-
-    it('Then it should allow the user to supply tokens to the Reserve', async () => {
       const reserve = await fetchReserve(USDC_ADDRESS);
       expect(reserve.permitSupported).toBe(true);
 
@@ -138,38 +134,32 @@ describe('Given an Aave Market', () => {
   });
 
   describe('And the Reserve allows to supply in native tokens', () => {
-    const wallet = createNewWallet();
-    let reserve: Reserve;
-
-    beforeAll(async () => {
-      reserve = await fetchReserve(WETH_ADDRESS);
-      // Check if the reserve is not frozen or paused
-      expect(reserve.isFrozen).toBe(false);
-      expect(reserve.isPaused).toBe(false);
-      // And accepts native tokens
-      expect(reserve.acceptsNative?.symbol).toEqual('ETH');
-    });
-
     describe('When the user supplies to the reserve in native tokens', () => {
+      const userSupplyNative = createNewWallet();
       const amountToSupply = '0.01';
 
-      beforeAll(async () => {
-        await fundNativeAddress(
-          evmAddress(wallet.account!.address),
+      it(`Then it should be available in the user's supply positions`, async () => {
+        const setup = await fundNativeAddress(
+          evmAddress(userSupplyNative.account!.address),
           bigDecimal('0.02'),
         );
-      });
+        assertOk(setup);
 
-      it(`Then it should be available in the user's supply positions`, async () => {
+        // Check if the reserve is not frozen or paused and accepts native tokens
+        const reserve = await fetchReserve(WETH_ADDRESS);
+        expect(reserve.isFrozen).toBe(false);
+        expect(reserve.isPaused).toBe(false);
+        expect(reserve.acceptsNative?.symbol).toEqual('ETH');
+
         const result = await supply(client, {
           market: reserve.market.address,
-          supplier: evmAddress(wallet.account!.address),
+          supplier: evmAddress(userSupplyNative.account!.address),
           amount: {
             native: amountToSupply,
           },
           chainId: reserve.market.chain.chainId,
         })
-          .andThen(sendWith(wallet))
+          .andThen(sendWith(userSupplyNative))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
@@ -179,7 +169,7 @@ describe('Given an Aave Market', () => {
                   chainId: reserve.market.chain.chainId,
                 },
               ],
-              user: evmAddress(wallet.account!.address),
+              user: evmAddress(userSupplyNative.account!.address),
             }),
           );
         assertOk(result);
