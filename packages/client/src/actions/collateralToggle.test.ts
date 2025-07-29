@@ -19,24 +19,21 @@ describe('Given Aave Market', () => {
       const wallet = createNewWallet();
 
       beforeAll(async () => {
-        await fundErc20Address(
+        const result = await fundErc20Address(
           WETH_ADDRESS,
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
+        ).andThen(() =>
+          supply(client, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            supplier: evmAddress(wallet.account!.address),
+            amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
+          })
+            .andThen(sendWith(wallet))
+            .andThen(client.waitForTransaction),
         );
-        console.log('funding done');
-
-        const result = await supply(client, {
-          market: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
-          supplier: evmAddress(wallet.account!.address),
-          amount: { erc20: { currency: WETH_ADDRESS, value: '0.01' } },
-        })
-          .andThen(sendWith(wallet))
-          .andThen(client.waitForTransaction);
         assertOk(result);
-
-        console.log('supply tx: ', result.value);
       });
 
       it('Then it should be reflected in the user supply positions', async () => {
