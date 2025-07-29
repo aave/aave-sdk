@@ -65,7 +65,7 @@ describe('Given an Aave Market', () => {
           }),
         }),
       ]);
-    }, 25_000);
+    });
   });
 
   describe('When the user supplies token to the Reserve via a permit signature', () => {
@@ -182,7 +182,7 @@ describe('Given an Aave Market', () => {
             }),
           }),
         ]);
-      }, 25_000);
+      });
     });
   });
 });

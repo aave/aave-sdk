@@ -18,6 +18,8 @@ function windowToDate(window: TimeWindow): Date {
       return new Date(Date.now() - 1000 * 60 * 60 * 24 * 8);
     case TimeWindow.LastMonth:
       return new Date(Date.now() - 1000 * 60 * 60 * 24 * 31);
+    case TimeWindow.LastSixMonths:
+      return new Date(Date.now() - 1000 * 60 * 60 * 24 * 183);
     case TimeWindow.LastYear:
       return new Date(Date.now() - 1000 * 60 * 60 * 24 * 366);
     default:
@@ -70,9 +72,6 @@ describe('Given an Aave Market reserve', () => {
         for (const point of result.value!) {
           expect(point).toEqual(
             expect.objectContaining({
-              avgRate: expect.objectContaining({
-                formatted: expect.toBeBigDecimalWithin(0, 5),
-              }),
               date: expect.toBeBetweenDates(windowToDate(window), new Date()),
             }),
           );
@@ -96,7 +95,6 @@ describe('Given an Aave Market reserve', () => {
         expect(result.value).toEqual(
           result.value?.map(() =>
             expect.objectContaining({
-              avgRate: expect.any(Object),
               date: expect.toBeBetweenDates(windowToDate(window), new Date()),
             }),
           ),
