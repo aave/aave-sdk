@@ -25,6 +25,7 @@
     "test:react": "vitest --project react",
     "test:userHistory": "vitest --project client packages/client/src/actions/history.test.ts",
     "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"Then it should allow the user to supply tokens to the Reserve\"",
+    "test:borrowEth": "vitest --project client packages/client/src/actions/borrow.test.ts -t \"Then it should be possible to borrow native from the reserve\"",
     "test": "vitest"
   },
   "license": "MIT",
