@@ -3,9 +3,7 @@ description: 'Setup repo and install dependencies'
 
 runs:
   using: 'composite'
-  steps:
-    - uses: actions/checkout@v4
-    
+  steps:   
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
 

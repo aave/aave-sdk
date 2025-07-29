@@ -23,6 +23,8 @@ jobs:
       PRIVY_TEST_WALLET_ADDRESS: ${{ vars.PRIVY_TEST_WALLET_ADDRESS }}
 
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Setup Repository
         uses: ./.github/actions/setup
 

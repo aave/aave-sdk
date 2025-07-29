@@ -20,6 +20,8 @@ jobs:
     needs: verify
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Setup Repository
         uses: ./.github/actions/setup
 
