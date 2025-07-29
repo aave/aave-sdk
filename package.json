@@ -24,6 +24,7 @@
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:react": "vitest --project react",
     "test:userHistory": "vitest --project client packages/client/src/actions/history.test.ts",
+    "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"Then it should allow the user to supply tokens to the Reserve\"",
     "test": "vitest"
   },
   "license": "MIT",

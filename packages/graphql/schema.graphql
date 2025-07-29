@@ -161,7 +161,7 @@ input ERC712Signature {
   value: Signature!
 
   """The deadline for the erc721"""
-  deadline: DateTime!
+  deadline: Int!
 }
 
 type EmodeMarketCategory {
@@ -467,6 +467,36 @@ input MarketsRequest {
   user features
   """
   user: EvmAddress
+}
+
+type MeritBorrowAndSupplyIncentiveCondition {
+  """The APR incentive for meeting the conditions"""
+  extraApr: PercentValue!
+
+  """The token that must be supplied as collateral"""
+  supplyToken: Currency!
+
+  """The token that must be borrowed"""
+  borrowToken: Currency!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+}
+
+type MeritBorrowIncentive {
+  """Extra APR for borrowing this asset from AAVE Merit program"""
+  extraBorrowApr: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+}
+
+type MeritSupplyIncentive {
+  """Extra APR for supplying this asset from AAVE Merit program"""
+  extraSupplyApr: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
 }
 
 type MessageData {
@@ -782,6 +812,12 @@ type Reserve {
   """Does the underlying reserve support permit"""
   permitSupported: Boolean!
 
+  """
+  This exposes the extra incentives you can earn from third parties
+  Note Aave Labs does not guarantee third party program and accepts no liability to those
+  """
+  incentives: [ReserveIncentive!]!
+
   """The emode information for the reserve"""
   eModeInfo: [EmodeReserveInfo!]!
 
@@ -847,6 +883,8 @@ enum ReserveBorrowingState {
   USER_EMODE_DISABLED_BORROW
 }
 
+union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition
+
 type ReserveInfo {
   """The market information the reserve is under"""
   market: MarketInfo!
@@ -865,6 +903,12 @@ type ReserveInfo {
 
   """Does the underlying reserve support permit"""
   permitSupported: Boolean!
+
+  """
+  This exposes the extra incentives you can earn from third parties
+  Note Aave Labs does not guarantee third party program and accepts no liability to those
+  """
+  incentives: [ReserveIncentive!]!
 }
 
 type ReserveIsolationModeConfig {
@@ -1022,6 +1066,8 @@ type TypeField {
   name: String!
   type: String!
 }
+
+scalar URL
 
 type UsdExchangeRate {
   currency: Currency!
