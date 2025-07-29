@@ -60,7 +60,7 @@ function createMessageTestResults(
   return result;
 }
 
-async function uploadReport(path?: string) {
+async function uploadReport(path?: string, s3KeyPrefix?: string) {
   const s3Client = new S3({
     region: process.env.AWS_REGION || 'us-east-1',
     credentials: {
@@ -75,11 +75,13 @@ async function uploadReport(path?: string) {
 
   for (const file of files) {
     const localFilePath = join(localPath, file);
-    const s3Key = `reports/${date}/${file}`;
+    const s3Key = s3KeyPrefix
+      ? `${s3KeyPrefix}/${file}`
+      : `reports/${date}/${file}`;
     const stats = statSync(localFilePath);
 
     if (stats.isDirectory()) {
-      await uploadReport(localFilePath);
+      await uploadReport(localFilePath, s3Key);
     } else {
       let contentType = 'application/octet-stream';
 
