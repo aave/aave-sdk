@@ -116,6 +116,8 @@ async function uploadReport(
         contentType = 'image/svg+xml';
       } else if (file.endsWith('.webp')) {
         contentType = 'image/webp';
+      } else if (file.endsWith('.gz')) {
+        contentType = 'application/gzip';
       }
 
       try {
@@ -128,6 +130,8 @@ async function uploadReport(
           Body: data,
           Key: s3Key,
           ContentType: contentType,
+          ContentEncoding:
+            contentType === 'application/gzip' ? 'gzip' : undefined,
           CacheControl: 'no-cache, no-store, must-revalidate',
           Expires: new Date(Date.now() - 1), // Set expiration to the past
         });
