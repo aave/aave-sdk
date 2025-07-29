@@ -1,20 +1,24 @@
 import type {
   ExecutionPlan,
   InsufficientBalanceError,
+  PermitTypedDataResponse,
   TransactionRequest,
 } from '@aave/graphql';
 import {
   type ChainId,
   chainId,
   errAsync,
+  invariant,
   okAsync,
   ResultAsync,
+  signatureFrom,
   type TxHash,
   txHash,
 } from '@aave/types';
 import { type Chain, defineChain, type Hash, type WalletClient } from 'viem';
 import {
   sendTransaction as sendEip1559Transaction,
+  signTypedData,
   waitForTransactionReceipt,
 } from 'viem/actions';
 // chains.ts
@@ -35,7 +39,7 @@ import {
   zksync,
 } from 'viem/chains';
 import { SigningError, TransactionError, ValidationError } from './errors';
-import type { ExecutionPlanHandler } from './types';
+import type { ExecutionPlanHandler, PermitHandler } from './types';
 
 // Other chains
 const sonic: Chain = defineChain({
@@ -208,5 +212,30 @@ export function sendWith(walletClient: WalletClient): ExecutionPlanHandler {
       case 'InsufficientBalanceError':
         return errAsync(ValidationError.fromGqlNode(result));
     }
+  };
+}
+
+/**
+ * Signs a permit request using the provided wallet client.
+ */
+export function signWith(walletClient: WalletClient): PermitHandler {
+  return (result: PermitTypedDataResponse) => {
+    invariant(walletClient.account, 'Wallet account is required');
+
+    return ResultAsync.fromPromise(
+      signTypedData(walletClient, {
+        account: walletClient.account,
+        domain: result.domain,
+        types: result.types,
+        primaryType: result.primaryType,
+        message: result.message,
+      }),
+      (err) => SigningError.from(err),
+    )
+      .map(signatureFrom)
+      .map((value) => ({
+        deadline: result.message.deadline,
+        value,
+      }));
   };
 }
