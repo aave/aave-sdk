@@ -1,6 +1,5 @@
-import type { Reserve } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,

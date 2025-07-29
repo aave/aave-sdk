@@ -1,5 +1,5 @@
-import type { EnvironmentConfig } from '@aave/env';
 import type { TypedDocumentNode } from '@urql/core';
+import type { EnvironmentConfig } from './environments';
 
 /**
  * The client configuration.

@@ -51,7 +51,6 @@
   },
   "dependencies": {
     "@aave/client": "workspace:*",
-    "@aave/env": "workspace:*",
     "@aave/graphql": "workspace:*",
     "@aave/types": "workspace:*",
     "urql": "^4.2.2"

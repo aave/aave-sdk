@@ -1,6 +1,5 @@
 /// <reference path="../../../vite-env.d.ts" />
 
-import { local, staging } from '@aave/env';
 import type { AnyVariables, Reserve } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
 import {
@@ -17,6 +16,7 @@ import type { TypedDocumentNode } from '@urql/core';
 import { validate } from 'graphql';
 import type { ValidationRule } from 'graphql/validation/ValidationContext';
 import {
+  type Chain,
   createPublicClient,
   createWalletClient,
   defineChain,
@@ -29,12 +29,15 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { expect } from 'vitest';
 import { reserve } from './actions';
 import { AaveClient } from './client';
+import { local, staging } from './environments';
 import { GraphQLErrorCode, UnexpectedError } from './errors';
 
 export const environment =
   import.meta.env.ENVIRONMENT === 'local' ? local : staging;
 
-export const ETHEREUM_FORK_ID = chainId(99999999);
+export const ETHEREUM_FORK_ID = chainId(
+  Number.parseInt(import.meta.env.ETHEREUM_TENDERLY_FORK_ID),
+);
 
 export const ETHEREUM_WETH_ADDRESS = evmAddress(
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -50,21 +53,29 @@ export const ETHEREUM_MARKET_ADDRESS = evmAddress(
 );
 export const ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY = 1;
 
-const ETHEREUM_FORK_RPC_URL =
-  'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';
+const ETHEREUM_FORK_RPC_URL = import.meta.env.ETHEREUM_TENDERLY_PUBLIC_RPC;
 
-const ETHEREUM_FORK_RPC_URL_ADMIN =
-  'https://virtual.mainnet.rpc.tenderly.co/95925d93-2ca7-4986-8b4f-e606f6b243bd';
+const ETHEREUM_FORK_RPC_URL_ADMIN = import.meta.env.ETHEREUM_TENDERLY_ADMIN_RPC;
 
 // Re-export for convenience
 export { bigDecimal } from '@aave/types';
 
-const ethereumForkChain = defineChain({
-  id: ETHEREUM_FORK_ID,
+export const ethereumForkChain: Chain = defineChain({
+  id: chainId(99999999),
   name: 'Ethereum Fork',
   network: 'ethereum-fork',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: [ETHEREUM_FORK_RPC_URL] } },
+  rpcUrls: {
+    default: {
+      http: [ETHEREUM_FORK_RPC_URL],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Ethereum Fork Explorer',
+      url: import.meta.env.ETHEREUM_TENDERLY_BLOCKEXPLORER,
+    },
+  },
 });
 
 export const client = AaveClient.create({
