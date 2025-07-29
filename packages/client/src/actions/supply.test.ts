@@ -17,13 +17,13 @@ import { userSupplies } from './user';
 
 describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve', () => {
-    const userErc20 = createNewWallet();
+    const user = createNewWallet();
     const amountToSupply = '0.01';
 
     it(`Then it should be available in the user's supply positions`, async () => {
       const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
-        evmAddress(userErc20.account!.address),
+        evmAddress(user.account!.address),
         bigDecimal('0.02'),
       );
       assertOk(setup);
@@ -34,7 +34,7 @@ describe('Given an Aave Market', () => {
 
       const result = await supply(client, {
         market: reserve.market.address,
-        supplier: evmAddress(userErc20.account!.address),
+        supplier: evmAddress(user.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -43,7 +43,7 @@ describe('Given an Aave Market', () => {
         },
         chainId: reserve.market.chain.chainId,
       })
-        .andThen(sendWith(userErc20))
+        .andThen(sendWith(user))
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
@@ -53,7 +53,7 @@ describe('Given an Aave Market', () => {
                 chainId: reserve.market.chain.chainId,
               },
             ],
-            user: evmAddress(userErc20.account!.address),
+            user: evmAddress(user.account!.address),
           }),
         );
       assertOk(result);
@@ -70,11 +70,11 @@ describe('Given an Aave Market', () => {
   });
 
   describe('When the user supplies token to the Reserve via a permit signature', () => {
-    const owner = createNewWallet();
-    const user = createNewWallet();
-    const amountToSupply = '1.5';
-
     it('Then it should allow the user to supply tokens to the Reserve', async () => {
+      const owner = createNewWallet();
+      const user = createNewWallet();
+      const amountToSupply = '1.5';
+
       const setup = await fundErc20Address(
         ETHEREUM_USDC_ADDRESS,
         evmAddress(owner.account!.address),
@@ -136,12 +136,12 @@ describe('Given an Aave Market', () => {
 
   describe('And the Reserve allows to supply in native tokens', () => {
     describe('When the user supplies to the reserve in native tokens', () => {
-      const userNative = createNewWallet();
+      const wallet = createNewWallet();
       const amountToSupply = '0.01';
 
       it(`Then it should be available in the user's supply positions`, async () => {
         const setup = await fundNativeAddress(
-          evmAddress(userNative.account!.address),
+          evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         );
         assertOk(setup);
@@ -154,13 +154,13 @@ describe('Given an Aave Market', () => {
 
         const result = await supply(client, {
           market: reserve.market.address,
-          supplier: evmAddress(userNative.account!.address),
+          supplier: evmAddress(wallet.account!.address),
           amount: {
             native: amountToSupply,
           },
           chainId: reserve.market.chain.chainId,
         })
-          .andThen(sendWith(userNative))
+          .andThen(sendWith(wallet))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
@@ -170,7 +170,7 @@ describe('Given an Aave Market', () => {
                   chainId: reserve.market.chain.chainId,
                 },
               ],
-              user: evmAddress(userNative.account!.address),
+              user: evmAddress(wallet.account!.address),
             }),
           );
         assertOk(result);
