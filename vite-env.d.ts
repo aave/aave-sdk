@@ -6,6 +6,10 @@ interface ImportMetaEnv {
   readonly PRIVY_TEST_APP_SECRET: string;
   readonly PRIVY_TEST_WALLET_ID: string;
   readonly PRIVY_TEST_WALLET_ADDRESS: string;
+  readonly ETHEREUM_TENDERLY_FORK_ID: string;
+  readonly ETHEREUM_TENDERLY_PUBLIC_RPC: string;
+  readonly ETHEREUM_TENDERLY_ADMIN_RPC: string;
+  readonly ETHEREUM_TENDERLY_BLOCKEXPLORER: string;
 }
 
 interface ImportMeta {

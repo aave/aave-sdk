@@ -86,29 +86,6 @@ const soneium: Chain = defineChain({
 /**
  * @internal
  */
-export const ethereumForkChain: Chain = /*#__PURE__*/ defineChain({
-  id: chainId(99999999),
-  name: 'Ethereum Fork',
-  network: 'ethereum-fork',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: {
-      http: [
-        'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c',
-      ],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Ethereum Fork Explorer',
-      url: 'https://dashboard.tenderly.co/explorer/vnet/27ff3c60-0e2c-4d46-8190-f5170dc7da8c/transactions',
-    },
-  },
-});
-
-/**
- * @internal
- */
 export const supportedChains: Record<
   ChainId,
   ReturnType<typeof defineChain>
@@ -129,7 +106,6 @@ export const supportedChains: Record<
   [chainId(zksync.id)]: zksync,
   [chainId(sonic.id)]: sonic,
   [chainId(soneium.id)]: soneium,
-  [chainId(ethereumForkChain.id)]: ethereumForkChain,
 };
 
 async function sendTransaction(

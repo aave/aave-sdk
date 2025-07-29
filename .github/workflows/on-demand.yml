@@ -16,6 +16,10 @@ jobs:
     env:
       ENVIRONMENT: staging
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      ETHEREUM_TENDERLY_FORK_ID: ${{ vars.ETHEREUM_TENDERLY_FORK_ID }}
+      ETHEREUM_TENDERLY_PUBLIC_RPC: ${{ secrets.ETHEREUM_TENDERLY_PUBLIC_RPC }}
+      ETHEREUM_TENDERLY_ADMIN_RPC: ${{ secrets.ETHEREUM_TENDERLY_ADMIN_RPC }}
+      ETHEREUM_TENDERLY_BLOCKEXPLORER: ${{ secrets.ETHEREUM_TENDERLY_BLOCKEXPLORER }}
       # TODO: remove the following once tests are separate into unit and e2e tests
       PRIVY_TEST_APP_ID: ${{ vars.PRIVY_TEST_APP_ID }}
       PRIVY_TEST_APP_SECRET: ${{ secrets.PRIVY_TEST_APP_SECRET }}
