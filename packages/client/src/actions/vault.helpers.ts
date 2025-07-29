@@ -48,6 +48,7 @@ export function createVault(
         underlyingToken: reserve!.underlyingToken.address,
       })
         .andThen(sendWith(organization))
+        .andTee((tx) => console.log(`tx to deploy vault: ${tx}`))
         .andThen(client.waitForTransaction)
         .andThen((txHash) =>
           vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),

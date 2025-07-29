@@ -13,8 +13,6 @@ import { sendWith } from '../viem';
 import { borrow, supply } from './transactions';
 import { userTransactionHistory } from './user';
 
-const user = createNewWallet();
-
 function assertDatesInOrder<T extends { timestamp: string }>(
   items: T[],
   direction: 'asc' | 'desc' = 'desc',
@@ -33,30 +31,32 @@ function assertDatesInOrder<T extends { timestamp: string }>(
   }
 }
 
+const user = createNewWallet();
+
 describe('Given an Aave Market', () => {
   describe('And a user with prior history of transactions', () => {
     describe('When fetching the user transaction history', () => {
       beforeAll(async () => {
-        await fundErc20Address(
+        const result = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('1.1'),
-        );
-
-        const resultSupply = await supply(client, {
-          market: ETHEREUM_MARKET_ADDRESS,
-          supplier: evmAddress(user.account!.address),
-          amount: {
-            erc20: {
-              value: '1',
-              currency: ETHEREUM_WETH_ADDRESS,
+        ).andThen(() =>
+          supply(client, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            supplier: evmAddress(user.account!.address),
+            amount: {
+              erc20: {
+                value: '1',
+                currency: ETHEREUM_WETH_ADDRESS,
+              },
             },
-          },
-          chainId: ETHEREUM_FORK_ID,
-        })
-          .andThen(sendWith(user))
-          .andThen(client.waitForTransaction);
-        assertOk(resultSupply);
+            chainId: ETHEREUM_FORK_ID,
+          })
+            .andThen(sendWith(user))
+            .andThen(client.waitForTransaction),
+        );
+        assertOk(result);
 
         const resultBorrow = await borrow(client, {
           market: ETHEREUM_MARKET_ADDRESS,

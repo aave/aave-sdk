@@ -1,7 +1,12 @@
-import type { Market, SupplyRequest } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import type { SupplyRequest } from '@aave/graphql';
+import {
+  assertOk,
+  bigDecimal,
+  evmAddress,
+  type ResultAsync,
+} from '@aave/types';
 import type { WalletClient } from 'viem';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
@@ -12,14 +17,16 @@ import {
   fundNativeAddress,
 } from '../test-utils';
 import { sendWith } from '../viem';
-import { market } from './markets';
 import { reserve } from './reserve';
 import { borrow, repay, supply } from './transactions';
 import { userBorrows } from './user';
 
-async function supplyAndBorrow(wallet: WalletClient, request: SupplyRequest) {
+function supplyAndBorrow(
+  wallet: WalletClient,
+  request: SupplyRequest,
+): ResultAsync<string, Error> {
   const userAddress = evmAddress(wallet.account!.address);
-  const result = await supply(client, request)
+  return supply(client, request)
     .andThen(sendWith(wallet))
     .andTee((tx) => console.log(`Supplied tx: ${tx}`))
     .andThen(client.waitForTransaction)
@@ -48,127 +55,106 @@ async function supplyAndBorrow(wallet: WalletClient, request: SupplyRequest) {
     .andThen(sendWith(wallet))
     .andTee((tx) => console.log(`Borrowed tx: ${tx}`))
     .andThen(client.waitForTransaction);
-  assertOk(result);
 }
 
 describe('Given an Aave Market', () => {
   describe('And a user with a borrow position', () => {
     describe('When the user repays their loan', () => {
-      let marketInfo: Market;
-      const wallet = createNewWallet();
-
-      beforeAll(async () => {
-        // Set up market info first
-        const result = await market(client, {
-          address: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
-        });
-        assertOk(result);
-        marketInfo = result.value!;
-
-        // Set up wallet and supply position
-        await fundErc20Address(
-          ETHEREUM_WETH_ADDRESS,
-          evmAddress(wallet.account!.address),
-          bigDecimal('0.02'),
-        );
-
-        // supply and borrow
-        await supplyAndBorrow(wallet, {
-          market: marketInfo.address,
-          chainId: marketInfo.chain.chainId,
-          supplier: evmAddress(wallet.account!.address),
-          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
-        });
-      }, 30_000);
+      const userErc20 = createNewWallet();
 
       it('Then it should be reflected in the user borrow positions', async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(userErc20.account!.address),
+          bigDecimal('0.02'),
+        ).andThen(() =>
+          supplyAndBorrow(userErc20, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            supplier: evmAddress(userErc20.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            },
+          }),
+        );
+        assertOk(setup);
+
         const result = await repay(client, {
           amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
-          borrower: evmAddress(wallet.account!.address),
-          chainId: marketInfo.chain.chainId,
-          market: marketInfo.address,
+          borrower: evmAddress(userErc20.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
         })
-          .andThen(sendWith(wallet))
+          .andThen(sendWith(userErc20))
           .andTee((tx) => console.log(`Repaid tx: ${tx}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
               markets: [
                 {
-                  address: marketInfo.address,
-                  chainId: marketInfo.chain.chainId,
+                  address: ETHEREUM_MARKET_ADDRESS,
+                  chainId: ETHEREUM_FORK_ID,
                 },
               ],
-              user: evmAddress(wallet.account!.address),
+              user: evmAddress(userErc20.account!.address),
             }),
           );
         assertOk(result);
         expect(result.value.length).toBe(0);
-      }, 25_000);
+      }, 50_000);
     });
 
     describe('And the reserve allows repaying in native tokens', () => {
       describe('When the user repays their loan in native tokens', () => {
-        let marketInfo: Market;
-        const wallet = createNewWallet();
-
-        beforeAll(async () => {
-          // Set up market info first
-          const result = await market(client, {
-            address: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-          });
-          assertOk(result);
-          marketInfo = result.value!;
-
-          // Set up wallet and supply position
-          await fundNativeAddress(
-            evmAddress(wallet.account!.address),
-            bigDecimal('0.02'),
-          );
-
-          await fundErc20Address(
-            ETHEREUM_WETH_ADDRESS,
-            evmAddress(wallet.account!.address),
-            bigDecimal('0.02'),
-          );
-
-          // supply and borrow
-          await supplyAndBorrow(wallet, {
-            market: marketInfo.address,
-            chainId: marketInfo.chain.chainId,
-            supplier: evmAddress(wallet.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
-            },
-          });
-        }, 30_000);
+        const userNative = createNewWallet();
 
         it('Then it should be reflected in the user borrow positions', async () => {
+          const setup = await fundNativeAddress(
+            evmAddress(userNative.account!.address),
+            bigDecimal('0.02'),
+          )
+            .andThen(() =>
+              fundErc20Address(
+                ETHEREUM_WETH_ADDRESS,
+                evmAddress(userNative.account!.address),
+                bigDecimal('0.02'),
+              ),
+            )
+            .andThen(() =>
+              supplyAndBorrow(userNative, {
+                market: ETHEREUM_MARKET_ADDRESS,
+                chainId: ETHEREUM_FORK_ID,
+                supplier: evmAddress(userNative.account!.address),
+                amount: {
+                  erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+                },
+              }),
+            );
+          assertOk(setup);
+
           const result = await repay(client, {
             amount: { native: '0.01' },
-            borrower: evmAddress(wallet.account!.address),
-            chainId: marketInfo.chain.chainId,
-            market: marketInfo.address,
+            borrower: evmAddress(userNative.account!.address),
+            chainId: ETHEREUM_FORK_ID,
+            market: ETHEREUM_MARKET_ADDRESS,
           })
-            .andThen(sendWith(wallet))
+            .andThen(sendWith(userNative))
             .andTee((tx) => console.log(`Repaid tx: ${tx}`))
             .andThen(client.waitForTransaction)
             .andThen(() =>
               userBorrows(client, {
                 markets: [
                   {
-                    address: marketInfo.address,
-                    chainId: marketInfo.chain.chainId,
+                    address: ETHEREUM_MARKET_ADDRESS,
+                    chainId: ETHEREUM_FORK_ID,
                   },
                 ],
-                user: evmAddress(wallet.account!.address),
+                user: evmAddress(userNative.account!.address),
               }),
             );
           assertOk(result);
           expect(result.value.length).toBe(0);
-        }, 25_000);
+        }, 50_000);
       });
     });
   });

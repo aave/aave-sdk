@@ -32,6 +32,13 @@ exports[`Given the Aave client > When using the 'chains(client)' action > Then i
   },
   {
     "__typename": "Chain",
+    "chainId": 84532,
+    "explorerUrl": "https://sepolia.basescan.org",
+    "icon": "https://statics.aave.com/base.svg",
+    "name": "Base Sepolia",
+  },
+  {
+    "__typename": "Chain",
     "chainId": 56,
     "explorerUrl": "https://bscscan.com",
     "icon": "https://statics.aave.com/bnbchain.svg",
@@ -109,10 +116,10 @@ exports[`Given the Aave client > When using the 'chains(client)' action > Then i
   },
   {
     "__typename": "Chain",
-    "chainId": 5000,
-    "explorerUrl": "https://explorer.mantle.xyz",
-    "icon": "https://statics.aave.com/mantle.svg",
-    "name": "Mantle",
+    "chainId": 99999999,
+    "explorerUrl": "https://dashboard.tenderly.co/explorer/vnet/27ff3c60-0e2c-4d46-8190-f5170dc7da8c",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "name": "Forked Ethereum",
   },
 ]
 `;
