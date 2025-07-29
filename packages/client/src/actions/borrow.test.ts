@@ -47,7 +47,7 @@ describe('Given an Aave Market', () => {
 
       it('Then it should be possible to borrow ERC20 from the reserve', async () => {
         // NOTE: first time supply is set as collateral automatically
-        const result = await fundErc20Address(
+        const setup = await fundErc20Address(
           WETH_ADDRESS,
           evmAddress(userBorrowErc20.account!.address),
           bigDecimal('0.011'),
@@ -64,7 +64,7 @@ describe('Given an Aave Market', () => {
             },
           }),
         );
-        assertOk(result);
+        assertOk(setup);
 
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
@@ -117,7 +117,7 @@ describe('Given an Aave Market', () => {
 
       it('Then it should be possible to borrow native from the reserve', async () => {
         // NOTE: first time supply is set as collateral automatically
-        const result = await fundNativeAddress(
+        const setup = await fundNativeAddress(
           evmAddress(userBorrowNative.account!.address),
           bigDecimal('0.2'),
         ).andThen(() =>
@@ -130,7 +130,7 @@ describe('Given an Aave Market', () => {
             },
           }),
         );
-        assertOk(result);
+        assertOk(setup);
 
         // Borrow from the reserve
         const borrowReserve = await fetchReserve(
