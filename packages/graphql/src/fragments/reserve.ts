@@ -139,6 +139,7 @@ export const ReserveIsolationModeConfigFragment = graphql(
     debtCeiling {
       ...TokenAmount
     }
+    debtCeilingDecimals
     totalBorrows {
       ...TokenAmount
     }
