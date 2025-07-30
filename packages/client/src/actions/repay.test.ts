@@ -107,83 +107,6 @@ describe('Given an Aave Market', () => {
       }, 50_000);
     });
 
-    describe('When a delegate user repays their loan via a permit signature', () => {
-      const delegateUser = createNewWallet();
-      const user = createNewWallet();
-
-      beforeAll(async () => {
-        const setup = await fundErc20Address(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('105'),
-          6,
-        ).andThen(() =>
-          supplyAndBorrow(user, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(user.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
-            },
-          }).andThen(() =>
-            fundErc20Address(
-              ETHEREUM_USDC_ADDRESS,
-              evmAddress(delegateUser.account!.address),
-              bigDecimal('200'),
-              6,
-            ),
-          ),
-        );
-        assertOk(setup);
-      });
-
-      it('Then it should be reflected in the user borrow positions', async () => {
-        const reserve = await fetchReserve(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-        );
-        expect(reserve.permitSupported).toBe(true);
-
-        const signature = await permitTypedData(client, {
-          market: reserve.market.address,
-          underlyingToken: reserve.underlyingToken.address,
-          amount: reserve.borrowInfo?.total.amount.value,
-          chainId: reserve.market.chain.chainId,
-          spender: evmAddress(delegateUser.account!.address),
-          owner: evmAddress(user.account!.address),
-        }).andThen(signERC20PermitWith(delegateUser));
-        assertOk(signature);
-
-        const result = await repay(client, {
-          amount: {
-            erc20: {
-              currency: ETHEREUM_USDC_ADDRESS,
-              value: '100',
-              erc712: signature.value,
-            },
-          },
-          borrower: evmAddress(delegateUser.account!.address),
-          chainId: ETHEREUM_FORK_ID,
-          market: ETHEREUM_MARKET_ADDRESS,
-        })
-          .andThen(sendWith(delegateUser))
-          .andThen(client.waitForTransaction)
-          .andThen(() =>
-            userBorrows(client, {
-              markets: [
-                {
-                  address: ETHEREUM_MARKET_ADDRESS,
-                  chainId: ETHEREUM_FORK_ID,
-                },
-              ],
-              user: evmAddress(user.account!.address),
-            }),
-          );
-        assertOk(result);
-        expect(result.value.length).toBe(0);
-      }, 50_000);
-    });
-
     describe('And the reserve allows repaying in native tokens', () => {
       describe('When the user repays their loan in native tokens', () => {
         const userNative = createNewWallet();
@@ -236,6 +159,88 @@ describe('Given an Aave Market', () => {
           expect(result.value.length).toBe(0);
         }, 50_000);
       });
+    });
+  });
+
+  describe('And an open borrow position', () => {
+    describe(`When a user repays the owner's loan via a permit signature`, () => {
+      const user = createNewWallet();
+      const owner = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await Promise.all([
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(owner.account!.address),
+            bigDecimal('105'),
+            6,
+          ),
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(user.account!.address),
+            bigDecimal('200'),
+            6,
+          ),
+        ]).then(([userFundResult, delegateFundResult]) => {
+          assertOk(userFundResult);
+          assertOk(delegateFundResult);
+          return supplyAndBorrow(owner, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            supplier: evmAddress(owner.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            },
+          });
+        });
+        assertOk(setup);
+      });
+
+      it(`Then it should be reflected in the owner's borrow positions`, async () => {
+        const reserve = await fetchReserve(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(owner.account!.address),
+        );
+        expect(reserve.permitSupported).toBe(true);
+
+        const signature = await permitTypedData(client, {
+          market: reserve.market.address,
+          underlyingToken: reserve.underlyingToken.address,
+          amount: reserve.borrowInfo?.total.amount.value,
+          chainId: reserve.market.chain.chainId,
+          spender: evmAddress(user.account!.address),
+          owner: evmAddress(owner.account!.address),
+        }).andThen(signERC20PermitWith(user));
+        assertOk(signature);
+
+        const result = await repay(client, {
+          amount: {
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: '100',
+              erc712: signature.value,
+            },
+          },
+          borrower: evmAddress(user.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+        })
+          .andThen(sendWith(user))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [
+                {
+                  address: ETHEREUM_MARKET_ADDRESS,
+                  chainId: ETHEREUM_FORK_ID,
+                },
+              ],
+              user: evmAddress(owner.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value.length).toBe(0);
+      }, 50_000);
     });
   });
 });
