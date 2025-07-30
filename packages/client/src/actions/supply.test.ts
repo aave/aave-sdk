@@ -1,6 +1,5 @@
-import type { Reserve } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
@@ -66,7 +65,7 @@ describe('Given an Aave Market', () => {
           }),
         }),
       ]);
-    }, 25_000);
+    });
   });
 
   describe('When the user supplies token to the Reserve via a permit signature', () => {
@@ -183,7 +182,7 @@ describe('Given an Aave Market', () => {
             }),
           }),
         ]);
-      }, 25_000);
+      });
     });
   });
 });

@@ -1,6 +1,5 @@
-import { type EnvironmentConfig, production } from '@aave/env';
-
 import type { ClientConfig } from './config';
+import { type EnvironmentConfig, production } from './environments';
 import { FragmentResolver } from './fragments';
 
 /**

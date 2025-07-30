@@ -18,19 +18,32 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-      - name: Build
-        uses: ./.github/actions/setup
-
   test:
     name: Test
     needs: lint
     runs-on: ubuntu-latest
     continue-on-error: true
+    env:
+      ENVIRONMENT: staging
+      PRIVY_TEST_APP_ID: ${{ vars.PRIVY_TEST_APP_ID }}
+      PRIVY_TEST_APP_SECRET: ${{ secrets.PRIVY_TEST_APP_SECRET }}
+      PRIVY_TEST_WALLET_ID: ${{ vars.PRIVY_TEST_WALLET_ID }}
+      PRIVY_TEST_WALLET_ADDRESS: ${{ vars.PRIVY_TEST_WALLET_ADDRESS }}
+      ETHEREUM_TENDERLY_FORK_ID: ${{ vars.ETHEREUM_TENDERLY_FORK_ID }}
+      ETHEREUM_TENDERLY_PUBLIC_RPC: ${{ secrets.ETHEREUM_TENDERLY_PUBLIC_RPC }}
+      ETHEREUM_TENDERLY_ADMIN_RPC: ${{ secrets.ETHEREUM_TENDERLY_ADMIN_RPC }}
+      ETHEREUM_TENDERLY_BLOCKEXPLORER: ${{ secrets.ETHEREUM_TENDERLY_BLOCKEXPLORER }}
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Setup Repository
+        uses: ./.github/actions/setup
+
+      - name: Build
+        shell: bash
+        run: pnpm build
 
       - name: Run Tests
-        uses: ./.github/actions/tests
-        with:
-          environment: 'staging'
+        shell: bash
+        run: pnpm test

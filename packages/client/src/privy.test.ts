@@ -1,7 +1,8 @@
 import { assertErr, assertOk, chainId, evmAddress } from '@aave/types';
 import { PrivyClient } from '@privy-io/server-auth';
 import { describe, expect, it } from 'vitest';
-import { permitTypedData, userSetEmode } from './actions/transactions';
+import { permitTypedData } from './actions';
+import { userSetEmode } from './actions/transactions';
 import { sendWith, signERC20PermitWith } from './privy';
 import {
   client,
