@@ -123,20 +123,38 @@ async function uploadReport(
       }
 
       try {
-        const data =
-          typeof localFilePath === 'string'
-            ? readFileSync(localFilePath)
-            : localFilePath;
-        await s3Client.putObject({
-          Bucket: 'assets.aave.com',
-          Body: data,
-          Key: s3Key,
-          ContentType: contentType,
-          ContentEncoding:
-            contentType === 'application/gzip' ? 'gzip' : undefined,
-          CacheControl: 'no-cache, no-store, must-revalidate',
-          Expires: new Date(Date.now() - 1), // Set expiration to the past
-        });
+        if (file.endsWith('.html')) {
+          console.log('Uploading HTML file:', s3Key);
+          const data = readFileSync(localFilePath, { encoding: 'utf8' });
+          const modifiedHtml = data.replace(
+            '<head>',
+            `<head>
+            <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' 'unsafe-inline'; object-src 'none';">`,
+          );
+          await s3Client.putObject({
+            Bucket: 'assets.aave.com',
+            Body: modifiedHtml,
+            Key: s3Key,
+            ContentType: contentType,
+            CacheControl: 'no-cache, no-store, must-revalidate',
+            Expires: new Date(Date.now() - 1), // Set expiration to the past
+          });
+        } else {
+          const data =
+            typeof localFilePath === 'string'
+              ? readFileSync(localFilePath)
+              : localFilePath;
+          await s3Client.putObject({
+            Bucket: 'assets.aave.com',
+            Body: data,
+            Key: s3Key,
+            ContentType: contentType,
+            ContentEncoding:
+              contentType === 'application/gzip' ? 'gzip' : undefined,
+            CacheControl: 'no-cache, no-store, must-revalidate',
+            Expires: new Date(Date.now() - 1), // Set expiration to the past
+          });
+        }
         console.log(`Uploaded: ${s3Key}`);
       } catch (error: unknown) {
         const errorMessage =
