@@ -2,12 +2,13 @@ import {
   type Chain,
   ChainsQuery,
   HasProcessedKnownTransactionQuery,
+  type HasProcessedKnownTransactionRequest,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
   type UsdExchangeRatesRequest,
 } from '@aave/graphql';
-import type { ResultAsync, TxHash } from '@aave/types';
+import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
 import type { UnexpectedError } from '../errors';
 
@@ -79,7 +80,10 @@ export function usdExchangeRates(
  * }
  *
  * // Check if the transaction has been processed by the API
- * const processed = await hasProcessedKnownTransaction(client, result.value);
+ * const processed = await hasProcessedKnownTransaction(client, {
+ *   txHash: result.value,
+ *   operation: OperationType.Borrow
+ * });
  *
  * if (processed.isErr()) {
  *   // Handle error
@@ -96,12 +100,12 @@ export function usdExchangeRates(
  * ```
  *
  * @param client - Aave client.
- * @param txHash - The transaction hash to check.
+ * @param request - The request containing transaction hash and operation type to check.
  * @returns True if the transaction has been processed, false otherwise.
  */
 export function hasProcessedKnownTransaction(
   client: AaveClient,
-  txHash: TxHash,
+  request: HasProcessedKnownTransactionRequest,
 ): ResultAsync<boolean, UnexpectedError> {
-  return client.query(HasProcessedKnownTransactionQuery, { txHash });
+  return client.query(HasProcessedKnownTransactionQuery, { request });
 }
