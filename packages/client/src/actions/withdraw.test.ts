@@ -157,7 +157,6 @@ describe('Given an Aave Market', () => {
           chainId: reserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
-          .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {

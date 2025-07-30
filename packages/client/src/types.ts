@@ -7,11 +7,24 @@ import type {
   PermitTypedDataResponse,
 } from '@aave/graphql';
 import type { ResultAsync, TxHash } from '@aave/types';
+import type { TestAnnotation } from 'vitest';
 import type { SigningError, TransactionError, ValidationError } from './errors';
 
 export type TransactionExecutionResult = {
   txHash: TxHash;
   operation: OperationType | null;
+};
+
+export type Annotate = {
+  (
+    message: string,
+    type?: string,
+    attachment?: TestAnnotation['attachment'],
+  ): Promise<TestAnnotation>;
+  (
+    message: string,
+    attachment?: TestAnnotation['attachment'],
+  ): Promise<TestAnnotation>;
 };
 
 /**

@@ -10,6 +10,7 @@ import {
   ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
 } from '../test-utils';
+import type { Annotate } from '../types';
 import { sendWith } from '../viem';
 import { reserve } from './reserve';
 import { vaultDeploy, vaultDeposit, vaultMintShares } from './transactions';
@@ -17,6 +18,7 @@ import { vault } from './vaults';
 
 export function createVault(
   organization: WalletClient,
+  annotate?: Annotate,
   config?: {
     initialFee?: number;
     token?: {
@@ -48,12 +50,12 @@ export function createVault(
         underlyingToken: reserve!.underlyingToken.address,
       })
         .andThen(sendWith(organization))
-        .andTee((tx) => console.log(`tx to deploy vault: ${tx}`))
+        .andTee((tx) => annotate?.(`tx to deploy vault: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen((txHash) =>
           vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
         )
-        .andTee((vault) => console.log(`vault address: ${vault?.address}`))
+        .andTee((vault) => annotate?.(`vault address: ${vault?.address}`))
         .map(nonNullable);
     });
   });
@@ -76,7 +78,7 @@ export function deposit(user: WalletClient, amount: number) {
         chainId: vault.chainId,
       })
         .andThen(sendWith(user))
-        .andTee((txHash) => console.log(`tx to deposit in vault: ${txHash}`))
+        .andTee((tx) => console.log(`tx to deposit in vault: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
@@ -86,6 +88,7 @@ export function deposit(user: WalletClient, amount: number) {
 export function mintShares(
   user: WalletClient,
   amount: number,
+  annotate?: Annotate,
   tokenAddress?: string,
 ) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
@@ -103,7 +106,7 @@ export function mintShares(
         chainId: vault.chainId,
       })
         .andThen(sendWith(user))
-        .andTee((tx) => console.log(`tx to mint shares: ${tx}`))
+        .andTee((tx) => annotate?.(`tx to mint shares: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
