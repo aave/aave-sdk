@@ -15,6 +15,7 @@ export const TransactionRequestFragment = graphql(
     data
     value
     chainId
+    operation
   }`,
 );
 export type TransactionRequest = FragmentOf<typeof TransactionRequestFragment>;
