@@ -34,6 +34,8 @@ Indicates that an approval transaction must be performed before proceeding to th
 type ApprovalRequired {
   """The transaction requires an approval first"""
   approval: TransactionRequest!
+
+  """The reason for the approval"""
   reason: String!
 
   """The required amount missing to be able to do the original transaction"""
@@ -245,6 +247,16 @@ An execution plan represents what needs to happen to fulfill a requested operati
 It could be an immediate transaction, an approval followed by a transaction, or indicate insufficient balance.
 """
 union ExecutionPlan = TransactionRequest | ApprovalRequired | InsufficientBalanceError
+
+input HasProcessedKnownTransactionRequest {
+  """
+  The operation type this is given to you on the TransactionRequest::operation
+  """
+  operation: OperationType!
+
+  """The tx hash"""
+  txHash: TxHash!
+}
 
 """
 Indicates the user does not have enough balance to perform the operation.
@@ -529,6 +541,28 @@ type NativeCurrency {
   chainId: ChainId!
 }
 
+enum OperationType {
+  BORROW
+  REPAY
+  RESERVE_DATA_UPDATED
+  RESERVE_USED_AS_COLLATERAL_ENABLED
+  RESERVE_USED_AS_COLLATERAL_DISABLED
+  SUPPLY
+  USER_EMODE_SET
+  WITHDRAW
+  VAULT_DEPLOYED
+  VAULT_DEPOSIT
+  VAULT_EMERGENCY_RESCUE
+  VAULT_OWNERSHIP_TRANSFERRED
+  VAULT_FEE_UPDATED
+  VAULT_FEE_WITHDRAWN
+  VAULT_REWARD_CLAIMED
+  VAULT_TRANSFER
+  VAULT_WITHDRAW
+  VAULT_YIELD_ACCRUED
+  LIQUIDATION
+}
+
 enum OrderDirection {
   ASC
   DESC
@@ -739,7 +773,7 @@ type Query {
   Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
   cater for the race condition.
   """
-  hasProcessedKnownTransaction(txHash: TxHash!): Boolean!
+  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
   _service: _Service!
 }
 
@@ -1026,7 +1060,7 @@ input SupplyRequest {
   supplier: EvmAddress!
 
   """
-  The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
+  If not supplied, this will use `supplier`. The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
   This will be the same as msg.sender if the user wants to receive aTokens into their own wallet, or use a different address if the beneficiary
   of aTokens is a different wallet
   """
@@ -1058,11 +1092,26 @@ type TokenAmount {
 Represents a transaction that must be executed, such as a direct supply, borrow, etc.
 """
 type TransactionRequest {
+  """Who the transaction is going to (normally a contract)"""
   to: EvmAddress!
+
+  """Who is sending the transaction"""
   from: EvmAddress!
+
+  """The blockchain transaction encoded data"""
   data: BlockchainData!
+
+  """The native token value"""
   value: BigInt!
+
+  """The chain id"""
   chainId: ChainId!
+
+  """
+  The primary well-known operation the transaction is - you use this to track hasProcessedKnownTransaction
+  If null the API does not track/require the outcome - once receipt is done, everything is ready to go
+  """
+  operation: OperationType
 }
 
 scalar TxHash

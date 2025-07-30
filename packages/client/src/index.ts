@@ -4,4 +4,4 @@ export * from './client';
 export * from './config';
 export * from './environments';
 export * from './errors';
-export * from './types';
+export type * from './types';
