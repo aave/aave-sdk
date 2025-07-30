@@ -92,7 +92,7 @@ const AsyncTaskState = {
  * last error that occurred during the task's execution, if any.
  *
  * ```ts
- * const { called, loading, data, error, execute }: UseAsyncTask<TData, TError, TInput> = useAnyAsyncTask();
+ * const [execute, { called, loading, data, error }]: UseAsyncTask<TData, TError, TInput> = useAnyAsyncTask();
  *
  * if (!called) {
  *   // data === undefined
