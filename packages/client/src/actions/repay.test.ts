@@ -31,7 +31,6 @@ function supplyAndBorrow(
   const userAddress = evmAddress(wallet.account!.address);
   return supply(client, request)
     .andThen(sendWith(wallet))
-    .andTee((tx) => console.log(`Supplied tx: ${tx}`))
     .andThen(client.waitForTransaction)
     .andThen(() =>
       reserve(client, {
@@ -56,7 +55,6 @@ function supplyAndBorrow(
       }),
     )
     .andThen(sendWith(wallet))
-    .andTee((tx) => console.log(`Borrowed tx: ${tx}`))
     .andThen(client.waitForTransaction);
 }
 
