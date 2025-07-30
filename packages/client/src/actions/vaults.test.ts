@@ -1,4 +1,4 @@
-import { OrderDirection } from '@aave/graphql';
+import { OrderDirection, type Vault } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -26,11 +26,10 @@ import {
   vaults,
 } from './vaults';
 
-const organization = createNewWallet();
-const user = createNewWallet();
-
 describe('Given the Aave Vaults', () => {
   describe('When an organization deploys a new vault', () => {
+    const organization = createNewWallet();
+
     it('Then it should be available in the organization vaults', async () => {
       const initialVault = await createVault(organization);
       assertOk(initialVault);
@@ -53,6 +52,9 @@ describe('Given the Aave Vaults', () => {
 
   describe('And a deployed organization vault', () => {
     describe('When a user deposits into the vault', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization).andThen(
           deposit(user, 1),
@@ -77,28 +79,10 @@ describe('Given the Aave Vaults', () => {
       }, 30_000);
     });
 
-    describe('When a user previews a deposit into the vault', () => {
-      it('Then it should return the expected amount of shares', async () => {
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
-
-        const previewDepositResult = await vaultPreviewDeposit(client, {
-          vault: initialVault.value!.address,
-          amount: bigDecimal('1'),
-          chainId: initialVault.value!.chainId,
-        });
-        assertOk(previewDepositResult);
-        expect(previewDepositResult.value).toEqual(
-          expect.objectContaining({
-            amount: expect.objectContaining({
-              value: expect.toBeBigDecimalCloseTo(1, 4),
-            }),
-          }),
-        );
-      });
-    });
-
     describe(`When the user mints some vault's shares`, () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization).andThen(
           mintShares(user, 1),
@@ -123,28 +107,10 @@ describe('Given the Aave Vaults', () => {
       }, 30_000);
     });
 
-    describe('When a user previews a minting shares from a vault', () => {
-      it('Then it should return the expected amount of tokens needed to mint', async () => {
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
-
-        const previewMintResult = await vaultPreviewMint(client, {
-          vault: initialVault.value!.address,
-          amount: bigDecimal('1'),
-          chainId: initialVault.value!.chainId,
-        });
-        assertOk(previewMintResult);
-        expect(previewMintResult.value).toEqual(
-          expect.objectContaining({
-            amount: expect.objectContaining({
-              value: expect.toBeBigDecimalCloseTo(1, 4),
-            }),
-          }),
-        );
-      });
-    });
-
     describe('When the user withdraws their assets from the vault', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const amountToWithdraw = 1.0;
         const initialVault = await createVault(organization).andThen(
@@ -194,28 +160,10 @@ describe('Given the Aave Vaults', () => {
       }, 40_000);
     });
 
-    describe('When a user previews a withdrawal assets from a vault', () => {
-      it('Then it should return the expected amount of shares to burn', async () => {
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
-
-        const previewWithdrawResult = await vaultPreviewWithdraw(client, {
-          vault: initialVault.value!.address,
-          amount: bigDecimal('1'),
-          chainId: initialVault.value!.chainId,
-        });
-        assertOk(previewWithdrawResult);
-        expect(previewWithdrawResult.value).toEqual(
-          expect.objectContaining({
-            amount: expect.objectContaining({
-              value: expect.toBeBigDecimalCloseTo(1, 4),
-            }),
-          }),
-        );
-      });
-    });
-
     describe('When the user redeems total amount of their shares', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization).andThen(
           mintShares(user, 1),
@@ -243,28 +191,10 @@ describe('Given the Aave Vaults', () => {
       }, 40_000);
     });
 
-    describe('When a user previews a redeeming shares from a vault', () => {
-      it('Then it should return the expected amount of assets to receive', async () => {
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
-
-        const previewRedeemResult = await vaultPreviewRedeem(client, {
-          vault: initialVault.value!.address,
-          amount: bigDecimal('1'),
-          chainId: initialVault.value!.chainId,
-        });
-        assertOk(previewRedeemResult);
-        expect(previewRedeemResult.value).toEqual(
-          expect.objectContaining({
-            amount: expect.objectContaining({
-              value: expect.toBeBigDecimalCloseTo(1, 4),
-            }),
-          }),
-        );
-      });
-    });
-
     describe('When the user redeems partial amount of their shares', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it(`Then the operation should be reflected in the user's vault positions`, async () => {
         const initialVault = await createVault(organization).andThen(
           mintShares(user, 1),
@@ -303,6 +233,8 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization changes the vault's fee`, () => {
+      const organization = createNewWallet();
+
       it('Then the new fee should be reflected in the vault object', async () => {
         const initialVault = await createVault(organization);
         assertOk(initialVault);
@@ -334,6 +266,9 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization withdraws the vault's fees`, () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+
       it('Then they should receive the expected ERC-20 amount', async () => {
         const initialVault = await createVault(organization)
           .andThen(deposit(user, 1))
@@ -392,6 +327,9 @@ describe('Given the Aave Vaults', () => {
   });
 
   describe('When a user lists all the vaults they have a position in', () => {
+    const organization = createNewWallet();
+    const user = createNewWallet();
+
     beforeAll(async () => {
       const vault1 = await createVault(organization, {
         initialFee: 2.0,
@@ -486,6 +424,89 @@ describe('Given the Aave Vaults', () => {
           }),
         }),
       ]);
+    });
+  });
+
+  describe('When a vault is deployed', () => {
+    const user = createNewWallet();
+    let vaultInfo: Vault;
+
+    beforeAll(async () => {
+      const initialVault = await createVault(user);
+      assertOk(initialVault);
+      vaultInfo = initialVault.value!;
+    });
+
+    describe('When a user previews a deposit into the vault', () => {
+      it('Then it should return the expected amount of shares', async () => {
+        const previewDepositResult = await vaultPreviewDeposit(client, {
+          vault: vaultInfo.address,
+          amount: bigDecimal('1'),
+          chainId: vaultInfo.chainId,
+        });
+        assertOk(previewDepositResult);
+        expect(previewDepositResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('When a user previews a minting shares from a vault', () => {
+      it('Then it should return the expected amount of tokens needed to mint', async () => {
+        const previewMintResult = await vaultPreviewMint(client, {
+          vault: vaultInfo.address,
+          amount: bigDecimal('1'),
+          chainId: vaultInfo.chainId,
+        });
+        assertOk(previewMintResult);
+        expect(previewMintResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('When a user previews a withdrawal assets from a vault', () => {
+      it('Then it should return the expected amount of shares to burn', async () => {
+        const previewWithdrawResult = await vaultPreviewWithdraw(client, {
+          vault: vaultInfo.address,
+          amount: bigDecimal('1'),
+          chainId: vaultInfo.chainId,
+        });
+        assertOk(previewWithdrawResult);
+        expect(previewWithdrawResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('When a user previews a redeeming shares from a vault', () => {
+      it('Then it should return the expected amount of assets to receive', async () => {
+        const previewRedeemResult = await vaultPreviewRedeem(client, {
+          vault: vaultInfo.address,
+          amount: bigDecimal('1'),
+          chainId: vaultInfo.chainId,
+        });
+        assertOk(previewRedeemResult);
+        expect(previewRedeemResult.value).toEqual(
+          expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(1, 4),
+            }),
+          }),
+        );
+      });
     });
   });
 });
