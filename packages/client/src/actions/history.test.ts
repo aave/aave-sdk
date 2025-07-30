@@ -1,16 +1,7 @@
 import { OrderDirection } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
-import {
-  client,
-  createNewWallet,
-  ETHEREUM_FORK_ID,
-  ETHEREUM_MARKET_ADDRESS,
-  ETHEREUM_WETH_ADDRESS,
-  fundErc20Address,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { borrow, supply } from './transactions';
+import { assertOk, chainId, evmAddress } from '@aave/types';
+import { describe, expect, it } from 'vitest';
+import { client, ETHEREUM_MARKET_ADDRESS } from '../test-utils';
 import { userTransactionHistory } from './user';
 
 function assertDatesInOrder<T extends { timestamp: string }>(
@@ -31,51 +22,17 @@ function assertDatesInOrder<T extends { timestamp: string }>(
   }
 }
 
-const user = createNewWallet();
+// NOTE: hardcoded wallet from mainnet to get results, because no results generated in staging
+const user = '0xC91B41caBfecA199c6E2B84a9DA08d24f3853397';
 
 describe('Given an Aave Market', () => {
   describe('And a user with prior history of transactions', () => {
     describe('When fetching the user transaction history', () => {
-      beforeAll(async () => {
-        const result = await fundErc20Address(
-          ETHEREUM_WETH_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('1.1'),
-        ).andThen(() =>
-          supply(client, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            supplier: evmAddress(user.account!.address),
-            amount: {
-              erc20: {
-                value: '1',
-                currency: ETHEREUM_WETH_ADDRESS,
-              },
-            },
-            chainId: ETHEREUM_FORK_ID,
-          })
-            .andThen(sendWith(user))
-            .andThen(client.waitForTransaction),
-        );
-        assertOk(result);
-
-        const resultBorrow = await borrow(client, {
-          market: ETHEREUM_MARKET_ADDRESS,
-          borrower: evmAddress(user.account!.address),
-          amount: {
-            erc20: { value: '0.04', currency: ETHEREUM_WETH_ADDRESS },
-          },
-          chainId: ETHEREUM_FORK_ID,
-        })
-          .andThen(sendWith(user))
-          .andThen(client.waitForTransaction);
-        assertOk(resultBorrow);
-      }, 60_000);
-
       it('Then it should be possible so sort them by date', async () => {
         const listTxOrderDesc = await userTransactionHistory(client, {
-          user: evmAddress(user.account!.address),
+          user: evmAddress(user),
           market: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
+          chainId: chainId(1),
           orderBy: { date: OrderDirection.Desc },
         });
 
@@ -84,9 +41,9 @@ describe('Given an Aave Market', () => {
         assertDatesInOrder(listTxOrderDesc.value.items, 'desc');
 
         const listTxOrderAsc = await userTransactionHistory(client, {
-          user: evmAddress(user.account!.address),
+          user: evmAddress(user),
           market: ETHEREUM_MARKET_ADDRESS,
-          chainId: ETHEREUM_FORK_ID,
+          chainId: chainId(1),
           orderBy: { date: OrderDirection.Asc },
         });
 
