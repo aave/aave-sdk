@@ -427,7 +427,7 @@ describe('Given the Aave Vaults', () => {
     });
   });
 
-  describe('When a vault is deployed', () => {
+  describe('And a vault is deployed', () => {
     const user = createNewWallet();
     let vaultInfo: Vault;
 
