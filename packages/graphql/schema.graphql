@@ -6,6 +6,18 @@ type APYSample {
   date: DateTime!
 }
 
+type AaveBorrowIncentive {
+  borrowAprDiscount: PercentValue!
+  rewardTokenAddress: EvmAddress!
+  rewardTokenSymbol: String!
+}
+
+type AaveSupplyIncentive {
+  extraSupplyApr: PercentValue!
+  rewardTokenAddress: EvmAddress!
+  rewardTokenSymbol: String!
+}
+
 scalar AlwaysTrue
 
 input AmountInput @oneOf {
@@ -76,16 +88,9 @@ input BorrowRequest {
 }
 
 type Chain {
-  """The chain name"""
   name: String!
-
-  """The chain icon"""
   icon: String!
-
-  """The chain id"""
   chainId: ChainId!
-
-  """Explorer URL"""
   explorerUrl: String!
 }
 
@@ -485,7 +490,7 @@ type MeritBorrowAndSupplyIncentiveCondition {
 
 type MeritBorrowIncentive {
   """Extra APR for borrowing this asset from AAVE Merit program"""
-  extraBorrowApr: PercentValue!
+  borrowAprDiscount: PercentValue!
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
@@ -813,7 +818,8 @@ type Reserve {
   permitSupported: Boolean!
 
   """
-  This exposes the extra incentives you can earn from third parties
+  This exposes the extra incentives you can earn from third parties (Merit) or from
+  incentives set by governance through the RewardsController.
   Note Aave Labs does not guarantee third party program and accepts no liability to those
   """
   incentives: [ReserveIncentive!]!
@@ -883,7 +889,7 @@ enum ReserveBorrowingState {
   USER_EMODE_DISABLED_BORROW
 }
 
-union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition
+union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive
 
 type ReserveInfo {
   """The market information the reserve is under"""
@@ -905,7 +911,8 @@ type ReserveInfo {
   permitSupported: Boolean!
 
   """
-  This exposes the extra incentives you can earn from third parties
+  This exposes the extra incentives you can earn from third parties (Merit) or from
+  incentives set by governance through the RewardsController.
   Note Aave Labs does not guarantee third party program and accepts no liability to those
   """
   incentives: [ReserveIncentive!]!
@@ -916,6 +923,9 @@ type ReserveIsolationModeConfig {
   canBeCollateral: Boolean!
   canBeBorrowed: Boolean!
   debtCeiling: TokenAmount!
+
+  """The decimals used for the debt ceiling"""
+  debtCeilingDecimals: Int!
 
   """Only the amount that is borrowed by the users in isolation"""
   totalBorrows: TokenAmount!
@@ -1399,6 +1409,9 @@ type Vault {
 
   """The total fees the owner can claim currently for the vault"""
   feesBalance: TokenAmount!
+
+  """The total vault APR after their fee is taken off"""
+  vaultApr: PercentValue!
 }
 
 input VaultDeployRequest {
