@@ -55,7 +55,6 @@ describe('Given Aave Market', () => {
           underlyingToken: ETHEREUM_WETH_ADDRESS,
         })
           .andThen(sendWith(wallet))
-          .andTee((tx) => console.log(`tx to toggle collateral: ${tx}`))
           .andThen(client.waitForTransaction);
         assertOk(result);
 

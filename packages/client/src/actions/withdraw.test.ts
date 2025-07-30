@@ -171,6 +171,12 @@ describe('Given an Aave Market', () => {
             }),
           );
         assertOk(result);
+
+        const balanceAfter = await getBalance(wallet, {
+          address: evmAddress(wallet.account!.address),
+        });
+        expect(balanceAfter).toBeGreaterThan(balanceBefore);
+
         expect(result.value).toEqual([
           expect.objectContaining({
             balance: expect.objectContaining({
@@ -180,10 +186,6 @@ describe('Given an Aave Market', () => {
             }),
           }),
         ]);
-        const balanceAfter = await getBalance(wallet, {
-          address: evmAddress(wallet.account!.address),
-        });
-        expect(balanceAfter).toBeGreaterThan(balanceBefore);
       }, 25_000);
     });
   });

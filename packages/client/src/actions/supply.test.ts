@@ -1,5 +1,5 @@
 import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
@@ -19,13 +19,16 @@ describe('Given an Aave Market', () => {
     const user = createNewWallet();
     const amountToSupply = '0.01';
 
-    it(`Then it should be available in the user's supply positions`, async () => {
+    beforeAll(async () => {
       const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(user.account!.address),
         bigDecimal('0.02'),
       );
       assertOk(setup);
+    });
+
+    it(`Then it should be available in the user's supply positions`, async () => {
       // Check if the reserve is not frozen or paused
       const reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
       expect(reserve.isFrozen).toBe(false);
@@ -69,11 +72,11 @@ describe('Given an Aave Market', () => {
   });
 
   describe('When the user supplies token to the Reserve via a permit signature', () => {
-    it('Then it should allow the user to supply tokens to the Reserve', async () => {
-      const owner = createNewWallet();
-      const user = createNewWallet();
-      const amountToSupply = '1.5';
+    const owner = createNewWallet();
+    const user = createNewWallet();
+    const amountToSupply = '1.5';
 
+    beforeAll(async () => {
       const setup = await fundErc20Address(
         ETHEREUM_USDC_ADDRESS,
         evmAddress(owner.account!.address),
@@ -85,7 +88,8 @@ describe('Given an Aave Market', () => {
         ),
       );
       assertOk(setup);
-
+    });
+    it('Then it should allow the user to supply tokens to the Reserve', async () => {
       const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.permitSupported).toBe(true);
 
@@ -138,13 +142,15 @@ describe('Given an Aave Market', () => {
       const wallet = createNewWallet();
       const amountToSupply = '0.01';
 
-      it(`Then it should be available in the user's supply positions`, async () => {
+      beforeAll(async () => {
         const setup = await fundNativeAddress(
           evmAddress(wallet.account!.address),
           bigDecimal('0.02'),
         );
         assertOk(setup);
+      });
 
+      it(`Then it should be available in the user's supply positions`, async () => {
         // Check if the reserve is not frozen or paused and accepts native tokens
         const reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
         expect(reserve.isFrozen).toBe(false);
