@@ -9,18 +9,20 @@ import {
   type ResultAsync,
 } from '@aave/types';
 import type { WalletClient } from 'viem';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
+  ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
 } from '../test-utils';
-import { sendWith } from '../viem';
+import { sendWith, signERC20PermitWith } from '../viem';
+import { permitTypedData } from './permits';
 import { borrow, supply } from './transactions';
 import { userBorrows, userSupplies } from './user';
 
@@ -45,8 +47,7 @@ describe('Given an Aave Market', () => {
     describe('When the user set the supply as collateral', async () => {
       const user = createNewWallet();
 
-      it('Then it should be possible to borrow ERC20 from the reserve', async () => {
-        // NOTE: first time supply is set as collateral automatically
+      beforeAll(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
@@ -65,8 +66,9 @@ describe('Given an Aave Market', () => {
           }),
         );
         assertOk(setup);
+      });
 
-        // Borrow from the reserve
+      it('Then it should be possible to borrow ERC20 from the reserve', async () => {
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
@@ -115,8 +117,7 @@ describe('Given an Aave Market', () => {
     describe('When the user set the supply as collateral', async () => {
       const wallet = createNewWallet();
 
-      it('Then it should be possible to borrow native from the reserve', async () => {
-        // NOTE: first time supply is set as collateral automatically
+      beforeAll(async () => {
         const setup = await fundNativeAddress(
           evmAddress(wallet.account!.address),
           bigDecimal('0.2'),
@@ -131,8 +132,9 @@ describe('Given an Aave Market', () => {
           }),
         );
         assertOk(setup);
+      });
 
-        // Borrow from the reserve
+      it('Then it should be possible to borrow native from the reserve', async () => {
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
@@ -159,6 +161,87 @@ describe('Given an Aave Market', () => {
               user: evmAddress(wallet.account!.address),
             }),
           );
+        assertOk(result);
+        expect(result.value).toEqual([
+          expect.objectContaining({
+            debt: expect.objectContaining({
+              amount: expect.objectContaining({
+                value: expect.toBeBigDecimalCloseTo(
+                  reserve.userState!.borrowable.amount.value,
+                  5,
+                ),
+              }),
+            }),
+          }),
+        ]);
+      });
+    });
+  });
+
+  describe('And a supply position', () => {
+    describe('When an owner sets the supply as collateral', () => {
+      const owner = createNewWallet();
+      const user = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(owner.account!.address),
+          bigDecimal('100'),
+        ).andThen(() =>
+          supplyAndFetchPositions(owner, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            supplier: evmAddress(owner.account!.address),
+            amount: {
+              erc20: {
+                currency: ETHEREUM_USDC_ADDRESS,
+                value: '100',
+              },
+            },
+          }),
+        );
+        assertOk(setup);
+      });
+
+      it('Then a user should be able to borrow ERC20 from the reserve via a permit signature', async () => {
+        const reserve = await fetchReserve(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(owner.account!.address),
+        );
+        expect(reserve.permitSupported).toBe(true);
+
+        const signature = await permitTypedData(client, {
+          market: reserve.market.address,
+          underlyingToken: reserve.underlyingToken.address,
+          amount: reserve.userState!.borrowable.amount.value,
+          chainId: reserve.market.chain.chainId,
+          spender: evmAddress(user.account!.address),
+          owner: evmAddress(owner.account!.address),
+        }).andThen(signERC20PermitWith(user));
+        assertOk(signature);
+
+        const result = await borrow(client, {
+          market: reserve.market.address,
+          borrower: evmAddress(user.account!.address),
+          amount: {
+            erc20: {
+              value: reserve.userState!.borrowable.amount.value,
+              currency: reserve.underlyingToken.address,
+              erc712: signature.value,
+            },
+          },
+          chainId: reserve.market.chain.chainId,
+        })
+          .andThen(sendWith(owner))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [reserve.market.address],
+              user: evmAddress(user.account!.address),
+            }),
+          );
+
         assertOk(result);
         expect(result.value).toEqual([
           expect.objectContaining({
