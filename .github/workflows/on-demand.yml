@@ -40,4 +40,5 @@ jobs:
         run: pnpm test:client
       
       - name: Publish results
+        if: always()
         run: pnpm publish:results
