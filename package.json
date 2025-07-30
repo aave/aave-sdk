@@ -38,6 +38,7 @@
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"Then it should allow the user to supply tokens to the Reserve\"",
     "test:borrowEth": "vitest --project client packages/client/src/actions/borrow.test.ts -t \"Then it should be possible to borrow native from the reserve\"",
+    "test:withdrawEth": "vitest --project client packages/client/src/actions/withdraw.test.ts -t \"Then the user should receive the amount in native tokens\"",
     "test": "vitest"
   },
   "license": "MIT",
