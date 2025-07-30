@@ -43,8 +43,8 @@ function supplyAndFetchPositions(
 }
 
 describe('Given an Aave Market', () => {
-  describe('And a user with a supply position', () => {
-    describe('When the user set the supply as collateral', async () => {
+  describe('And a user with a supply position as collateral', () => {
+    describe('When the user borrows an ERC20 asset', async () => {
       const user = createNewWallet();
 
       beforeAll(async () => {
@@ -68,7 +68,7 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it('Then it should be possible to borrow ERC20 from the reserve', async () => {
+      it(`Then it should be reflected in the user's borrow positions`, async () => {
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
@@ -114,7 +114,7 @@ describe('Given an Aave Market', () => {
       }, 40_000);
     });
 
-    describe('When the user set the supply as collateral', async () => {
+    describe('When the user borrows from a reserve that supports native borrowing', async () => {
       const wallet = createNewWallet();
 
       beforeAll(async () => {
@@ -134,7 +134,7 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it('Then it should be possible to borrow native from the reserve', async () => {
+      it(`Then it should be reflected in the user's borrow positions`, async () => {
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
@@ -178,8 +178,8 @@ describe('Given an Aave Market', () => {
     });
   });
 
-  describe('And a supply position', () => {
-    describe('When an owner sets the supply as collateral', () => {
+  describe('And a supply position marked as collateral', () => {
+    describe('When a user borrows against that supply position via a permit signature', () => {
       const owner = createNewWallet();
       const user = createNewWallet();
 
@@ -204,7 +204,7 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it('Then a user should be able to borrow ERC20 from the reserve via a permit signature', async () => {
+      it(`Then it should be reflected in the owner's borrow positions`, async () => {
         const reserve = await fetchReserve(
           ETHEREUM_USDC_ADDRESS,
           evmAddress(owner.account!.address),
