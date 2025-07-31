@@ -57,6 +57,7 @@ export class AaveClient {
       url: context.environment.backend,
       fetchOptions: {
         credentials: 'omit',
+        headers: context.headers,
       },
       exchanges: this.exchanges(),
     });

@@ -11,6 +11,10 @@ export type ClientConfig = {
    */
   environment?: EnvironmentConfig;
   /**
+   * @internal
+   */
+  headers?: Record<string, string>;
+  /**
    * Whether to enable caching.
    *
    * @defaultValue `false`
