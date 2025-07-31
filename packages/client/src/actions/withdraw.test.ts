@@ -1,17 +1,20 @@
 import type { Reserve, SupplyRequest } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
 import type { WalletClient } from 'viem';
 import { getBalance } from 'viem/actions';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
+  getBalance as getBalanceErc20,
 } from '../test-utils';
-import { sendWith } from '../viem';
+import { sendWith, signERC20PermitWith } from '../viem';
+import { permitTypedData } from './permits';
 import { supply, withdraw } from './transactions';
 import { userSupplies } from './user';
 
@@ -43,13 +46,19 @@ async function supplyAndCheck(wallet: WalletClient, request: SupplyRequest) {
 }
 
 describe('Given an Aave Market', () => {
-  let reserve: Reserve;
+  let wethReserve: Reserve;
+  let usdcReserve: Reserve;
 
   beforeAll(async () => {
-    reserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
+    wethReserve = await fetchReserve(ETHEREUM_WETH_ADDRESS);
     // Check if the reserve is not frozen or paused
-    expect(reserve.isFrozen).toBe(false);
-    expect(reserve.isPaused).toBe(false);
+    expect(wethReserve.isFrozen).toBe(false);
+    expect(wethReserve.isPaused).toBe(false);
+
+    usdcReserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
+    // Check if the reserve is not frozen or paused
+    expect(usdcReserve.isFrozen).toBe(false);
+    expect(usdcReserve.isPaused).toBe(false);
   });
 
   describe('And a user with a supply position', () => {
@@ -65,8 +74,8 @@ describe('Given an Aave Market', () => {
       );
 
       await supplyAndCheck(wallet, {
-        market: reserve.market.address,
-        chainId: reserve.market.chain.chainId,
+        market: wethReserve.market.address,
+        chainId: wethReserve.market.chain.chainId,
         sender: evmAddress(wallet.account!.address),
         amount: {
           erc20: {
@@ -83,7 +92,7 @@ describe('Given an Aave Market', () => {
       }) => {
         annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const result = await withdraw(client, {
-          market: reserve.market.address,
+          market: wethReserve.market.address,
           sender: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
@@ -91,7 +100,7 @@ describe('Given an Aave Market', () => {
               value: { exact: bigDecimal(Number(amountToSupply) * 0.5) },
             },
           },
-          chainId: reserve.market.chain.chainId,
+          chainId: wethReserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
@@ -100,8 +109,8 @@ describe('Given an Aave Market', () => {
             userSupplies(client, {
               markets: [
                 {
-                  address: reserve.market.address,
-                  chainId: reserve.market.chain.chainId,
+                  address: wethReserve.market.address,
+                  chainId: wethReserve.market.chain.chainId,
                 },
               ],
               user: evmAddress(wallet.account!.address),
@@ -128,7 +137,7 @@ describe('Given an Aave Market', () => {
       }) => {
         annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const result = await withdraw(client, {
-          market: reserve.market.address,
+          market: wethReserve.market.address,
           sender: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
@@ -136,7 +145,7 @@ describe('Given an Aave Market', () => {
               value: { max: true },
             },
           },
-          chainId: reserve.market.chain.chainId,
+          chainId: wethReserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
@@ -145,8 +154,8 @@ describe('Given an Aave Market', () => {
             userSupplies(client, {
               markets: [
                 {
-                  address: reserve.market.address,
-                  chainId: reserve.market.chain.chainId,
+                  address: wethReserve.market.address,
+                  chainId: wethReserve.market.chain.chainId,
                 },
               ],
               user: evmAddress(wallet.account!.address),
@@ -156,23 +165,215 @@ describe('Given an Aave Market', () => {
         expect(result.value).toEqual([]);
       }, 25_000);
     });
+  });
 
+  describe('And a user with a supply position', () => {
     describe('When the user withdraws tokens specifying another address', () => {
-      it.todo(
-        `Then the other address should receive the tokens and it should be reflected in the user's supply positions`,
-      );
+      const user = createNewWallet();
+      const otherUser = createNewWallet();
+      const amountToSupply = '0.1';
+
+      beforeAll(async () => {
+        await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('0.2'),
+        );
+
+        await supplyAndCheck(user, {
+          market: wethReserve.market.address,
+          chainId: wethReserve.market.chain.chainId,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: amountToSupply,
+            },
+          },
+        });
+      });
+
+      it(`Then the other address should receive the tokens and it should be reflected in the user's supply positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+        annotate(
+          `other user address: ${evmAddress(otherUser.account!.address)}`,
+        );
+
+        const result = await withdraw(client, {
+          market: wethReserve.market.address,
+          sender: evmAddress(user.account!.address),
+          recipient: evmAddress(otherUser.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: { max: true },
+            },
+          },
+          chainId: wethReserve.market.chain.chainId,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userSupplies(client, {
+              markets: [
+                {
+                  address: wethReserve.market.address,
+                  chainId: wethReserve.market.chain.chainId,
+                },
+              ],
+              user: evmAddress(user.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value).toEqual([]);
+
+        const balance = await getBalanceErc20(
+          evmAddress(otherUser.account!.address),
+          ETHEREUM_WETH_ADDRESS,
+        );
+        expect(balance).toBeCloseTo(Number(amountToSupply), 3);
+      });
     });
 
     describe(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
-      it.todo(
-        'Then the user should receive the tokens and it should be reflected in their supply positions',
-      );
+      const user = createNewWallet();
+      const relayer = createNewWallet();
+      const amountToSupply = '0.1';
+
+      beforeAll(async () => {
+        await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('0.2'),
+        );
+
+        await supplyAndCheck(user, {
+          market: wethReserve.market.address,
+          chainId: wethReserve.market.chain.chainId,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: amountToSupply,
+            },
+          },
+        });
+      });
+
+      it('Then the user should receive the tokens and it should be reflected in their supply positions', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+        annotate(`relayer address: ${evmAddress(relayer.account!.address)}`);
+
+        const signature = await permitTypedData(client, {
+          market: wethReserve.market.address,
+          underlyingToken: wethReserve.underlyingToken.address,
+          amount: '0.2', // To make sure the user has enough balance to remove the interest
+          chainId: wethReserve.market.chain.chainId,
+          spender: evmAddress(relayer.account!.address),
+          owner: evmAddress(user.account!.address),
+        }).andThen(signERC20PermitWith(user));
+        assertOk(signature);
+
+        const result = await withdraw(client, {
+          market: usdcReserve.market.address,
+          sender: evmAddress(relayer.account!.address),
+          amount: {
+            native: {
+              value: { max: true },
+              permitSig: signature.value,
+            },
+          },
+          chainId: wethReserve.market.chain.chainId,
+        })
+          .andThen(sendWith(relayer))
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userSupplies(client, {
+              markets: [wethReserve.market.address],
+              user: evmAddress(user.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value).toEqual([]);
+      });
     });
 
     describe('When the user withdraws tokens with a permit signature', () => {
-      it.todo(
-        'Then it should allow to withdraw tokens without needing for an ERC20 Approval transaction on the aToken',
-      );
+      const user = createNewWallet();
+      const amountToSupply = '100';
+
+      beforeAll(async () => {
+        const funds = await ResultAsync.combine([
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(user.account!.address),
+            bigDecimal('200'),
+            6,
+          ),
+        ]);
+        assertOk(funds);
+
+        await supplyAndCheck(user, {
+          market: usdcReserve.market.address,
+          chainId: usdcReserve.market.chain.chainId,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: amountToSupply,
+            },
+          },
+        });
+      });
+      it('Then it should allow to withdraw tokens without needing for an ERC20 Approval transaction on the aToken', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+
+        const signature = await permitTypedData(client, {
+          market: usdcReserve.market.address,
+          underlyingToken: usdcReserve.underlyingToken.address,
+          amount: amountToSupply,
+          chainId: usdcReserve.market.chain.chainId,
+          spender: evmAddress(user.account!.address),
+          owner: evmAddress(user.account!.address),
+        }).andThen(signERC20PermitWith(user));
+        assertOk(signature);
+
+        const result = await withdraw(client, {
+          market: usdcReserve.market.address,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            native: {
+              value: { exact: amountToSupply },
+              permitSig: signature.value,
+            },
+          },
+          chainId: usdcReserve.market.chain.chainId,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userSupplies(client, {
+              markets: [
+                {
+                  address: usdcReserve.market.address,
+                  chainId: usdcReserve.market.chain.chainId,
+                },
+              ],
+              user: evmAddress(user.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value).toEqual([]);
+      });
     });
   });
 
@@ -189,8 +390,8 @@ describe('Given an Aave Market', () => {
         );
 
         await supplyAndCheck(wallet, {
-          market: reserve.market.address,
-          chainId: reserve.market.chain.chainId,
+          market: wethReserve.market.address,
+          chainId: wethReserve.market.chain.chainId,
           sender: evmAddress(wallet.account!.address),
           amount: {
             native: amount,
@@ -207,14 +408,14 @@ describe('Given an Aave Market', () => {
         });
 
         const result = await withdraw(client, {
-          market: reserve.market.address,
+          market: wethReserve.market.address,
           sender: evmAddress(wallet.account!.address),
           amount: {
             native: {
               value: { exact: amount },
             },
           },
-          chainId: reserve.market.chain.chainId,
+          chainId: wethReserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
           .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
@@ -223,8 +424,8 @@ describe('Given an Aave Market', () => {
             userSupplies(client, {
               markets: [
                 {
-                  address: reserve.market.address,
-                  chainId: reserve.market.chain.chainId,
+                  address: wethReserve.market.address,
+                  chainId: wethReserve.market.chain.chainId,
                 },
               ],
               user: evmAddress(wallet.account!.address),
