@@ -1,5 +1,5 @@
 import type { Reserve, SupplyRequest } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress } from '@aave/types';
 import type { WalletClient } from 'viem';
 import { getBalance } from 'viem/actions';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -309,14 +309,13 @@ describe('Given an Aave Market', () => {
       const amountToSupply = '100';
 
       beforeAll(async () => {
-        const funds = await ResultAsync.combine([
-          fundErc20Address(
-            ETHEREUM_USDC_ADDRESS,
-            evmAddress(user.account!.address),
-            bigDecimal('200'),
-            6,
-          ),
-        ]);
+        const funds = await fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('200'),
+          6,
+        );
+
         assertOk(funds);
 
         await supplyAndCheck(user, {
