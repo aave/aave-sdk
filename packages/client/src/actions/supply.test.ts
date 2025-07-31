@@ -113,7 +113,6 @@ describe('Given an Aave Market', () => {
         owner: evmAddress(otherUser.account!.address),
       }).andThen(signERC20PermitWith(otherUser));
       assertOk(signature);
-      annotate(`signature: ${signature.value}`);
 
       const result = await supply(client, {
         market: reserve.market.address,
@@ -192,7 +191,6 @@ describe('Given an Aave Market', () => {
         owner: evmAddress(user.account!.address),
       }).andThen(signERC20PermitWith(user));
       assertOk(signature);
-      annotate(`signature: ${signature.value}`);
 
       const result = await supply(client, {
         market: reserve.market.address,
@@ -268,7 +266,6 @@ describe('Given an Aave Market', () => {
         owner: evmAddress(relayer.account!.address),
       }).andThen(signERC20PermitWith(user));
       assertOk(signature);
-      annotate(`signature: ${signature.value}`);
 
       const result = await supply(client, {
         market: reserve.market.address,
