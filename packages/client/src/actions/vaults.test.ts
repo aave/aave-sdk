@@ -392,9 +392,9 @@ describe('Given the Aave Vaults', () => {
         ).toBeGreaterThan(0);
         const balanceBefore = await getBalance(
           evmAddress(organization.account!.address),
-          ETHEREUM_WETH_ADDRESS,
+          initialVault.value?.usedReserve.aToken.address,
         );
-        annotate(`balance before: ${balanceBefore} wETH`);
+        annotate(`balance before: ${balanceBefore}`);
         const withdrawResult = await vaultWithdrawFees(client, {
           chainId: initialVault.value.chainId,
           vault: initialVault.value.address,
@@ -412,21 +412,18 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value.chainId,
         });
         assertOk(vaultInfoAfter);
+        // Fees are generated in each block so we can't expect them to be 0
+        expect(
+          Number(vaultInfoAfter.value?.feesBalance.amount.raw),
+        ).toBeLessThan(Number(vaultInfoBefore.value?.feesBalance.amount.raw));
 
         const balanceAfter = await getBalance(
           evmAddress(organization.account!.address),
-          ETHEREUM_WETH_ADDRESS,
+          initialVault.value?.usedReserve.aToken.address,
         );
-        annotate(`balance after: ${balanceAfter} wETH`);
-        expect(balanceAfter).toBeGreaterThan(balanceBefore);
-        expect(vaultInfoAfter.value).toEqual(
-          expect.objectContaining({
-            totalFeeRevenue: expect.objectContaining({
-              amount: expect.objectContaining({
-                value: expect.toBeBigDecimalCloseTo(0, 18),
-              }),
-            }),
-          }),
+        annotate(`balance after: ${balanceAfter}`);
+        expect(balanceAfter * 10 ** 18).toBeGreaterThan(
+          balanceBefore * 10 ** 18,
         );
       }, 50_000);
     });
