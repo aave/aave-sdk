@@ -80,6 +80,9 @@ export const ethereumForkChain: Chain = defineChain({
 
 export const client = AaveClient.create({
   environment,
+  headers: {
+    'x-e2e-tests': import.meta.env.API_X_E2E_TESTS_HEADER,
+  },
 });
 
 export function createNewWallet(): WalletClient {
