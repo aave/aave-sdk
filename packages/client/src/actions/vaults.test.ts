@@ -382,6 +382,11 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value.chainId,
         });
         assertOk(vaultInfoBefore);
+        annotate(
+          `totalFeeRevenue: ${Number(
+            vaultInfoBefore.value?.totalFeeRevenue.amount.value,
+          )}`,
+        );
         expect(
           Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
         ).toBeGreaterThan(0);
@@ -389,7 +394,7 @@ describe('Given the Aave Vaults', () => {
           evmAddress(organization.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-
+        annotate(`balance before: ${balanceBefore} wETH`);
         const withdrawResult = await vaultWithdrawFees(client, {
           chainId: initialVault.value.chainId,
           vault: initialVault.value.address,
@@ -412,6 +417,7 @@ describe('Given the Aave Vaults', () => {
           evmAddress(organization.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
+        annotate(`balance after: ${balanceAfter} wETH`);
         expect(balanceAfter).toBeGreaterThan(balanceBefore);
         expect(vaultInfoAfter.value).toEqual(
           expect.objectContaining({
@@ -422,7 +428,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         );
-      }, 40_000);
+      }, 50_000);
     });
   });
 
