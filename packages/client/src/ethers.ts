@@ -48,7 +48,10 @@ export function sendTransactionAndWait(
 
       if (receipt?.status === 0) {
         return errAsync(
-          new TransactionError(`Transaction failed: ${hash}`, request),
+          TransactionError.new({
+            txHash: hash,
+            request,
+          }),
         );
       }
       return okAsync({

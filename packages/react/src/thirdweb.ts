@@ -1,13 +1,26 @@
 import {
   SigningError,
   type TimeoutError,
-  type TransactionError,
+  TransactionError,
   UnexpectedError,
 } from '@aave/client';
-import type { TransactionRequest } from '@aave/graphql';
-import { ResultAsync, type TxHash, txHash } from '@aave/types';
+import { permitTypedData } from '@aave/client/actions';
+import type {
+  ERC712Signature,
+  PermitTypedDataRequest,
+  TransactionRequest,
+} from '@aave/graphql';
+import {
+  invariant,
+  okAsync,
+  ResultAsync,
+  signatureFrom,
+  type TxHash,
+  txHash,
+} from '@aave/types';
 import { defineChain, type ThirdwebClient } from 'thirdweb';
 import {
+  useActiveAccount,
   useSendAndConfirmTransaction,
   useSwitchActiveWalletChain,
 } from 'thirdweb/react';
@@ -126,10 +139,79 @@ export function useSendTransaction(
           (err) => SigningError.from(err),
         ),
       )
-      .map((tx) => ({
+      .andThen((receipt) =>
+        receipt.status === 'reverted'
+          ? TransactionError.new({
+              txHash: txHash(receipt.transactionHash),
+              request,
+            }).asResultAsync()
+          : okAsync(txHash(receipt.transactionHash)),
+      )
+      .map((hash) => ({
         operation: request.operation,
-        txHash: txHash(tx.transactionHash),
+        txHash: hash,
       }))
       .andThen(client.waitForTransaction);
+  });
+}
+
+export type SignERC20PermitError = SigningError | UnexpectedError;
+
+/**
+ * A hook that provides a way to sign ERC20 permits using a Thirdweb wallet.
+ *
+ * ```ts
+ * const [signERC20Permit, { loading, error, data }] = useERC20Permit();
+ *
+ * const run = async () => {
+ *   const result = await signERC20Permit({
+ *     chainId: chainId(1), // Ethereum mainnet
+ *     market: evmAddress('0x1234…'),
+ *     underlyingToken: evmAddress('0x5678…'),
+ *     amount: '42.42',
+ *     spender: evmAddress('0x9abc…'),
+ *     owner: evmAddress(account.address!),
+ *   });
+ *
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
+ *
+ *   console.log('ERC20 permit signed:', result.value);
+ * };
+ * ```
+ */
+export function useERC20Permit(): UseAsyncTask<
+  PermitTypedDataRequest,
+  ERC712Signature,
+  SignERC20PermitError
+> {
+  const client = useAaveClient();
+  const account = useActiveAccount();
+
+  return useAsyncTask((request: PermitTypedDataRequest) => {
+    invariant(
+      account,
+      'No Account found. Ensure you have connected your wallet.',
+    );
+
+    return permitTypedData(client, request).andThen((result) =>
+      ResultAsync.fromPromise(
+        account.signTypedData({
+          // silence the rest of the type inference
+          types: result.types as Record<string, unknown>,
+          domain: result.domain,
+          primaryType: result.primaryType,
+          message: result.message,
+        }),
+        (err) => SigningError.from(err),
+      ).map((signature) => {
+        return {
+          deadline: result.message.deadline,
+          value: signatureFrom(signature),
+        };
+      }),
+    );
   });
 }

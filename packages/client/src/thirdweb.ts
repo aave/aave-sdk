@@ -64,7 +64,10 @@ function sendTransactionAndWait(
 
       if (receipt.status === 'reverted') {
         return errAsync(
-          new TransactionError(`Transaction failed: ${hash}`, request),
+          TransactionError.new({
+            txHash: hash,
+            request,
+          }),
         );
       }
       return okAsync({

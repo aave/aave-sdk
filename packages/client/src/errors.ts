@@ -1,5 +1,5 @@
 import type { TransactionRequest, TypedSelectionSet } from '@aave/graphql';
-import { ResultAwareError } from '@aave/types';
+import { ResultAwareError, type TxHash } from '@aave/types';
 import type { CombinedError } from '@urql/core';
 
 /**
@@ -38,14 +38,28 @@ export class SigningError extends ResultAwareError {
   name = 'SigningError' as const;
 }
 
+export type TransactionErrorArgs = {
+  txHash: TxHash;
+  request: TransactionRequest;
+  link?: string;
+};
+
 /**
  * Error indicating a transaction failed.
  */
 export class TransactionError extends ResultAwareError {
   name = 'TransactionError' as const;
 
-  constructor(message: string, cause: TransactionRequest) {
+  protected constructor(message: string, cause: TransactionRequest) {
     super(message, { cause });
+  }
+
+  static new(args: TransactionErrorArgs) {
+    const { txHash, request, link } = args;
+    const message = link
+      ? `Transaction failed: ${txHash}\n→ View on explorer: ${link}`
+      : `Transaction failed: ${txHash}`;
+    return new TransactionError(message, request);
   }
 }
 
