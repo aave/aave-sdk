@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly ETHEREUM_TENDERLY_PUBLIC_RPC: string;
   readonly ETHEREUM_TENDERLY_ADMIN_RPC: string;
   readonly ETHEREUM_TENDERLY_BLOCKEXPLORER: string;
+  readonly API_X_E2E_TESTS_HEADER: string;
 }
 
 interface ImportMeta {
