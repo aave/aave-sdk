@@ -162,6 +162,12 @@ describe('Given an Aave Market', () => {
     });
   });
 
+  describe('When a user repays a loan in behalf of another address', () => {
+    it.todo(
+      'Then it should be reflected in the borrow positions of the other address',
+    );
+  });
+
   describe('And an open borrow position', () => {
     describe(`When a user repays the owner's loan with a permit signature`, () => {
       const user = createNewWallet();
