@@ -36,7 +36,7 @@ describe('Given an Aave Market', () => {
 
       const result = await supply(client, {
         market: reserve.market.address,
-        supplier: evmAddress(user.account!.address),
+        sender: evmAddress(user.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -105,12 +105,12 @@ describe('Given an Aave Market', () => {
 
       const result = await supply(client, {
         market: reserve.market.address,
-        supplier: evmAddress(user.account!.address),
+        sender: evmAddress(user.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
             currency: reserve.underlyingToken.address,
-            erc712: signature.value,
+            permitSig: signature.value,
           },
         },
         chainId: reserve.market.chain.chainId,
@@ -159,7 +159,7 @@ describe('Given an Aave Market', () => {
 
         const result = await supply(client, {
           market: reserve.market.address,
-          supplier: evmAddress(wallet.account!.address),
+          sender: evmAddress(wallet.account!.address),
           amount: {
             native: amountToSupply,
           },

@@ -38,7 +38,7 @@ describe('Given an Aave Market', () => {
         const supplies = await client.batch((c) => [
           supply(c, {
             market: ETHEREUM_MARKET_ADDRESS,
-            supplier: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             amount: {
               erc20: { value: '1', currency: ETHEREUM_WETH_ADDRESS },
             },
@@ -48,7 +48,7 @@ describe('Given an Aave Market', () => {
             .andThen(c.waitForTransaction),
           supply(c, {
             market: ETHEREUM_MARKET_ADDRESS,
-            supplier: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             amount: {
               erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
             },
@@ -62,7 +62,7 @@ describe('Given an Aave Market', () => {
         const borrows = await client.batch((c) => [
           borrow(c, {
             market: ETHEREUM_MARKET_ADDRESS,
-            borrower: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             amount: {
               erc20: { value: '0.005', currency: ETHEREUM_WETH_ADDRESS },
             },
@@ -72,7 +72,7 @@ describe('Given an Aave Market', () => {
             .andThen(c.waitForTransaction),
           borrow(c, {
             market: ETHEREUM_MARKET_ADDRESS,
-            borrower: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
             chainId: ETHEREUM_FORK_ID,
           })

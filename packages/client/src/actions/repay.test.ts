@@ -50,7 +50,7 @@ function supplyAndBorrow(
             value: reserve?.userState?.borrowable.amount.value,
           },
         },
-        borrower: userAddress,
+        sender: userAddress,
         chainId: request.chainId,
       }),
     )
@@ -72,7 +72,7 @@ describe('Given an Aave Market', () => {
           supplyAndBorrow(user, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             amount: {
               erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
             },
@@ -84,7 +84,7 @@ describe('Given an Aave Market', () => {
       it('Then it should be reflected in the user borrow positions', async () => {
         const result = await repay(client, {
           amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
-          borrower: evmAddress(user.account!.address),
+          sender: evmAddress(user.account!.address),
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
         })
@@ -126,7 +126,7 @@ describe('Given an Aave Market', () => {
               supplyAndBorrow(user, {
                 market: ETHEREUM_MARKET_ADDRESS,
                 chainId: ETHEREUM_FORK_ID,
-                supplier: evmAddress(user.account!.address),
+                sender: evmAddress(user.account!.address),
                 amount: {
                   erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
                 },
@@ -138,7 +138,7 @@ describe('Given an Aave Market', () => {
         it('Then it should be reflected in the user borrow positions', async () => {
           const result = await repay(client, {
             amount: { native: '0.01' },
-            borrower: evmAddress(user.account!.address),
+            sender: evmAddress(user.account!.address),
             chainId: ETHEREUM_FORK_ID,
             market: ETHEREUM_MARKET_ADDRESS,
           })
@@ -187,7 +187,7 @@ describe('Given an Aave Market', () => {
           return supplyAndBorrow(owner, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(owner.account!.address),
+            sender: evmAddress(owner.account!.address),
             amount: {
               erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
             },
@@ -218,10 +218,10 @@ describe('Given an Aave Market', () => {
             erc20: {
               currency: ETHEREUM_USDC_ADDRESS,
               value: '100',
-              erc712: signature.value,
+              permitSig: signature.value,
             },
           },
-          borrower: evmAddress(user.account!.address),
+          sender: evmAddress(user.account!.address),
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
         })
