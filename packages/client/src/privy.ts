@@ -42,9 +42,6 @@ async function sendTransaction(
   return txHash(hash);
 }
 
-/**
- * @internal
- */
 function sendTransactionAndWait(
   privy: PrivyClient,
   request: TransactionRequest,

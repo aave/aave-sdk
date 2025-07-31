@@ -7,6 +7,7 @@ export default defineConfig(() => ({
     'src/actions/index.ts',
     'src/ethers.ts',
     'src/privy.ts',
+    'src/thirdweb.ts',
     'src/viem.ts',
     'src/test-utils.ts',
   ],
