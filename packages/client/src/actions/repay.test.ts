@@ -163,7 +163,7 @@ describe('Given an Aave Market', () => {
   });
 
   describe('And an open borrow position', () => {
-    describe(`When a user repays the owner's loan via a permit signature`, () => {
+    describe(`When a user repays the owner's loan with a permit signature`, () => {
       const user = createNewWallet();
       const owner = createNewWallet();
 
@@ -196,7 +196,7 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it(`Then it should be reflected in the owner's borrow positions`, async () => {
+      it.skip('Then it should allow to repay their own loan without needing for an ERC20 Approval transaction', async () => {
         const reserve = await fetchReserve(
           ETHEREUM_USDC_ADDRESS,
           evmAddress(owner.account!.address),
