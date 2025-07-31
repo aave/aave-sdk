@@ -71,9 +71,9 @@ describe('Given an Aave Market', () => {
     });
   });
 
-  describe('When the user supplies tokens to a Reserve in behalf of another user', () => {
+  describe('When the user supplies tokens to a Reserve in behalf of another address', () => {
     it.todo(
-      'Then it should be reflected in the supply positions of the other user',
+      'Then it should be reflected in the supply positions of the other address',
     );
   });
 
