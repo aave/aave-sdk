@@ -1,4 +1,10 @@
-import { AaveProvider, chainId, useAaveMarkets } from '@aave/react';
+import {
+  AaveProvider,
+  chainId,
+  type Market,
+  type Reserve,
+  useAaveMarkets,
+} from '@aave/react';
 import { client } from './client';
 
 function MarketDisplay() {

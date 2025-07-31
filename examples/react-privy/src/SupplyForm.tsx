@@ -56,7 +56,7 @@ export function SupplyForm({
           value: bigDecimal(amount),
         },
       },
-      supplier: evmAddress(wallet.address),
+      sender: evmAddress(wallet.address),
     }).andThen((plan) => {
       switch (plan.__typename) {
         case 'TransactionRequest':

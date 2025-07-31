@@ -27,7 +27,7 @@ describe('Given Aave Market', () => {
           supply(client, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            supplier: evmAddress(wallet.account!.address),
+            sender: evmAddress(wallet.account!.address),
             amount: {
               erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
             },
