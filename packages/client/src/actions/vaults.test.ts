@@ -1,15 +1,21 @@
 import { OrderDirection, type Vault } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_FORK_ID,
+  ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
+  fundErc20Address,
   getBalance,
 } from '../test-utils';
 import { sendWith } from '../viem';
 import {
+  vaultDeploy,
+  vaultDeposit,
+  vaultMintShares,
   vaultRedeemShares,
   vaultSetFee,
   vaultWithdraw,
@@ -30,9 +36,38 @@ describe('Given the Aave Vaults', () => {
   describe('When an organization deploys a new vault', () => {
     const organization = createNewWallet();
 
-    it('Then it should be available in the organization vaults', async () => {
-      const initialVault = await createVault(organization);
+    beforeAll(async () => {
+      fundErc20Address(
+        ETHEREUM_WETH_ADDRESS,
+        evmAddress(organization.account!.address),
+        bigDecimal('2'),
+      );
+    });
+
+    it('Then it should be available in the organization vaults', async ({
+      annotate,
+    }) => {
+      annotate(`organization address: ${organization.account!.address}`);
+      const initialVault = await vaultDeploy(client, {
+        chainId: ETHEREUM_FORK_ID,
+        market: ETHEREUM_MARKET_ADDRESS,
+        deployer: evmAddress(organization.account!.address),
+        owner: evmAddress(organization.account!.address),
+        initialFee: '3',
+        initialLockDeposit: '1',
+        shareName: 'Aave WETH Vault Shares',
+        shareSymbol: 'avWETH',
+        underlyingToken: ETHEREUM_WETH_ADDRESS,
+      })
+        .andThen(sendWith(organization))
+        .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
+        .andThen(client.waitForTransaction)
+        .andThen((txHash) =>
+          vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
+        )
+        .map(nonNullable);
       assertOk(initialVault);
+      annotate(`initial vault: ${initialVault.value?.address}`);
 
       const result = await vaults(client, {
         criteria: {
@@ -55,11 +90,35 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization).andThen(
-          deposit(user, 1),
+      beforeAll(async () => {
+        fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('2'),
         );
+      });
+
+      it(`Then the operation should be reflected in the user's vault positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`organization address: ${organization.account!.address}`);
+        const initialVault = await createVault(organization);
         assertOk(initialVault);
+        annotate(`initial vault: ${initialVault.value?.address}`);
+        const depositResult = await vaultDeposit(client, {
+          amount: {
+            value: '1',
+            currency: ETHEREUM_WETH_ADDRESS,
+          },
+          vault: initialVault.value!.address,
+          depositor: evmAddress(user.account!.address),
+          chainId: initialVault.value!.chainId,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx to deposit in vault: ${tx.txHash}`))
+          .andThen(client.waitForTransaction);
+        assertOk(depositResult);
 
         const userPositions = await userVaults(client, {
           user: evmAddress(user.account!.address),
@@ -69,9 +128,11 @@ describe('Given the Aave Vaults', () => {
         expect(userPositions.value.items.length).toEqual(1);
         expect(userPositions.value.items).toEqual([
           expect.objectContaining({
-            balance: expect.objectContaining({
-              amount: expect.objectContaining({
-                value: expect.toBeBigDecimalCloseTo(1, 4),
+            userShares: expect.objectContaining({
+              balance: expect.objectContaining({
+                amount: expect.objectContaining({
+                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                }),
               }),
             }),
           }),
@@ -83,11 +144,34 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
-        const initialVault = await createVault(organization).andThen(
-          mintShares(user, 1),
+      beforeAll(async () => {
+        fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('2'),
         );
+      });
+
+      it(`Then the operation should be reflected in the user's vault positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`organization address: ${organization.account!.address}`);
+        const initialVault = await createVault(organization);
         assertOk(initialVault);
+        annotate(`initial vault address: ${initialVault.value?.address}`);
+        const mintResult = await vaultMintShares(client, {
+          shares: {
+            amount: '1',
+          },
+          vault: initialVault.value!.address,
+          minter: evmAddress(user.account!.address),
+          chainId: initialVault.value!.chainId,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx to mint shares: ${tx.txHash}`))
+          .andThen(client.waitForTransaction);
+        assertOk(mintResult);
 
         const userPositions = await userVaults(client, {
           user: evmAddress(user.account!.address),
@@ -111,7 +195,9 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async ({
+        annotate,
+      }) => {
         const amountToWithdraw = 1.0;
         const initialVault = await createVault(organization).andThen(
           deposit(user, amountToWithdraw),
@@ -133,7 +219,7 @@ describe('Given the Aave Vaults', () => {
           vault: initialVault.value?.address,
         })
           .andThen(sendWith(user))
-          .andTee((tx) => console.log(`tx to withdraw from vault: ${tx}`))
+          .andTee((tx) => annotate(`tx to withdraw from vault: ${tx.txHash}`))
           .andThen(client.waitForTransaction);
         assertOk(withdrawResult);
 
@@ -164,7 +250,11 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
           mintShares(user, 1),
         );
@@ -179,7 +269,7 @@ describe('Given the Aave Vaults', () => {
           sharesOwner: evmAddress(user.account!.address),
         })
           .andThen(sendWith(user))
-          .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
+          .andTee((tx) => annotate(`tx to redeem shares: ${tx.txHash}`))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
 
@@ -195,7 +285,11 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it(`Then the operation should be reflected in the user's vault positions`, async () => {
+      it(`Then the operation should be reflected in the user's vault positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
           mintShares(user, 1),
         );
@@ -210,7 +304,7 @@ describe('Given the Aave Vaults', () => {
           sharesOwner: evmAddress(user.account!.address),
         })
           .andThen(sendWith(user))
-          .andTee((tx) => console.log(`tx to redeem shares: ${tx}`))
+          .andTee((tx) => annotate(`tx to redeem shares: ${tx.txHash}`))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
 
@@ -235,7 +329,10 @@ describe('Given the Aave Vaults', () => {
     describe(`When the organization changes the vault's fee`, () => {
       const organization = createNewWallet();
 
-      it('Then the new fee should be reflected in the vault object', async () => {
+      it('Then the new fee should be reflected in the vault object', async ({
+        annotate,
+      }) => {
+        annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization);
         assertOk(initialVault);
 
@@ -246,7 +343,7 @@ describe('Given the Aave Vaults', () => {
           newFee: newFee,
         })
           .andThen(sendWith(organization))
-          .andTee((tx) => console.log(`tx to set fee: ${tx}`))
+          .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
           .andThen(client.waitForTransaction);
         assertOk(updateResult);
 
@@ -269,7 +366,11 @@ describe('Given the Aave Vaults', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
 
-      it('Then they should receive the expected ERC-20 amount', async () => {
+      it('Then they should receive the expected ERC-20 amount', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization)
           .andThen(deposit(user, 1))
           .andThen(mintShares(user, 1));
@@ -281,6 +382,11 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.value.chainId,
         });
         assertOk(vaultInfoBefore);
+        annotate(
+          `totalFeeRevenue: ${Number(
+            vaultInfoBefore.value?.totalFeeRevenue.amount.value,
+          )}`,
+        );
         expect(
           Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
         ).toBeGreaterThan(0);
@@ -288,7 +394,7 @@ describe('Given the Aave Vaults', () => {
           evmAddress(organization.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-
+        annotate(`balance before: ${balanceBefore} wETH`);
         const withdrawResult = await vaultWithdrawFees(client, {
           chainId: initialVault.value.chainId,
           vault: initialVault.value.address,
@@ -296,7 +402,7 @@ describe('Given the Aave Vaults', () => {
           amount: { max: true },
         })
           .andThen(sendWith(organization))
-          .andTee((tx) => console.log(`tx to withdraw fees: ${tx}`))
+          .andTee((tx) => annotate(`tx to withdraw fees: ${tx.txHash}`))
           .andThen(client.waitForTransaction);
         assertOk(withdrawResult);
 
@@ -311,7 +417,7 @@ describe('Given the Aave Vaults', () => {
           evmAddress(organization.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-        // TODO: check properly the balance of the organization wallet
+        annotate(`balance after: ${balanceAfter} wETH`);
         expect(balanceAfter).toBeGreaterThan(balanceBefore);
         expect(vaultInfoAfter.value).toEqual(
           expect.objectContaining({
@@ -322,7 +428,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         );
-      }, 40_000);
+      }, 50_000);
     });
   });
 
@@ -333,11 +439,6 @@ describe('Given the Aave Vaults', () => {
     beforeAll(async () => {
       const vault1 = await createVault(organization, {
         initialFee: 2.0,
-        token: {
-          name: 'Aave WETH Vault Shares',
-          symbol: 'avWETH',
-          address: ETHEREUM_WETH_ADDRESS,
-        },
       }).andThen(mintShares(user, 10));
       assertOk(vault1);
 
@@ -352,7 +453,10 @@ describe('Given the Aave Vaults', () => {
       assertOk(vault2);
     }, 60_000);
 
-    it('Then it should be possible so sort them by the amount of shares they have', async () => {
+    it('Then it should be possible so sort them by the amount of shares they have', async ({
+      annotate,
+    }) => {
+      annotate(`user address: ${user.account!.address}`);
       const listOfVaultsDesc = await userVaults(client, {
         user: evmAddress(user.account!.address),
         orderBy: { shares: OrderDirection.Desc },
@@ -382,7 +486,10 @@ describe('Given the Aave Vaults', () => {
       );
     });
 
-    it(`Then it should be possible so sort them by Vault's fee`, async () => {
+    it(`Then it should be possible so sort them by Vault's fee`, async ({
+      annotate,
+    }) => {
+      annotate(`user address: ${user.account!.address}`);
       const listOfVaultsDesc = await userVaults(client, {
         user: evmAddress(user.account!.address),
         orderBy: { fee: OrderDirection.Desc },
@@ -406,7 +513,10 @@ describe('Given the Aave Vaults', () => {
       ).toBeLessThanOrEqual(Number(listOfVaultsAsc.value.items[1]?.fee.value));
     });
 
-    it('Then it should be possible so filter them by underlying tokens', async () => {
+    it('Then it should be possible so filter them by underlying tokens', async ({
+      annotate,
+    }) => {
+      annotate(`user address: ${user.account!.address}`);
       const listOfVaults = await userVaults(client, {
         user: evmAddress(user.account!.address),
         filters: {
@@ -438,7 +548,10 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When a user previews a deposit into the vault', () => {
-      it('Then it should return the expected amount of shares', async () => {
+      it('Then it should return the expected amount of shares', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const previewDepositResult = await vaultPreviewDeposit(client, {
           vault: vaultInfo.address,
           amount: bigDecimal('1'),
@@ -456,7 +569,10 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When a user previews a minting shares from a vault', () => {
-      it('Then it should return the expected amount of tokens needed to mint', async () => {
+      it('Then it should return the expected amount of tokens needed to mint', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const previewMintResult = await vaultPreviewMint(client, {
           vault: vaultInfo.address,
           amount: bigDecimal('1'),
@@ -474,7 +590,10 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When a user previews a withdrawal assets from a vault', () => {
-      it('Then it should return the expected amount of shares to burn', async () => {
+      it('Then it should return the expected amount of shares to burn', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const previewWithdrawResult = await vaultPreviewWithdraw(client, {
           vault: vaultInfo.address,
           amount: bigDecimal('1'),
@@ -492,7 +611,10 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe('When a user previews a redeeming shares from a vault', () => {
-      it('Then it should return the expected amount of assets to receive', async () => {
+      it('Then it should return the expected amount of assets to receive', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const previewRedeemResult = await vaultPreviewRedeem(client, {
           vault: vaultInfo.address,
           amount: bigDecimal('1'),
