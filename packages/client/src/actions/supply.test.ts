@@ -102,17 +102,6 @@ describe('Given an Aave Market', () => {
       const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.isFrozen).toBe(false);
       expect(reserve.isPaused).toBe(false);
-      expect(reserve.permitSupported).toBe(true);
-
-      const signature = await permitTypedData(client, {
-        market: reserve.market.address,
-        underlyingToken: reserve.underlyingToken.address,
-        amount: amountToSupply,
-        chainId: reserve.market.chain.chainId,
-        spender: evmAddress(user.account!.address),
-        owner: evmAddress(otherUser.account!.address),
-      }).andThen(signERC20PermitWith(otherUser));
-      assertOk(signature);
 
       const result = await supply(client, {
         market: reserve.market.address,
@@ -122,7 +111,6 @@ describe('Given an Aave Market', () => {
           erc20: {
             value: amountToSupply,
             currency: ETHEREUM_USDC_ADDRESS,
-            permitSig: signature.value,
           },
         },
         chainId: reserve.market.chain.chainId,
@@ -138,7 +126,7 @@ describe('Given an Aave Market', () => {
                 chainId: reserve.market.chain.chainId,
               },
             ],
-            user: evmAddress(user.account!.address),
+            user: evmAddress(otherUser.account!.address),
           }),
         );
       assertOk(result);
@@ -260,17 +248,16 @@ describe('Given an Aave Market', () => {
       const signature = await permitTypedData(client, {
         market: reserve.market.address,
         underlyingToken: reserve.underlyingToken.address,
-        amount: amountToSupply,
+        amount: '101',
         chainId: reserve.market.chain.chainId,
-        spender: evmAddress(user.account!.address),
-        owner: evmAddress(relayer.account!.address),
+        spender: evmAddress(relayer.account!.address),
+        owner: evmAddress(user.account!.address),
       }).andThen(signERC20PermitWith(user));
       assertOk(signature);
 
       const result = await supply(client, {
         market: reserve.market.address,
-        sender: evmAddress(relayer.account!.address),
-        onBehalfOf: evmAddress(user.account!.address),
+        sender: evmAddress(user.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
