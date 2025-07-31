@@ -131,10 +131,15 @@ export function fundNativeAddress(
   const amountHex = `0x${amountInWei.toString(16)}`;
 
   return ResultAsync.fromPromise(
-    publicClient.request<TSetBalanceRpc>({
-      method: 'tenderly_setBalance',
-      params: [[address], amountHex],
-    }),
+    publicClient
+      .request<TSetBalanceRpc>({
+        method: 'tenderly_setBalance',
+        params: [[address], amountHex],
+      })
+      .then(async (res) => {
+        await wait(500); // Temporal fix to avoid tenderly issues with the balance not being set
+        return res;
+      }),
     (err) => UnexpectedError.from(err),
   );
 }
