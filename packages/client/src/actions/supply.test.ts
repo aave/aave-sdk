@@ -72,82 +72,237 @@ describe('Given an Aave Market', () => {
   });
 
   describe('When the user supplies tokens to a Reserve in behalf of another address', () => {
-    it.todo(
-      'Then it should be reflected in the supply positions of the other address',
-    );
-  });
-
-  describe('When the user supplies tokens to the Reserve with a permit signature', () => {
-    const owner = createNewWallet();
     const user = createNewWallet();
-    const amountToSupply = '1.5';
+    const otherUser = createNewWallet();
+    const amountToSupply = '100';
 
     beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_USDC_ADDRESS,
-        evmAddress(owner.account!.address),
-        bigDecimal('0.02'),
-      ).andThen(() =>
+      const [erc20Funding, nativeFunding] = await Promise.all([
+        fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('200'),
+          6,
+        ),
         fundNativeAddress(
           evmAddress(user.account!.address),
           bigDecimal('0.02'),
         ),
-      );
-      assertOk(setup);
+      ]);
+      assertOk(erc20Funding);
+      assertOk(nativeFunding);
     });
-    it.todo(
-      'Then it should allow to supply tokens to the Reserve without needing for an ERC20 Approval transaction',
-      async () => {
-        const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
-        expect(reserve.permitSupported).toBe(true);
 
-        const signature = await permitTypedData(client, {
-          market: reserve.market.address,
-          underlyingToken: reserve.underlyingToken.address,
-          amount: amountToSupply,
-          chainId: reserve.market.chain.chainId,
-          spender: evmAddress(user.account!.address),
-          owner: evmAddress(owner.account!.address),
-        }).andThen(signERC20PermitWith(owner));
-        assertOk(signature);
+    it('Then it should be reflected in the supply positions of the other address', async ({
+      annotate,
+    }) => {
+      annotate(`user address: ${user.account!.address}`);
+      annotate(`other user address: ${otherUser.account!.address}`);
+      // Check if the reserve is not frozen or paused
+      const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
+      expect(reserve.isFrozen).toBe(false);
+      expect(reserve.isPaused).toBe(false);
+      expect(reserve.permitSupported).toBe(true);
 
-        const result = await supply(client, {
-          market: reserve.market.address,
-          sender: evmAddress(user.account!.address),
-          amount: {
-            erc20: {
-              value: amountToSupply,
-              currency: reserve.underlyingToken.address,
-              permitSig: signature.value,
-            },
+      const signature = await permitTypedData(client, {
+        market: reserve.market.address,
+        underlyingToken: reserve.underlyingToken.address,
+        amount: amountToSupply,
+        chainId: reserve.market.chain.chainId,
+        spender: evmAddress(user.account!.address),
+        owner: evmAddress(otherUser.account!.address),
+      }).andThen(signERC20PermitWith(otherUser));
+      assertOk(signature);
+      annotate(`signature: ${signature.value}`);
+
+      const result = await supply(client, {
+        market: reserve.market.address,
+        sender: evmAddress(user.account!.address),
+        onBehalfOf: evmAddress(otherUser.account!.address),
+        amount: {
+          erc20: {
+            value: amountToSupply,
+            currency: ETHEREUM_USDC_ADDRESS,
+            permitSig: signature.value,
           },
-          chainId: reserve.market.chain.chainId,
-        })
-          .andThen(sendWith(user))
-          .andThen(client.waitForTransaction)
-          .andThen(() =>
-            userSupplies(client, {
-              markets: [reserve.market.address],
-              user: evmAddress(user.account!.address),
-            }),
-          );
-
-        assertOk(result);
-        expect(result.value).toEqual([
-          expect.objectContaining({
-            balance: expect.objectContaining({
-              amount: expect.objectContaining({
-                value: expect.toBeBigDecimalCloseTo(amountToSupply),
-              }),
+        },
+        chainId: reserve.market.chain.chainId,
+      })
+        .andThen(sendWith(user))
+        .andTee((tx) => annotate(`supply tx: ${tx.txHash}`))
+        .andThen(client.waitForTransaction)
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [
+              {
+                address: reserve.market.address,
+                chainId: reserve.market.chain.chainId,
+              },
+            ],
+            user: evmAddress(user.account!.address),
+          }),
+        );
+      assertOk(result);
+      expect(result.value).toEqual([
+        expect.objectContaining({
+          balance: expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(amountToSupply),
             }),
           }),
-        ]);
-      },
-    );
+        }),
+      ]);
+    });
+  });
+
+  describe('When the user supplies tokens to the Reserve with a permit signature', () => {
+    const user = createNewWallet();
+    const amountToSupply = '100';
+
+    beforeAll(async () => {
+      const [erc20Funding, nativeFunding] = await Promise.all([
+        fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('200'),
+          6,
+        ),
+        fundNativeAddress(
+          evmAddress(user.account!.address),
+          bigDecimal('0.02'),
+        ),
+      ]);
+      assertOk(erc20Funding);
+      assertOk(nativeFunding);
+    });
+
+    it('Then it should allow to supply tokens to the Reserve without needing for an ERC20 Approval transaction', async ({
+      annotate,
+    }) => {
+      annotate(`user address: ${user.account!.address}`);
+      const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
+      expect(reserve.permitSupported).toBe(true);
+
+      const signature = await permitTypedData(client, {
+        market: reserve.market.address,
+        underlyingToken: reserve.underlyingToken.address,
+        amount: amountToSupply,
+        chainId: reserve.market.chain.chainId,
+        spender: evmAddress(user.account!.address),
+        owner: evmAddress(user.account!.address),
+      }).andThen(signERC20PermitWith(user));
+      assertOk(signature);
+      annotate(`signature: ${signature.value}`);
+
+      const result = await supply(client, {
+        market: reserve.market.address,
+        sender: evmAddress(user.account!.address),
+        amount: {
+          erc20: {
+            value: amountToSupply,
+            currency: reserve.underlyingToken.address,
+            permitSig: signature.value,
+          },
+        },
+        chainId: reserve.market.chain.chainId,
+      })
+        .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
+        .andThen(sendWith(user))
+        .andTee((tx) => annotate(`tx: ${tx.txHash}`))
+        .andThen(client.waitForTransaction)
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [reserve.market.address],
+            user: evmAddress(user.account!.address),
+          }),
+        );
+
+      assertOk(result);
+      expect(result.value).toEqual([
+        expect.objectContaining({
+          balance: expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(amountToSupply),
+            }),
+          }),
+        }),
+      ]);
+    });
   });
 
   describe('When a relayer supplies tokens to the Reserve with permit signature on ERC20 owned by the user', () => {
-    it.todo(`Then it should be reflected in the user's supply positions`);
+    const relayer = createNewWallet();
+    const user = createNewWallet();
+    const amountToSupply = '100';
+
+    beforeAll(async () => {
+      const [erc20Funding, nativeFunding] = await Promise.all([
+        fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('200'),
+          6,
+        ),
+        fundNativeAddress(
+          evmAddress(relayer.account!.address),
+          bigDecimal('0.02'),
+        ),
+      ]);
+      assertOk(erc20Funding);
+      assertOk(nativeFunding);
+    });
+    it(`Then it should be reflected in the user's supply positions`, async ({
+      annotate,
+    }) => {
+      annotate(`relayer address: ${relayer.account!.address}`);
+      annotate(`user address: ${user.account!.address}`);
+      const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
+      expect(reserve.permitSupported).toBe(true);
+
+      const signature = await permitTypedData(client, {
+        market: reserve.market.address,
+        underlyingToken: reserve.underlyingToken.address,
+        amount: amountToSupply,
+        chainId: reserve.market.chain.chainId,
+        spender: evmAddress(user.account!.address),
+        owner: evmAddress(relayer.account!.address),
+      }).andThen(signERC20PermitWith(user));
+      assertOk(signature);
+      annotate(`signature: ${signature.value}`);
+
+      const result = await supply(client, {
+        market: reserve.market.address,
+        sender: evmAddress(relayer.account!.address),
+        onBehalfOf: evmAddress(user.account!.address),
+        amount: {
+          erc20: {
+            value: amountToSupply,
+            currency: reserve.underlyingToken.address,
+            permitSig: signature.value,
+          },
+        },
+        chainId: reserve.market.chain.chainId,
+      })
+        .andThen(sendWith(relayer))
+        .andTee((tx) => annotate(`supply tx: ${tx.txHash}`))
+        .andThen(client.waitForTransaction)
+        .andThen(() =>
+          userSupplies(client, {
+            markets: [reserve.market.address],
+            user: evmAddress(user.account!.address),
+          }),
+        );
+      assertOk(result);
+      expect(result.value).toEqual([
+        expect.objectContaining({
+          balance: expect.objectContaining({
+            amount: expect.objectContaining({
+              value: expect.toBeBigDecimalCloseTo(amountToSupply),
+            }),
+          }),
+        }),
+      ]);
+    });
   });
 
   describe('And the Reserve allows to supply in native tokens', () => {
