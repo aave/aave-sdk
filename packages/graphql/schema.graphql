@@ -68,20 +68,39 @@ input BorrowAPYHistoryRequest {
   chainId: ChainId!
 }
 
+input BorrowAmountInput @oneOf {
+  """The native amount"""
+  native: BigDecimal
+
+  """The erc20 amount input"""
+  erc20: BorrowErc20AmountInput
+}
+
+input BorrowErc20AmountInput {
+  """The token address."""
+  currency: EvmAddress!
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g.,
+  wei).
+  """
+  value: BigDecimal!
+}
+
 input BorrowRequest {
   """The market pool address"""
   market: EvmAddress!
 
   """The amount borrowing"""
-  amount: AmountInput!
+  amount: BorrowAmountInput!
 
-  """The user who is borrowing"""
-  borrower: EvmAddress!
+  """The user sending the transaction (normally the user's wallet address)"""
+  sender: EvmAddress!
 
   """
-  If not supplied, this will use `borrower` in most cases this is what the user wants if they want
-  to borrow against their own collateral. You can also pass in the credit delegator if the caller has
-  been given credit delegation allowance
+  If not supplied, this will use `sender` in most cases this is what the user wants if they want
+  to borrow themselves. You can also pass in the credit delegator if the caller has
+  been given credit delegation allowance.
   """
   onBehalfOf: EvmAddress
 
@@ -236,8 +255,10 @@ input Erc20AmountInput {
   """
   value: BigDecimal!
 
-  """The erc712 signature, which can also be used for permit functionality"""
-  erc712: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 scalar EvmAddress
@@ -763,7 +784,7 @@ type Query {
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
 
-  """The user's transaction history"""
+  """The user's market transaction history"""
   userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
 
   """
@@ -782,15 +803,15 @@ input RepayRequest {
   market: EvmAddress!
 
   """
-  The amount to repay - you can pass in the underlying or the aToken if you pass in the aToken address it will repay with the aToken
+  The amount to repay - you can pass in the underlying or the aToken if you pass in the aToken address, it will repay with the aToken
   """
   amount: AmountInput!
 
-  """The user who is repaying"""
-  borrower: EvmAddress!
+  """The user sending the transaction (normally the user's wallet address)"""
+  sender: EvmAddress!
 
   """
-  The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
+  If not supplied, this will use `sender`. The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
   """
   onBehalfOf: EvmAddress
 
@@ -1056,11 +1077,11 @@ input SupplyRequest {
   """The amount supplying"""
   amount: AmountInput!
 
-  """The user who is supplying"""
-  supplier: EvmAddress!
+  """The user sending the transaction (normally the users wallet address)"""
+  sender: EvmAddress!
 
   """
-  If not supplied, this will use `supplier`. The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
+  If not supplied, this will use `sender`. The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
   This will be the same as msg.sender if the user wants to receive aTokens into their own wallet, or use a different address if the beneficiary
   of aTokens is a different wallet
   """
@@ -1532,8 +1553,10 @@ input VaultMintShareInput {
   """Whether the amount should be received as aToken."""
   asAToken: Boolean! = false
 
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input VaultMintSharesRequest {
@@ -1573,8 +1596,10 @@ input VaultRedeemShareInput {
   """Whether the amount should be sent as aToken."""
   asAToken: Boolean! = false
 
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input VaultRedeemSharesRequest {
@@ -1660,8 +1685,10 @@ input VaultWithdrawInput {
   """Whether the amount should be sent/received as aToken."""
   asAToken: Boolean! = false
 
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input VaultWithdrawRequest {
@@ -1744,8 +1771,10 @@ input WithdrawNativeAmountInput {
   """The native value"""
   value: WithdrawAmount!
 
-  """The permit for the transaction if required"""
-  permit: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input WithdrawRequest {
@@ -1756,13 +1785,13 @@ input WithdrawRequest {
   amount: WithdrawAmountInput!
 
   """
-  The user who is withdrawing, this should have the `aToken` that will be burned by the `Pool`
+  The user sending the transaction (normally the user's wallet address) this should have the `aToken` that will be burned by the `Pool`
   """
-  supplier: EvmAddress!
+  sender: EvmAddress!
 
   """
-  The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
-  their own wallet, or use a different address if the beneficiary is a different wallet
+  If not supplied, this will use `sender`. The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
+  their own wallet or use a different address if the beneficiary is a different wallet
   """
   recipient: EvmAddress
 
