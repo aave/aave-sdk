@@ -15,14 +15,12 @@ import {
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
-  ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
 } from '../test-utils';
-import { sendWith, signERC20PermitWith } from '../viem';
-import { permitTypedData } from './permits';
+import { sendWith } from '../viem';
 import { borrow, supply } from './transactions';
 import { userBorrows, userSupplies } from './user';
 
