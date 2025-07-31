@@ -67,7 +67,7 @@ describe('Given an Aave Market', () => {
       await supplyAndCheck(wallet, {
         market: reserve.market.address,
         chainId: reserve.market.chain.chainId,
-        supplier: evmAddress(wallet.account!.address),
+        sender: evmAddress(wallet.account!.address),
         amount: {
           erc20: {
             currency: ETHEREUM_WETH_ADDRESS,
@@ -81,7 +81,7 @@ describe('Given an Aave Market', () => {
       it('Then it should be reflected in the user supply positions', async () => {
         const result = await withdraw(client, {
           market: reserve.market.address,
-          supplier: evmAddress(wallet.account!.address),
+          sender: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
@@ -134,7 +134,7 @@ describe('Given an Aave Market', () => {
         await supplyAndCheck(wallet, {
           market: reserve.market.address,
           chainId: reserve.market.chain.chainId,
-          supplier: evmAddress(wallet.account!.address),
+          sender: evmAddress(wallet.account!.address),
           amount: {
             native: amount,
           },
@@ -148,7 +148,7 @@ describe('Given an Aave Market', () => {
 
         const result = await withdraw(client, {
           market: reserve.market.address,
-          supplier: evmAddress(wallet.account!.address),
+          sender: evmAddress(wallet.account!.address),
           amount: {
             native: {
               value: { exact: amount },
