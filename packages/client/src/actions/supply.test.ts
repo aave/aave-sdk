@@ -1,4 +1,4 @@
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
@@ -77,7 +77,7 @@ describe('Given an Aave Market', () => {
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const [erc20Funding, nativeFunding] = await Promise.all([
+      const funds = await ResultAsync.combine([
         fundErc20Address(
           ETHEREUM_USDC_ADDRESS,
           evmAddress(user.account!.address),
@@ -89,8 +89,7 @@ describe('Given an Aave Market', () => {
           bigDecimal('0.02'),
         ),
       ]);
-      assertOk(erc20Funding);
-      assertOk(nativeFunding);
+      assertOk(funds);
     });
 
     it('Then it should be reflected in the supply positions of the other address', async ({
@@ -147,7 +146,7 @@ describe('Given an Aave Market', () => {
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const [erc20Funding, nativeFunding] = await Promise.all([
+      const funds = await ResultAsync.combine([
         fundErc20Address(
           ETHEREUM_USDC_ADDRESS,
           evmAddress(user.account!.address),
@@ -159,8 +158,7 @@ describe('Given an Aave Market', () => {
           bigDecimal('0.02'),
         ),
       ]);
-      assertOk(erc20Funding);
-      assertOk(nativeFunding);
+      assertOk(funds);
     });
 
     it('Then it should allow to supply tokens to the Reserve without needing for an ERC20 Approval transaction', async ({
@@ -222,7 +220,7 @@ describe('Given an Aave Market', () => {
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const [erc20Funding, nativeFunding] = await Promise.all([
+      const funds = await ResultAsync.combine([
         fundErc20Address(
           ETHEREUM_USDC_ADDRESS,
           evmAddress(user.account!.address),
@@ -234,8 +232,7 @@ describe('Given an Aave Market', () => {
           bigDecimal('0.02'),
         ),
       ]);
-      assertOk(erc20Funding);
-      assertOk(nativeFunding);
+      assertOk(funds);
     });
     it(`Then it should be reflected in the user's supply positions`, async ({
       annotate,
