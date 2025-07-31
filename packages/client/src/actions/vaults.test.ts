@@ -33,7 +33,9 @@ describe('Given the Aave Vaults', () => {
     it('Then it should be available in the organization vaults', async ({
       annotate,
     }) => {
-      const initialVault = await createVault(organization, annotate);
+      const initialVault = await createVault(organization, {
+        annotate,
+      });
       assertOk(initialVault);
 
       const result = await vaults(client, {
@@ -60,9 +62,9 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate).andThen(
-          deposit(user, 1),
-        );
+        const initialVault = await createVault(organization, {
+          annotate,
+        }).andThen(deposit(user, 1));
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
@@ -90,9 +92,9 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate).andThen(
-          mintShares(user, 1, annotate),
-        );
+        const initialVault = await createVault(organization, {
+          annotate,
+        }).andThen(mintShares(user, 1, { annotate }));
         assertOk(initialVault);
 
         const userPositions = await userVaults(client, {
@@ -121,9 +123,9 @@ describe('Given the Aave Vaults', () => {
         annotate,
       }) => {
         const amountToWithdraw = 1.0;
-        const initialVault = await createVault(organization, annotate).andThen(
-          deposit(user, amountToWithdraw),
-        );
+        const initialVault = await createVault(organization, {
+          annotate,
+        }).andThen(deposit(user, amountToWithdraw));
         assertOk(initialVault);
 
         const balanceBefore = await getBalance(
@@ -175,9 +177,9 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate).andThen(
-          mintShares(user, 1, annotate),
-        );
+        const initialVault = await createVault(organization, {
+          annotate,
+        }).andThen(mintShares(user, 1, { annotate }));
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
@@ -208,9 +210,9 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate).andThen(
-          mintShares(user, 1, annotate),
-        );
+        const initialVault = await createVault(organization, {
+          annotate,
+        }).andThen(mintShares(user, 1, { annotate }));
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
@@ -250,7 +252,9 @@ describe('Given the Aave Vaults', () => {
       it('Then the new fee should be reflected in the vault object', async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate);
+        const initialVault = await createVault(organization, {
+          annotate,
+        });
         assertOk(initialVault);
 
         const newFee = bigDecimal('4.60');
@@ -286,9 +290,11 @@ describe('Given the Aave Vaults', () => {
       it('Then they should receive the expected ERC-20 amount', async ({
         annotate,
       }) => {
-        const initialVault = await createVault(organization, annotate)
-          .andThen(deposit(user, 1))
-          .andThen(mintShares(user, 1, annotate));
+        const initialVault = await createVault(organization, {
+          annotate,
+        })
+          .andThen(deposit(user, 1, { annotate }))
+          .andThen(mintShares(user, 1, { annotate }));
         assertOk(initialVault);
 
         // Check vault contains fees
@@ -347,24 +353,19 @@ describe('Given the Aave Vaults', () => {
     const user = createNewWallet();
 
     beforeAll(async () => {
-      const vault1 = await createVault(organization, undefined, {
+      const vault1 = await createVault(organization, {
         initialFee: 2.0,
-        token: {
-          name: 'Aave WETH Vault Shares',
-          symbol: 'avWETH',
-          address: ETHEREUM_WETH_ADDRESS,
-        },
       }).andThen(mintShares(user, 10));
       assertOk(vault1);
 
-      const vault2 = await createVault(organization, undefined, {
+      const vault2 = await createVault(organization, {
         initialFee: 5.0,
         token: {
           name: 'Aave USDC Vault Shares',
           symbol: 'avUSDC',
           address: ETHEREUM_USDC_ADDRESS,
         },
-      }).andThen(mintShares(user, 5, undefined, ETHEREUM_USDC_ADDRESS));
+      }).andThen(mintShares(user, 5, { tokenAddress: ETHEREUM_USDC_ADDRESS }));
       assertOk(vault2);
     }, 60_000);
 
