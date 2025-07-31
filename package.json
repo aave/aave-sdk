@@ -37,10 +37,10 @@
     "test:supply": "vitest --project client packages/client/src/actions/supply.test.ts",
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
-    "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"Then it should allow the user to supply tokens to the Reserve\"",
+    "test:937": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to a Reserve in behalf of another address\"",
+    "test:936": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to the Reserve with a permit signature\"",
+    "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When a relayer supplies tokens to the Reserve with permit signature on ERC20 owned by the user\"",
     "test:903": "vitest --project client packages/client/src/actions/repay.test.ts -t \"When a user repays the owner's loan via a permit signature\"",
-    "test:935": "vitest --project client packages/client/src/actions/vaults.test.ts -t \"When the organization withdraws the vault's fees\"",
-    "test:withdrawEth": "vitest --project client packages/client/src/actions/withdraw.test.ts -t \"Then the user should receive the amount in native tokens\"",
     "test": "vitest"
   },
   "license": "MIT",

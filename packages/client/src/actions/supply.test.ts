@@ -248,7 +248,7 @@ describe('Given an Aave Market', () => {
       const signature = await permitTypedData(client, {
         market: reserve.market.address,
         underlyingToken: reserve.underlyingToken.address,
-        amount: '101',
+        amount: amountToSupply,
         chainId: reserve.market.chain.chainId,
         spender: evmAddress(relayer.account!.address),
         owner: evmAddress(user.account!.address),
@@ -257,7 +257,7 @@ describe('Given an Aave Market', () => {
 
       const result = await supply(client, {
         market: reserve.market.address,
-        sender: evmAddress(user.account!.address),
+        sender: evmAddress(relayer.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
