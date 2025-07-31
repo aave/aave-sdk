@@ -1,5 +1,5 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
+import { type FragmentDocumentFor, graphql } from '../graphql';
 import { ChainFragment } from './chain';
 import {
   CurrencyFragment,
@@ -23,6 +23,122 @@ export const MarketInfoFragment = graphql(
 );
 export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
 
+export const MeritSupplyIncentiveFragment = graphql(
+  `fragment MeritSupplyIncentive on MeritSupplyIncentive {
+    __typename
+    extraSupplyApr {
+      ...PercentValue
+    }
+    claimLink
+  }`,
+  [PercentValueFragment],
+);
+export type MeritSupplyIncentive = FragmentOf<
+  typeof MeritSupplyIncentiveFragment
+>;
+
+export const MeritBorrowIncentiveFragment = graphql(
+  `fragment MeritBorrowIncentive on MeritBorrowIncentive {
+    __typename
+    borrowAprDiscount {
+      ...PercentValue
+    }
+    claimLink
+  }`,
+  [PercentValueFragment],
+);
+export type MeritBorrowIncentive = FragmentOf<
+  typeof MeritBorrowIncentiveFragment
+>;
+
+export const MeritBorrowAndSupplyIncentiveConditionFragment = graphql(
+  `fragment MeritBorrowAndSupplyIncentiveCondition on MeritBorrowAndSupplyIncentiveCondition {
+    __typename
+    extraApr {
+      ...PercentValue
+    }
+    supplyToken {
+      ...Currency
+    }
+    borrowToken {
+      ...Currency
+    }
+    claimLink
+  }`,
+  [PercentValueFragment, CurrencyFragment],
+);
+export type MeritBorrowAndSupplyIncentiveCondition = FragmentOf<
+  typeof MeritBorrowAndSupplyIncentiveConditionFragment
+>;
+
+export const AaveSupplyIncentiveFragment = graphql(
+  `fragment AaveSupplyIncentive on AaveSupplyIncentive {
+    __typename
+    extraSupplyApr {
+      ...PercentValue
+    }
+    rewardTokenAddress
+    rewardTokenSymbol
+  }`,
+  [PercentValueFragment],
+);
+export type AaveSupplyIncentive = FragmentOf<
+  typeof AaveSupplyIncentiveFragment
+>;
+
+export const AaveBorrowIncentiveFragment = graphql(
+  `fragment AaveBorrowIncentive on AaveBorrowIncentive {
+    __typename
+    borrowAprDiscount {
+      ...PercentValue
+    }
+    rewardTokenAddress
+    rewardTokenSymbol
+  }`,
+  [PercentValueFragment],
+);
+export type AaveBorrowIncentive = FragmentOf<
+  typeof AaveBorrowIncentiveFragment
+>;
+
+export type ReserveIncentive =
+  | MeritSupplyIncentive
+  | MeritBorrowIncentive
+  | MeritBorrowAndSupplyIncentiveCondition
+  | AaveSupplyIncentive
+  | AaveBorrowIncentive;
+
+export const ReserveIncentiveFragment: FragmentDocumentFor<
+  ReserveIncentive,
+  'ReserveIncentive'
+> = graphql(
+  `fragment ReserveIncentive on ReserveIncentive {
+    __typename
+    ... on MeritSupplyIncentive {
+      ...MeritSupplyIncentive
+    }
+    ... on MeritBorrowIncentive {
+      ...MeritBorrowIncentive
+    }
+    ... on MeritBorrowAndSupplyIncentiveCondition {
+      ...MeritBorrowAndSupplyIncentiveCondition
+    }
+    ... on AaveSupplyIncentive {
+      ...AaveSupplyIncentive
+    }
+    ... on AaveBorrowIncentive {
+      ...AaveBorrowIncentive
+    }
+  }`,
+  [
+    MeritSupplyIncentiveFragment,
+    MeritBorrowIncentiveFragment,
+    MeritBorrowAndSupplyIncentiveConditionFragment,
+    AaveSupplyIncentiveFragment,
+    AaveBorrowIncentiveFragment,
+  ],
+);
+
 export const ReserveInfoFragment = graphql(
   `fragment ReserveInfo on ReserveInfo {
     __typename
@@ -40,8 +156,11 @@ export const ReserveInfoFragment = graphql(
     }
     usdExchangeRate
     permitSupported
+    incentives {
+      ...ReserveIncentive
+    }
   }`,
-  [MarketInfoFragment, CurrencyFragment],
+  [MarketInfoFragment, CurrencyFragment, ReserveIncentiveFragment],
 );
 export type ReserveInfo = FragmentOf<typeof ReserveInfoFragment>;
 
@@ -212,6 +331,9 @@ export const ReserveFragment = graphql(
     eModeInfo {
       ...EmodeReserveInfo
     }
+    incentives {
+      ...ReserveIncentive
+    }
     userState {
       ...ReserveUserState
     }
@@ -225,6 +347,7 @@ export const ReserveFragment = graphql(
     ReserveBorrowInfoFragment,
     ReserveIsolationModeConfigFragment,
     EmodeReserveInfoFragment,
+    ReserveIncentiveFragment,
     ReserveUserStateFragment,
   ],
 );
