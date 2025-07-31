@@ -24,6 +24,10 @@
       "import": "./dist/privy.js",
       "require": "./dist/privy.cjs"
     },
+    "./thirdweb": {
+      "import": "./dist/thirdweb.js",
+      "require": "./dist/thirdweb.cjs"
+    },
     "./viem": {
       "import": "./dist/viem.js",
       "require": "./dist/viem.cjs"
@@ -36,6 +40,9 @@
       ],
       "privy": [
         "./dist/privy.d.ts"
+      ],
+      "thirdweb": [
+        "./dist/thirdweb.d.ts"
       ],
       "viem": [
         "./dist/viem.d.ts"
@@ -64,6 +71,7 @@
     "happy-dom": "^18.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "thirdweb": "^5.105.25",
     "tsup": "^8.5.0",
     "typescript": "^5.6.3",
     "viem": "^2.31.6"
@@ -73,6 +81,7 @@
     "@types/react": "^19.1.8",
     "ethers": "^6.14.4",
     "react": "^19.1.0",
+    "thirdweb": "^5.105.25",
     "viem": "^2.31.6"
   },
   "peerDependenciesMeta": {
