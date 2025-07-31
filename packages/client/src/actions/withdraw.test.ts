@@ -156,6 +156,24 @@ describe('Given an Aave Market', () => {
         expect(result.value).toEqual([]);
       }, 25_000);
     });
+
+    describe('When the user withdraws tokens specifying another address', () => {
+      it.todo(
+        `Then the other address should receive the tokens and it should be reflected in the user's supply positions`,
+      );
+    });
+
+    describe(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
+      it.todo(
+        'Then the user should receive the tokens and it should be reflected in their supply positions',
+      );
+    });
+
+    describe('When the user withdraws tokens with a permit signature', () => {
+      it.todo(
+        'Then it should allow to withdraw tokens without needing for an ERC20 Approval transaction on the aToken',
+      );
+    });
   });
 
   describe('And the reserve allows withdrawals in native tokens', () => {
