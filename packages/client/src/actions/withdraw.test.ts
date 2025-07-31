@@ -54,14 +54,14 @@ describe('Given an Aave Market', () => {
 
   describe('And a user with a supply position', () => {
     const wallet = createNewWallet();
-    const amountToSupply = '0.01';
+    const amountToSupply = '0.1';
 
     beforeAll(async () => {
       // Fund the wallet with WETH
       await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(wallet.account!.address),
-        bigDecimal('0.02'),
+        bigDecimal('0.2'),
       );
 
       await supplyAndCheck(wallet, {
@@ -77,22 +77,24 @@ describe('Given an Aave Market', () => {
       });
     });
 
-    describe('When the user withdraws their supply', () => {
-      it('Then it should be reflected in the user supply positions', async () => {
+    describe('When the user withdraws part of their supply', () => {
+      it('Then it should be reflected in the user supply positions', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const result = await withdraw(client, {
           market: reserve.market.address,
           sender: evmAddress(wallet.account!.address),
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: { exact: amountToSupply },
+              value: { exact: bigDecimal(Number(amountToSupply) * 0.5) },
             },
           },
           chainId: reserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
-          .andTee((tx) => console.log(`tx to withdraw: ${tx}`))
-          // Wait for the transaction to be mined
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {
@@ -110,11 +112,48 @@ describe('Given an Aave Market', () => {
           expect.objectContaining({
             balance: expect.objectContaining({
               amount: expect.objectContaining({
-                value: expect.toBeBigDecimalCloseTo(0),
+                value: expect.toBeBigDecimalCloseTo(
+                  bigDecimal(Number(amountToSupply) * 0.5),
+                ),
               }),
             }),
           }),
         ]);
+      }, 25_000);
+    });
+
+    describe('When the user withdraws all of their supply', () => {
+      it('Then it should be reflected in the user supply positions', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(wallet.account!.address)}`);
+        const result = await withdraw(client, {
+          market: reserve.market.address,
+          sender: evmAddress(wallet.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: { max: true },
+            },
+          },
+          chainId: reserve.market.chain.chainId,
+        })
+          .andThen(sendWith(wallet))
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userSupplies(client, {
+              markets: [
+                {
+                  address: reserve.market.address,
+                  chainId: reserve.market.chain.chainId,
+                },
+              ],
+              user: evmAddress(wallet.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value).toEqual([]);
       }, 25_000);
     });
   });
@@ -122,13 +161,13 @@ describe('Given an Aave Market', () => {
   describe('And the reserve allows withdrawals in native tokens', () => {
     describe('When the user withdraws from the reserve in native tokens', () => {
       const wallet = createNewWallet();
-      const amount = '0.01';
+      const amount = '0.1';
 
       beforeAll(async () => {
         // Fund the wallet with WETH
         await fundNativeAddress(
           evmAddress(wallet.account!.address),
-          bigDecimal('0.02'),
+          bigDecimal('0.2'),
         );
 
         await supplyAndCheck(wallet, {
@@ -141,7 +180,10 @@ describe('Given an Aave Market', () => {
         });
       });
 
-      it('Then the user should receive the amount in native tokens', async () => {
+      it('Then the user should receive the amount in native tokens', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const balanceBefore = await getBalance(wallet, {
           address: evmAddress(wallet.account!.address),
         });
@@ -157,6 +199,7 @@ describe('Given an Aave Market', () => {
           chainId: reserve.market.chain.chainId,
         })
           .andThen(sendWith(wallet))
+          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userSupplies(client, {

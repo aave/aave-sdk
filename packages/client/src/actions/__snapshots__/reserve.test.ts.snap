@@ -8,6 +8,7 @@ exports[`Given an Aave Market reserve > When fetching the reserve data > Then it
   "borrowInfo": Any<Object>,
   "eModeInfo": Any<Array>,
   "flashLoanEnabled": true,
+  "incentives": [],
   "isFrozen": false,
   "isPaused": false,
   "isolationModeConfig": null,
