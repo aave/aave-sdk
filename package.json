@@ -37,6 +37,7 @@
     "test:supply": "vitest --project client packages/client/src/actions/supply.test.ts",
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
+    "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
     "test:937": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to a Reserve in behalf of another address\"",
     "test:936": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to the Reserve with a permit signature\"",
     "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When a relayer supplies tokens to the Reserve with permit signature on ERC20 owned by the user\"",
