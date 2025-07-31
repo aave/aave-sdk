@@ -26,7 +26,7 @@ import {
   type WalletClient,
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { expect, type TestAnnotation } from 'vitest';
+import { expect } from 'vitest';
 import { reserve } from './actions';
 import { AaveClient } from './client';
 import { local, staging } from './environments';
@@ -222,18 +222,6 @@ export function assertTypedDocumentSatisfies<
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-export type Annotate = {
-  (
-    message: string,
-    type?: string,
-    attachment?: TestAnnotation['attachment'],
-  ): Promise<TestAnnotation>;
-  (
-    message: string,
-    attachment?: TestAnnotation['attachment'],
-  ): Promise<TestAnnotation>;
-};
 
 // Function to get balance ERC20 token
 export async function getBalance(

@@ -3,7 +3,6 @@ import type { ResultAsync } from '@aave/types';
 import { evmAddress, nonNullable, okAsync } from '@aave/types';
 import type { WalletClient } from 'viem';
 import {
-  type Annotate,
   bigDecimal,
   client,
   ETHEREUM_FORK_ID,
@@ -19,7 +18,6 @@ import { vault } from './vaults';
 export function createVault(
   organization: WalletClient,
   config?: {
-    annotate?: Annotate;
     initialFee?: number;
     token?: {
       name: string;
@@ -50,26 +48,16 @@ export function createVault(
         underlyingToken: reserve!.underlyingToken.address,
       })
         .andThen(sendWith(organization))
-        .andTee((tx) => config?.annotate?.(`tx to deploy vault: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen((txHash) =>
           vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
-        )
-        .andTee((vault) =>
-          config?.annotate?.(`vault address: ${vault?.address}`),
         )
         .map(nonNullable);
     });
   });
 }
 
-export function deposit(
-  user: WalletClient,
-  amount: number,
-  config?: {
-    annotate?: Annotate;
-  },
-) {
+export function deposit(user: WalletClient, amount: number) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
     return fundErc20Address(
       ETHEREUM_WETH_ADDRESS,
@@ -86,9 +74,6 @@ export function deposit(
         chainId: vault.chainId,
       })
         .andThen(sendWith(user))
-        .andTee((tx) =>
-          config?.annotate?.(`tx to deposit in vault: ${tx.txHash}`),
-        )
         .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
@@ -98,14 +83,11 @@ export function deposit(
 export function mintShares(
   user: WalletClient,
   amount: number,
-  config?: {
-    annotate?: Annotate;
-    tokenAddress?: string;
-  },
+  tokenAddress?: string,
 ) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
     return fundErc20Address(
-      evmAddress(config?.tokenAddress ?? ETHEREUM_WETH_ADDRESS),
+      evmAddress(tokenAddress ?? ETHEREUM_WETH_ADDRESS),
       evmAddress(user.account!.address),
       bigDecimal(amount + 0.1),
     ).andThen(() => {
@@ -118,7 +100,6 @@ export function mintShares(
         chainId: vault.chainId,
       })
         .andThen(sendWith(user))
-        .andTee((tx) => config?.annotate?.(`tx to mint shares: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen(() => okAsync(vault));
     });
