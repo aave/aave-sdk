@@ -41,8 +41,6 @@
     "test:936": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to the Reserve with a permit signature\"",
     "test:939": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to a Reserve in behalf of another address with a permit signature\"",
     "test:938": "vitest --project client packages/client/src/actions/repay.test.ts -t \"When a user repays a loan in behalf of another address with a permit signature\"",
-    "test:lastBugs": "pnpm test:936 && pnpm test:939 && pnpm test:938",
-
     "test": "vitest"
   },
   "license": "MIT",
