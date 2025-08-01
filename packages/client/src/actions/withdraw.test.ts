@@ -6,6 +6,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
   createNewWallet,
+  ETHEREUM_FORK_ID,
   ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fetchReserve,
@@ -170,7 +171,7 @@ describe('Given an Aave Market', () => {
   describe('And a user with a supply position', () => {
     describe('When the user withdraws tokens specifying another address', () => {
       const user = createNewWallet();
-      const otherUser = createNewWallet();
+      const anotherUser = createNewWallet();
       const amountToSupply = '0.1';
 
       beforeAll(async () => {
@@ -193,18 +194,16 @@ describe('Given an Aave Market', () => {
         });
       });
 
-      it(`Then the other address should receive the tokens and it should be reflected in the user's supply positions`, async ({
+      it(`Then it should be reflected in the user's supply positions and the other address should receive the tokens`, async ({
         annotate,
       }) => {
         annotate(`user address: ${evmAddress(user.account!.address)}`);
-        annotate(
-          `other user address: ${evmAddress(otherUser.account!.address)}`,
-        );
+        annotate(`other address: ${evmAddress(anotherUser.account!.address)}`);
 
         const result = await withdraw(client, {
           market: wethReserve.market.address,
           sender: evmAddress(user.account!.address),
-          recipient: evmAddress(otherUser.account!.address),
+          recipient: evmAddress(anotherUser.account!.address),
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
@@ -231,7 +230,7 @@ describe('Given an Aave Market', () => {
         expect(result.value).toEqual([]);
 
         const balance = await getBalanceErc20(
-          evmAddress(otherUser.account!.address),
+          evmAddress(anotherUser.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
         expect(balance).toBeCloseTo(Number(amountToSupply), 3);
@@ -239,19 +238,20 @@ describe('Given an Aave Market', () => {
     });
 
     // TODO: Only possible to test with WETH reserve and the reserve is not supporting `permit`
-    describe.skip(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
+    describe.skip('When the user withdraws tokens specifying another address with a permit signature', () => {
       const user = createNewWallet();
-      const relayer = createNewWallet();
+      const anotherUser = createNewWallet();
       const amountToSupply = '0.1';
 
       beforeAll(async () => {
-        await fundErc20Address(
+        const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('0.2'),
         );
+        assertOk(setup);
 
-        await supplyAndCheck(user, {
+        const supplyResult = await supply(client, {
           market: wethReserve.market.address,
           chainId: wethReserve.market.chain.chainId,
           sender: evmAddress(user.account!.address),
@@ -262,43 +262,48 @@ describe('Given an Aave Market', () => {
             },
           },
         });
+        assertOk(supplyResult);
       });
 
       it('Then the user should receive the tokens and it should be reflected in their supply positions', async ({
         annotate,
       }) => {
         annotate(`user address: ${evmAddress(user.account!.address)}`);
-        annotate(`relayer address: ${evmAddress(relayer.account!.address)}`);
+        annotate(`other address: ${evmAddress(anotherUser.account!.address)}`);
 
-        const signature = await permitTypedData(client, {
-          market: wethReserve.market.address,
-          underlyingToken: wethReserve.underlyingToken.address,
+        const result = await permitTypedData(client, {
+          currency: ETHEREUM_WETH_ADDRESS,
           amount: '0.2', // To make sure the user has enough balance to remove the interest
-          chainId: wethReserve.market.chain.chainId,
-          spender: evmAddress(relayer.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          spender: wethReserve.market.address,
           owner: evmAddress(user.account!.address),
-        }).andThen(signERC20PermitWith(user));
-        assertOk(signature);
-
-        const result = await withdraw(client, {
-          market: usdcReserve.market.address,
-          sender: evmAddress(relayer.account!.address),
-          amount: {
-            native: {
-              value: { max: true },
-              permitSig: signature.value,
-            },
-          },
-          chainId: wethReserve.market.chain.chainId,
         })
-          .andThen(sendWith(relayer))
-          .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
-          .andThen(client.waitForTransaction)
-          .andThen(() =>
-            userSupplies(client, {
-              markets: [wethReserve.market.address],
-              user: evmAddress(user.account!.address),
-            }),
+          .andTee((permit) =>
+            annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
+          )
+          .andThen(signERC20PermitWith(user))
+          .andThen((signature) =>
+            withdraw(client, {
+              market: wethReserve.market.address,
+              sender: evmAddress(user.account!.address),
+              recipient: evmAddress(anotherUser.account!.address),
+              amount: {
+                native: {
+                  value: { max: true },
+                  permitSig: signature,
+                },
+              },
+              chainId: wethReserve.market.chain.chainId,
+            })
+              .andThen(sendWith(user))
+              .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
+              .andThen(client.waitForTransaction)
+              .andThen(() =>
+                userSupplies(client, {
+                  markets: [wethReserve.market.address],
+                  user: evmAddress(user.account!.address),
+                }),
+              ),
           );
         assertOk(result);
         expect(result.value).toEqual([]);
@@ -339,11 +344,10 @@ describe('Given an Aave Market', () => {
         annotate(`user address: ${evmAddress(user.account!.address)}`);
 
         const signature = await permitTypedData(client, {
-          market: usdcReserve.market.address,
-          underlyingToken: usdcReserve.underlyingToken.address,
+          currency: ETHEREUM_USDC_ADDRESS,
           amount: amountToSupply,
-          chainId: usdcReserve.market.chain.chainId,
-          spender: evmAddress(user.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          spender: usdcReserve.market.address,
           owner: evmAddress(user.account!.address),
         }).andThen(signERC20PermitWith(user));
         assertOk(signature);
@@ -377,18 +381,6 @@ describe('Given an Aave Market', () => {
         assertOk(result);
         expect(result.value).toEqual([]);
       });
-    });
-
-    describe('When the user withdraws tokens specifying another address with a permit signature', () => {
-      it.todo(
-        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
-      );
-    });
-
-    describe('When the user withdraws tokens specifying another address with a permit signature', () => {
-      it.todo(
-        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
-      );
     });
   });
 
