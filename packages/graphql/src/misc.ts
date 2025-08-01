@@ -15,13 +15,14 @@ export const HealthQuery = graphql(
  * @internal
  */
 export const ChainsQuery = graphql(
-  `query Chains {
-    value: chains {
+  `query Chains($request: ChainsFilter!) {
+    value: chains(filter: $request) {
       ...Chain
     }
   }`,
   [ChainFragment],
 );
+export type ChainsRequest = RequestOf<typeof ChainsQuery>;
 
 /**
  * @internal

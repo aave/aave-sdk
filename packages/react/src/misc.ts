@@ -1,6 +1,7 @@
 import {
   type Chain,
   ChainsQuery,
+  type ChainsRequest,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
@@ -14,6 +15,8 @@ import type {
 } from './helpers';
 import { useSuspendableQuery } from './helpers';
 
+export type UseAaveChainsArgs = ChainsRequest;
+
 /**
  * Fetch all supported Aave chains.
  *
@@ -21,29 +24,37 @@ import { useSuspendableQuery } from './helpers';
  *
  * ```tsx
  * const { data } = useAaveChains({
+ *   filter: ChainsFilter.MAINNET_ONLY,
  *   suspense: true,
  * });
  * ```
  */
-export function useAaveChains(args: Suspendable): SuspenseResult<Chain[]>;
+export function useAaveChains(
+  args: UseAaveChainsArgs & Suspendable,
+): SuspenseResult<Chain[]>;
 
 /**
  * Fetch all supported Aave chains.
  *
  * ```tsx
- * const { data, loading } = useAaveChains();
+ * const { data, loading } = useAaveChains({
+ *   filter: ChainsFilter.MAINNET_ONLY,
+ * });
  * ```
  */
-export function useAaveChains(): ReadResult<Chain[]>;
+export function useAaveChains(args: UseAaveChainsArgs): ReadResult<Chain[]>;
 
 export function useAaveChains({
   suspense = false,
-}: {
+  ...request
+}: UseAaveChainsArgs & {
   suspense?: boolean;
-} = {}): SuspendableResult<Chain[]> {
+}): SuspendableResult<Chain[]> {
   return useSuspendableQuery({
     document: ChainsQuery,
-    variables: {},
+    variables: {
+      request,
+    },
     suspense,
   });
 }

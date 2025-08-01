@@ -20,6 +20,7 @@ import {
 } from 'gql.tada';
 import type { StandardData } from './common';
 import type {
+  ChainsFilter,
   OperationType,
   OrderDirection,
   PageSize,
@@ -38,6 +39,7 @@ export const graphql = initGraphQLTada<{
     BigInt: BigIntString;
     BlockchainData: BlockchainData;
     Boolean: boolean;
+    ChainsFilter: ChainsFilter;
     ChainId: ChainId;
     Cursor: Cursor;
     DateTime: DateTime;
