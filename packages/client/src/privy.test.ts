@@ -35,11 +35,10 @@ describe('Given a PrivyClient instance', () => {
   describe('When using it to sign an ERC20 permit', () => {
     it('Then it should resolve with the expected EIP712Signature object', async () => {
       const result = await permitTypedData(client, {
-        market: ETHEREUM_MARKET_ADDRESS,
-        underlyingToken: ETHEREUM_USDC_ADDRESS,
+        currency: ETHEREUM_USDC_ADDRESS,
         amount: '1',
         chainId: chainId(1),
-        spender: evmAddress('0x0000000000000000000000000000000000000000'),
+        spender: ETHEREUM_MARKET_ADDRESS,
         owner: evmAddress('0x0000000000000000000000000000000000000000'),
       }).andThen(
         signERC20PermitWith(privy, import.meta.env.PRIVY_TEST_WALLET_ID),
