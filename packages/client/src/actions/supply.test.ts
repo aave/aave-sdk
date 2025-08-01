@@ -73,30 +73,24 @@ describe('Given an Aave Market', () => {
 
   describe('When the user supplies tokens to a Reserve in behalf of another address', () => {
     const user = createNewWallet();
-    const otherUser = createNewWallet();
+    const anotherUser = createNewWallet();
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const funds = await ResultAsync.combine([
-        fundErc20Address(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('200'),
-          6,
-        ),
-        fundNativeAddress(
-          evmAddress(user.account!.address),
-          bigDecimal('0.02'),
-        ),
-      ]);
-      assertOk(funds);
+      const setup = await fundErc20Address(
+        ETHEREUM_USDC_ADDRESS,
+        evmAddress(user.account!.address),
+        bigDecimal('200'),
+        6,
+      );
+      assertOk(setup);
     });
 
     it('Then it should be reflected in the supply positions of the other address', async ({
       annotate,
     }) => {
       annotate(`user address: ${user.account!.address}`);
-      annotate(`other user address: ${otherUser.account!.address}`);
+      annotate(`other user address: ${anotherUser.account!.address}`);
       // Check if the reserve is not frozen or paused
       const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.isFrozen).toBe(false);
@@ -105,7 +99,7 @@ describe('Given an Aave Market', () => {
       const result = await supply(client, {
         market: reserve.market.address,
         sender: evmAddress(user.account!.address),
-        onBehalfOf: evmAddress(otherUser.account!.address),
+        onBehalfOf: evmAddress(anotherUser.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -125,7 +119,7 @@ describe('Given an Aave Market', () => {
                 chainId: reserve.market.chain.chainId,
               },
             ],
-            user: evmAddress(otherUser.account!.address),
+            user: evmAddress(anotherUser.account!.address),
           }),
         );
       assertOk(result);
@@ -146,19 +140,13 @@ describe('Given an Aave Market', () => {
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const funds = await ResultAsync.combine([
-        fundErc20Address(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('200'),
-          6,
-        ),
-        fundNativeAddress(
-          evmAddress(user.account!.address),
-          bigDecimal('0.02'),
-        ),
-      ]);
-      assertOk(funds);
+      const setup = await fundErc20Address(
+        ETHEREUM_USDC_ADDRESS,
+        evmAddress(user.account!.address),
+        bigDecimal('200'),
+        6,
+      );
+      assertOk(setup);
     });
 
     it('Then it should allow to supply tokens to the Reserve without needing for an ERC20 Approval transaction', async ({
@@ -169,13 +157,16 @@ describe('Given an Aave Market', () => {
       expect(reserve.permitSupported).toBe(true);
 
       const signature = await permitTypedData(client, {
-        market: reserve.market.address,
-        underlyingToken: reserve.underlyingToken.address,
+        currency: reserve.underlyingToken.address,
         amount: amountToSupply,
         chainId: reserve.market.chain.chainId,
-        spender: evmAddress(user.account!.address),
+        spender: reserve.market.address,
         owner: evmAddress(user.account!.address),
-      }).andThen(signERC20PermitWith(user));
+      })
+        .andTee((permit) =>
+          annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
+        )
+        .andThen(signERC20PermitWith(user));
       assertOk(signature);
 
       const result = await supply(client, {
@@ -190,6 +181,7 @@ describe('Given an Aave Market', () => {
         },
         chainId: reserve.market.chain.chainId,
       })
+        .andTee((tx) => annotate(`tx plan: ${JSON.stringify(tx, null, 2)}`))
         .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
         .andThen(sendWith(user))
         .andTee((tx) => annotate(`tx: ${tx.txHash}`))
@@ -214,47 +206,45 @@ describe('Given an Aave Market', () => {
     });
   });
 
-  describe('When a relayer supplies tokens to the Reserve with permit signature on ERC20 owned by the user', () => {
-    const relayer = createNewWallet();
+  describe('When the user supplies tokens to a Reserve in behalf of another address with a permit signature', () => {
     const user = createNewWallet();
+    const anotherUser = createNewWallet();
     const amountToSupply = '100';
 
     beforeAll(async () => {
-      const funds = await ResultAsync.combine([
-        fundErc20Address(
-          ETHEREUM_USDC_ADDRESS,
-          evmAddress(user.account!.address),
-          bigDecimal('200'),
-          6,
-        ),
-        fundNativeAddress(
-          evmAddress(relayer.account!.address),
-          bigDecimal('0.02'),
-        ),
-      ]);
-      assertOk(funds);
+      const setup = await fundErc20Address(
+        ETHEREUM_USDC_ADDRESS,
+        evmAddress(user.account!.address),
+        bigDecimal('200'),
+        6,
+      );
+      assertOk(setup);
     });
-    it(`Then it should be reflected in the user's supply positions`, async ({
+    it(`Then it should be reflected in the other user's supply positions`, async ({
       annotate,
     }) => {
-      annotate(`relayer address: ${relayer.account!.address}`);
+      annotate(`another user address: ${anotherUser.account!.address}`);
       annotate(`user address: ${user.account!.address}`);
       const reserve = await fetchReserve(ETHEREUM_USDC_ADDRESS);
       expect(reserve.permitSupported).toBe(true);
 
       const signature = await permitTypedData(client, {
-        market: reserve.market.address,
-        underlyingToken: reserve.underlyingToken.address,
+        currency: reserve.underlyingToken.address,
         amount: amountToSupply,
         chainId: reserve.market.chain.chainId,
-        spender: evmAddress(relayer.account!.address),
+        spender: reserve.market.address,
         owner: evmAddress(user.account!.address),
-      }).andThen(signERC20PermitWith(user));
+      })
+        .andTee((permit) =>
+          annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
+        )
+        .andThen(signERC20PermitWith(user));
       assertOk(signature);
 
       const result = await supply(client, {
         market: reserve.market.address,
-        sender: evmAddress(relayer.account!.address),
+        sender: evmAddress(user.account!.address),
+        onBehalfOf: evmAddress(anotherUser.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
@@ -264,13 +254,15 @@ describe('Given an Aave Market', () => {
         },
         chainId: reserve.market.chain.chainId,
       })
-        .andThen(sendWith(relayer))
+        .andTee((tx) => annotate(`tx plan: ${JSON.stringify(tx, null, 2)}`))
+        .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
+        .andThen(sendWith(user))
         .andTee((tx) => annotate(`supply tx: ${tx.txHash}`))
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
             markets: [reserve.market.address],
-            user: evmAddress(user.account!.address),
+            user: evmAddress(anotherUser.account!.address),
           }),
         );
       assertOk(result);
