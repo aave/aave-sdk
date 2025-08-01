@@ -1,5 +1,6 @@
 import {
   type PaginatedVaultsResult,
+  type PaginatedVaultUserTransactionHistoryResult,
   type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
@@ -16,6 +17,8 @@ import {
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserTransactionHistoryQuery,
+  type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -224,6 +227,41 @@ export function vaultPreviewRedeem(
   request: VaultPreviewRedeemRequest,
 ): ResultAsync<TokenAmount, UnexpectedError> {
   return client.query(VaultPreviewRedeemQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches the user transaction history for a vault.
+ *
+ * ```ts
+ * const result = await vaultUserTransactionHistory(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Transaction count:', result.value.items.length);
+ *   result.value.items.forEach(tx => {
+ *     if (tx.__typename === 'VaultUserDepositItem') {
+ *       console.log('Deposit:', tx.asset.amount.value, 'shares:', tx.shares.amount.value);
+ *     } else if (tx.__typename === 'VaultUserWithdrawItem') {
+ *       console.log('Withdraw:', tx.asset.amount.value, 'shares:', tx.shares.amount.value);
+ *     }
+ *   });
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault user transaction history request parameters.
+ * @returns The paginated vault user transaction history result.
+ */
+export function vaultUserTransactionHistory(
+  client: AaveClient,
+  request: VaultUserTransactionHistoryRequest,
+): ResultAsync<PaginatedVaultUserTransactionHistoryResult, UnexpectedError> {
+  return client.query(VaultUserTransactionHistoryQuery, {
     request,
   });
 }

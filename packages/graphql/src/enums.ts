@@ -31,7 +31,6 @@ export enum TimeWindow {
 export enum OperationType {
   Borrow = 'BORROW',
   Repay = 'REPAY',
-  ReserveDataUpdated = 'RESERVE_DATA_UPDATED',
   ReserveUsedAsCollateralEnabled = 'RESERVE_USED_AS_COLLATERAL_ENABLED',
   ReserveUsedAsCollateralDisabled = 'RESERVE_USED_AS_COLLATERAL_DISABLED',
   Supply = 'SUPPLY',
@@ -39,14 +38,9 @@ export enum OperationType {
   Withdraw = 'WITHDRAW',
   VaultDeployed = 'VAULT_DEPLOYED',
   VaultDeposit = 'VAULT_DEPOSIT',
-  VaultEmergencyRescue = 'VAULT_EMERGENCY_RESCUE',
-  VaultOwnershipTransferred = 'VAULT_OWNERSHIP_TRANSFERRED',
   VaultFeeUpdated = 'VAULT_FEE_UPDATED',
   VaultFeeWithdrawn = 'VAULT_FEE_WITHDRAWN',
-  VaultRewardClaimed = 'VAULT_REWARD_CLAIMED',
-  VaultTransfer = 'VAULT_TRANSFER',
   VaultWithdraw = 'VAULT_WITHDRAW',
-  VaultYieldAccrued = 'VAULT_YIELD_ACCRUED',
   Liquidation = 'LIQUIDATION',
 }
 
@@ -57,4 +51,12 @@ export enum ChainsFilter {
   TESTNET_ONLY = 'TESTNET_ONLY',
   MAINNET_ONLY = 'MAINNET_ONLY',
   ALL = 'ALL',
+}
+
+/**
+ * The action type for vault user history.
+ */
+export enum VaultUserHistoryAction {
+  Deposit = 'DEPOSIT',
+  Withdraw = 'WITHDRAW',
 }

@@ -136,6 +136,7 @@ type Chain {
   chainId: ChainId!
   explorerUrl: String!
   isTestnet: Boolean!
+  nativeWrappedToken: EvmAddress!
 }
 
 """A supported blockchain chain ID"""
@@ -606,12 +607,14 @@ type NativeCurrency {
 
   """The chain id"""
   chainId: ChainId!
+
+  """The wrapped version of this token"""
+  wrappedToken: EvmAddress!
 }
 
 enum OperationType {
   BORROW
   REPAY
-  RESERVE_DATA_UPDATED
   RESERVE_USED_AS_COLLATERAL_ENABLED
   RESERVE_USED_AS_COLLATERAL_DISABLED
   SUPPLY
@@ -619,14 +622,9 @@ enum OperationType {
   WITHDRAW
   VAULT_DEPLOYED
   VAULT_DEPOSIT
-  VAULT_EMERGENCY_RESCUE
-  VAULT_OWNERSHIP_TRANSFERRED
   VAULT_FEE_UPDATED
   VAULT_FEE_WITHDRAWN
-  VAULT_REWARD_CLAIMED
-  VAULT_TRANSFER
   VAULT_WITHDRAW
-  VAULT_YIELD_ACCRUED
   LIQUIDATION
 }
 
@@ -654,6 +652,11 @@ type PaginatedUserTransactionHistoryResult {
   items: [UserTransactionItem!]!
 
   """Pagination information."""
+  pageInfo: PaginatedResultInfo!
+}
+
+type PaginatedVaultUserTransactionHistoryResult {
+  items: [VaultUserTransactionItem!]!
   pageInfo: PaginatedResultInfo!
 }
 
@@ -743,6 +746,9 @@ type Query {
   Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
   """
   vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
+
+  """User vault transaction history"""
+  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
 
   """
   Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
@@ -846,7 +852,6 @@ type Query {
   cater for the race condition.
   """
   hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
-  _service: _Service!
 }
 
 input RepayRequest {
@@ -1713,6 +1718,59 @@ input VaultSetFeeRequest {
   chainId: ChainId!
 }
 
+"""A transaction where the user supplied assets to a reserve."""
+type VaultUserDepositItem {
+  asset: TokenAmount!
+  shares: TokenAmount!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
+enum VaultUserHistoryAction {
+  DEPOSIT
+  WITHDRAW
+}
+
+input VaultUserTransactionHistoryOrderBy @oneOf {
+  """Order by shares"""
+  date: OrderDirection
+}
+
+input VaultUserTransactionHistoryRequest {
+  """The vault address"""
+  vault: EvmAddress!
+
+  """The chain id where the transactions were sent"""
+  chainId: ChainId!
+
+  """The user that sent the transactions"""
+  user: EvmAddress!
+
+  """The filter to optionally filter the transactions by action type"""
+  filter: [VaultUserHistoryAction!]! = [DEPOSIT, WITHDRAW]
+
+  """Ordering criteria"""
+  orderBy: VaultUserTransactionHistoryOrderBy! = {date: ASC}
+
+  """The page size"""
+  pageSize: PageSize! = FIFTY
+
+  """Pagination cursor"""
+  cursor: Cursor
+}
+
+union VaultUserTransactionItem = VaultUserDepositItem | VaultUserWithdrawItem
+
+"""A transaction where the user withdrew assets from a reserve."""
+type VaultUserWithdrawItem {
+  asset: TokenAmount!
+  shares: TokenAmount!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
 input VaultWithdrawFeesRequest {
   """The vault deployed address"""
   vault: EvmAddress!
@@ -1848,8 +1906,4 @@ input WithdrawRequest {
 
   """The chain id"""
   chainId: ChainId!
-}
-
-type _Service {
-  sdl: String
 }

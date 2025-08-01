@@ -1,5 +1,5 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
+import { type FragmentDocumentFor, graphql } from '../graphql';
 import {
   PaginatedResultInfoFragment,
   PercentValueFragment,
@@ -77,4 +77,81 @@ export const PaginatedVaultsResultFragment = graphql(
 );
 export type PaginatedVaultsResult = FragmentOf<
   typeof PaginatedVaultsResultFragment
+>;
+
+export const VaultUserDepositItemFragment = graphql(
+  `fragment VaultUserDepositItem on VaultUserDepositItem {
+    __typename
+    asset {
+      ...TokenAmount
+    }
+    shares {
+      ...TokenAmount
+    }
+    blockExplorerUrl
+    txHash
+    timestamp
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultUserDepositItem = FragmentOf<
+  typeof VaultUserDepositItemFragment
+>;
+
+export const VaultUserWithdrawItemFragment = graphql(
+  `fragment VaultUserWithdrawItem on VaultUserWithdrawItem {
+    __typename
+    asset {
+      ...TokenAmount
+    }
+    shares {
+      ...TokenAmount
+    }
+    blockExplorerUrl
+    txHash
+    timestamp
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultUserWithdrawItem = FragmentOf<
+  typeof VaultUserWithdrawItemFragment
+>;
+
+export type VaultUserTransactionItem =
+  | VaultUserDepositItem
+  | VaultUserWithdrawItem;
+
+export const VaultUserTransactionItemFragment: FragmentDocumentFor<
+  VaultUserTransactionItem,
+  'VaultUserTransactionItem'
+> = graphql(
+  `fragment VaultUserTransactionItem on VaultUserTransactionItem {
+    __typename
+    ... on VaultUserDepositItem {
+      ...VaultUserDepositItem
+    }
+    ... on VaultUserWithdrawItem {
+      ...VaultUserWithdrawItem
+    }
+  }`,
+  [VaultUserDepositItemFragment, VaultUserWithdrawItemFragment],
+);
+
+/**
+ * @internal
+ */
+export const PaginatedVaultUserTransactionHistoryResultFragment = graphql(
+  `fragment PaginatedVaultUserTransactionHistoryResult on PaginatedVaultUserTransactionHistoryResult {
+    __typename
+    items {
+      ...VaultUserTransactionItem
+    }
+    pageInfo {
+      ...PaginatedResultInfo
+    }
+  }`,
+  [PaginatedResultInfoFragment, VaultUserTransactionItemFragment],
+);
+export type PaginatedVaultUserTransactionHistoryResult = FragmentOf<
+  typeof PaginatedVaultUserTransactionHistoryResultFragment
 >;
