@@ -1,5 +1,6 @@
 import type { UnexpectedError } from '@aave/client';
 import {
+  approveBorrowCreditDelegation,
   borrow,
   collateralToggle,
   liquidate,
@@ -16,6 +17,7 @@ import {
   withdraw,
 } from '@aave/client/actions';
 import type {
+  ApproveBorrowCreditDelegatorRequest,
   BorrowRequest,
   CollateralToggleRequest,
   ExecutionPlan,
@@ -623,5 +625,46 @@ export function useVaultWithdrawFees(): UseAsyncTask<
 
   return useAsyncTask((request: VaultWithdrawFeesRequest) =>
     vaultWithdrawFees(client, request),
+  );
+}
+
+/**
+ * A hook that provides a way to approve a credit borrow delegator to be able to borrow on your behalf.
+ *
+ * ```ts
+ * const [approve, approving] = useApproveBorrowCreditDelegation();
+ * const [sendTransaction, sending] = useSendTransaction(wallet);
+ *
+ * const loading = approving.loading && sending.loading;
+ * const error = approving.error || sending.error;
+ *
+ * // …
+ *
+ * const result = await approve({
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   amount: '1000',
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * }).andThen(sendTransaction);
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ *   return;
+ * }
+ *
+ * console.log('Transaction sent with hash:', result.value);
+ * ```
+ */
+export function useApproveBorrowCreditDelegation(): UseAsyncTask<
+  ApproveBorrowCreditDelegatorRequest,
+  TransactionRequest,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: ApproveBorrowCreditDelegatorRequest) =>
+    approveBorrowCreditDelegation(client, request),
   );
 }

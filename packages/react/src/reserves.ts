@@ -2,11 +2,14 @@ import {
   type APYSample,
   BorrowAPYHistoryQuery,
   type BorrowAPYHistoryRequest,
+  CreditDelegateeAllowanceQuery,
+  type CreditDelegateeAmountRequest,
   type Reserve,
   ReserveQuery,
   type ReserveRequest,
   SupplyAPYHistoryQuery,
   type SupplyAPYHistoryRequest,
+  type TokenAmount,
 } from '@aave/graphql';
 import type {
   ReadResult,
@@ -169,6 +172,60 @@ export function useSupplyAPYHistory({
 }): SuspendableResult<APYSample[]> {
   return useSuspendableQuery({
     document: SupplyAPYHistoryQuery,
+    variables: {
+      request,
+    },
+    suspense,
+  });
+}
+
+export type UseCreditDelegateeAllowanceArgs = CreditDelegateeAmountRequest;
+
+/**
+ * Get the amount delegated to the credit delegatee that can borrow on your behalf.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useCreditDelegateeAllowance({
+ *   market: evmAddress('0x87870bca...'),
+ *   underlyingToken: evmAddress('0xa0b86a33...'),
+ *   user: evmAddress('0x742d35cc...'),
+ *   delegatee: evmAddress('0x5678...'),
+ *   chainId: chainId(1),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useCreditDelegateeAllowance(
+  args: UseCreditDelegateeAllowanceArgs & Suspendable,
+): SuspenseResult<TokenAmount>;
+
+/**
+ * Get the amount delegated to the credit delegatee that can borrow on your behalf.
+ *
+ * ```tsx
+ * const { data, loading } = useCreditDelegateeAllowance({
+ *   market: evmAddress('0x87870bca...'),
+ *   underlyingToken: evmAddress('0xa0b86a33...'),
+ *   user: evmAddress('0x742d35cc...'),
+ *   delegatee: evmAddress('0x5678...'),
+ *   chainId: chainId(1),
+ * });
+ * ```
+ */
+export function useCreditDelegateeAllowance(
+  args: UseCreditDelegateeAllowanceArgs,
+): ReadResult<TokenAmount>;
+
+export function useCreditDelegateeAllowance({
+  suspense = false,
+  ...request
+}: UseCreditDelegateeAllowanceArgs & {
+  suspense?: boolean;
+}): SuspendableResult<TokenAmount> {
+  return useSuspendableQuery({
+    document: CreditDelegateeAllowanceQuery,
     variables: {
       request,
     },
