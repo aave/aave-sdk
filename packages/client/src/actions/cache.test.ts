@@ -1,6 +1,4 @@
-import type { Reserve, SupplyRequest } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import type { WalletClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,
@@ -11,34 +9,6 @@ import {
 } from '../test-utils';
 import { sendWith } from '../viem';
 import { supply, withdraw } from './transactions';
-import { userSupplies } from './user';
-
-async function supplyAndCheck(wallet: WalletClient, request: SupplyRequest) {
-  const userAddress = evmAddress(wallet.account!.address);
-  const result = await supply(client, request)
-    .andThen(sendWith(wallet))
-    .andThen(client.waitForTransaction)
-    .andThen(() =>
-      userSupplies(client, {
-        markets: [{ address: request.market, chainId: request.chainId }],
-        user: userAddress,
-      }),
-    );
-  assertOk(result);
-  expect(result.value).toEqual([
-    expect.objectContaining({
-      balance: expect.objectContaining({
-        amount: expect.objectContaining({
-          value: expect.toBeBigDecimalCloseTo(
-            'erc20' in request.amount
-              ? request.amount.erc20.value
-              : request.amount.native,
-          ),
-        }),
-      }),
-    }),
-  ]);
-}
 
 describe('Check Cache in Reserve', () => {
   describe('When the user supplies tokens to the Reserve', () => {

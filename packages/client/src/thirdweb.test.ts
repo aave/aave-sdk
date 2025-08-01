@@ -33,11 +33,10 @@ describe('Given a ThirdwebClient instance', () => {
   describe('When using it to sign an ERC20 permit', () => {
     it('Then it should resolve with the expected EIP712Signature object', async () => {
       const result = await permitTypedData(client, {
-        market,
-        underlyingToken: usdc,
+        currency: usdc,
         amount: '1',
         chainId: baseSepolia,
-        spender: evmAddress('0x0000000000000000000000000000000000000000'),
+        spender: market,
         owner: evmAddress(import.meta.env.THIRDWEB_TEST_WALLET_ADDRESS),
       }).andThen(signERC20PermitWith(thirdwebClient));
 
