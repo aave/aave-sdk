@@ -1,6 +1,6 @@
-import { chainId, evmAddress } from '@aave/react';
 import { useLogin, usePrivy } from '@privy-io/react-auth';
 import { Suspense } from 'react';
+import { baseSepolia, market, usdc } from './config';
 import { SupplyForm } from './SupplyForm';
 
 export function App() {
@@ -18,7 +18,7 @@ export function App() {
         onClick={() =>
           login({
             loginMethods: ['wallet'],
-            walletChainType: 'ethereum-and-solana',
+            walletChainType: 'ethereum-only',
             disableSignup: false,
           })
         }
@@ -30,12 +30,15 @@ export function App() {
 
   return (
     <Suspense fallback={<p>Loading...</p>}>
+      <h1>Aave React SDK + Privy Wallet</h1>
+      <p>
+        This example lets you deposit Base Sepolia ETH on the Aave market on
+        Base Sepolia.
+      </p>
       <SupplyForm
-        chainId={chainId(99999999)}
-        market={evmAddress('0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2')}
-        underlyingToken={evmAddress(
-          '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-        )}
+        chainId={baseSepolia}
+        market={market}
+        underlyingToken={usdc}
         wallet={user!.wallet!}
       />
     </Suspense>

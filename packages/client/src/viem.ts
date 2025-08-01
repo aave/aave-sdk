@@ -134,12 +134,9 @@ export function transactionError(
   request: TransactionRequest,
 ): TransactionError {
   const baseUrl = chain?.blockExplorers?.default?.url;
-  const link = baseUrl ? `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}` : null;
-  const message = link
-    ? `Transaction failed: ${txHash}\n→ View on explorer: ${link}`
-    : `Transaction failed: ${txHash}`;
+  const link = baseUrl && `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}`;
 
-  return new TransactionError(message, request);
+  return TransactionError.new({ txHash, request, link });
 }
 
 /**

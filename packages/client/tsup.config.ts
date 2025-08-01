@@ -12,7 +12,6 @@ export default defineConfig(() => ({
     'src/test-utils.ts',
   ],
   outDir: 'dist',
-  splitting: false,
   sourcemap: true,
   treeshake: true,
   clean: true,

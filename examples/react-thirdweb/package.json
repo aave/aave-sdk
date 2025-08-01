@@ -1,6 +1,6 @@
 {
-  "name": "react-privy",
-  "description": "Aave React SDK + Privy Wallet",
+  "name": "react-thirdweb",
+  "description": "Aave React SDK + thirdweb SDK",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,10 +10,9 @@
   "dependencies": {
     "@aave/react": "workspace:*",
     "@bgd-labs/aave-address-book": "^4.25.3",
-    "@privy-io/react-auth": "^2.20.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "viem": "^2.31.6"
+    "thirdweb": "^5.105.25"
   },
   "devDependencies": {
     "@types/react": "^19.1.8",
