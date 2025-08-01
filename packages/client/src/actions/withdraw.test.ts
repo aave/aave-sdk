@@ -159,19 +159,19 @@ describe('Given an Aave Market', () => {
 
     describe('When the user withdraws tokens specifying another address', () => {
       it.todo(
-        `Then the other address should receive the tokens and it should be reflected in the user's supply positions`,
-      );
-    });
-
-    describe(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
-      it.todo(
-        'Then the user should receive the tokens and it should be reflected in their supply positions',
+        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
       );
     });
 
     describe('When the user withdraws tokens with a permit signature', () => {
       it.todo(
         'Then it should allow to withdraw tokens without needing for an ERC20 Approval transaction on the aToken',
+      );
+    });
+
+    describe('When the user withdraws tokens specifying another address with a permit signature', () => {
+      it.todo(
+        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
       );
     });
   });
