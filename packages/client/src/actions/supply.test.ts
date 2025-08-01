@@ -1,4 +1,4 @@
-import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
+import { assertOk, bigDecimal, evmAddress } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   client,

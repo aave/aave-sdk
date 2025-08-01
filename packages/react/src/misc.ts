@@ -1,7 +1,7 @@
 import {
   type Chain,
+  ChainsFilter,
   ChainsQuery,
-  type ChainsRequest,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
@@ -15,7 +15,9 @@ import type {
 } from './helpers';
 import { useSuspendableQuery } from './helpers';
 
-export type UseAaveChainsArgs = ChainsRequest;
+export type UseAaveChainsArgs = {
+  filter?: ChainsFilter;
+};
 
 /**
  * Fetch all supported Aave chains.
@@ -46,14 +48,14 @@ export function useAaveChains(args: UseAaveChainsArgs): ReadResult<Chain[]>;
 
 export function useAaveChains({
   suspense = false,
-  ...request
+  filter = ChainsFilter.ALL,
 }: UseAaveChainsArgs & {
   suspense?: boolean;
 }): SuspendableResult<Chain[]> {
   return useSuspendableQuery({
     document: ChainsQuery,
     variables: {
-      request,
+      filter,
     },
     suspense,
   });
