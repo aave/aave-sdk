@@ -7,6 +7,7 @@ import {
 } from '@aave/client/actions';
 import {
   type PaginatedVaultsResult,
+  type PaginatedVaultUserTransactionHistoryResult,
   type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
@@ -19,6 +20,8 @@ import {
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserTransactionHistoryQuery,
+  type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
 import { useAaveClient } from './context';
 import type {
@@ -322,4 +325,55 @@ export function useVaultRedeemPreview(): UseAsyncTask<
   return useAsyncTask((request: VaultPreviewRedeemRequest) =>
     vaultPreviewRedeem(client, request),
   );
+}
+
+export type UseVaultUserTransactionHistoryArgs =
+  VaultUserTransactionHistoryRequest;
+
+/**
+ * Fetch user transaction history for a vault.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useVaultUserTransactionHistory({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useVaultUserTransactionHistory(
+  args: UseVaultUserTransactionHistoryArgs & Suspendable,
+): SuspenseResult<PaginatedVaultUserTransactionHistoryResult>;
+
+/**
+ * Fetch user transaction history for a vault.
+ *
+ * ```tsx
+ * const { data, loading } = useVaultUserTransactionHistory({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ * ```
+ */
+export function useVaultUserTransactionHistory(
+  args: UseVaultUserTransactionHistoryArgs,
+): ReadResult<PaginatedVaultUserTransactionHistoryResult>;
+
+export function useVaultUserTransactionHistory({
+  suspense = false,
+  ...request
+}: UseVaultUserTransactionHistoryArgs & {
+  suspense?: boolean;
+}): SuspendableResult<PaginatedVaultUserTransactionHistoryResult> {
+  return useSuspendableQuery({
+    document: VaultUserTransactionHistoryQuery,
+    variables: {
+      request,
+    },
+    suspense,
+  });
 }

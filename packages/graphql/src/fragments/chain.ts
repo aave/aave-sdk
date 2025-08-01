@@ -8,6 +8,8 @@ export const ChainFragment = graphql(
     icon
     chainId
     explorerUrl
+    isTestnet
+    nativeWrappedToken
   }`,
 );
 export type Chain = FragmentOf<typeof ChainFragment>;
