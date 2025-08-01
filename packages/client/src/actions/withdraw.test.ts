@@ -238,7 +238,8 @@ describe('Given an Aave Market', () => {
       });
     });
 
-    describe(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
+    // TODO: Only possible to test with WETH reserve and the reserve is not supporting `permit`
+    describe.skip(`When a relayer is used to withdraw (gasless) with permit signature on the user's aTokens`, () => {
       const user = createNewWallet();
       const relayer = createNewWallet();
       const amountToSupply = '0.1';
@@ -304,7 +305,8 @@ describe('Given an Aave Market', () => {
       });
     });
 
-    describe('When the user withdraws tokens with a permit signature', () => {
+    // TODO: Only possible to test with WETH reserve and the reserve is not supporting `permit`
+    describe.skip('When the user withdraws tokens with a permit signature', () => {
       const user = createNewWallet();
       const amountToSupply = '100';
 
@@ -330,6 +332,7 @@ describe('Given an Aave Market', () => {
           },
         });
       });
+
       it('Then it should allow to withdraw tokens without needing for an ERC20 Approval transaction on the aToken', async ({
         annotate,
       }) => {
@@ -356,6 +359,7 @@ describe('Given an Aave Market', () => {
           },
           chainId: usdcReserve.market.chain.chainId,
         })
+          .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
           .andThen(sendWith(user))
           .andTee((tx) => annotate(`tx to withdraw: ${tx.txHash}`))
           .andThen(client.waitForTransaction)

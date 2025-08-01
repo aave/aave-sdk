@@ -255,6 +255,7 @@ describe('Given an Aave Market', () => {
       const result = await supply(client, {
         market: reserve.market.address,
         sender: evmAddress(relayer.account!.address),
+        onBehalfOf: evmAddress(user.account!.address),
         amount: {
           erc20: {
             value: amountToSupply,
