@@ -338,11 +338,16 @@ describe('Given an Aave Market', () => {
         annotate(`other address: ${evmAddress(anotherUser.account!.address)}`);
         annotate(`user address: ${evmAddress(user.account!.address)}`);
 
+        const reserve = await fetchReserve(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(anotherUser.account!.address),
+        );
+
         const result = await permitTypedData(client, {
-          currency: ETHEREUM_USDC_ADDRESS,
+          currency: reserve.underlyingToken.address,
           amount: '100',
-          chainId: ETHEREUM_FORK_ID,
-          spender: ETHEREUM_MARKET_ADDRESS,
+          chainId: reserve.market.chain.chainId,
+          spender: reserve.market.address,
           owner: evmAddress(user.account!.address),
         })
           .andTee((permit) =>

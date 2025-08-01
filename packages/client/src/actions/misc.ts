@@ -2,7 +2,6 @@ import {
   type Chain,
   ChainsFilter,
   ChainsQuery,
-  type ChainsRequest,
   HasProcessedKnownTransactionQuery,
   type HasProcessedKnownTransactionRequest,
   HealthQuery,
@@ -38,14 +37,14 @@ export function health(
  * ```
  *
  * @param client - Aave client.
- * @param request - The request containing the filter for the chains.
+ * @param filter - The filter for the chains.
  * @returns The list of supported chains.
  */
 export function chains(
   client: AaveClient,
-  request: ChainsRequest = ChainsFilter.ALL,
+  filter: ChainsFilter = ChainsFilter.ALL,
 ): ResultAsync<Chain[], UnexpectedError> {
-  return client.query(ChainsQuery, { request });
+  return client.query(ChainsQuery, { filter });
 }
 
 /**
