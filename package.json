@@ -38,10 +38,9 @@
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
-    "test:937": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to a Reserve in behalf of another address\"",
     "test:936": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to the Reserve with a permit signature\"",
-    "test:889": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When a relayer supplies tokens to the Reserve with permit signature on ERC20 owned by the user\"",
-    "test:903": "vitest --project client packages/client/src/actions/repay.test.ts -t \"When a user repays the owner's loan via a permit signature\"",
+    "test:939": "vitest --project client packages/client/src/actions/supply.test.ts -t \"When the user supplies tokens to a Reserve in behalf of another address with a permit signature\"",
+    "test:938": "vitest --project client packages/client/src/actions/repay.test.ts -t \"When a user repays a loan in behalf of another address with a permit signature\"",
     "test": "vitest"
   },
   "license": "MIT",
