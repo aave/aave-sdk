@@ -66,7 +66,10 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it(`Then it should be reflected in the user's borrow positions`, async () => {
+      it(`Then it should be reflected in the user's borrow positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
@@ -83,7 +86,7 @@ describe('Given an Aave Market', () => {
           },
         })
           .andThen(sendWith(user))
-          .andTee((tx) => console.log(`tx to borrow: ${tx}`))
+          .andTee((tx) => annotate(`tx to borrow: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -132,7 +135,10 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it(`Then it should be reflected in the user's borrow positions`, async () => {
+      it(`Then it should be reflected in the user's borrow positions`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const reserve = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
@@ -146,6 +152,7 @@ describe('Given an Aave Market', () => {
           },
         })
           .andThen(sendWith(wallet))
+          .andTee((tx) => annotate(`tx to borrow: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {

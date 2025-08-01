@@ -37,11 +37,12 @@ describe('Given the Aave Vaults', () => {
     const organization = createNewWallet();
 
     beforeAll(async () => {
-      fundErc20Address(
+      const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(organization.account!.address),
         bigDecimal('2'),
       );
+      assertOk(setup);
     });
 
     it('Then it should be available in the organization vaults', async ({
@@ -91,11 +92,12 @@ describe('Given the Aave Vaults', () => {
       const user = createNewWallet();
 
       beforeAll(async () => {
-        fundErc20Address(
+        const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('2'),
         );
+        assertOk(setup);
       });
 
       it(`Then the operation should be reflected in the user's vault positions`, async ({
@@ -145,11 +147,12 @@ describe('Given the Aave Vaults', () => {
       const user = createNewWallet();
 
       beforeAll(async () => {
-        fundErc20Address(
+        const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal('2'),
         );
+        assertOk(setup);
       });
 
       it(`Then the operation should be reflected in the user's vault positions`, async ({
