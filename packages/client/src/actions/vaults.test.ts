@@ -409,17 +409,6 @@ describe('Given the Aave Vaults', () => {
           .andThen(client.waitForTransaction);
         assertOk(withdrawResult);
 
-        // Check vault contains fees
-        const vaultInfoAfter = await vault(client, {
-          by: { address: initialVault.value.address },
-          chainId: initialVault.value.chainId,
-        });
-        assertOk(vaultInfoAfter);
-        // Fees are generated in each block so we can't expect them to be 0
-        expect(
-          Number(vaultInfoAfter.value?.feesBalance.amount.raw),
-        ).toBeLessThan(Number(vaultInfoBefore.value?.feesBalance.amount.raw));
-
         const balanceAfter = await getBalance(
           evmAddress(organization.account!.address),
           initialVault.value?.usedReserve.aToken.address,

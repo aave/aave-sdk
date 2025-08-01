@@ -25,7 +25,7 @@ exports[`Given an Aave Market reserve > When fetching the reserve data > Then it
     "name": "Wrapped Ether",
     "symbol": "WETH",
   },
-  "usdExchangeRate": "3682.78",
+  "usdExchangeRate": Any<String>,
   "usdOracleAddress": "0x5424384B256154046E9667dDFaaa5e550145215e",
   "userState": Any<Object>,
   "vToken": Any<Object>,

@@ -45,6 +45,7 @@ describe('Given an Aave Market reserve', () => {
         underlyingToken: {
           address: ETHEREUM_WETH_ADDRESS,
         },
+        usdExchangeRate: expect.any(String),
         vToken: expect.any(Object),
         supplyInfo: expect.any(Object),
         borrowInfo: expect.any(Object),
