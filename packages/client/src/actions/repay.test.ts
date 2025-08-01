@@ -1,10 +1,5 @@
 import type { SupplyRequest } from '@aave/graphql';
-import {
-  assertOk,
-  bigDecimal,
-  evmAddress,
-  type ResultAsync,
-} from '@aave/types';
+import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
 import type { WalletClient } from 'viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -162,22 +157,16 @@ describe('Given an Aave Market', () => {
     });
   });
 
-  describe('When a user repays a loan in behalf of another address', () => {
-    it.todo(
-      'Then it should be reflected in the borrow positions of the other address',
-    );
-  });
-
   describe('And an open borrow position', () => {
-    describe(`When a user repays the owner's loan with a permit signature`, () => {
+    describe('When a user repays a loan in behalf of another address', () => {
       const user = createNewWallet();
-      const owner = createNewWallet();
+      const anotherUser = createNewWallet();
 
       beforeAll(async () => {
-        const setup = await Promise.all([
+        const setup = await ResultAsync.combine([
           fundErc20Address(
             ETHEREUM_USDC_ADDRESS,
-            evmAddress(owner.account!.address),
+            evmAddress(anotherUser.account!.address),
             bigDecimal('105'),
             6,
           ),
@@ -187,35 +176,95 @@ describe('Given an Aave Market', () => {
             bigDecimal('200'),
             6,
           ),
-        ]).then(([userFundResult, delegateFundResult]) => {
-          assertOk(userFundResult);
-          assertOk(delegateFundResult);
-          return supplyAndBorrow(owner, {
+        ]).andThen(() =>
+          supplyAndBorrow(anotherUser, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(owner.account!.address),
+            sender: evmAddress(anotherUser.account!.address),
             amount: {
               erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
             },
-          });
-        });
+          }),
+        );
         assertOk(setup);
       });
 
-      it.skip('Then it should allow to repay their own loan without needing for an ERC20 Approval transaction', async () => {
+      it('Then it should be reflected in the borrow positions of the other address', async ({
+        annotate,
+      }) => {
+        annotate(`owner address: ${evmAddress(anotherUser.account!.address)}`);
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+
         const reserve = await fetchReserve(
           ETHEREUM_USDC_ADDRESS,
-          evmAddress(owner.account!.address),
+          evmAddress(anotherUser.account!.address),
         );
         expect(reserve.permitSupported).toBe(true);
 
+        const result = await repay(client, {
+          onBehalfOf: evmAddress(anotherUser.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: '100',
+            },
+          },
+          sender: evmAddress(user.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx repay: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [
+                {
+                  address: ETHEREUM_MARKET_ADDRESS,
+                  chainId: ETHEREUM_FORK_ID,
+                },
+              ],
+              user: evmAddress(anotherUser.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value.length).toBe(0);
+      }, 50_000);
+    });
+
+    describe('When a user repays a loan with a permit signature', () => {
+      const user = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('300'),
+          6,
+        ).andThen(() =>
+          supplyAndBorrow(user, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            sender: evmAddress(user.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            },
+          }),
+        );
+        assertOk(setup);
+      });
+
+      it('Then it should allow to repay their own loan without needing for an ERC20 Approval transaction', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+
         const signature = await permitTypedData(client, {
-          market: reserve.market.address,
-          underlyingToken: reserve.underlyingToken.address,
-          amount: reserve.borrowInfo?.total.amount.value,
-          chainId: reserve.market.chain.chainId,
-          spender: evmAddress(user.account!.address),
-          owner: evmAddress(owner.account!.address),
+          currency: ETHEREUM_USDC_ADDRESS,
+          amount: '100',
+          chainId: ETHEREUM_FORK_ID,
+          spender: ETHEREUM_MARKET_ADDRESS,
+          owner: evmAddress(user.account!.address),
         }).andThen(signERC20PermitWith(user));
         assertOk(signature);
 
@@ -231,7 +280,10 @@ describe('Given an Aave Market', () => {
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
         })
+          .andTee((tx) => annotate(`tx plan: ${JSON.stringify(tx, null, 2)}`))
+          .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
           .andThen(sendWith(user))
+          .andTee((tx) => annotate(`repay tx: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -241,8 +293,90 @@ describe('Given an Aave Market', () => {
                   chainId: ETHEREUM_FORK_ID,
                 },
               ],
-              user: evmAddress(owner.account!.address),
+              user: evmAddress(user.account!.address),
             }),
+          );
+        assertOk(result);
+        expect(result.value.length).toBe(0);
+      }, 50_000);
+    });
+
+    describe('When a user repays a loan in behalf of another address with a permit signature', () => {
+      const user = createNewWallet();
+      const anotherUser = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await ResultAsync.combine([
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(anotherUser.account!.address),
+            bigDecimal('105'),
+            6,
+          ),
+          fundErc20Address(
+            ETHEREUM_USDC_ADDRESS,
+            evmAddress(user.account!.address),
+            bigDecimal('200'),
+            6,
+          ),
+        ]).andThen(() =>
+          supplyAndBorrow(anotherUser, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            sender: evmAddress(anotherUser.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            },
+          }),
+        );
+        assertOk(setup);
+      });
+
+      it(`Then it should be reflected in the other user's borrow positions`, async ({
+        annotate,
+      }) => {
+        annotate(`other address: ${evmAddress(anotherUser.account!.address)}`);
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+
+        const result = await permitTypedData(client, {
+          currency: ETHEREUM_USDC_ADDRESS,
+          amount: '100',
+          chainId: ETHEREUM_FORK_ID,
+          spender: ETHEREUM_MARKET_ADDRESS,
+          owner: evmAddress(user.account!.address),
+        })
+          .andTee((permit) =>
+            annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
+          )
+          .andThen(signERC20PermitWith(user))
+          .andThen((signature) =>
+            repay(client, {
+              onBehalfOf: evmAddress(anotherUser.account!.address),
+              amount: {
+                erc20: {
+                  currency: ETHEREUM_USDC_ADDRESS,
+                  value: '100',
+                  permitSig: signature,
+                },
+              },
+              sender: evmAddress(user.account!.address),
+              chainId: ETHEREUM_FORK_ID,
+              market: ETHEREUM_MARKET_ADDRESS,
+            })
+              .andThen(sendWith(user))
+              .andTee((tx) => annotate(`tx repay: ${tx.txHash}`))
+              .andThen(client.waitForTransaction)
+              .andThen(() =>
+                userBorrows(client, {
+                  markets: [
+                    {
+                      address: ETHEREUM_MARKET_ADDRESS,
+                      chainId: ETHEREUM_FORK_ID,
+                    },
+                  ],
+                  user: evmAddress(anotherUser.account!.address),
+                }),
+              ),
           );
         assertOk(result);
         expect(result.value.length).toBe(0);

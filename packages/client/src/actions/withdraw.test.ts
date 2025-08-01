@@ -378,6 +378,18 @@ describe('Given an Aave Market', () => {
         expect(result.value).toEqual([]);
       });
     });
+
+    describe('When the user withdraws tokens specifying another address with a permit signature', () => {
+      it.todo(
+        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
+      );
+    });
+
+    describe('When the user withdraws tokens specifying another address with a permit signature', () => {
+      it.todo(
+        `Then it should be reflected in the user's supply positions and the other address should receive the tokens`,
+      );
+    });
   });
 
   describe('And the reserve allows withdrawals in native tokens', () => {

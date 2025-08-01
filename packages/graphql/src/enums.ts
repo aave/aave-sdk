@@ -49,3 +49,12 @@ export enum OperationType {
   VaultYieldAccrued = 'VAULT_YIELD_ACCRUED',
   Liquidation = 'LIQUIDATION',
 }
+
+/**
+ * The filter for chains.
+ */
+export enum ChainsFilter {
+  TESTNET_ONLY = 'TESTNET_ONLY',
+  MAINNET_ONLY = 'MAINNET_ONLY',
+  ALL = 'ALL',
+}

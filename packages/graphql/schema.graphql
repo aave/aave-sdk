@@ -48,6 +48,28 @@ type ApprovalRequired {
   originalTransaction: TransactionRequest!
 }
 
+input ApproveBorrowCreditDelegatorRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token address."""
+  underlyingToken: EvmAddress!
+
+  """
+  Token value in its main unit to approve (e.g., 1.5 DAI), not in the smallest fraction (e.g. wei).
+  """
+  amount: BigDecimal!
+
+  """The user allowing the delegation from"""
+  user: EvmAddress!
+
+  """The delegatee to approve the ability to borrow on the `user` behalf"""
+  delegatee: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
 scalar BigDecimal
 
 scalar BigInt
@@ -100,7 +122,7 @@ input BorrowRequest {
   """
   If not supplied, this will use `sender` in most cases this is what the user wants if they want
   to borrow themselves. You can also pass in the credit delegator if the caller has
-  been given credit delegation allowance.
+  been given credit delegation allowance. You can approve those with `approveBorrowCreditDelegation`.
   """
   onBehalfOf: EvmAddress
 
@@ -113,10 +135,17 @@ type Chain {
   icon: String!
   chainId: ChainId!
   explorerUrl: String!
+  isTestnet: Boolean!
 }
 
 """A supported blockchain chain ID"""
 scalar ChainId
+
+enum ChainsFilter {
+  TESTNET_ONLY
+  MAINNET_ONLY
+  ALL
+}
 
 input CollateralToggleRequest {
   """The pool address for the market"""
@@ -127,6 +156,23 @@ input CollateralToggleRequest {
 
   """The user to toggle emode on"""
   user: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input CreditDelegateeAmountRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token address."""
+  underlyingToken: EvmAddress!
+
+  """The user allowing the delegation from"""
+  user: EvmAddress!
+
+  """The delegatee to approve the ability to borrow on the `user` behalf"""
+  delegatee: EvmAddress!
 
   """The chain id"""
   chainId: ChainId!
@@ -541,7 +587,7 @@ type MessageData {
   owner: EvmAddress!
   spender: EvmAddress!
   value: BigInt!
-  nonce: String!
+  nonce: BigInt!
   deadline: Int!
 }
 
@@ -634,11 +680,11 @@ type PercentValue {
 }
 
 input PermitRequest {
-  """The pool address for the market"""
-  market: EvmAddress!
+  """The spender (when doing this with aave this is the market address)"""
+  spender: EvmAddress!
 
-  """The underlying token for the reserve"""
-  underlyingToken: EvmAddress!
+  """The token you want to do the permit with"""
+  currency: EvmAddress!
 
   """
   The amount to permit - in human-readable form aka 0.001 eth is 0.001 eth here
@@ -647,9 +693,6 @@ input PermitRequest {
 
   """The chain id the pool is deployed on"""
   chainId: ChainId!
-
-  """The spender address"""
-  spender: EvmAddress!
 
   """The owner of the funds"""
   owner: EvmAddress!
@@ -666,8 +709,8 @@ type Query {
   """Get if the API is healthy"""
   health: Boolean!
 
-  """All chains the protocol supports"""
-  chains: [Chain!]!
+  """Chains the protocol supports"""
+  chains(filter: ChainsFilter! = ALL): [Chain!]!
 
   """
   Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
@@ -740,6 +783,14 @@ type Query {
   """Create the transaction to borrow from a market"""
   borrow(request: BorrowRequest!): ExecutionPlan!
 
+  """Approve a credit borrow delegator to be able to borrow on your behalf"""
+  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
+
+  """
+  Gets the amount delegated to the credit delegatee that can borrow on your behalf
+  """
+  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
+
   """Create the transaction to supply to a market"""
   supply(request: SupplyRequest!): ExecutionPlan!
 
@@ -778,7 +829,7 @@ type Query {
   """Get the supply APY history"""
   supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
 
-  """Generate EIP-712 typed data for permit signature"""
+  """Generate EIP-712 typed data for EIP-2612 permit signature"""
   permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
 
   """Get the reserve for on a market"""
