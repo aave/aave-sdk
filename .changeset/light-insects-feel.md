@@ -1,8 +1,8 @@
 ---
-"@aave/client": major
-"@aave/react": major
-"@aave/graphql": major
-"@aave/types": major
+"@aave/client": minor
+"@aave/react": minor
+"@aave/graphql": minor
+"@aave/types": minor
 ---
 
 **feat:** first release
