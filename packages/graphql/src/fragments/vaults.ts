@@ -1,5 +1,5 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
+import { type FragmentDocumentFor, graphql } from '../graphql';
 import {
   PaginatedResultInfoFragment,
   PercentValueFragment,
@@ -117,7 +117,14 @@ export type VaultUserWithdrawItem = FragmentOf<
   typeof VaultUserWithdrawItemFragment
 >;
 
-export const VaultUserTransactionItemFragment = graphql(
+export type VaultUserTransactionItem =
+  | VaultUserDepositItem
+  | VaultUserWithdrawItem;
+
+export const VaultUserTransactionItemFragment: FragmentDocumentFor<
+  VaultUserTransactionItem,
+  'VaultUserTransactionItem'
+> = graphql(
   `fragment VaultUserTransactionItem on VaultUserTransactionItem {
     __typename
     ... on VaultUserDepositItem {
@@ -129,9 +136,6 @@ export const VaultUserTransactionItemFragment = graphql(
   }`,
   [VaultUserDepositItemFragment, VaultUserWithdrawItemFragment],
 );
-export type VaultUserTransactionItem = FragmentOf<
-  typeof VaultUserTransactionItemFragment
->;
 
 /**
  * @internal
