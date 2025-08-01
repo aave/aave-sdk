@@ -1,8 +1,12 @@
 import {
+  ApproveBorrowCreditDelegationQuery,
+  type ApproveBorrowCreditDelegatorRequest,
   BorrowQuery,
   type BorrowRequest,
   CollateralToggleQuery,
   type CollateralToggleRequest,
+  CreditDelegateeAllowanceQuery,
+  type CreditDelegateeAmountRequest,
   type ExecutionPlan,
   LiquidateQuery,
   type LiquidateRequest,
@@ -10,6 +14,7 @@ import {
   type RepayRequest,
   SupplyQuery,
   type SupplyRequest,
+  type TokenAmount,
   type TransactionRequest,
   UserSetEmodeQuery,
   type UserSetEmodeRequest,
@@ -505,4 +510,67 @@ export function liquidate(
   request: LiquidateRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
   return client.query(LiquidateQuery, { request });
+}
+
+/**
+ * Creates a transaction to approve a credit borrow delegator to be able to borrow on your behalf.
+ *
+ * ```ts
+ * const result = await approveBorrowCreditDelegation(client, {
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   amount: '1000',
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ *
+ * if (result.isErr()) {
+ *   // Handle error, e.g. signing error, etc.
+ *   return;
+ * }
+ *
+ * // result.value: TxHash
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The approve borrow credit delegation request parameters.
+ * @returns The transaction request data to approve credit delegation.
+ */
+export function approveBorrowCreditDelegation(
+  client: AaveClient,
+  request: ApproveBorrowCreditDelegatorRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(ApproveBorrowCreditDelegationQuery, { request });
+}
+
+/**
+ * Gets the amount delegated to the credit delegatee that can borrow on your behalf.
+ *
+ * ```ts
+ * const result = await creditDelegateeAllowance(client, {
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * });
+ *
+ * if (result.isErr()) {
+ *   // Handle error
+ *   return;
+ * }
+ *
+ * // result.value: TokenAmount with credit delegation allowance
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The credit delegatee allowance request parameters.
+ * @returns The token amount representing the credit delegation allowance.
+ */
+export function creditDelegateeAllowance(
+  client: AaveClient,
+  request: CreditDelegateeAmountRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(CreditDelegateeAllowanceQuery, { request });
 }
