@@ -85,6 +85,7 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
         <input
           name='amount'
           type='number'
+          step='0.000000000000000001'
           disabled={loading}
           style={{ width: '100%', padding: '8px' }}
           placeholder='Amount to supply (in token units)'

@@ -3,19 +3,18 @@ import {
   type ChainId,
   type EvmAddress,
   errAsync,
-  evmAddress,
   useAaveReserve,
   useSupply,
 } from '@aave/react';
-import { useSendTransaction } from '@aave/react/privy';
-import type { Wallet } from '@privy-io/react-auth';
+import { useSendTransaction } from '@aave/react/thirdweb';
 import { useState } from 'react';
+import { client as thirdwebClient } from './thirdwebClient';
 
 interface SupplyFormProps {
   chainId: ChainId;
   market: EvmAddress;
   underlyingToken: EvmAddress;
-  wallet: Wallet;
+  wallet: EvmAddress;
 }
 
 export function SupplyForm({
@@ -33,7 +32,7 @@ export function SupplyForm({
   const [status, setStatus] = useState<string>('');
 
   const [supply, supplying] = useSupply();
-  const [sendTransaction, sending] = useSendTransaction();
+  const [sendTransaction, sending] = useSendTransaction(thirdwebClient);
 
   const loading = supplying.loading || sending.loading;
   const error = supplying.error || sending.error;
@@ -53,7 +52,7 @@ export function SupplyForm({
       amount: {
         native: bigDecimal(amount),
       },
-      sender: evmAddress(wallet.address),
+      sender: wallet,
     }).andThen((plan) => {
       switch (plan.__typename) {
         case 'TransactionRequest':

@@ -1,4 +1,5 @@
 import { err, errAsync, type Result, type ResultAsync } from 'neverthrow';
+import { isObject } from './helpers';
 
 export class ResultAwareError extends Error {
   /**
@@ -36,6 +37,12 @@ export class ResultAwareError extends Error {
       // biome-ignore lint/complexity/noThisInStatic: intentional
       return new this(message, { cause: args }) as InstanceType<T>;
     }
+
+    if (isObject(args) && 'message' in args) {
+      // biome-ignore lint/complexity/noThisInStatic: intentional
+      return new this(String(args.message)) as InstanceType<T>;
+    }
+
     // biome-ignore lint/complexity/noThisInStatic: intentional
     return new this(String(args)) as InstanceType<T>;
   }

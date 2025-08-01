@@ -2,9 +2,14 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig(() => ({
-  entry: ['src/index.ts', 'src/ethers.ts', 'src/privy.ts', 'src/viem.ts'],
+  entry: [
+    'src/index.ts',
+    'src/ethers.ts',
+    'src/privy.ts',
+    'src/thirdweb.ts',
+    'src/viem.ts',
+  ],
   outDir: 'dist',
-  splitting: false,
   sourcemap: true,
   treeshake: true,
   clean: true,
@@ -14,4 +19,7 @@ export default defineConfig(() => ({
   dts: true,
   platform: 'neutral',
   format: ['esm', 'cjs'],
+  banner: {
+    js: '"use client"',
+  },
 }));
