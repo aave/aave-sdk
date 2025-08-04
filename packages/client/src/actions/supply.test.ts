@@ -162,11 +162,7 @@ describe('Given an Aave Market', () => {
         chainId: reserve.market.chain.chainId,
         spender: reserve.market.address,
         owner: evmAddress(user.account!.address),
-      })
-        .andTee((permit) =>
-          annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
-        )
-        .andThen(signERC20PermitWith(user));
+      }).andThen(signERC20PermitWith(user));
       assertOk(signature);
 
       const result = await supply(client, {
@@ -188,7 +184,12 @@ describe('Given an Aave Market', () => {
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
-            markets: [reserve.market.address],
+            markets: [
+              {
+                address: reserve.market.address,
+                chainId: reserve.market.chain.chainId,
+              },
+            ],
             user: evmAddress(user.account!.address),
           }),
         );
@@ -234,11 +235,7 @@ describe('Given an Aave Market', () => {
         chainId: reserve.market.chain.chainId,
         spender: reserve.market.address,
         owner: evmAddress(user.account!.address),
-      })
-        .andTee((permit) =>
-          annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
-        )
-        .andThen(signERC20PermitWith(user));
+      }).andThen(signERC20PermitWith(user));
       assertOk(signature);
 
       const result = await supply(client, {
@@ -261,7 +258,12 @@ describe('Given an Aave Market', () => {
         .andThen(client.waitForTransaction)
         .andThen(() =>
           userSupplies(client, {
-            markets: [reserve.market.address],
+            markets: [
+              {
+                address: reserve.market.address,
+                chainId: reserve.market.chain.chainId,
+              },
+            ],
             user: evmAddress(anotherUser.account!.address),
           }),
         );

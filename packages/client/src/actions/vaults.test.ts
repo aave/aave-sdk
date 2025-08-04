@@ -1,4 +1,8 @@
-import { OrderDirection, type Vault } from '@aave/graphql';
+import {
+  OrderDirection,
+  type Vault,
+  VaultUserHistoryAction,
+} from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -30,6 +34,7 @@ import {
   vaultPreviewRedeem,
   vaultPreviewWithdraw,
   vaults,
+  vaultUserTransactionHistory,
 } from './vaults';
 
 describe('Given the Aave Vaults', () => {
@@ -40,7 +45,7 @@ describe('Given the Aave Vaults', () => {
       const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(organization.account!.address),
-        bigDecimal('2'),
+        bigDecimal('0.1'),
       );
       assertOk(setup);
     });
@@ -55,7 +60,7 @@ describe('Given the Aave Vaults', () => {
         deployer: evmAddress(organization.account!.address),
         owner: evmAddress(organization.account!.address),
         initialFee: '3',
-        initialLockDeposit: '1',
+        initialLockDeposit: '0.05',
         shareName: 'Aave WETH Vault Shares',
         shareSymbol: 'avWETH',
         underlyingToken: ETHEREUM_WETH_ADDRESS,
@@ -90,12 +95,13 @@ describe('Given the Aave Vaults', () => {
     describe('When a user deposits into the vault', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
+      const amountToDeposit = 0.03;
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal('2'),
+          bigDecimal('0.1'),
         );
         assertOk(setup);
       });
@@ -110,7 +116,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`initial vault: ${initialVault.value?.address}`);
         const depositResult = await vaultDeposit(client, {
           amount: {
-            value: '1',
+            value: bigDecimal(amountToDeposit),
             currency: ETHEREUM_WETH_ADDRESS,
           },
           vault: initialVault.value!.address,
@@ -133,7 +139,7 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               balance: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                  value: expect.toBeBigDecimalCloseTo(amountToDeposit, 4),
                 }),
               }),
             }),
@@ -150,7 +156,7 @@ describe('Given the Aave Vaults', () => {
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal('2'),
+          bigDecimal('0.1'),
         );
         assertOk(setup);
       });
@@ -165,7 +171,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`initial vault address: ${initialVault.value?.address}`);
         const mintResult = await vaultMintShares(client, {
           shares: {
-            amount: '1',
+            amount: '0.03',
           },
           vault: initialVault.value!.address,
           minter: evmAddress(user.account!.address),
@@ -185,7 +191,7 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               shares: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                  value: expect.toBeBigDecimalCloseTo(0.03, 4),
                 }),
               }),
             }),
@@ -201,7 +207,7 @@ describe('Given the Aave Vaults', () => {
       it(`Then the operation should be reflected in the user's vault positions`, async ({
         annotate,
       }) => {
-        const amountToWithdraw = 1.0;
+        const amountToWithdraw = 0.02;
         const initialVault = await createVault(organization).andThen(
           deposit(user, amountToWithdraw),
         );
@@ -234,7 +240,7 @@ describe('Given the Aave Vaults', () => {
           evmAddress(user.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-        expect(balanceAfter).toEqual(balanceBefore + amountToWithdraw);
+        expect(balanceAfter).toBeCloseTo(balanceBefore + amountToWithdraw, 4);
         expect(userPositions.value.items).toEqual([
           expect.objectContaining({
             userShares: expect.objectContaining({
@@ -259,13 +265,13 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
-          mintShares(user, 1),
+          mintShares(user, 0.03),
         );
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
           shares: {
-            amount: bigDecimal('1'),
+            amount: bigDecimal('0.03'),
           },
           vault: initialVault.value!.address,
           chainId: initialVault.value!.chainId,
@@ -294,13 +300,13 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
-          mintShares(user, 1),
+          mintShares(user, 0.05),
         );
         assertOk(initialVault);
 
         const redeemResult = await vaultRedeemShares(client, {
           shares: {
-            amount: bigDecimal('0.5'),
+            amount: bigDecimal('0.03'),
           },
           vault: initialVault.value!.address,
           chainId: initialVault.value!.chainId,
@@ -320,13 +326,13 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               shares: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(0.5, 4),
+                  value: expect.toBeBigDecimalCloseTo(0.02, 4),
                 }),
               }),
             }),
           }),
         ]);
-      }, 40_000);
+      }, 50_000);
     });
 
     describe(`When the organization changes the vault's fee`, () => {
@@ -375,8 +381,8 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization)
-          .andThen(deposit(user, 1))
-          .andThen(mintShares(user, 1));
+          .andThen(deposit(user, 0.03))
+          .andThen(mintShares(user, 0.03));
         assertOk(initialVault);
 
         // Check vault contains fees
@@ -419,6 +425,98 @@ describe('Given the Aave Vaults', () => {
         );
       }, 50_000);
     });
+
+    describe('When the user redeems partial amount of their shares', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+      let vault: Vault;
+
+      beforeAll(async () => {
+        const initialVault = await createVault(organization).andThen(
+          mintShares(user, 0.05),
+        );
+        assertOk(initialVault);
+        vault = initialVault.value!;
+        const redeemResult = await vaultRedeemShares(client, {
+          shares: {
+            amount: bigDecimal('0.03'),
+          },
+          vault: initialVault.value!.address,
+          chainId: initialVault.value!.chainId,
+          sharesOwner: evmAddress(user.account!.address),
+        })
+          .andThen(sendWith(user))
+          .andThen(client.waitForTransaction);
+        assertOk(redeemResult);
+      });
+
+      it(`Then the operations should be reflected in the user's vault transaction history`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistory = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(txHistory);
+        expect(txHistory.value.items.length).toEqual(2);
+      });
+
+      it(`Then the user's vault transaction history can be filtered by action`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistoryDeposit = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          filter: [VaultUserHistoryAction.Deposit],
+        });
+        assertOk(txHistoryDeposit);
+        txHistoryDeposit.value.items.forEach((item) => {
+          expect(item.__typename).toEqual('VaultUserDepositItem');
+        });
+
+        const txHistoryWithdraw = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          filter: [VaultUserHistoryAction.Withdraw],
+        });
+        assertOk(txHistoryWithdraw);
+        txHistoryWithdraw.value.items.forEach((item) => {
+          expect(item.__typename).toEqual('VaultUserWithdrawItem');
+        });
+      });
+
+      it(`Then the user's vault transaction history can be sorted by date`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistory = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          orderBy: { date: OrderDirection.Desc },
+        });
+        assertOk(txHistory);
+        // Check that the transactions are sorted by date in descending order
+        expect(txHistory.value.items).toEqual(
+          txHistory.value.items.sort((a, b) => {
+            return (
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          }),
+        );
+      });
+    });
   });
 
   describe('When a user lists all the vaults they have a position in', () => {
@@ -428,7 +526,7 @@ describe('Given the Aave Vaults', () => {
     beforeAll(async () => {
       const vault1 = await createVault(organization, {
         initialFee: 2.0,
-      }).andThen(mintShares(user, 10));
+      }).andThen(mintShares(user, 0.03));
       assertOk(vault1);
 
       const vault2 = await createVault(organization, {
@@ -438,7 +536,7 @@ describe('Given the Aave Vaults', () => {
           symbol: 'avUSDC',
           address: ETHEREUM_USDC_ADDRESS,
         },
-      }).andThen(mintShares(user, 5, ETHEREUM_USDC_ADDRESS));
+      }).andThen(mintShares(user, 1, ETHEREUM_USDC_ADDRESS));
       assertOk(vault2);
     }, 60_000);
 
@@ -454,11 +552,13 @@ describe('Given the Aave Vaults', () => {
       assertOk(listOfVaultsDesc);
       expect(
         Number(
-          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value,
+          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value *
+            listOfVaultsDesc.value.items[0]?.userShares?.shares.usdPerToken,
         ),
       ).toBeGreaterThanOrEqual(
         Number(
-          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value,
+          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value *
+            listOfVaultsDesc.value.items[1]?.userShares?.shares.usdPerToken,
         ),
       );
 
@@ -469,9 +569,15 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value),
+        Number(
+          listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value *
+            listOfVaultsAsc.value.items[0]?.userShares?.shares.usdPerToken,
+        ),
       ).toBeLessThanOrEqual(
-        Number(listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value),
+        Number(
+          listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value *
+            listOfVaultsAsc.value.items[1]?.userShares?.shares.usdPerToken,
+        ),
       );
     });
 

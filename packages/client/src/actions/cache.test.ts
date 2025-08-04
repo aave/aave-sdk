@@ -13,14 +13,14 @@ import { supply, withdraw } from './transactions';
 describe('Check Cache in Reserve', () => {
   describe('When the user supplies tokens to the Reserve', () => {
     const wallet = createNewWallet();
-    const amountToSupply = '0.1';
+    const amountToSupply = '0.03';
 
     beforeAll(async () => {
       // Fund the wallet with WETH
       await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(wallet.account!.address),
-        bigDecimal('0.2'),
+        bigDecimal('0.05'),
       );
     });
 
@@ -36,7 +36,7 @@ describe('Check Cache in Reserve', () => {
         expect(reserve.isFrozen).toBe(false);
         expect(reserve.isPaused).toBe(false);
         expect(reserve.userState?.balance.amount.value).toBeBigDecimalCloseTo(
-          bigDecimal(0.2),
+          bigDecimal(0.05),
         );
         annotate(`user address: ${evmAddress(wallet.account!.address)}`);
         const resultSupply = await supply(client, {
@@ -56,9 +56,6 @@ describe('Check Cache in Reserve', () => {
         const reserveAfterSupply = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
-        );
-        annotate(
-          `reserve after supply: ${JSON.stringify(reserveAfterSupply, null, 2)}`,
         );
         expect(
           reserveAfterSupply?.userState?.balance.amount.value,
@@ -82,9 +79,6 @@ describe('Check Cache in Reserve', () => {
         const reserveAfterWithdraw = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
-        );
-        annotate(
-          `reserve after withdraw: ${JSON.stringify(reserveAfterWithdraw, null, 2)}`,
         );
         expect(
           reserveAfterWithdraw?.userState?.balance.amount.value,
