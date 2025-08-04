@@ -552,11 +552,13 @@ describe('Given the Aave Vaults', () => {
       assertOk(listOfVaultsDesc);
       expect(
         Number(
-          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value,
+          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value *
+            listOfVaultsDesc.value.items[0]?.userShares?.shares.usdPerToken,
         ),
       ).toBeGreaterThanOrEqual(
         Number(
-          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value,
+          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value *
+            listOfVaultsDesc.value.items[1]?.userShares?.shares.usdPerToken,
         ),
       );
 
@@ -567,9 +569,15 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value),
+        Number(
+          listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value *
+            listOfVaultsAsc.value.items[0]?.userShares?.shares.usdPerToken,
+        ),
       ).toBeLessThanOrEqual(
-        Number(listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value),
+        Number(
+          listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value *
+            listOfVaultsAsc.value.items[1]?.userShares?.shares.usdPerToken,
+        ),
       );
     });
 
