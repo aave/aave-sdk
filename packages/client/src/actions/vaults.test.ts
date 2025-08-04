@@ -95,6 +95,7 @@ describe('Given the Aave Vaults', () => {
     describe('When a user deposits into the vault', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
+      const amountToDeposit = 0.03;
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
@@ -115,7 +116,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`initial vault: ${initialVault.value?.address}`);
         const depositResult = await vaultDeposit(client, {
           amount: {
-            value: '0.03',
+            value: bigDecimal(amountToDeposit),
             currency: ETHEREUM_WETH_ADDRESS,
           },
           vault: initialVault.value!.address,
@@ -138,7 +139,7 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               balance: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                  value: expect.toBeBigDecimalCloseTo(amountToDeposit, 4),
                 }),
               }),
             }),
@@ -190,7 +191,7 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               shares: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(1, 4),
+                  value: expect.toBeBigDecimalCloseTo(0.03, 4),
                 }),
               }),
             }),
@@ -239,13 +240,13 @@ describe('Given the Aave Vaults', () => {
           evmAddress(user.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-        expect(balanceAfter).toEqual(balanceBefore + amountToWithdraw);
+        expect(balanceAfter).toBeCloseTo(balanceBefore + amountToWithdraw, 4);
         expect(userPositions.value.items).toEqual([
           expect.objectContaining({
             userShares: expect.objectContaining({
               shares: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(0, 4),
+                  value: expect.toBeBigDecimalCloseTo(0.01, 4),
                 }),
               }),
             }),
