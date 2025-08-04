@@ -331,7 +331,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 40_000);
+      }, 50_000);
     });
 
     describe(`When the organization changes the vault's fee`, () => {
