@@ -57,9 +57,6 @@ describe('Check Cache in Reserve', () => {
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
         );
-        annotate(
-          `reserve after supply: ${JSON.stringify(reserveAfterSupply, null, 2)}`,
-        );
         expect(
           reserveAfterSupply?.userState?.balance.amount.value,
         ).toBeBigDecimalCloseTo(bigDecimal(Number(amountToSupply)));
@@ -82,9 +79,6 @@ describe('Check Cache in Reserve', () => {
         const reserveAfterWithdraw = await fetchReserve(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(wallet.account!.address),
-        );
-        annotate(
-          `reserve after withdraw: ${JSON.stringify(reserveAfterWithdraw, null, 2)}`,
         );
         expect(
           reserveAfterWithdraw?.userState?.balance.amount.value,
