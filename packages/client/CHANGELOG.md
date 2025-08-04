@@ -1,5 +1,16 @@
 # @aave/client
 
+## 0.3.0
+
+### Minor Changes
+
+- **feat:** support for healthFactorPreview query
+
+### Patch Changes
+
+- Updated dependencies
+  - @aave/graphql@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
