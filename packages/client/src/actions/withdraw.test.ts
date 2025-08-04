@@ -278,9 +278,6 @@ describe('Given an Aave Market', () => {
           spender: wethReserve.market.address,
           owner: evmAddress(user.account!.address),
         })
-          .andTee((permit) =>
-            annotate(`permit: ${JSON.stringify(permit, null, 2)}`),
-          )
           .andThen(signERC20PermitWith(user))
           .andThen((signature) =>
             withdraw(client, {

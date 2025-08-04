@@ -20,7 +20,12 @@ describe('Given the Aave Protocol v3', () => {
 
       assertOk(result);
 
-      result.value.forEach((market) => {
+      // Sort by market name to make the snapshot stable
+      const sortedMarkets = result.value.sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+
+      sortedMarkets.forEach((market) => {
         expect(market).toMatchSnapshot({
           totalAvailableLiquidity: expect.any(String),
           totalMarketSize: expect.any(String),
