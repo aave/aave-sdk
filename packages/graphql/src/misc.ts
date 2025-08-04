@@ -59,3 +59,26 @@ export const UsdExchangeRatesQuery = graphql(
   [UsdExchangeRateFragment],
 );
 export type UsdExchangeRatesRequest = RequestOf<typeof UsdExchangeRatesQuery>;
+
+export const HealthFactorPreviewResponseFragment = graphql(
+  `fragment HealthFactorPreviewResponse on HealthFactorPreviewResponse {
+    __typename
+    before
+    after
+  }`,
+);
+export type HealthFactorPreviewResponse = FragmentOf<
+  typeof HealthFactorPreviewResponseFragment
+>;
+
+export const HealthFactorPreviewQuery = graphql(
+  `query HealthFactorPreview($request: HealthFactorPreviewRequest!) {
+    value: healthFactorPreview(request: $request) {
+      ...HealthFactorPreviewResponse
+    }
+  }`,
+  [HealthFactorPreviewResponseFragment],
+);
+export type HealthFactorPreviewRequest = RequestOf<
+  typeof HealthFactorPreviewQuery
+>;
