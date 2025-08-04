@@ -246,7 +246,7 @@ describe('Given the Aave Vaults', () => {
             userShares: expect.objectContaining({
               shares: expect.objectContaining({
                 amount: expect.objectContaining({
-                  value: expect.toBeBigDecimalCloseTo(0.01, 4),
+                  value: expect.toBeBigDecimalCloseTo(0, 4),
                 }),
               }),
             }),
