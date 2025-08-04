@@ -1,4 +1,8 @@
-import { OrderDirection, type Vault } from '@aave/graphql';
+import {
+  OrderDirection,
+  type Vault,
+  VaultUserHistoryAction,
+} from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -30,6 +34,7 @@ import {
   vaultPreviewRedeem,
   vaultPreviewWithdraw,
   vaults,
+  vaultUserTransactionHistory,
 } from './vaults';
 
 describe('Given the Aave Vaults', () => {
@@ -418,6 +423,98 @@ describe('Given the Aave Vaults', () => {
           balanceBefore * 10 ** 18,
         );
       }, 50_000);
+    });
+
+    describe('When the user redeems partial amount of their shares', () => {
+      const organization = createNewWallet();
+      const user = createNewWallet();
+      let vault: Vault;
+
+      beforeAll(async () => {
+        const initialVault = await createVault(organization).andThen(
+          mintShares(user, 1),
+        );
+        assertOk(initialVault);
+        vault = initialVault.value!;
+        const redeemResult = await vaultRedeemShares(client, {
+          shares: {
+            amount: bigDecimal('0.5'),
+          },
+          vault: initialVault.value!.address,
+          chainId: initialVault.value!.chainId,
+          sharesOwner: evmAddress(user.account!.address),
+        })
+          .andThen(sendWith(user))
+          .andThen(client.waitForTransaction);
+        assertOk(redeemResult);
+      });
+
+      it(`Then the operations should be reflected in the user's vault transaction history`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistory = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(txHistory);
+        expect(txHistory.value.items.length).toEqual(2);
+      });
+
+      it(`Then the user's vault transaction history can be filtered by action`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistoryDeposit = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          filter: [VaultUserHistoryAction.Deposit],
+        });
+        assertOk(txHistoryDeposit);
+        txHistoryDeposit.value.items.forEach((item) => {
+          expect(item.__typename).toEqual('VaultUserDepositItem');
+        });
+
+        const txHistoryWithdraw = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          filter: [VaultUserHistoryAction.Withdraw],
+        });
+        assertOk(txHistoryWithdraw);
+        txHistoryWithdraw.value.items.forEach((item) => {
+          expect(item.__typename).toEqual('VaultUserWithdrawItem');
+        });
+      });
+
+      it(`Then the user's vault transaction history can be sorted by date`, async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
+        annotate(`vault address: ${vault.address}`);
+
+        const txHistory = await vaultUserTransactionHistory(client, {
+          chainId: vault.chainId,
+          vault: vault.address,
+          user: evmAddress(user.account!.address),
+          orderBy: { date: OrderDirection.Desc },
+        });
+        assertOk(txHistory);
+        // Check that the transactions are sorted by date in descending order
+        expect(txHistory.value.items).toEqual(
+          txHistory.value.items.sort((a, b) => {
+            return (
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            );
+          }),
+        );
+      });
     });
   });
 
