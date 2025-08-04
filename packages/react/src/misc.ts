@@ -161,13 +161,17 @@ export function useUsdExchangeRates({
  *
  * const result = await preview({
  *   action: {
- *     supply: {...},
- *     // or
- *     borrow: {...},
- *     // or
- *     repay: {...},
- *     // or
- *     withdraw: {...},
+ *     borrow: {
+ *       market: market.address,
+ *       amount: {
+ *         erc20: {
+ *           currency: evmAddress('0x5678…'),
+ *           value: '1000',
+ *         },
+ *       },
+ *       borrower: evmAddress('0x9abc…'),
+ *       chainId: market.chain.chainId,
+ *     },
  *   },
  * });
  *
