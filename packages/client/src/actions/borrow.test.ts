@@ -49,7 +49,7 @@ describe('Given an Aave Market', () => {
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal('0.011'),
+          bigDecimal('0.05'),
         ).andThen(() =>
           supplyAndFetchPositions(user, {
             market: ETHEREUM_MARKET_ADDRESS,
@@ -58,7 +58,7 @@ describe('Given an Aave Market', () => {
             amount: {
               erc20: {
                 currency: ETHEREUM_WETH_ADDRESS,
-                value: '0.01',
+                value: '0.03',
               },
             },
           }),
@@ -121,14 +121,14 @@ describe('Given an Aave Market', () => {
       beforeAll(async () => {
         const setup = await fundNativeAddress(
           evmAddress(wallet.account!.address),
-          bigDecimal('0.2'),
+          bigDecimal('0.05'),
         ).andThen(() =>
           supplyAndFetchPositions(wallet, {
             market: ETHEREUM_MARKET_ADDRESS,
             chainId: ETHEREUM_FORK_ID,
             sender: evmAddress(wallet.account!.address),
             amount: {
-              native: '0.1',
+              native: '0.03',
             },
           }),
         );

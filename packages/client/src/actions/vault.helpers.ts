@@ -42,7 +42,7 @@ export function createVault(
         deployer: evmAddress(organization.account!.address),
         owner: evmAddress(organization.account!.address),
         initialFee: bigDecimal(config?.initialFee ?? '3'),
-        initialLockDeposit: bigDecimal('1'),
+        initialLockDeposit: bigDecimal('0.05'),
         shareName: config?.token?.name ?? 'Aave WETH Vault Shares',
         shareSymbol: config?.token?.symbol ?? 'avWETH',
         underlyingToken: reserve!.underlyingToken.address,
@@ -66,7 +66,7 @@ export function deposit(user: WalletClient, amount: number) {
     ).andThen(() => {
       return vaultDeposit(client, {
         amount: {
-          value: bigDecimal('1'),
+          value: bigDecimal(amount),
           currency: ETHEREUM_WETH_ADDRESS,
         },
         vault: vault.address,

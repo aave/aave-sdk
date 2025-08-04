@@ -24,7 +24,7 @@ describe('Given an Aave Market', () => {
           fundErc20Address(
             ETHEREUM_WETH_ADDRESS,
             evmAddress(user.account!.address),
-            bigDecimal('1.1'),
+            bigDecimal('0.05'),
           ),
           fundErc20Address(
             ETHEREUM_USDC_ADDRESS,
@@ -40,7 +40,7 @@ describe('Given an Aave Market', () => {
             market: ETHEREUM_MARKET_ADDRESS,
             sender: evmAddress(user.account!.address),
             amount: {
-              erc20: { value: '1', currency: ETHEREUM_WETH_ADDRESS },
+              erc20: { value: '0.03', currency: ETHEREUM_WETH_ADDRESS },
             },
             chainId: ETHEREUM_FORK_ID,
           })
@@ -64,7 +64,7 @@ describe('Given an Aave Market', () => {
             market: ETHEREUM_MARKET_ADDRESS,
             sender: evmAddress(user.account!.address),
             amount: {
-              erc20: { value: '0.005', currency: ETHEREUM_WETH_ADDRESS },
+              erc20: { value: '0.0003', currency: ETHEREUM_WETH_ADDRESS },
             },
             chainId: ETHEREUM_FORK_ID,
           })
