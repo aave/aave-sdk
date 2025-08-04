@@ -1,19 +1,25 @@
+import type { UnexpectedError } from '@aave/client';
+import { healthFactorPreview } from '@aave/client/actions';
 import {
   type Chain,
   ChainsFilter,
   ChainsQuery,
+  type HealthFactorPreviewRequest,
+  type HealthFactorPreviewResponse,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
   type UsdExchangeRatesRequest,
 } from '@aave/graphql';
+import { useAaveClient } from './context';
 import type {
   ReadResult,
   Suspendable,
   SuspendableResult,
   SuspenseResult,
+  UseAsyncTask,
 } from './helpers';
-import { useSuspendableQuery } from './helpers';
+import { useAsyncTask, useSuspendableQuery } from './helpers';
 
 export type UseAaveChainsArgs = {
   filter?: ChainsFilter;
@@ -143,4 +149,43 @@ export function useUsdExchangeRates({
     },
     suspense,
   });
+}
+
+/**
+ * Determines the health factor after a given action.
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useAaveHealthFactorPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   action: {
+ *     supply: {...},
+ *     // or
+ *     borrow: {...},
+ *     // or
+ *     repay: {...},
+ *     // or
+ *     withdraw: {...},
+ *   },
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useAaveHealthFactorPreview(): UseAsyncTask<
+  HealthFactorPreviewRequest,
+  HealthFactorPreviewResponse,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: HealthFactorPreviewRequest) =>
+    healthFactorPreview(client, request),
+  );
 }

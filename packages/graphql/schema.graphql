@@ -316,6 +316,36 @@ It could be an immediate transaction, an approval followed by a transaction, or 
 """
 union ExecutionPlan = TransactionRequest | ApprovalRequired | InsufficientBalanceError
 
+input ForkTopUpErc20 {
+  """The token address"""
+  currency: EvmAddress!
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction
+  """
+  value: BigDecimal!
+}
+
+input ForkTopUpRequest {
+  """The address you want the funds to be topped up against"""
+  user: EvmAddress!
+
+  """The erc20 information"""
+  erc20: ForkTopUpErc20
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction
+  """
+  native: BigDecimal
+}
+
+type ForkTopUpResponse {
+  message: String!
+
+  """The tx hash of the newly created transaction"""
+  txHash: String
+}
+
 input HasProcessedKnownTransactionRequest {
   """
   The operation type this is given to you on the TransactionRequest::operation
@@ -324,6 +354,15 @@ input HasProcessedKnownTransactionRequest {
 
   """The tx hash"""
   txHash: TxHash!
+}
+
+input HealthFactorPreviewRequest {
+  action: PreviewAction!
+}
+
+type HealthFactorPreviewResponse {
+  before: BigDecimal!
+  after: BigDecimal!
 }
 
 """
@@ -708,6 +747,13 @@ type PermitTypedDataResponse {
   message: MessageData!
 }
 
+input PreviewAction @oneOf {
+  supply: SupplyRequest
+  borrow: BorrowRequest
+  repay: RepayRequest
+  withdraw: WithdrawRequest
+}
+
 type Query {
   """Get if the API is healthy"""
   health: Boolean!
@@ -852,6 +898,10 @@ type Query {
   cater for the race condition.
   """
   hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
+  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
+
+  """Top up a balance for a user or yourself on the fork"""
+  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
 }
 
 input RepayRequest {

@@ -4,6 +4,9 @@ import {
   ChainsQuery,
   HasProcessedKnownTransactionQuery,
   type HasProcessedKnownTransactionRequest,
+  HealthFactorPreviewQuery,
+  type HealthFactorPreviewRequest,
+  type HealthFactorPreviewResponse,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
@@ -33,7 +36,7 @@ export function health(
  * Fetches the list of supported chains.
  *
  * ```ts
- * const result = await chains(client, { filter: ChainsFilter.MAINNET_ONLY });
+ * const result = await chains(client, ChainsFilter.MAINNET_ONLY);
  * ```
  *
  * @param client - Aave client.
@@ -115,4 +118,32 @@ export function hasProcessedKnownTransaction(
   request: HasProcessedKnownTransactionRequest,
 ): ResultAsync<boolean, UnexpectedError> {
   return client.query(HasProcessedKnownTransactionQuery, { request });
+}
+
+/**
+ * Fetches health factor preview for a given action.
+ *
+ * ```ts
+ * const result = await healthFactorPreview(client, {
+ *   action: {
+ *     supply: {...},
+ *     // or
+ *     borrow: {...},
+ *     // or
+ *     repay: {...},
+ *     // or
+ *     withdraw: {...},
+ *   },
+ * });
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The health factor preview request parameters.
+ * @returns The health factor preview response with before and after values.
+ */
+export function healthFactorPreview(
+  client: AaveClient,
+  request: HealthFactorPreviewRequest,
+): ResultAsync<HealthFactorPreviewResponse, UnexpectedError> {
+  return client.query(HealthFactorPreviewQuery, { request });
 }
