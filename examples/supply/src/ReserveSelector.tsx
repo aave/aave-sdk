@@ -31,7 +31,7 @@ export function ReserveSelector({
             value={reserve.underlyingToken.address}
           >
             {reserve.underlyingToken.symbol} - APY:{' '}
-            {reserve.supplyInfo.apy.value}%
+            {reserve.supplyInfo.apy.formatted}%
           </option>
         ))}
       </select>
