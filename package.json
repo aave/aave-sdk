@@ -39,10 +39,6 @@
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
-    "test:withdraw:exact:1": "vitest --project client packages/client/src/actions/withdraw.test.ts -t 'When the user withdraws all of their supply'",
-    "test:withdraw:exact:2": "vitest --project client packages/client/src/actions/withdraw.test.ts -t 'When the user withdraws tokens specifying another address'",
-    "test:repay:partial": "vitest --project client packages/client/src/actions/repay.test.ts -t 'When the user repays a partial amount of their loan'",
-
     "test": "vitest"
   },
   "license": "MIT",
