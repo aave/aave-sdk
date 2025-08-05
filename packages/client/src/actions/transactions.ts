@@ -118,7 +118,9 @@ export function supply(
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
- *       value: '500',
+ *       value: {
+ *         exact: '500',
+ *       },
  *     },
  *   },
  *   borrower: evmAddress('0x9abc…'),
