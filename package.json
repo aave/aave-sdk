@@ -24,6 +24,7 @@
     "test:client:local": "ENVIRONMENT=local vitest --project client",
     "test:privy": "vitest --project client packages/client/src/privy.test.ts",
     "test:thirdweb": "vitest --project client packages/client/src/thirdweb.test.ts",
+    "test:healthFactorPreview": "vitest --project client packages/client/src/actions/healthFactorPreview.test.ts",
     "test:react": "vitest --project react",
     "test:borrow": "vitest --project client packages/client/src/actions/borrow.test.ts",
     "test:chains": "vitest --project client packages/client/src/actions/chains.test.ts",
@@ -38,6 +39,10 @@
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
+    "test:withdraw:exact:1": "vitest --project client packages/client/src/actions/withdraw.test.ts -t 'When the user withdraws all of their supply'",
+    "test:withdraw:exact:2": "vitest --project client packages/client/src/actions/withdraw.test.ts -t 'When the user withdraws tokens specifying another address'",
+    "test:repay:partial": "vitest --project client packages/client/src/actions/repay.test.ts -t 'When the user repays a partial amount of their loan'",
+
     "test": "vitest"
   },
   "license": "MIT",
