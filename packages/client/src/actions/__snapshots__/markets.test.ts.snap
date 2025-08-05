@@ -102,7 +102,7 @@ exports[`Given the Aave Protocol v3 > When fetching user market state for a new 
   "availableBorrowsBase": Any<String>,
   "currentLiquidationThreshold": Any<Object>,
   "eModeEnabled": false,
-  "healthFactor": Any<String>,
+  "healthFactor": null,
   "isInIsolationMode": false,
   "ltv": Any<Object>,
   "netAPY": Any<Object>,

@@ -63,31 +63,31 @@ describe('Given an Aave Market', () => {
   });
 
   describe('And a user with a supply position', () => {
-    const wallet = createNewWallet();
-    const amountToSupply = '0.01';
-
-    beforeAll(async () => {
-      // Fund the wallet with WETH
-      await fundErc20Address(
-        ETHEREUM_WETH_ADDRESS,
-        evmAddress(wallet.account!.address),
-        bigDecimal('0.05'),
-      );
-
-      await supplyAndCheck(wallet, {
-        market: wethReserve.market.address,
-        chainId: wethReserve.market.chain.chainId,
-        sender: evmAddress(wallet.account!.address),
-        amount: {
-          erc20: {
-            currency: ETHEREUM_WETH_ADDRESS,
-            value: amountToSupply,
-          },
-        },
-      });
-    });
-
     describe('When the user withdraws part of their supply', () => {
+      const wallet = createNewWallet();
+      const amountToSupply = '0.01';
+
+      beforeAll(async () => {
+        // Fund the wallet with WETH
+        await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+          bigDecimal('0.05'),
+        );
+
+        await supplyAndCheck(wallet, {
+          market: wethReserve.market.address,
+          chainId: wethReserve.market.chain.chainId,
+          sender: evmAddress(wallet.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: amountToSupply,
+            },
+          },
+        });
+      });
+
       it('Then it should be reflected in the user supply positions', async ({
         annotate,
       }) => {
@@ -133,6 +133,30 @@ describe('Given an Aave Market', () => {
     });
 
     describe('When the user withdraws all of their supply', () => {
+      const wallet = createNewWallet();
+      const amountToSupply = '0.01';
+
+      beforeAll(async () => {
+        // Fund the wallet with WETH
+        await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(wallet.account!.address),
+          bigDecimal('0.05'),
+        );
+
+        await supplyAndCheck(wallet, {
+          market: wethReserve.market.address,
+          chainId: wethReserve.market.chain.chainId,
+          sender: evmAddress(wallet.account!.address),
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: amountToSupply,
+            },
+          },
+        });
+      });
+
       it('Then it should be reflected in the user supply positions', async ({
         annotate,
       }) => {
