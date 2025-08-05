@@ -15,7 +15,7 @@ describe('Given the Aave client', () => {
     const wallet = createNewWallet();
 
     describe('When the user wants to preview the health factor after supplying USDC', () => {
-      it('Then it should return the maximum health factor in the preview response', async () => {
+      it('Then it should return null as health factor in the preview response', async () => {
         const userMarketStateResult = await userMarketState(client, {
           market: ETHEREUM_MARKET_ADDRESS,
           chainId: ETHEREUM_FORK_ID,
@@ -39,10 +39,10 @@ describe('Given the Aave client', () => {
           },
         });
         assertOk(result);
-        // User with no supply/borrow positions has a health factor of 0
-        expect(Number(result.value.before)).toEqual(0);
-        // TODO: To be determined what is the maximum health factor
-        expect(Number(result.value.after)).toBeGreaterThan(1);
+        // User with no supply/borrow positions has a health factor of null
+        expect(result.value.before).toBeNull();
+        // User with only supply positions on the market has a health factor of null
+        expect(result.value.after).toBeNull();
       });
     });
   });

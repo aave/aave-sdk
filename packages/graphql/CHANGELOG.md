@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.3.1
+
+### Patch Changes
+
+- **fix:** Support max and exact value options in repay function.
+
 ## 0.3.0
 
 ### Minor Changes

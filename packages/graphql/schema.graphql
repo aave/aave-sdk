@@ -357,12 +357,20 @@ input HasProcessedKnownTransactionRequest {
 }
 
 input HealthFactorPreviewRequest {
+  """The action to simulate"""
   action: PreviewAction!
 }
 
 type HealthFactorPreviewResponse {
-  before: BigDecimal!
-  after: BigDecimal!
+  """
+  The user health factor before - if null, they don't have one because they are not borrowing
+  """
+  before: BigDecimal
+
+  """
+  The user health factor after - if null, they don't have one because they are not borrowing
+  """
+  after: BigDecimal
 }
 
 """
@@ -553,8 +561,10 @@ type MarketUserState {
   """The user's net annual percentage yield across all positions"""
   netAPY: PercentValue!
 
-  """The user's health factor (risk metric for liquidation)"""
-  healthFactor: BigDecimal!
+  """
+  The user's health factor (risk metric for liquidation) - if null, the user does not have a borrow
+  """
+  healthFactor: BigDecimal
 
   """Whether efficiency mode is enabled for the user"""
   eModeEnabled: Boolean!
@@ -904,6 +914,38 @@ type Query {
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
 }
 
+input RepayAmountInput @oneOf {
+  """The native amount"""
+  native: BigDecimal
+
+  """The erc20 amount input"""
+  erc20: RepayErc20AmountInput
+}
+
+input RepayErc20Amount @oneOf {
+  """
+  Exact amount to repay, remember interest is generated on each block
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g., wei).
+  """
+  exact: BigDecimal
+
+  """Repay all the amount completely"""
+  max: AlwaysTrue
+}
+
+input RepayErc20AmountInput {
+  """The token address."""
+  currency: EvmAddress!
+
+  """The amount to repay"""
+  value: RepayErc20Amount!
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 input RepayRequest {
   """The market pool address"""
   market: EvmAddress!
@@ -911,7 +953,7 @@ input RepayRequest {
   """
   The amount to repay - you can pass in the underlying or the aToken if you pass in the aToken address, it will repay with the aToken
   """
-  amount: AmountInput!
+  amount: RepayAmountInput!
 
   """The user sending the transaction (normally the user's wallet address)"""
   sender: EvmAddress!

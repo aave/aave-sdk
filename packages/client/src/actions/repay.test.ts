@@ -76,14 +76,24 @@ describe('Given an Aave Market', () => {
         assertOk(setup);
       });
 
-      it('Then it should be reflected in the user borrow positions', async () => {
+      it('Then it should be reflected in the user borrow positions', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+
         const result = await repay(client, {
-          amount: { erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' } },
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: { max: true },
+            },
+          },
           sender: evmAddress(user.account!.address),
           chainId: ETHEREUM_FORK_ID,
           market: ETHEREUM_MARKET_ADDRESS,
         })
           .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx repay full amount: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -98,6 +108,82 @@ describe('Given an Aave Market', () => {
           );
         assertOk(result);
         expect(result.value.length).toBe(0);
+      }, 50_000);
+    });
+
+    describe('When the user repays a partial amount of their loan', () => {
+      const user = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('0.02'),
+        ).andThen(() =>
+          supplyAndBorrow(user, {
+            market: ETHEREUM_MARKET_ADDRESS,
+            chainId: ETHEREUM_FORK_ID,
+            sender: evmAddress(user.account!.address),
+            amount: {
+              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            },
+          }),
+        );
+        assertOk(setup);
+      });
+
+      it('Then it should be reflected in the user borrow positions', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${evmAddress(user.account!.address)}`);
+
+        const userBorrowsBefore = await userBorrows(client, {
+          markets: [
+            {
+              address: ETHEREUM_MARKET_ADDRESS,
+              chainId: ETHEREUM_FORK_ID,
+            },
+          ],
+          user: evmAddress(user.account!.address),
+        });
+        assertOk(userBorrowsBefore);
+
+        // Pay half of the loan
+        const result = await repay(client, {
+          amount: {
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: {
+                exact: bigDecimal(
+                  Number(userBorrowsBefore.value[0]?.debt.amount.value) * 0.5,
+                ),
+              },
+            },
+          },
+          sender: evmAddress(user.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+        })
+          .andThen(sendWith(user))
+          .andTee((tx) => annotate(`tx repay partial amount: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen(() =>
+            userBorrows(client, {
+              markets: [
+                {
+                  address: ETHEREUM_MARKET_ADDRESS,
+                  chainId: ETHEREUM_FORK_ID,
+                },
+              ],
+              user: evmAddress(user.account!.address),
+            }),
+          );
+        assertOk(result);
+        expect(result.value.length).toBe(1);
+        expect(Number(result.value[0]?.debt.amount.value)).toBeCloseTo(
+          Number(userBorrowsBefore.value[0]?.debt.amount.value) * 0.5,
+          4,
+        );
       }, 50_000);
     });
 
@@ -130,7 +216,11 @@ describe('Given an Aave Market', () => {
           assertOk(setup);
         });
 
-        it('Then it should be reflected in the user borrow positions', async () => {
+        it('Then it should be reflected in the user borrow positions', async ({
+          annotate,
+        }) => {
+          annotate(`user address: ${evmAddress(user.account!.address)}`);
+
           const result = await repay(client, {
             amount: { native: '0.01' },
             sender: evmAddress(user.account!.address),
@@ -138,6 +228,7 @@ describe('Given an Aave Market', () => {
             market: ETHEREUM_MARKET_ADDRESS,
           })
             .andThen(sendWith(user))
+            .andTee((tx) => annotate(`tx repay native amount: ${tx.txHash}`))
             .andThen(client.waitForTransaction)
             .andThen(() =>
               userBorrows(client, {
@@ -158,7 +249,7 @@ describe('Given an Aave Market', () => {
   });
 
   describe('And an open borrow position', () => {
-    describe('When a user repays a loan in behalf of another address', () => {
+    describe('When a user repays a full loan amount in behalf of another address', () => {
       const user = createNewWallet();
       const anotherUser = createNewWallet();
 
@@ -206,7 +297,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_USDC_ADDRESS,
-              value: '100',
+              value: { exact: '100' }, // Not possible to repay with max value when onBehalfOf is provided
             },
           },
           sender: evmAddress(user.account!.address),
@@ -214,7 +305,7 @@ describe('Given an Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
         })
           .andThen(sendWith(user))
-          .andTee((tx) => annotate(`tx repay: ${tx.txHash}`))
+          .andTee((tx) => annotate(`tx repay on behalf of: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -272,7 +363,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_USDC_ADDRESS,
-              value: '100',
+              value: { max: true },
               permitSig: signature.value,
             },
           },
@@ -283,7 +374,7 @@ describe('Given an Aave Market', () => {
           .andTee((tx) => annotate(`tx plan: ${JSON.stringify(tx, null, 2)}`))
           .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
           .andThen(sendWith(user))
-          .andTee((tx) => annotate(`repay tx: ${tx.txHash}`))
+          .andTee((tx) => annotate(`tx repay with permit: ${tx.txHash}`))
           .andThen(client.waitForTransaction)
           .andThen(() =>
             userBorrows(client, {
@@ -357,7 +448,7 @@ describe('Given an Aave Market', () => {
               amount: {
                 erc20: {
                   currency: ETHEREUM_USDC_ADDRESS,
-                  value: '100',
+                  value: { exact: '100' }, // Not possible to repay with max value when onBehalfOf is provided
                   permitSig: signature,
                 },
               },
@@ -366,7 +457,9 @@ describe('Given an Aave Market', () => {
               market: ETHEREUM_MARKET_ADDRESS,
             })
               .andThen(sendWith(user))
-              .andTee((tx) => annotate(`tx repay: ${tx.txHash}`))
+              .andTee((tx) =>
+                annotate(`tx repay on behalf of with permit: ${tx.txHash}`),
+              )
               .andThen(client.waitForTransaction)
               .andThen(() =>
                 userBorrows(client, {
