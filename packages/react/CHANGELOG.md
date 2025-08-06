@@ -1,5 +1,17 @@
 # @aave/react
 
+## 0.4.0
+
+### Minor Changes
+
+- **feat:** Support new fields for deposit/withdraw in vaults
+
+### Patch Changes
+
+- Updated dependencies
+  - @aave/graphql@0.4.0
+  - @aave/client@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes
