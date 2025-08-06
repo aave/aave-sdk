@@ -236,7 +236,6 @@ export function userSetEmode(
  * const result = await vaultDeposit(client, {
  *   vault: evmAddress('0x1234…'),
  *   amount: {
- *     currency: evmAddress('0x5678…'),
  *     value: '1000',
  *   },
  *   depositor: evmAddress('0x9abc…'),
@@ -393,9 +392,8 @@ export function vaultWithdrawFees(
  * ```ts
  * const result = await vaultWithdraw(client, {
  *   vault: evmAddress('0x1234…'),
- *   shares: {
- *     amount: '500',
- *     asAToken: false,
+ *   amount: {
+ *     value: '500',
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
