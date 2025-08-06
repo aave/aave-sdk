@@ -817,22 +817,22 @@ type Query {
   vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
 
   """
-  Allows a user to simulate a deposit at the current block, given current on-chain conditions.
+  This will return you the amount of shares that would be minted to the receiver
   """
   vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
 
   """
-  Allows a user to simulate a mint at the current block, given current on-chain conditions.
+  This will return you the amount of assets that would be deposited by the caller
   """
   vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
 
   """
-  Allows a user to simulate a withdraw at the current block, given current on-chain conditions.
+  This will return you the number of shares burnt based on the amount of assets you want to withdraw
   """
   vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
 
   """
-  Allows a user to simulate a redeem at the current block, given current on-chain conditions.
+  This will return you the amount of assets that would be withdrawn by the receiver.
   """
   vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
 
@@ -924,8 +924,8 @@ input RepayAmountInput @oneOf {
 
 input RepayErc20Amount @oneOf {
   """
-  Exact amount to repay, remember interest is generated on each block
-  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g., wei).
+  Exact amount to repay
+  Token value in its main unit (e.g., 1.5 GHO), not in the smallest fraction (e.g., wei).
   """
   exact: BigDecimal
 
@@ -941,7 +941,7 @@ input RepayErc20AmountInput {
   value: RepayErc20Amount!
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The signed ERC20 permit message to operate on the relevant token without the need for an ERC20 Approval transaction.
   """
   permitSig: ERC712Signature
 }
@@ -1665,14 +1665,25 @@ input VaultDeployRequest {
   initialLockDeposit: BigDecimal!
 }
 
+input VaultDepositAmountInput {
+  """The amount of assets to deposit."""
+  value: BigDecimal!
+
+  """Whether you are depositing in as a token or normal underlying"""
+  asAToken: Boolean! = false
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 input VaultDepositRequest {
   """The vault address"""
   vault: EvmAddress!
 
-  """
-  The amount of assets to deposit - you can pass in the underlying or the aToken if you pass in the aToken address it will deposit with the aToken
-  """
-  amount: Erc20AmountInput!
+  """The details of the amounts to deposit."""
+  amount: VaultDepositAmountInput!
 
   """The user who is depositing"""
   depositor: EvmAddress!
@@ -1733,7 +1744,13 @@ input VaultOperationPreviewRequest {
   """The chain id the vault is deployed on"""
   chainId: ChainId!
 
-  """The amount in human-readable form"""
+  """
+  The amount in human-readable form
+  preview deposit = underlying
+  preview mint = shares
+  preview withdraw = underlying
+  preview redeem = shares
+  """
   amount: BigDecimal!
 }
 
@@ -1863,6 +1880,19 @@ type VaultUserWithdrawItem {
   timestamp: DateTime!
 }
 
+input VaultWithdrawAmountInput {
+  """The amount of assets to withdraw."""
+  value: BigDecimal!
+
+  """Whether the amount should be sent/received as aToken."""
+  asAToken: Boolean! = false
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 input VaultWithdrawFeesRequest {
   """The vault deployed address"""
   vault: EvmAddress!
@@ -1879,25 +1909,12 @@ input VaultWithdrawFeesRequest {
   chainId: ChainId!
 }
 
-input VaultWithdrawInput {
-  """The amount of assets to withdraw."""
-  amount: BigDecimal!
-
-  """Whether the amount should be sent/received as aToken."""
-  asAToken: Boolean! = false
-
-  """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
-  """
-  permitSig: ERC712Signature
-}
-
 input VaultWithdrawRequest {
   """The vault address"""
   vault: EvmAddress!
 
-  """The details of the underlying token to withdraw."""
-  underlyingToken: VaultWithdrawInput!
+  """The details of the amounts to withdraw."""
+  amount: VaultWithdrawAmountInput!
 
   """
   The address from which vault shares will be burned (normally your own wallet).

@@ -67,7 +67,6 @@ export function deposit(user: WalletClient, amount: number) {
       return vaultDeposit(client, {
         amount: {
           value: bigDecimal(amount),
-          currency: ETHEREUM_WETH_ADDRESS,
         },
         vault: vault.address,
         depositor: evmAddress(user.account!.address),

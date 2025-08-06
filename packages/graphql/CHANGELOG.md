@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.4.0
+
+### Minor Changes
+
+- **feat:** Support new fields for deposit/withdraw in vaults
+
 ## 0.3.1
 
 ### Patch Changes
