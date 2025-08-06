@@ -117,7 +117,6 @@ describe('Given the Aave Vaults', () => {
         const depositResult = await vaultDeposit(client, {
           amount: {
             value: bigDecimal(amountToDeposit),
-            currency: ETHEREUM_WETH_ADDRESS,
           },
           vault: initialVault.value!.address,
           depositor: evmAddress(user.account!.address),
@@ -221,9 +220,8 @@ describe('Given the Aave Vaults', () => {
         const withdrawResult = await vaultWithdraw(client, {
           chainId: initialVault.value?.chainId,
           sharesOwner: evmAddress(user.account!.address),
-          underlyingToken: {
-            asAToken: false,
-            amount: bigDecimal(amountToWithdraw.toString()),
+          amount: {
+            value: bigDecimal(amountToWithdraw.toString()),
           },
           vault: initialVault.value?.address,
         })
