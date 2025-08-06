@@ -9,6 +9,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: testing
+        shell: bash
+        run: echo ${{ secrets.TESTING_THINGS }}
   verify:
     name: Verify
     uses: ./.github/workflows/verify.yml
