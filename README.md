@@ -134,6 +134,7 @@ We welcome contributions to the Aave SDK! If you're interested in contributing, 
 7. Wait for code review and address any feedback provided by the maintainers.
 
 If you have a pressing issue or feature request, please open an issue on GitHub.
+A lot of the abstraction is in the API so somethings could be out of scope in the SDK but we are happy to discuss it on the GitHub issues. 
 
 ## License
 
