@@ -94,33 +94,6 @@ pnpm new:package
 
 The project uses [Biome](https://biomejs.dev/) to format and lint the code. You can install the Biome extension for your IDE: https://biomejs.dev/guides/editors/first-party-extensions/
 
-### Publishing <!-- omit in toc -->
-
-1. Create a new release branch using the `release/X.Y.Z` naming convention.
-2. Bumps up version number and updates the changelog.
-
-   ```bash
-   pnpm changeset version
-   ```
-
-3. Commit the changes using `chore: bumps up version number` as the commit message.
-4. Push the changes to the remote repository.
-5. Open a pull request to the `main` branch.
-6. Wait for all checks to pass and for the pull request to be approved.
-7. Publish the package.
-
-   ```bash
-   pnpm changeset publish
-   ```
-
-8. Push tags to the remote repository.
-
-   ```bash
-   git push --follow-tags
-   ```
-
-9. Merge the pull request to the `main` branch.
-
 ## Contributing
 
 We welcome contributions to the Aave SDK! If you're interested in contributing, please follow these steps:
