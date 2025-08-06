@@ -39,7 +39,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: just a test
+        shell: bash
+        run: echo ${{ secrets.TESTING_THINGS }}
+
       - name: Setup Repository
         uses: ./.github/actions/setup
 
