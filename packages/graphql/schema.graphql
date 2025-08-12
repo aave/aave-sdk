@@ -625,6 +625,26 @@ type MeritBorrowIncentive {
   claimLink: URL!
 }
 
+input MeritClaimRequest {
+  user: EvmAddress!
+}
+
+type MeritClaimTransaction {
+  """The chain the transaction is on"""
+  chain: ChainId!
+
+  """The reward tokens being claimed in the transaction"""
+  rewards: [MeritReward!]!
+
+  """The transaction to execute to claim the rewards"""
+  transaction: TransactionRequest!
+}
+
+type MeritReward {
+  currency: Currency!
+  amount: TokenAmount!
+}
+
 type MeritSupplyIncentive {
   """Extra APR for supplying this asset from AAVE Merit program"""
   extraSupplyApr: PercentValue!
@@ -807,6 +827,11 @@ type Query {
   vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
 
   """
+  Vault user activity for a given vault and user, within a specified time window.
+  """
+  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
+
+  """
   Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
   """
   vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
@@ -912,6 +937,7 @@ type Query {
 
   """Top up a balance for a user or yourself on the fork"""
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
+  meritClaim(request: MeritClaimRequest!): [MeritClaimTransaction!]!
 }
 
 input RepayAmountInput @oneOf {
@@ -1825,6 +1851,47 @@ input VaultSetFeeRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type VaultUserActivityItem {
+  balance: TokenAmount!
+  earned: TokenAmount!
+  withdrew: TokenAmount
+  deposited: TokenAmount
+  date: DateTime!
+}
+
+input VaultUserActivityRequest {
+  """The vault"""
+  vault: EvmAddress!
+
+  """The chain id the vault is deployed on"""
+  chainId: ChainId!
+
+  """The user address"""
+  user: EvmAddress!
+
+  """The timing window for which to calculate user activity"""
+  window: VaultUserActivityTimeWindow!
+}
+
+type VaultUserActivityResult {
+  earned: TokenAmount!
+  breakdown: [VaultUserActivityItem!]!
+}
+
+enum VaultUserActivityTimeWindow {
+  """Samples data in days over the last week"""
+  LAST_WEEK
+
+  """Samples data in days over the last month"""
+  LAST_MONTH
+
+  """Samples data in months over the last year"""
+  LAST_YEAR
+
+  """Samples data in years for the maximum available period"""
+  MAX
 }
 
 """A transaction where the user supplied assets to a reserve."""
