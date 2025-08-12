@@ -1,6 +1,7 @@
 import {
   OrderDirection,
   type Vault,
+  VaultUserActivityTimeWindow,
   VaultUserHistoryAction,
 } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
@@ -34,6 +35,7 @@ import {
   vaultPreviewRedeem,
   vaultPreviewWithdraw,
   vaults,
+  vaultUserActivity,
   vaultUserTransactionHistory,
 } from './vaults';
 
@@ -447,6 +449,21 @@ describe('Given the Aave Vaults', () => {
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
       });
+
+      const timeWindows = Object.values(VaultUserActivityTimeWindow);
+      it.each(timeWindows)(
+        `Then the user's vault activity can be fetched for the time window %s`,
+        async (window) => {
+          const result = await vaultUserActivity(client, {
+            vault: vault.address,
+            chainId: vault.chainId,
+            user: evmAddress(user.account!.address),
+            window: window,
+          });
+          assertOk(result);
+          expect(result.value.breakdown.length).toBeGreaterThan(0);
+        },
+      );
 
       it(`Then the operations should be reflected in the user's vault transaction history`, async ({
         annotate,

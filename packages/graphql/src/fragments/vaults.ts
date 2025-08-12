@@ -155,3 +155,43 @@ export const PaginatedVaultUserTransactionHistoryResultFragment = graphql(
 export type PaginatedVaultUserTransactionHistoryResult = FragmentOf<
   typeof PaginatedVaultUserTransactionHistoryResultFragment
 >;
+
+export const VaultUserActivityItemFragment = graphql(
+  `fragment VaultUserActivityItem on VaultUserActivityItem {
+    __typename
+    balance {
+      ...TokenAmount
+    }
+    earned {
+      ...TokenAmount
+    }
+    withdrew {
+      ...TokenAmount
+    }
+    deposited {
+      ...TokenAmount
+    }
+    date 
+  }`,
+  [TokenAmountFragment],
+);
+
+export type VaultUserActivityItem = FragmentOf<
+  typeof VaultUserActivityItemFragment
+>;
+
+export const VaultUserActivityResultFragment = graphql(
+  `fragment VaultUserActivityResult on VaultUserActivityResult {
+    __typename
+    earned {
+      ...TokenAmount
+    }
+    breakdown {
+      ...VaultUserActivityItem
+    }
+  }`,
+  [TokenAmountFragment, VaultUserActivityItemFragment],
+);
+export type VaultUserActivityResult = FragmentOf<
+  typeof VaultUserActivityResultFragment
+>;
