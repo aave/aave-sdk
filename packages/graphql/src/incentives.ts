@@ -17,8 +17,8 @@ export const MeritRewardFragment = graphql(
 );
 export type MeritReward = FragmentOf<typeof MeritRewardFragment>;
 
-export const MeritClaimTransactionFragment = graphql(
-  `fragment MeritClaimTransaction on MeritClaimTransaction {
+export const MeritClaimRewardsTransactionFragment = graphql(
+  `fragment MeritClaimRewardsTransaction on MeritClaimRewardsTransaction {
     __typename
     chain
     rewards {
@@ -30,16 +30,16 @@ export const MeritClaimTransactionFragment = graphql(
   }`,
   [MeritRewardFragment, TransactionRequestFragment],
 );
-export type MeritClaimTransaction = FragmentOf<
-  typeof MeritClaimTransactionFragment
+export type MeritClaimRewardsTransaction = FragmentOf<
+  typeof MeritClaimRewardsTransactionFragment
 >;
 
-export const MeritClaimQuery = graphql(
-  `query MeritClaim($request: MeritClaimRequest!) {
-    value: meritClaim(request: $request) {
-      ...MeritClaimTransaction
+export const MeritClaimRewardsQuery = graphql(
+  `query MeritClaimRewards($request: MeritClaimRewardsRequest!) {
+    value: meritClaimRewards(request: $request) {
+      ...MeritClaimRewardsTransaction
     }
   }`,
-  [MeritClaimTransactionFragment],
+  [MeritClaimRewardsTransactionFragment],
 );
-export type MeritClaimRequest = RequestOf<typeof MeritClaimQuery>;
+export type MeritClaimRewardsRequest = RequestOf<typeof MeritClaimRewardsQuery>;

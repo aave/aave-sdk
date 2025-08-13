@@ -625,11 +625,12 @@ type MeritBorrowIncentive {
   claimLink: URL!
 }
 
-input MeritClaimRequest {
+input MeritClaimRewardsRequest {
   user: EvmAddress!
+  chainId: ChainId!
 }
 
-type MeritClaimTransaction {
+type MeritClaimRewardsTransaction {
   """The chain the transaction is on"""
   chain: ChainId!
 
@@ -937,7 +938,7 @@ type Query {
 
   """Top up a balance for a user or yourself on the fork"""
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
-  meritClaim(request: MeritClaimRequest!): [MeritClaimTransaction!]!
+  meritClaimRewards(request: MeritClaimRewardsRequest!): MeritClaimRewardsTransaction
 }
 
 input RepayAmountInput @oneOf {
