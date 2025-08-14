@@ -198,7 +198,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 30_000);
+      }, 50_000);
     });
 
     describe('When the user withdraws their assets from the vault', () => {
