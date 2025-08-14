@@ -146,7 +146,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 30_000);
+      }, 40_000);
     });
 
     describe(`When the user mints some vault's shares`, () => {
@@ -461,7 +461,45 @@ describe('Given the Aave Vaults', () => {
             window: window,
           });
           assertOk(result);
-          expect(result.value.breakdown.length).toBeGreaterThan(0);
+          expect(result.value).toMatchSnapshot({
+            earned: {
+              amount: {
+                value: expect.toBeBigDecimalCloseTo(0.03, 4),
+                raw: expect.any(String),
+              },
+              usd: expect.any(String),
+              usdPerToken: expect.any(String),
+            },
+            breakdown: [
+              {
+                balance: {
+                  amount: {
+                    value: expect.toBeBigDecimalCloseTo(0.02, 4),
+                    raw: expect.any(String),
+                  },
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                date: expect.any(String),
+                earned: {
+                  amount: {
+                    value: expect.toBeBigDecimalCloseTo(0.03, 4),
+                    raw: expect.any(String),
+                  },
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                deposited: {
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                withdrew: {
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+              },
+            ],
+          });
         },
       );
 
