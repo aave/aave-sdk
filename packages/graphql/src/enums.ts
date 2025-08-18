@@ -60,3 +60,13 @@ export enum VaultUserHistoryAction {
   Deposit = 'DEPOSIT',
   Withdraw = 'WITHDRAW',
 }
+
+/**
+ * The time window for the vault user activity.
+ */
+export enum VaultUserActivityTimeWindow {
+  LastWeek = 'LAST_WEEK',
+  LastMonth = 'LAST_MONTH',
+  LastYear = 'LAST_YEAR',
+  Max = 'MAX',
+}

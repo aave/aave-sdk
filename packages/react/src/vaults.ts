@@ -20,6 +20,9 @@ import {
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserActivityQuery,
+  type VaultUserActivityRequest,
+  type VaultUserActivityResult,
   VaultUserTransactionHistoryQuery,
   type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
@@ -371,6 +374,64 @@ export function useVaultUserTransactionHistory({
 }): SuspendableResult<PaginatedVaultUserTransactionHistoryResult> {
   return useSuspendableQuery({
     document: VaultUserTransactionHistoryQuery,
+    variables: {
+      request,
+    },
+    suspense,
+  });
+}
+
+export type UseVaultUserActivityArgs = VaultUserActivityRequest;
+
+/**
+ * Fetch user activity data for a vault, including earnings breakdown over time.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useVaultUserActivity({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useVaultUserActivity(
+  args: UseVaultUserActivityArgs & Suspendable,
+): SuspenseResult<VaultUserActivityResult>;
+
+/**
+ * Fetch user activity data for a vault, including earnings breakdown over time.
+ *
+ * ```tsx
+ * const { data, loading } = useVaultUserActivity({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (data) {
+ *   console.log('Total earned:', data.earned.amount.value);
+ *   data.breakdown.forEach(activity => {
+ *     console.log('Date:', activity.date);
+ *     console.log('Balance:', activity.balance.amount.value);
+ *   });
+ * }
+ * ```
+ */
+export function useVaultUserActivity(
+  args: UseVaultUserActivityArgs,
+): ReadResult<VaultUserActivityResult>;
+
+export function useVaultUserActivity({
+  suspense = false,
+  ...request
+}: UseVaultUserActivityArgs & {
+  suspense?: boolean;
+}): SuspendableResult<VaultUserActivityResult> {
+  return useSuspendableQuery({
+    document: VaultUserActivityQuery,
     variables: {
       request,
     },

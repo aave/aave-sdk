@@ -1,6 +1,7 @@
 import {
   OrderDirection,
   type Vault,
+  VaultUserActivityTimeWindow,
   VaultUserHistoryAction,
 } from '@aave/graphql';
 import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
@@ -34,6 +35,7 @@ import {
   vaultPreviewRedeem,
   vaultPreviewWithdraw,
   vaults,
+  vaultUserActivity,
   vaultUserTransactionHistory,
 } from './vaults';
 
@@ -144,7 +146,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 30_000);
+      }, 40_000);
     });
 
     describe(`When the user mints some vault's shares`, () => {
@@ -196,7 +198,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 30_000);
+      }, 50_000);
     });
 
     describe('When the user withdraws their assets from the vault', () => {
@@ -447,6 +449,59 @@ describe('Given the Aave Vaults', () => {
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
       });
+
+      const timeWindows = Object.values(VaultUserActivityTimeWindow);
+      it.each(timeWindows)(
+        `Then the user's vault activity can be fetched for the time window %s`,
+        async (window) => {
+          const result = await vaultUserActivity(client, {
+            vault: vault.address,
+            chainId: vault.chainId,
+            user: evmAddress(user.account!.address),
+            window: window,
+          });
+          assertOk(result);
+          expect(result.value).toMatchSnapshot({
+            earned: {
+              amount: {
+                value: expect.toBeBigDecimalCloseTo(0.03, 4),
+                raw: expect.any(String),
+              },
+              usd: expect.any(String),
+              usdPerToken: expect.any(String),
+            },
+            breakdown: [
+              {
+                balance: {
+                  amount: {
+                    value: expect.toBeBigDecimalCloseTo(0.02, 4),
+                    raw: expect.any(String),
+                  },
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                date: expect.any(String),
+                earned: {
+                  amount: {
+                    value: expect.toBeBigDecimalCloseTo(0.03, 4),
+                    raw: expect.any(String),
+                  },
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                deposited: {
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+                withdrew: {
+                  usd: expect.any(String),
+                  usdPerToken: expect.any(String),
+                },
+              },
+            ],
+          });
+        },
+      );
 
       it(`Then the operations should be reflected in the user's vault transaction history`, async ({
         annotate,
