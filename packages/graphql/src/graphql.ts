@@ -25,6 +25,7 @@ import type {
   OrderDirection,
   PageSize,
   TimeWindow,
+  VaultUserActivityTimeWindow,
   VaultUserHistoryAction,
 } from './enums';
 import type { introspection } from './graphql-env';
@@ -58,6 +59,7 @@ export const graphql = initGraphQLTada<{
     Void: Void;
     TimeWindow: TimeWindow;
     VaultUserHistoryAction: VaultUserHistoryAction;
+    VaultUserActivityTimeWindow: VaultUserActivityTimeWindow;
   };
 }>();
 

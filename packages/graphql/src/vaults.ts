@@ -4,6 +4,7 @@ import {
   type PaginatedVaultUserTransactionHistoryResult,
   PaginatedVaultUserTransactionHistoryResultFragment,
   VaultFragment,
+  VaultUserActivityResultFragment,
 } from './fragments/vaults';
 import { graphql, type RequestOf } from './graphql';
 
@@ -121,3 +122,13 @@ export type VaultUserTransactionHistoryRequest = RequestOf<
 export type VaultUserTransactionHistoryResult = {
   value: PaginatedVaultUserTransactionHistoryResult;
 };
+
+export const VaultUserActivityQuery = graphql(
+  `query VaultUserActivity($request: VaultUserActivityRequest!) {
+    value: vaultUserActivity(request: $request) {
+      ...VaultUserActivityResult
+    }
+  }`,
+  [VaultUserActivityResultFragment],
+);
+export type VaultUserActivityRequest = RequestOf<typeof VaultUserActivityQuery>;

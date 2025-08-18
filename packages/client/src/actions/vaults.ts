@@ -17,6 +17,9 @@ import {
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserActivityQuery,
+  type VaultUserActivityRequest,
+  type VaultUserActivityResult,
   VaultUserTransactionHistoryQuery,
   type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
@@ -262,6 +265,40 @@ export function vaultUserTransactionHistory(
   request: VaultUserTransactionHistoryRequest,
 ): ResultAsync<PaginatedVaultUserTransactionHistoryResult, UnexpectedError> {
   return client.query(VaultUserTransactionHistoryQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches the user activity data for a vault, including earnings breakdown over time.
+ *
+ * ```ts
+ * const result = await vaultUserActivity(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Total earned:', result.value.earned.amount.value);
+ *   console.log('Activity breakdown count:', result.value.breakdown.length);
+ *   result.value.breakdown.forEach(activity => {
+ *     console.log('Date:', activity.date);
+ *     console.log('Balance:', activity.balance.amount.value);
+ *     console.log('Earned:', activity.earned.amount.value);
+ *   });
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault user activity request parameters.
+ * @returns The vault user activity result.
+ */
+export function vaultUserActivity(
+  client: AaveClient,
+  request: VaultUserActivityRequest,
+): ResultAsync<VaultUserActivityResult, UnexpectedError> {
+  return client.query(VaultUserActivityQuery, {
     request,
   });
 }

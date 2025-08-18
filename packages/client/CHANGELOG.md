@@ -1,5 +1,16 @@
 # @aave/client
 
+## 0.5.0
+
+### Minor Changes
+
+- **feat:** support for vaultUserActivity query
+
+### Patch Changes
+
+- Updated dependencies
+  - @aave/graphql@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes

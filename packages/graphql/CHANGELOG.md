@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.5.0
+
+### Minor Changes
+
+- **feat:** support for vaultUserActivity query
+
 ## 0.4.0
 
 ### Minor Changes
