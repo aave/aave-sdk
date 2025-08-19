@@ -16,7 +16,7 @@ import type { AaveClient } from '../client';
  *
  * @param client - Aave client.
  * @param request - The merit claim rewards request parameters.
- * @returns The transaction to claim merit rewards.
+ * @returns The rewards with the transaction request.
  */
 export function meritClaimRewards(
   client: AaveClient,
