@@ -17,72 +17,75 @@ import { userBorrows, userSupplies } from './user';
 const user = createNewWallet();
 
 describe('Given an Aave Market', () => {
-  describe('And a user with more than one supply positions', () => {
-    describe('When fetching those positions', () => {
-      beforeAll(async () => {
-        const funds = await ResultAsync.combine([
-          fundErc20Address(
-            ETHEREUM_WETH_ADDRESS,
-            evmAddress(user.account!.address),
-            bigDecimal('0.05'),
-          ),
-          fundErc20Address(
-            ETHEREUM_USDC_ADDRESS,
-            evmAddress(user.account!.address),
-            bigDecimal('100'),
-            6,
-          ),
-        ]);
-        assertOk(funds);
+  describe('And a user with more than one supply/borrow positions', () => {
+    beforeAll(async () => {
+      const funds = await ResultAsync.combine([
+        fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('0.05'),
+        ),
+        fundErc20Address(
+          ETHEREUM_USDC_ADDRESS,
+          evmAddress(user.account!.address),
+          bigDecimal('100'),
+          6,
+        ),
+      ]);
+      assertOk(funds);
 
-        const supplies = await client.batch((c) => [
-          supply(c, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { value: '0.03', currency: ETHEREUM_WETH_ADDRESS },
-            },
-            chainId: ETHEREUM_FORK_ID,
-          })
-            .andThen(sendWith(user))
-            .andThen(c.waitForTransaction),
-          supply(c, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
-            },
-            chainId: ETHEREUM_FORK_ID,
-          })
-            .andThen(sendWith(user))
-            .andThen(c.waitForTransaction),
-        ]);
-        assertOk(supplies);
+      const supplies = await client.batch((c) => [
+        supply(c, {
+          market: ETHEREUM_MARKET_ADDRESS,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: { value: '0.03', currency: ETHEREUM_WETH_ADDRESS },
+          },
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(user))
+          .andThen(c.waitForTransaction),
+        supply(c, {
+          market: ETHEREUM_MARKET_ADDRESS,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
+          },
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(user))
+          .andThen(c.waitForTransaction),
+      ]);
+      assertOk(supplies);
 
-        const borrows = await client.batch((c) => [
-          borrow(c, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { value: '0.0003', currency: ETHEREUM_WETH_ADDRESS },
-            },
-            chainId: ETHEREUM_FORK_ID,
-          })
-            .andThen(sendWith(user))
-            .andThen(c.waitForTransaction),
-          borrow(c, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            sender: evmAddress(user.account!.address),
-            amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
-            chainId: ETHEREUM_FORK_ID,
-          })
-            .andThen(sendWith(user))
-            .andThen(c.waitForTransaction),
-        ]);
-        assertOk(borrows);
-      }, 120_000);
+      const borrows = await client.batch((c) => [
+        borrow(c, {
+          market: ETHEREUM_MARKET_ADDRESS,
+          sender: evmAddress(user.account!.address),
+          amount: {
+            erc20: { value: '0.0003', currency: ETHEREUM_WETH_ADDRESS },
+          },
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(user))
+          .andThen(c.waitForTransaction),
+        borrow(c, {
+          market: ETHEREUM_MARKET_ADDRESS,
+          sender: evmAddress(user.account!.address),
+          amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(user))
+          .andThen(c.waitForTransaction),
+      ]);
+      assertOk(borrows);
+    }, 120_000);
 
-      it('Then it should be possible so sort them by balance', async () => {
+    describe('When fetching supply positions', () => {
+      it('Then it should be possible so sort them by balance', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const listSuppliesDesc = await userSupplies(client, {
           user: evmAddress(user.account!.address),
           markets: [
@@ -96,7 +99,7 @@ describe('Given an Aave Market', () => {
         const balanceDescList = listSuppliesDesc.value.map((supply) =>
           Number(supply.balance.usd),
         );
-        expect(balanceDescList[0]).toBeGreaterThan(balanceDescList[1]!);
+        expect(balanceDescList[1]).toBeGreaterThan(balanceDescList[0]!);
 
         const listSuppliesAsc = await userSupplies(client, {
           user: evmAddress(user.account!.address),
@@ -110,7 +113,7 @@ describe('Given an Aave Market', () => {
         const balanceAscList = listSuppliesAsc.value.map((supply) =>
           Number(supply.balance.usd),
         );
-        expect(balanceAscList[0]).toBeLessThan(balanceAscList[1]!);
+        expect(balanceAscList[1]).toBeLessThan(balanceAscList[0]!);
       });
 
       it('Then it should be possible so sort them by name', async () => {
@@ -198,11 +201,12 @@ describe('Given an Aave Market', () => {
         expect(listSuppliesAsc.value.length).toBeGreaterThan(0);
       });
     });
-  });
 
-  describe('And a user with more than one borrow positions', () => {
-    describe('When fetching those positions', () => {
-      it('Then it should be possible so sort them by debt', async () => {
+    describe('When fetching borrow positions', () => {
+      it('Then it should be possible so sort them by debt', async ({
+        annotate,
+      }) => {
+        annotate(`user address: ${user.account!.address}`);
         const listBorrowsDesc = await userBorrows(client, {
           user: evmAddress(user.account!.address),
           markets: [
@@ -215,7 +219,7 @@ describe('Given an Aave Market', () => {
         const debtDescList = listBorrowsDesc.value.map((borrow) =>
           Number(borrow.debt.usd),
         );
-        expect(debtDescList[0]).toBeGreaterThan(debtDescList[1]!);
+        expect(debtDescList[1]).toBeGreaterThan(debtDescList[0]!);
 
         const listBorrowsAsc = await userBorrows(client, {
           user: evmAddress(user.account!.address),
@@ -229,7 +233,7 @@ describe('Given an Aave Market', () => {
         const debtAscList = listBorrowsAsc.value.map((borrow) =>
           Number(borrow.debt.usd),
         );
-        expect(debtAscList[0]).toBeLessThan(debtAscList[1]!);
+        expect(debtAscList[1]).toBeLessThan(debtAscList[0]!);
       });
 
       it('Then it should be possible so sort them by name', async () => {
