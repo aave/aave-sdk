@@ -19,7 +19,7 @@ export type UseMeritClaimRewardsArgs = MeritClaimRewardsRequest;
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useMeritClaim({
+ * const { data } = useMeritClaimRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  *   suspense: true,
