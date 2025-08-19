@@ -34,7 +34,7 @@ export function useMeritClaimRewards(
  * Fetch Merit claim rewards transaction for a user.
  *
  * ```tsx
- * const { data, loading } = useMeritClaim({
+ * const { data, loading } = useMeritClaimRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  * });
