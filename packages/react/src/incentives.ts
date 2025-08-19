@@ -11,7 +11,7 @@ import type {
 } from './helpers';
 import { useSuspendableQuery } from './helpers';
 
-export type UseMeritClaimArgs = MeritClaimRewardsRequest;
+export type UseMeritClaimRewardsArgs = MeritClaimRewardsRequest;
 
 /**
  * Fetch Merit claim rewards transaction for a user.
@@ -26,8 +26,8 @@ export type UseMeritClaimArgs = MeritClaimRewardsRequest;
  * });
  * ```
  */
-export function useMeritClaim(
-  args: UseMeritClaimArgs & Suspendable,
+export function useMeritClaimRewards(
+  args: UseMeritClaimRewardsArgs & Suspendable,
 ): SuspenseResult<MeritClaimRewardsTransaction | null>;
 
 /**
@@ -40,14 +40,14 @@ export function useMeritClaim(
  * });
  * ```
  */
-export function useMeritClaim(
-  args: UseMeritClaimArgs,
+export function useMeritClaimRewards(
+  args: UseMeritClaimRewardsArgs,
 ): ReadResult<MeritClaimRewardsTransaction | null>;
 
-export function useMeritClaim({
+export function useMeritClaimRewards({
   suspense = false,
   ...request
-}: UseMeritClaimArgs & {
+}: UseMeritClaimRewardsArgs & {
   suspense?: boolean;
 }): SuspendableResult<MeritClaimRewardsTransaction | null> {
   return useSuspendableQuery({
