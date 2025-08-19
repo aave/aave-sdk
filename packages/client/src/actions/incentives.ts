@@ -5,7 +5,7 @@ import {
 import type { AaveClient } from '../client';
 
 /**
- * Fetches Merit claim rewards transaction for a user.
+ * Fetches Merit claim rewards for a user with the transaction request to claim them.
  *
  * ```ts
  * const result = await meritClaimRewards(client, {
