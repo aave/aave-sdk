@@ -4,25 +4,21 @@ import { chainId } from '@aave/types';
 import { describe, expect, it } from 'vitest';
 import { meritClaimRewards } from './incentives';
 
-describe('Given the Aave client', () => {
-  describe('And a user with no merits', () => {
-    const wallet = createNewWallet();
+describe('Given a chain supporting Merit rewards', () => {
+  const wallet = createNewWallet();
 
-    describe('When the user wants to claim merits', () => {
-      it('Then it should not return any merits to claim', async () => {
-        const result = await meritClaimRewards(client, {
-          user: evmAddress(wallet.account!.address),
-          chainId: chainId(1),
-        });
-        assertOk(result);
-        expect(result.value).toBeNull();
+  describe('When a user does not have any Merit rewards', () => {
+    it('Then they should not see any Merit rewards to claim', async () => {
+      const result = await meritClaimRewards(client, {
+        user: evmAddress(wallet.account!.address),
+        chainId: chainId(1),
       });
+      assertOk(result);
+      expect(result.value).toBeNull();
     });
+  });
 
-    describe('And a user with merits', () => {
-      describe('When the user wants to claim merits', () => {
-        it.todo('Then it should return the merits claimed');
-      });
-    });
+  describe('When a user have Merit rewards to claim', () => {
+    it.todo('Then they should be able to claim them');
   });
 });

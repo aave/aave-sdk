@@ -14,7 +14,7 @@ import { useSuspendableQuery } from './helpers';
 export type UseMeritClaimRewardsArgs = MeritClaimRewardsRequest;
 
 /**
- * Fetch Merit claim rewards transaction for a user.
+ * Fetches Merit claim rewards for a user with the transaction request to claim them.
  *
  * This signature supports React Suspense:
  *
@@ -31,7 +31,7 @@ export function useMeritClaimRewards(
 ): SuspenseResult<MeritClaimRewardsTransaction | null>;
 
 /**
- * Fetch Merit claim rewards transaction for a user.
+ * Fetches Merit claim rewards for a user with the transaction request to claim them.
  *
  * ```tsx
  * const { data, loading } = useMeritClaimRewards({
