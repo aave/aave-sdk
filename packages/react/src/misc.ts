@@ -45,7 +45,7 @@ export function useAaveChains(
  * Fetch all supported Aave chains.
  *
  * ```tsx
- * const { data, loading } = useAaveChains({
+ * const { data, error, loading } = useAaveChains({
  *   filter: ChainsFilter.MAINNET_ONLY,
  * });
  * ```
@@ -84,7 +84,7 @@ export function useAaveHealth(args: Suspendable): SuspenseResult<boolean>;
  * Health check query.
  *
  * ```tsx
- * const { data, loading } = useAaveHealth();
+ * const { data, error, loading } = useAaveHealth();
  * ```
  */
 export function useAaveHealth(): ReadResult<boolean>;
@@ -125,7 +125,7 @@ export function useUsdExchangeRates(
  * Fetch USD exchange rates for different tokens on a given market.
  *
  * ```tsx
- * const { data, loading } = useUsdExchangeRates({
+ * const { data, error, loading } = useUsdExchangeRates({
  *   market: evmAddress('0x1234…'),
  *   underlyingTokens: [evmAddress('0x5678…'), evmAddress('0x90ab…')],
  *   chainId: chainId(1),

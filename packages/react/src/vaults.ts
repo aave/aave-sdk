@@ -62,7 +62,7 @@ export function useVault(
  * Fetch a single vault by address and chain ID.
  *
  * ```tsx
- * const { data, loading } = useVault({
+ * const { data, error, loading } = useVault({
  *   address: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678…'),
@@ -112,7 +112,7 @@ export function useVaults(
  * Fetch vaults based on filter criteria.
  *
  * ```tsx
- * const { data, loading } = useVaults({
+ * const { data, error, loading } = useVaults({
  *   criteria: {
  *     ownedBy: [evmAddress('0x1234…')]
  *   },
@@ -167,7 +167,7 @@ export function useUserVaults(
  * Fetch vaults that a user has shares in.
  *
  * ```tsx
- * const { data, loading } = useUserVaults({
+ * const { data, error, loading } = useUserVaults({
  *   user: evmAddress('0x1234…'),
  *   filters: {
  *     markets: [evmAddress('0x5678…')]
@@ -355,7 +355,7 @@ export function useVaultUserTransactionHistory(
  * Fetch user transaction history for a vault.
  *
  * ```tsx
- * const { data, loading } = useVaultUserTransactionHistory({
+ * const { data, error, loading } = useVaultUserTransactionHistory({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
@@ -405,7 +405,7 @@ export function useVaultUserActivity(
  * Fetch user activity data for a vault, including earnings breakdown over time.
  *
  * ```tsx
- * const { data, loading } = useVaultUserActivity({
+ * const { data, error, loading } = useVaultUserActivity({
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
