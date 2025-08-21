@@ -625,6 +625,27 @@ type MeritBorrowIncentive {
   claimLink: URL!
 }
 
+input MeritClaimRewardsRequest {
+  user: EvmAddress!
+  chainId: ChainId!
+}
+
+type MeritClaimRewardsTransaction {
+  """The chain the transaction is on"""
+  chain: ChainId!
+
+  """The reward tokens being claimed in the transaction"""
+  rewards: [MeritReward!]!
+
+  """The transaction to execute to claim the rewards"""
+  transaction: TransactionRequest!
+}
+
+type MeritReward {
+  currency: Currency!
+  amount: TokenAmount!
+}
+
 type MeritSupplyIncentive {
   """Extra APR for supplying this asset from AAVE Merit program"""
   extraSupplyApr: PercentValue!
@@ -917,6 +938,7 @@ type Query {
 
   """Top up a balance for a user or yourself on the fork"""
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
+  meritClaimRewards(request: MeritClaimRewardsRequest!): MeritClaimRewardsTransaction
 }
 
 input RepayAmountInput @oneOf {

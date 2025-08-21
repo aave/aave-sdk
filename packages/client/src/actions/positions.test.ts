@@ -99,7 +99,7 @@ describe('Given an Aave Market', () => {
         const balanceDescList = listSuppliesDesc.value.map((supply) =>
           Number(supply.balance.usd),
         );
-        expect(balanceDescList[1]).toBeGreaterThan(balanceDescList[0]!);
+        expect(balanceDescList[0]).toBeGreaterThan(balanceDescList[1]!);
 
         const listSuppliesAsc = await userSupplies(client, {
           user: evmAddress(user.account!.address),
@@ -113,7 +113,7 @@ describe('Given an Aave Market', () => {
         const balanceAscList = listSuppliesAsc.value.map((supply) =>
           Number(supply.balance.usd),
         );
-        expect(balanceAscList[1]).toBeLessThan(balanceAscList[0]!);
+        expect(balanceAscList[0]).toBeLessThan(balanceAscList[1]!);
       });
 
       it('Then it should be possible so sort them by name', async () => {
@@ -219,7 +219,7 @@ describe('Given an Aave Market', () => {
         const debtDescList = listBorrowsDesc.value.map((borrow) =>
           Number(borrow.debt.usd),
         );
-        expect(debtDescList[1]).toBeGreaterThan(debtDescList[0]!);
+        expect(debtDescList[0]).toBeGreaterThan(debtDescList[1]!);
 
         const listBorrowsAsc = await userBorrows(client, {
           user: evmAddress(user.account!.address),
@@ -233,7 +233,7 @@ describe('Given an Aave Market', () => {
         const debtAscList = listBorrowsAsc.value.map((borrow) =>
           Number(borrow.debt.usd),
         );
-        expect(debtAscList[1]).toBeLessThan(debtAscList[0]!);
+        expect(debtAscList[0]).toBeLessThan(debtAscList[1]!);
       });
 
       it('Then it should be possible so sort them by name', async () => {
