@@ -1,0 +1,31 @@
+permissions:
+  contents: read
+  pull-requests: write
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Create Release Pull Request
+        uses: changesets/action@v1
+        with:
+          branchName: 'release/packages'
+          title: 'chore: release packages'
+          commit: 'chore: bump package versions'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

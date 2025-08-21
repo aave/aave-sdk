@@ -50,10 +50,12 @@ function MarketData() {
 }
 
 function UserPositions() {
-  const { data: supplies } = useUserSupplies({
+  const { data: supplies, loading } = useUserSupplies({
     markets: [evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2')],
     user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
   });
+
+  if (loading) return <div>Loading...</div>;
   
   return <div>Supplies: {supplies?.length || 0}</div>;
 }
