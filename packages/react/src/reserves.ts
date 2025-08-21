@@ -43,7 +43,7 @@ export function useAaveReserve(
  * Fetch a single Aave Reserve.
  *
  * ```tsx
- * const { data, loading } = useAaveReserve({
+ * const { data, error, loading } = useAaveReserve({
  *   market: evmAddress('0x87870bca...'),
  *   underlyingToken: evmAddress('0xa0b86a33...'),
  *   chainId: chainId(1),
@@ -205,7 +205,7 @@ export function useCreditDelegateeAllowance(
  * Get the amount delegated to the credit delegatee that can borrow on your behalf.
  *
  * ```tsx
- * const { data, loading } = useCreditDelegateeAllowance({
+ * const { data, error, loading } = useCreditDelegateeAllowance({
  *   market: evmAddress('0x87870bca...'),
  *   underlyingToken: evmAddress('0xa0b86a33...'),
  *   user: evmAddress('0x742d35cc...'),

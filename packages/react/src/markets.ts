@@ -32,7 +32,7 @@ export function useAaveMarket(
  * Fetch a single Aave Market.
  *
  * ```tsx
- * const { data, loading } = useAaveMarket({
+ * const { data, error, loading } = useAaveMarket({
  *   address: evmAddress('0x8787…'),
  *   chainId: chainId(1),
  * });
@@ -84,7 +84,7 @@ export function useAaveMarkets(
  * Fetch all Aave Markets for the specified chains.
  *
  * ```tsx
- * const { data, loading } = useAaveMarkets({
+ * const { data, error, loading } = useAaveMarkets({
  *   chainIds: [chainId(1), chainId(8453)],
  *   user: evmAddress('0x742d35cc...'),
  * });

@@ -1,3 +1,5 @@
+import type { UnexpectedError } from '@aave/client';
+
 /**
  * A read hook result.
  *
@@ -48,4 +50,6 @@ export const ReadResult = {
  */
 export type SuspenseResult<T> = { data: T };
 
-export type SuspendableResult<T> = ReadResult<T> | SuspenseResult<T>;
+export type SuspendableResult<T, E extends UnexpectedError = UnexpectedError> =
+  | ReadResult<T, E>
+  | SuspenseResult<T>;
