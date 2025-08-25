@@ -44,7 +44,7 @@ export function useSavingsGhoBalance(
  * Fetches the current sGHO balance for a user.
  *
  * ```tsx
- * const { data, loading } = useSavingsGhoBalance({
+ * const { data, error, loading } = useSavingsGhoBalance({
  *   user: evmAddress('0x742d35cc…'),
  * });
  * ```
@@ -124,6 +124,11 @@ export function useSavingsGhoWithdraw(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
