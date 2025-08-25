@@ -74,7 +74,7 @@
     "react-dom": "^19.1.0",
     "thirdweb": "^5.105.25",
     "tsup": "^8.5.0",
-    "typescript": "^5.6.3",
+    "typescript": "^5.9.2",
     "viem": "^2.31.6"
   },
   "peerDependencies": {
