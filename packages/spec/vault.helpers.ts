@@ -1,7 +1,16 @@
-import type { Vault } from '@aave/graphql';
-import type { ResultAsync } from '@aave/types';
-import { evmAddress, nonNullable, okAsync } from '@aave/types';
-import type { WalletClient } from 'viem';
+import {
+  evmAddress,
+  nonNullable,
+  okAsync,
+  type ResultAsync,
+} from '@aave/client';
+import {
+  reserve,
+  vault,
+  vaultDeploy,
+  vaultDeposit,
+  vaultMintShares,
+} from '@aave/client/actions';
 import {
   bigDecimal,
   client,
@@ -9,11 +18,10 @@ import {
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { reserve } from './reserve';
-import { vaultDeploy, vaultDeposit, vaultMintShares } from './transactions';
-import { vault } from './vaults';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import type { Vault } from '@aave/graphql';
+import type { WalletClient } from 'viem';
 
 export function createVault(
   organization: WalletClient,
@@ -57,7 +65,7 @@ export function createVault(
   });
 }
 
-export function deposit(user: WalletClient, amount: number) {
+export function depositOntoVault(user: WalletClient, amount: number) {
   return (vault: Vault): ResultAsync<Vault, Error> => {
     return fundErc20Address(
       ETHEREUM_WETH_ADDRESS,
@@ -79,7 +87,7 @@ export function deposit(user: WalletClient, amount: number) {
   };
 }
 
-export function mintShares(
+export function mintSharesFromVault(
   user: WalletClient,
   amount: number,
   tokenAddress?: string,

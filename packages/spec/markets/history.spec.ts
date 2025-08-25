@@ -21,7 +21,7 @@ function assertDatesInOrder<T extends { timestamp: string }>(
   }
 }
 
-// NOTE: hardcoded wallet from mainnet to get results, because no results generated in staging
+// NOTE: hardcoded wallet from mainnet to get results, because no results generated for the forked test network
 const user = '0xC91B41caBfecA199c6E2B84a9DA08d24f3853397';
 
 describe('Given an Aave Market', () => {
