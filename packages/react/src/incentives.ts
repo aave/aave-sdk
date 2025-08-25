@@ -1,8 +1,5 @@
-import type {
-  MeritClaimRewardsRequest,
-  MeritClaimRewardsTransaction,
-} from '@aave/graphql';
-import { MeritClaimRewardsQuery } from '@aave/graphql';
+import type { UserMeritRewards, UserMeritRewardsRequest } from '@aave/graphql';
+import { UserMeritRewardsQuery } from '@aave/graphql';
 import type {
   ReadResult,
   Suspendable,
@@ -11,7 +8,7 @@ import type {
 } from './helpers';
 import { useSuspendableQuery } from './helpers';
 
-export type UseMeritClaimRewardsArgs = MeritClaimRewardsRequest;
+export type UserMeritRewardsArgs = UserMeritRewardsRequest;
 
 /**
  * Fetches Merit claim rewards for a user with the transaction request to claim them.
@@ -19,39 +16,39 @@ export type UseMeritClaimRewardsArgs = MeritClaimRewardsRequest;
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useMeritClaimRewards({
+ * const { data } = useUserMeritRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  *   suspense: true,
  * });
  * ```
  */
-export function useMeritClaimRewards(
-  args: UseMeritClaimRewardsArgs & Suspendable,
-): SuspenseResult<MeritClaimRewardsTransaction | null>;
+export function useUserMeritRewards(
+  args: UserMeritRewardsArgs & Suspendable,
+): SuspenseResult<UserMeritRewards | null>;
 
 /**
  * Fetches Merit claim rewards for a user with the transaction request to claim them.
  *
  * ```tsx
- * const { data, loading } = useMeritClaimRewards({
+ * const { data, loading } = useUserMeritRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  * });
  * ```
  */
-export function useMeritClaimRewards(
-  args: UseMeritClaimRewardsArgs,
-): ReadResult<MeritClaimRewardsTransaction | null>;
+export function useUserMeritRewards(
+  args: UserMeritRewardsArgs,
+): ReadResult<UserMeritRewards | null>;
 
-export function useMeritClaimRewards({
+export function useUserMeritRewards({
   suspense = false,
   ...request
-}: UseMeritClaimRewardsArgs & {
+}: UserMeritRewardsArgs & {
   suspense?: boolean;
-}): SuspendableResult<MeritClaimRewardsTransaction | null> {
+}): SuspendableResult<UserMeritRewards | null> {
   return useSuspendableQuery({
-    document: MeritClaimRewardsQuery,
+    document: UserMeritRewardsQuery,
     variables: {
       request,
     },

@@ -1,6 +1,7 @@
 export * from './common';
 export * from './enums';
 export * from './fragments';
+export * from './gho';
 export * from './graphql';
 export * from './incentives';
 export * from './markets';

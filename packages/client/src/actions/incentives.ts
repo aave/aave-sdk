@@ -1,14 +1,14 @@
 import {
-  MeritClaimRewardsQuery,
-  type MeritClaimRewardsRequest,
+  UserMeritRewardsQuery,
+  type UserMeritRewardsRequest,
 } from '@aave/graphql';
 import type { AaveClient } from '../client';
 
 /**
- * Fetches Merit claim rewards for a user with the transaction request to claim them.
+ * Fetches Merit rewards for a user with the transaction request to claim them.
  *
  * ```ts
- * const result = await meritClaimRewards(client, {
+ * const result = await userMeritRewards(client, {
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  * });
@@ -18,9 +18,9 @@ import type { AaveClient } from '../client';
  * @param request - The merit claim rewards request parameters.
  * @returns The rewards with the transaction request.
  */
-export function meritClaimRewards(
+export function userMeritRewards(
   client: AaveClient,
-  request: MeritClaimRewardsRequest,
+  request: UserMeritRewardsRequest,
 ) {
-  return client.query(MeritClaimRewardsQuery, { request });
+  return client.query(UserMeritRewardsQuery, { request });
 }

@@ -3,8 +3,8 @@ import { CurrencyFragment, TokenAmountFragment } from './fragments/common';
 import { TransactionRequestFragment } from './fragments/transactions';
 import { graphql, type RequestOf } from './graphql';
 
-export const MeritRewardFragment = graphql(
-  `fragment MeritReward on MeritReward {
+export const ClaimableMeritRewardFragment = graphql(
+  `fragment ClaimableMeritReward on ClaimableMeritReward {
     __typename
     amount {
       ...TokenAmount
@@ -15,31 +15,31 @@ export const MeritRewardFragment = graphql(
   }`,
   [TokenAmountFragment, CurrencyFragment],
 );
-export type MeritReward = FragmentOf<typeof MeritRewardFragment>;
+export type ClaimableMeritReward = FragmentOf<
+  typeof ClaimableMeritRewardFragment
+>;
 
-export const MeritClaimRewardsTransactionFragment = graphql(
-  `fragment MeritClaimRewardsTransaction on MeritClaimRewardsTransaction {
+export const UserMeritRewardsFragment = graphql(
+  `fragment UserMeritRewards on UserMeritRewards {
     __typename
     chain
-    rewards {
-      ...MeritReward
+    claimable {
+      ...ClaimableMeritReward
     }
     transaction {
       ...TransactionRequest
     }
   }`,
-  [MeritRewardFragment, TransactionRequestFragment],
+  [ClaimableMeritRewardFragment, TransactionRequestFragment],
 );
-export type MeritClaimRewardsTransaction = FragmentOf<
-  typeof MeritClaimRewardsTransactionFragment
->;
+export type UserMeritRewards = FragmentOf<typeof UserMeritRewardsFragment>;
 
-export const MeritClaimRewardsQuery = graphql(
-  `query MeritClaimRewards($request: MeritClaimRewardsRequest!) {
-    value: meritClaimRewards(request: $request) {
-      ...MeritClaimRewardsTransaction
+export const UserMeritRewardsQuery = graphql(
+  `query UserMeritRewards($request: UserMeritRewardsRequest!) {
+    value: userMeritRewards(request: $request) {
+      ...UserMeritRewards
     }
   }`,
-  [MeritClaimRewardsTransactionFragment],
+  [UserMeritRewardsFragment],
 );
-export type MeritClaimRewardsRequest = RequestOf<typeof MeritClaimRewardsQuery>;
+export type UserMeritRewardsRequest = RequestOf<typeof UserMeritRewardsQuery>;
