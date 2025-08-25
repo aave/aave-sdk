@@ -16,14 +16,14 @@ export type UserMeritRewardsArgs = UserMeritRewardsRequest;
  * This signature supports React Suspense:
  *
  * ```tsx
- * const { data } = useMeritClaimRewards({
+ * const { data } = useUserMeritRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  *   suspense: true,
  * });
  * ```
  */
-export function useMeritClaimRewards(
+export function useUserMeritRewards(
   args: UserMeritRewardsArgs & Suspendable,
 ): SuspenseResult<UserMeritRewards | null>;
 
@@ -31,17 +31,17 @@ export function useMeritClaimRewards(
  * Fetches Merit claim rewards for a user with the transaction request to claim them.
  *
  * ```tsx
- * const { data, loading } = useMeritClaimRewards({
+ * const { data, loading } = useUserMeritRewards({
  *   user: evmAddress('0x742d35cc…'),
  *   chainId: chainId(1),
  * });
  * ```
  */
-export function useMeritClaimRewards(
+export function useUserMeritRewards(
   args: UserMeritRewardsArgs,
 ): ReadResult<UserMeritRewards | null>;
 
-export function useMeritClaimRewards({
+export function useUserMeritRewards({
   suspense = false,
   ...request
 }: UserMeritRewardsArgs & {
