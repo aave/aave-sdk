@@ -39,6 +39,7 @@
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
     "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
+    "test:gho": "vitest --project client packages/client/src/actions/gho.test.ts",
     "test": "vitest"
   },
   "license": "MIT",
