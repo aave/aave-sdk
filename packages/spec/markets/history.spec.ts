@@ -1,8 +1,7 @@
-import { OrderDirection } from '@aave/graphql';
-import { assertOk, chainId, evmAddress } from '@aave/types';
+import { assertOk, chainId, evmAddress, OrderDirection } from '@aave/client';
+import { userTransactionHistory } from '@aave/client/actions';
+import { client, ETHEREUM_MARKET_ADDRESS } from '@aave/client/test-utils';
 import { describe, expect, it } from 'vitest';
-import { client, ETHEREUM_MARKET_ADDRESS } from '../test-utils';
-import { userTransactionHistory } from './user';
 
 function assertDatesInOrder<T extends { timestamp: string }>(
   items: T[],

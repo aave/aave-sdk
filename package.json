@@ -35,6 +35,8 @@
     "test:positions": "vitest --project client packages/client/src/actions/positions.test.ts",
     "test:repay": "vitest --project client packages/client/src/actions/repay.test.ts",
     "test:reserve": "vitest --project client packages/client/src/actions/reserve.test.ts",
+    "test:spec": "vitest --project spec",
+    "test:spec:history": "vitest --project spec packages/spec/markets/history.spec.ts",
     "test:supply": "vitest --project client packages/client/src/actions/supply.test.ts",
     "test:vaults": "vitest --project client packages/client/src/actions/vaults.test.ts",
     "test:withdraw": "vitest --project client packages/client/src/actions/withdraw.test.ts",
