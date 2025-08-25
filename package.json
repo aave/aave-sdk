@@ -36,7 +36,7 @@
     "test:spec:positions": "vitest --project spec packages/spec/markets/positions.spec.ts",
     "test:spec:repay": "vitest --project spec packages/spec/markets/repay.spec.ts",
     "test:spec:reserve": "vitest --project spec packages/spec/markets/reserve.spec.ts",
-    "test:spec:supply": "vitest --project spec packages/spec/supply.spec.ts",
+    "test:spec:supply": "vitest --project spec packages/spec/markets/supply.spec.ts",
     "test:spec:vaults": "vitest --project spec packages/spec/vaults.spec.ts",
     "test:spec:withdraw": "vitest --project spec packages/spec/markets/withdraw.spec.ts",
     "test:cache": "vitest --project client packages/client/src/actions/cache.test.ts",
