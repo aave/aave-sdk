@@ -1,15 +1,14 @@
-import { assertOk, evmAddress, never, nonNullable } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { assertOk, evmAddress, never, nonNullable } from '@aave/client';
+import { market, userMarketState, userSetEmode } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { market, userMarketState } from './markets';
-import { userSetEmode } from './transactions';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Given an Aave Market', () => {
   describe('When a user enables an E-Mode category for the given market', () => {

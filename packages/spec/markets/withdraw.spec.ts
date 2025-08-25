@@ -1,8 +1,16 @@
-import type { Reserve, SupplyRequest } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import type { WalletClient } from 'viem';
-import { getBalance } from 'viem/actions';
-import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  assertOk,
+  bigDecimal,
+  evmAddress,
+  type Reserve,
+  type SupplyRequest,
+} from '@aave/client';
+import {
+  permitTypedData,
+  supply,
+  userSupplies,
+  withdraw,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -13,11 +21,11 @@ import {
   fundErc20Address,
   fundNativeAddress,
   getBalance as getBalanceErc20,
-} from '../test-utils';
-import { sendWith, signERC20PermitWith } from '../viem';
-import { permitTypedData } from './permits';
-import { supply, withdraw } from './transactions';
-import { userSupplies } from './user';
+} from '@aave/client/test-utils';
+import { sendWith, signERC20PermitWith } from '@aave/client/viem';
+import type { WalletClient } from 'viem';
+import { getBalance } from 'viem/actions';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 async function supplyAndCheck(wallet: WalletClient, request: SupplyRequest) {
   const userAddress = evmAddress(wallet.account!.address);

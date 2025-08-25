@@ -1,5 +1,5 @@
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { assertOk, bigDecimal, evmAddress } from '@aave/client';
+import { permitTypedData, supply, userSupplies } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -8,11 +8,9 @@ import {
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-} from '../test-utils';
-import { sendWith, signERC20PermitWith } from '../viem';
-import { permitTypedData } from './permits';
-import { supply } from './transactions';
-import { userSupplies } from './user';
+} from '@aave/client/test-utils';
+import { sendWith, signERC20PermitWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve', () => {

@@ -1,15 +1,17 @@
-import type {
-  MarketUserReserveSupplyPosition,
-  SupplyRequest,
-} from '@aave/graphql';
 import {
   assertOk,
   bigDecimal,
   evmAddress,
+  type MarketUserReserveSupplyPosition,
   type ResultAsync,
-} from '@aave/types';
-import type { WalletClient } from 'viem';
-import { beforeAll, describe, expect, it } from 'vitest';
+  type SupplyRequest,
+} from '@aave/client';
+import {
+  borrow,
+  supply,
+  userBorrows,
+  userSupplies,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -20,10 +22,10 @@ import {
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { borrow, supply } from './transactions';
-import { userBorrows, userSupplies } from './user';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import type { WalletClient } from 'viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 function supplyAndFetchPositions(
   wallet: WalletClient,

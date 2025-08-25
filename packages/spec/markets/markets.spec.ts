@@ -1,13 +1,18 @@
-import { OrderDirection } from '@aave/graphql';
-import { assertOk, chainId, evmAddress, nonNullable } from '@aave/types';
-import { describe, expect, it } from 'vitest';
+import {
+  assertOk,
+  chainId,
+  evmAddress,
+  nonNullable,
+  OrderDirection,
+} from '@aave/client';
+import { market, markets, userMarketState } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
-} from '../test-utils';
-import { market, markets, userMarketState } from './markets';
+} from '@aave/client/test-utils';
+import { describe, expect, it } from 'vitest';
 
 describe('Given the Aave Protocol v3', () => {
   const wallet = createNewWallet();

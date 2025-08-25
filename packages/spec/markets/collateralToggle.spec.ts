@@ -1,6 +1,5 @@
-import { assertOk, bigDecimal, evmAddress } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
-
+import { assertOk, bigDecimal, evmAddress } from '@aave/client';
+import { collateralToggle, supply, userSupplies } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -8,10 +7,9 @@ import {
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { collateralToggle, supply } from './transactions';
-import { userSupplies } from './user';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Given Aave Market', () => {
   describe('And a user with a supply position', () => {

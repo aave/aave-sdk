@@ -1,8 +1,7 @@
-import { OrderDirection } from '@aave/graphql';
-import { assertOk, chainId, evmAddress } from '@aave/types';
+import { assertOk, chainId, evmAddress, OrderDirection } from '@aave/client';
+import { userTransactionHistory } from '@aave/client/actions';
+import { client, ETHEREUM_MARKET_ADDRESS } from '@aave/client/test-utils';
 import { describe, expect, it } from 'vitest';
-import { client, ETHEREUM_MARKET_ADDRESS } from '../test-utils';
-import { userTransactionHistory } from './user';
 
 function assertDatesInOrder<T extends { timestamp: string }>(
   items: T[],
@@ -22,7 +21,7 @@ function assertDatesInOrder<T extends { timestamp: string }>(
   }
 }
 
-// NOTE: hardcoded wallet from mainnet to get results, because no results generated in staging
+// NOTE: hardcoded wallet from mainnet to get results, because no results generated for the forked test network
 const user = '0xC91B41caBfecA199c6E2B84a9DA08d24f3853397';
 
 describe('Given an Aave Market', () => {

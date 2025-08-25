@@ -1,7 +1,18 @@
-import type { SupplyRequest } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
-import type { WalletClient } from 'viem';
-import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  assertOk,
+  bigDecimal,
+  evmAddress,
+  ResultAsync,
+  type SupplyRequest,
+} from '@aave/client';
+import {
+  borrow,
+  permitTypedData,
+  repay,
+  reserve,
+  supply,
+  userBorrows,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -12,12 +23,10 @@ import {
   fetchReserve,
   fundErc20Address,
   fundNativeAddress,
-} from '../test-utils';
-import { sendWith, signERC20PermitWith } from '../viem';
-import { permitTypedData } from './permits';
-import { reserve } from './reserve';
-import { borrow, repay, supply } from './transactions';
-import { userBorrows } from './user';
+} from '@aave/client/test-utils';
+import { sendWith, signERC20PermitWith } from '@aave/client/viem';
+import type { WalletClient } from 'viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 function supplyAndBorrow(
   wallet: WalletClient,

@@ -23,6 +23,14 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'spec',
+          include: ['packages/spec/**/*.spec.ts'],
+          environment: 'node',
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'react',
           environment: 'happy-dom',
           include: ['packages/react/**/*.test.{ts,tsx}'],
