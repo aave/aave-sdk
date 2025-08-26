@@ -21,10 +21,14 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Configure NPM Auth Token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" >> ~/.npmrc
+
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
           title: '[Release] Candidate'
           commit: 'chore: bump package versions'
+          publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
