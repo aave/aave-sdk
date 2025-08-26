@@ -1,5 +1,18 @@
 # @aave/client
 
+## 0.6.0
+
+### Minor Changes
+
+- fb93351: **fix:** support for meritClaimRewards query
+- 3eef682: **feat:** Add withdraw/deposit/balance sGHO support
+
+### Patch Changes
+
+- Updated dependencies [fb93351]
+- Updated dependencies [3eef682]
+  - @aave/graphql@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
