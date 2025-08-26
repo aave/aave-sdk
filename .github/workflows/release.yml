@@ -24,7 +24,7 @@ jobs:
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          branchName: 'release/packages'
+          branch: 'release/packages'
           title: 'chore: release packages'
           commit: 'chore: bump package versions'
         env:

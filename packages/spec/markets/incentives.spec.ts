@@ -1,8 +1,8 @@
 import { assertOk, evmAddress } from '@aave/client';
+import { meritClaimRewards } from '@aave/client/actions';
 import { client, createNewWallet } from '@aave/client/test-utils';
 import { chainId } from '@aave/types';
 import { describe, expect, it } from 'vitest';
-import { meritClaimRewards } from './incentives';
 
 describe('Given a chain supporting Merit rewards', () => {
   const wallet = createNewWallet();

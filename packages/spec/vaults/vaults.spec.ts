@@ -1,11 +1,31 @@
 import {
+  assertOk,
+  bigDecimal,
+  evmAddress,
+  nonNullable,
   OrderDirection,
   type Vault,
   VaultUserActivityTimeWindow,
   VaultUserHistoryAction,
-} from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress, nonNullable } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+} from '@aave/client';
+import {
+  userVaults,
+  vault,
+  vaultDeploy,
+  vaultDeposit,
+  vaultMintShares,
+  vaultPreviewDeposit,
+  vaultPreviewMint,
+  vaultPreviewRedeem,
+  vaultPreviewWithdraw,
+  vaultRedeemShares,
+  vaultSetFee,
+  vaults,
+  vaultUserActivity,
+  vaultUserTransactionHistory,
+  vaultWithdraw,
+  vaultWithdrawFees,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -15,29 +35,14 @@ import {
   ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
   getBalance,
-} from '../test-utils';
-import { sendWith } from '../viem';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  vaultDeploy,
-  vaultDeposit,
-  vaultMintShares,
-  vaultRedeemShares,
-  vaultSetFee,
-  vaultWithdraw,
-  vaultWithdrawFees,
-} from './transactions';
-import { createVault, deposit, mintShares } from './vault.helpers';
-import {
-  userVaults,
-  vault,
-  vaultPreviewDeposit,
-  vaultPreviewMint,
-  vaultPreviewRedeem,
-  vaultPreviewWithdraw,
-  vaults,
-  vaultUserActivity,
-  vaultUserTransactionHistory,
-} from './vaults';
+  createVault,
+  depositOntoVault,
+  mintSharesFromVault,
+} from './vault.helpers';
 
 describe('Given the Aave Vaults', () => {
   describe('When an organization deploys a new vault', () => {
@@ -210,7 +215,7 @@ describe('Given the Aave Vaults', () => {
       }) => {
         const amountToWithdraw = 0.02;
         const initialVault = await createVault(organization).andThen(
-          deposit(user, amountToWithdraw),
+          depositOntoVault(user, amountToWithdraw),
         );
         assertOk(initialVault);
 
@@ -265,7 +270,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
-          mintShares(user, 0.03),
+          mintSharesFromVault(user, 0.03),
         );
         assertOk(initialVault);
 
@@ -300,7 +305,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization).andThen(
-          mintShares(user, 0.05),
+          mintSharesFromVault(user, 0.05),
         );
         assertOk(initialVault);
 
@@ -381,8 +386,8 @@ describe('Given the Aave Vaults', () => {
         annotate(`user address: ${user.account!.address}`);
         annotate(`organization address: ${organization.account!.address}`);
         const initialVault = await createVault(organization)
-          .andThen(deposit(user, 0.03))
-          .andThen(mintShares(user, 0.03));
+          .andThen(depositOntoVault(user, 0.03))
+          .andThen(mintSharesFromVault(user, 0.03));
         assertOk(initialVault);
 
         // Check vault contains fees
@@ -433,7 +438,7 @@ describe('Given the Aave Vaults', () => {
 
       beforeAll(async () => {
         const initialVault = await createVault(organization).andThen(
-          mintShares(user, 0.05),
+          mintSharesFromVault(user, 0.05),
         );
         assertOk(initialVault);
         vault = initialVault.value!;
@@ -579,7 +584,7 @@ describe('Given the Aave Vaults', () => {
     beforeAll(async () => {
       const vault1 = await createVault(organization, {
         initialFee: 2.0,
-      }).andThen(mintShares(user, 0.03));
+      }).andThen(mintSharesFromVault(user, 0.03));
       assertOk(vault1);
 
       const vault2 = await createVault(organization, {
@@ -589,7 +594,7 @@ describe('Given the Aave Vaults', () => {
           symbol: 'avUSDC',
           address: ETHEREUM_USDC_ADDRESS,
         },
-      }).andThen(mintShares(user, 1, ETHEREUM_USDC_ADDRESS));
+      }).andThen(mintSharesFromVault(user, 1, ETHEREUM_USDC_ADDRESS));
       assertOk(vault2);
     }, 60_000);
 

@@ -1,14 +1,17 @@
-import { assertOk, chainId, evmAddress } from '@aave/client';
-import { TimeWindow } from '@aave/graphql';
-import { describe, expect, it } from 'vitest';
+import { assertOk, chainId, evmAddress, TimeWindow } from '@aave/client';
+import {
+  borrowAPYHistory,
+  reserve,
+  supplyAPYHistory,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
-} from '../test-utils';
-import { borrowAPYHistory, reserve, supplyAPYHistory } from './reserve';
+} from '@aave/client/test-utils';
+import { describe, expect, it } from 'vitest';
 
 function windowToDate(window: TimeWindow): Date {
   switch (window) {
