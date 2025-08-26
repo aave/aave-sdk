@@ -24,8 +24,7 @@ jobs:
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
-          branch: 'release/packages'
-          title: 'chore: release packages'
+          title: '[Release] Candidate'
           commit: 'chore: bump package versions'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
