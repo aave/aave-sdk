@@ -151,7 +151,7 @@ export function useSendTransaction(
         operation: request.operation,
         txHash: hash,
       }))
-      .andThen(client.waitForTransaction);
+      .andThen(client.waitForSupportedTransaction);
   });
 }
 
