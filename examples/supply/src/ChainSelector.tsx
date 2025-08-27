@@ -2,7 +2,6 @@ import {
   type Chain,
   type ChainId,
   ChainsFilter,
-  type EvmAddress,
   useAaveChains,
 } from '@aave/react';
 
@@ -21,11 +20,6 @@ export function ChainSelector({
     suspense: true,
     filter: ChainsFilter.ALL,
   });
-
-  const firstChain = chains?.[0];
-  if (firstChain) {
-    const test: EvmAddress = firstChain.chainId;
-  }
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedChain = chains.find(
