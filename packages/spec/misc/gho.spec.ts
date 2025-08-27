@@ -1,18 +1,18 @@
 import { assertOk, bigDecimal, evmAddress } from '@aave/client';
-import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  savingsGhoBalance,
+  savingsGhoDeposit,
+  savingsGhoWithdraw,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_GHO_ADDRESS,
   fundErc20Address,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import {
-  savingsGhoBalance,
-  savingsGhoDeposit,
-  savingsGhoWithdraw,
-} from './gho';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Given Savings GHO', () => {
   describe('And a user with GHO balance', () => {
