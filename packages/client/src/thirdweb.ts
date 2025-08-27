@@ -55,7 +55,10 @@ function sendTransactionAndWait(
     .map(async (hash) =>
       waitForReceipt({
         client,
-        chain: request.chainId,
+        chain: {
+          id: request.chainId,
+          rpc: `https://${request.chainId}.rpc.thirdweb.com/${client.clientId}`,
+        },
         transactionHash: hash,
       }),
     )

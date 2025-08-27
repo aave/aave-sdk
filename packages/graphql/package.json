@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@aave/types": "workspace:*",
-    "gql.tada": "^1.8.11",
+    "gql.tada": "^1.8.13",
     "graphql": "^16.11.0",
     "type-fest": "^4.41.0"
   },
