@@ -385,6 +385,18 @@ export class AaveClient {
   }
 
   /**
+   * @internal
+   */
+  readonly waitForSupportedTransaction = (
+    result: TransactionExecutionResult,
+  ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
+    if (isHasProcessedKnownTransactionRequest(result)) {
+      return this.waitForTransaction(result);
+    }
+    return okAsync(result);
+  };
+
+  /**
    * Given the transaction hash of an Aave protocol transaction, wait for the transaction to be
    * processed by the Aave v3 API.
    *

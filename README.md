@@ -64,7 +64,8 @@ Update the `.env` file with the correct values.
 
 Run the tests:
 
-- `pnpm test:client`: Run the tests for the `@aave/client` package.
+- `pnpm test`: Run unit and integration tests `@aave/client` and `@aave/react` packages.
+- `pnpm spec`: Run the acceptance tests for the `@aave/spec` package.
 
 Lint the code:
 

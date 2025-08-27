@@ -115,7 +115,7 @@ export function useSendTransaction(
     );
 
     return sendTransactionAndWait(walletClient, request).andThen(
-      client.waitForTransaction,
+      client.waitForSupportedTransaction,
     );
   });
 }

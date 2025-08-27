@@ -111,7 +111,7 @@ export function useSendTransaction(
 
   return useAsyncTask((request: TransactionRequest) => {
     return sendTransactionAndWait(signer, request).andThen(
-      client.waitForTransaction,
+      client.waitForSupportedTransaction,
     );
   });
 }

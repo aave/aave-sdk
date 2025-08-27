@@ -1,4 +1,4 @@
-name: Run Aave SDK V3 Tests
+name: Run Aave V3 Spec
 
 on:
   repository_dispatch:
@@ -21,13 +21,6 @@ jobs:
       ETHEREUM_TENDERLY_ADMIN_RPC: ${{ secrets.ETHEREUM_TENDERLY_ADMIN_RPC }}
       ETHEREUM_TENDERLY_BLOCKEXPLORER: ${{ secrets.ETHEREUM_TENDERLY_BLOCKEXPLORER }}
       API_X_E2E_TESTS_HEADER: ${{ secrets.API_X_E2E_TESTS_HEADER }}
-      # TODO: remove the following once tests are separate into unit and e2e tests
-      PRIVY_TEST_APP_ID: ${{ vars.PRIVY_TEST_APP_ID }}
-      PRIVY_TEST_APP_SECRET: ${{ secrets.PRIVY_TEST_APP_SECRET }}
-      PRIVY_TEST_WALLET_ID: ${{ vars.PRIVY_TEST_WALLET_ID }}
-      PRIVY_TEST_WALLET_ADDRESS: ${{ vars.PRIVY_TEST_WALLET_ADDRESS }}
-      THIRDWEB_TEST_SECRET_KEY: ${{ secrets.THIRDWEB_TEST_SECRET_KEY }}
-      THIRDWEB_TEST_WALLET_ADDRESS: ${{ vars.THIRDWEB_TEST_WALLET_ADDRESS }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +33,7 @@ jobs:
         run: pnpm build
 
       - name: Run tests
-        run: pnpm test:client
+        run: pnpm spec
       
       - name: Publish results
         if: always()
