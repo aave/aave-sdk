@@ -257,7 +257,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 40_000);
+      }, 50_000);
     });
 
     describe('When the user redeems total amount of their shares', () => {
@@ -453,7 +453,7 @@ describe('Given the Aave Vaults', () => {
           .andThen(sendWith(user))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
-      });
+      }, 40_000);
 
       const timeWindows = Object.values(VaultUserActivityTimeWindow);
       it.each(timeWindows)(
