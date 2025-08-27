@@ -132,8 +132,11 @@ export function useSendTransaction(
           sendAndConfirmTx({
             to: request.to,
             data: request.data,
-            value: request.value,
-            chain: request.chainId,
+            value: BigInt(request.value),
+            chain: {
+              id: request.chainId,
+              rpc: `https://${request.chainId}.rpc.thirdweb.com/${thirdwebClient.clientId}`,
+            },
             client: thirdwebClient,
           }),
           (err) => SigningError.from(err),
