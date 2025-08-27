@@ -13,3 +13,5 @@ jobs:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    with:
+      run-acceptance: ${{ startsWith(github.head_ref, 'changeset-release/') }}
