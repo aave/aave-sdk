@@ -59,6 +59,11 @@ import { type UseAsyncTask, useAsyncTask } from './helpers';
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -101,6 +106,11 @@ export function useSupply(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -143,6 +153,11 @@ export function useBorrow(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -185,6 +200,11 @@ export function useRepay(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -219,16 +239,7 @@ export function useWithdraw(): UseAsyncTask<
  * // …
  *
  * const result = await setUserEMode({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -341,6 +352,11 @@ export function useLiquidate(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -385,6 +401,11 @@ export function useVaultDeposit(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -421,16 +442,7 @@ export function useVaultMintShares(): UseAsyncTask<
  * // …
  *
  * const result = await redeem({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -465,16 +477,7 @@ export function useVaultRedeemShares(): UseAsyncTask<
  * // …
  *
  * const result = await withdraw({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -517,6 +520,11 @@ export function useVaultWithdraw(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
@@ -553,16 +561,7 @@ export function useVaultDeploy(): UseAsyncTask<
  * // …
  *
  * const result = await setFee({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -597,16 +596,7 @@ export function useVaultSetFee(): UseAsyncTask<
  * // …
  *
  * const result = await withdraw({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);

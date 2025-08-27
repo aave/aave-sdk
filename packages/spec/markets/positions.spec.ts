@@ -1,6 +1,16 @@
-import { OrderDirection } from '@aave/graphql';
-import { assertOk, bigDecimal, evmAddress, ResultAsync } from '@aave/types';
-import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  assertOk,
+  bigDecimal,
+  evmAddress,
+  OrderDirection,
+  ResultAsync,
+} from '@aave/client';
+import {
+  borrow,
+  supply,
+  userBorrows,
+  userSupplies,
+} from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -9,10 +19,9 @@ import {
   ETHEREUM_USDC_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
   fundErc20Address,
-} from '../test-utils';
-import { sendWith } from '../viem';
-import { borrow, supply } from './transactions';
-import { userBorrows, userSupplies } from './user';
+} from '@aave/client/test-utils';
+import { sendWith } from '@aave/client/viem';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const user = createNewWallet();
 

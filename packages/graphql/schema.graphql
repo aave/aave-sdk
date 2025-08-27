@@ -148,6 +148,11 @@ enum ChainsFilter {
   ALL
 }
 
+type ClaimableMeritReward {
+  currency: Currency!
+  amount: TokenAmount!
+}
+
 input CollateralToggleRequest {
   """The pool address for the market"""
   market: EvmAddress!
@@ -625,27 +630,6 @@ type MeritBorrowIncentive {
   claimLink: URL!
 }
 
-input MeritClaimRewardsRequest {
-  user: EvmAddress!
-  chainId: ChainId!
-}
-
-type MeritClaimRewardsTransaction {
-  """The chain the transaction is on"""
-  chain: ChainId!
-
-  """The reward tokens being claimed in the transaction"""
-  rewards: [MeritReward!]!
-
-  """The transaction to execute to claim the rewards"""
-  transaction: TransactionRequest!
-}
-
-type MeritReward {
-  currency: Currency!
-  amount: TokenAmount!
-}
-
 type MeritSupplyIncentive {
   """Extra APR for supplying this asset from AAVE Merit program"""
   extraSupplyApr: PercentValue!
@@ -938,7 +922,23 @@ type Query {
 
   """Top up a balance for a user or yourself on the fork"""
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
-  meritClaimRewards(request: MeritClaimRewardsRequest!): MeritClaimRewardsTransaction
+
+  """
+  The user merits reward information and transaction if you wish to claim
+  """
+  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards
+
+  """
+  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
+  this can be claimed using `userMeritRewards`
+  """
+  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
+
+  """Deposit into savings GHO"""
+  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
+
+  """Withdraw sGHO (savings GHO) back to GHO"""
+  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): TransactionRequest!
 }
 
 input RepayAmountInput @oneOf {
@@ -1229,6 +1229,55 @@ type ReserveUserState {
   isInIsolationMode: Boolean!
 }
 
+input SavingsGhoBalanceRequest {
+  """The user to query the savings GHO balance"""
+  user: EvmAddress!
+}
+
+input SavingsGhoDepositRequest {
+  """The details of the amounts to deposit."""
+  amount: SayingsGhoDepositAmountInput!
+
+  """The user who is depositing"""
+  depositor: EvmAddress!
+
+  """
+  The address to which saving GHO shares will be minted to - defaults to `depositor`.
+  """
+  recipient: EvmAddress
+}
+
+input SavingsGhoWithdrawAmount @oneOf {
+  """Exact amount to withdraw"""
+  exact: BigDecimal
+
+  """Withdraw all"""
+  max: AlwaysTrue
+}
+
+input SavingsGhoWithdrawRequest {
+  """The amount of GHO to withdraw."""
+  amount: SavingsGhoWithdrawAmount!
+
+  """
+  The address from which saving GHO shares will be burned in return for GHO (normally your own wallet).
+  """
+  sharesOwner: EvmAddress!
+
+  """The address to which GHO will be minted to - defaults to `depositor`."""
+  recipient: EvmAddress
+}
+
+input SayingsGhoDepositAmountInput {
+  """The amount of GHO to deposit"""
+  value: BigDecimal!
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 scalar Signature
 
 input SupplyAPYHistoryRequest {
@@ -1407,6 +1456,33 @@ input UserMarketStateRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type UserMeritRewards {
+  """The chain the transaction is on"""
+  chain: ChainId!
+
+  """
+  The reward tokens being claimed in the transaction - this is aggregated
+  """
+  claimable: [ClaimableMeritReward!]!
+
+  """The transaction to execute to claim the rewards"""
+  transaction: TransactionRequest!
+}
+
+input UserMeritRewardsFilter {
+  """If you only care about certain tokens to claim and see details of"""
+  tokens: [EvmAddress!]
+}
+
+input UserMeritRewardsRequest {
+  """The user to claim with"""
+  user: EvmAddress!
+
+  """The chain id to claim on"""
+  chainId: ChainId!
+  filter: UserMeritRewardsFilter
 }
 
 """A transaction where the user repaid borrowed assets."""

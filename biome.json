@@ -74,7 +74,7 @@
 			}
 		},
 		{
-			"includes": ["packages/**/*.test.ts","packages/**/*.helpers.ts"],
+			"includes": ["packages/**/*.spec.ts", "packages/**/*.test.ts", "packages/**/*.helpers.ts"],
 			"linter": {
 				"rules": {
 					"style": {

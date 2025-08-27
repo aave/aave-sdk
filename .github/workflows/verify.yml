@@ -1,6 +1,11 @@
 name: 'Verify'
 on:
   workflow_call:
+    inputs:
+      run-acceptance:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   lint:
@@ -50,3 +55,11 @@ jobs:
       - name: Run Tests
         shell: bash
         run: pnpm test
+
+      - name: Run Acceptance Tests
+        if: ${{ inputs.run-acceptance }}
+        shell: bash
+        run: pnpm spec
+
+      
+

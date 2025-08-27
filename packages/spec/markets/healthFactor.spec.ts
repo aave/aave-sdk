@@ -1,4 +1,5 @@
 import { assertOk, evmAddress } from '@aave/client';
+import { healthFactorPreview, userMarketState } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
@@ -7,8 +8,6 @@ import {
   ETHEREUM_USDC_ADDRESS,
 } from '@aave/client/test-utils';
 import { describe, expect, it } from 'vitest';
-import { userMarketState } from './markets';
-import { healthFactorPreview } from './misc';
 
 describe('Given the Aave client', () => {
   describe('And a user without supply/borrow positions', () => {
