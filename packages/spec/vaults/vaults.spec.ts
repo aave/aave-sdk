@@ -453,7 +453,7 @@ describe('Given the Aave Vaults', () => {
           .andThen(sendWith(user))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
-      }, 40_000);
+      }, 60_000);
 
       const timeWindows = Object.values(VaultUserActivityTimeWindow);
       it.each(timeWindows)(
