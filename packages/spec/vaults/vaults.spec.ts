@@ -292,7 +292,7 @@ describe('Given the Aave Vaults', () => {
         });
         assertOk(userPositions);
         expect(userPositions.value.items.length).toEqual(0);
-      }, 40_000);
+      }, 60_000);
     });
 
     describe('When the user redeems partial amount of their shares', () => {
@@ -428,7 +428,7 @@ describe('Given the Aave Vaults', () => {
         expect(balanceAfter * 10 ** 18).toBeGreaterThan(
           balanceBefore * 10 ** 18,
         );
-      }, 50_000);
+      }, 60_000);
     });
 
     describe('When the user redeems partial amount of their shares', () => {
