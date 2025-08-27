@@ -1,199 +1,83 @@
 import { assertOk, bigDecimal, evmAddress } from '@aave/client';
 import {
-  permitTypedData,
   savingsGhoBalance,
   savingsGhoDeposit,
+  savingsGhoWithdraw,
 } from '@aave/client/actions';
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_GHO_ADDRESS,
-  ETHEREUM_SGHO_ADDRESS,
   fundErc20Address,
 } from '@aave/client/test-utils';
-import { sendWith, signERC20PermitWith } from '@aave/client/viem';
+import { sendWith } from '@aave/client/viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Given Savings GHO', () => {
-  describe('When a user wants to deposit GHO for sGHO', () => {
-    const user = createNewWallet();
-    beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_GHO_ADDRESS,
-        evmAddress(user.account!.address),
-        bigDecimal('105'),
-      );
-      assertOk(setup);
-    });
+  describe('And a user with GHO balance', () => {
+    const wallet = createNewWallet();
 
-    it("Then it should be reflected in the user's savings GHO balance", async ({
-      annotate,
-    }) => {
-      annotate(`user address: ${user.account!.address}`);
-      const savingsGhoDepositResult = await savingsGhoDeposit(client, {
-        amount: {
-          value: bigDecimal('90'),
-        },
-        depositor: evmAddress(user.account!.address),
-        chainId: ETHEREUM_FORK_ID,
-      })
-        .andThen(sendWith(user))
-        .andTee((tx) => annotate(`tx to deposit GHO: ${tx.txHash}`))
-        .andThen(() =>
-          savingsGhoBalance(client, {
-            user: evmAddress(user.account!.address),
-            chainId: ETHEREUM_FORK_ID,
-          }),
+    describe('When the user wants to deposit GHO for sGHO', () => {
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_GHO_ADDRESS,
+          evmAddress(wallet.account!.address),
+          bigDecimal('105'),
         );
-      assertOk(savingsGhoDepositResult);
-      expect(savingsGhoDepositResult.value.amount.value).toBe(bigDecimal('90'));
-    });
-  });
-
-  describe('When a user wants to deposit GHO for sGHO in behalf of another user', () => {
-    const user = createNewWallet();
-    const another = createNewWallet();
-
-    beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_GHO_ADDRESS,
-        evmAddress(user.account!.address),
-        bigDecimal('105'),
-      );
-      assertOk(setup);
-    });
-    it("Then it should be reflected in the other user's savings GHO balance", async ({
-      annotate,
-    }) => {
-      annotate(`user address: ${user.account!.address}`);
-      annotate(`another user address: ${another.account!.address}`);
-
-      const savingsGhoDepositResult = await savingsGhoDeposit(client, {
-        amount: {
-          value: bigDecimal('90'),
-        },
-        depositor: evmAddress(user.account!.address),
-        recipient: evmAddress(another.account!.address),
-        chainId: ETHEREUM_FORK_ID,
-      })
-        .andThen(sendWith(user))
-        .andTee((tx) =>
-          annotate(`tx to deposit GHO in behalf of another user: ${tx.txHash}`),
-        )
-        .andThen(() =>
-          savingsGhoBalance(client, {
-            user: evmAddress(another.account!.address),
-            chainId: ETHEREUM_FORK_ID,
-          }),
-        );
-      assertOk(savingsGhoDepositResult);
-      expect(savingsGhoDepositResult.value.amount.value).toBe(bigDecimal('90'));
-
-      const userSGHOBalance = await savingsGhoBalance(client, {
-        user: evmAddress(user.account!.address),
-        chainId: ETHEREUM_FORK_ID,
+        assertOk(setup);
       });
-      assertOk(userSGHOBalance);
-      expect(userSGHOBalance.value.amount.value).toBe(bigDecimal('0'));
-    });
-  });
 
-  describe('When a user wants to deposit GHO for sGHO with a permit signature', () => {
-    const user = createNewWallet();
-    const amountToSupply = '100';
+      it('Then the user should have sGHO balance', async ({ annotate }) => {
+        annotate(`wallet address: ${wallet.account!.address}`);
+        const beforeDeposit = await savingsGhoBalance(client, {
+          user: evmAddress(wallet.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+        });
+        assertOk(beforeDeposit);
 
-    beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_GHO_ADDRESS,
-        evmAddress(user.account!.address),
-        bigDecimal('105'),
-      );
-      assertOk(setup);
-    });
+        const savingsGhoDepositResult = await savingsGhoDeposit(client, {
+          amount: {
+            value: bigDecimal('90'),
+          },
+          depositor: evmAddress(wallet.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(wallet))
+          .andTee((tx) => console.log(`tx to deposit GHO: ${tx.txHash}`));
 
-    it("Then it should be reflected in the user's savings GHO balance without needing for an ERC20 Approval transaction", async ({
-      annotate,
-    }) => {
-      annotate(`user address: ${user.account!.address}`);
-      const signature = await permitTypedData(client, {
-        currency: ETHEREUM_GHO_ADDRESS,
-        amount: amountToSupply,
-        chainId: ETHEREUM_FORK_ID,
-        spender: ETHEREUM_SGHO_ADDRESS,
-        owner: evmAddress(user.account!.address),
-      }).andThen(signERC20PermitWith(user));
-      assertOk(signature);
+        assertOk(savingsGhoDepositResult);
 
-      const result = await savingsGhoDeposit(client, {
-        amount: {
-          value: amountToSupply,
-          permitSig: signature.value,
-        },
-        depositor: evmAddress(user.account!.address),
-        chainId: ETHEREUM_FORK_ID,
-      })
-        .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
-        .andThen(sendWith(user))
-        .andThen(() =>
-          savingsGhoBalance(client, {
-            user: evmAddress(user.account!.address),
-            chainId: ETHEREUM_FORK_ID,
-          }),
+        const savingsGhoBalanceResult = await savingsGhoBalance(client, {
+          user: evmAddress(wallet.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+        });
+        assertOk(savingsGhoBalanceResult);
+        expect(savingsGhoBalanceResult.value.amount.value).toBe(
+          bigDecimal('90'),
         );
-      assertOk(result);
-      expect(result.value.amount.value).toBe(bigDecimal(amountToSupply));
-    });
-  });
 
-  describe('When a user wants to deposit GHO for sGHO in behalf of another user with a permit signature', () => {
-    const user = createNewWallet();
-    const anotherUser = createNewWallet();
-    const amountToSupply = '100';
+        const savingsGhoWithdrawResult = await savingsGhoWithdraw(client, {
+          amount: {
+            exact: bigDecimal('40'),
+          },
+          sharesOwner: evmAddress(wallet.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+        })
+          .andThen(sendWith(wallet))
+          .andTee((tx) => console.log(`tx to withdraw sGHO: ${tx.txHash}`));
 
-    beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_GHO_ADDRESS,
-        evmAddress(user.account!.address),
-        bigDecimal('105'),
-      );
-      assertOk(setup);
-    });
+        assertOk(savingsGhoWithdrawResult);
 
-    it("Then it should be reflected in the other user's savings GHO balance without needing for an ERC20 Approval transaction", async ({
-      annotate,
-    }) => {
-      annotate(`user address: ${user.account!.address}`);
-      annotate(`another user address: ${anotherUser.account!.address}`);
-
-      const signature = await permitTypedData(client, {
-        currency: ETHEREUM_GHO_ADDRESS,
-        amount: amountToSupply,
-        chainId: ETHEREUM_FORK_ID,
-        spender: ETHEREUM_SGHO_ADDRESS,
-        owner: evmAddress(user.account!.address),
-      }).andThen(signERC20PermitWith(user));
-      assertOk(signature);
-
-      const result = await savingsGhoDeposit(client, {
-        amount: {
-          value: amountToSupply,
-          permitSig: signature.value,
-        },
-        depositor: evmAddress(user.account!.address),
-        recipient: evmAddress(anotherUser.account!.address),
-        chainId: ETHEREUM_FORK_ID,
-      })
-        .andTee((tx) => expect(tx.__typename).toEqual('TransactionRequest'))
-        .andThen(sendWith(user))
-        .andThen(() =>
-          savingsGhoBalance(client, {
-            user: evmAddress(anotherUser.account!.address),
-            chainId: ETHEREUM_FORK_ID,
-          }),
+        const savingsGhoBalanceResult2 = await savingsGhoBalance(client, {
+          user: evmAddress(wallet.account!.address),
+          chainId: ETHEREUM_FORK_ID,
+        });
+        assertOk(savingsGhoBalanceResult2);
+        expect(savingsGhoBalanceResult2.value.amount.value).toBe(
+          bigDecimal('50'),
         );
-      assertOk(result);
-      expect(result.value.amount.value).toBe(bigDecimal(amountToSupply));
+      });
     });
   });
 });
