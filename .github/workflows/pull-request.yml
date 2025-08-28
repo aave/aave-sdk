@@ -20,7 +20,7 @@ jobs:
 
       - name: Ensure Changeset Added
         shell: bash
-        run: pnpm changeset status --since=${{ github.base_ref }}
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}
 
   verify:
     name: Verify
