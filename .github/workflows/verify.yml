@@ -23,20 +23,6 @@ jobs:
       - name: Run Biome
         run: biome ci .
 
-  changeset:
-    name: Changeset
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Repository
-        uses: ./.github/actions/setup
-
-      - name: Ensure Changeset Added
-        shell: bash
-        run: pnpm changeset status --since=main
-
-
   test:
     name: Test
     needs: lint

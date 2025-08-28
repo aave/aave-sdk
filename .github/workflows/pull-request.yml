@@ -9,6 +9,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changeset:
+    name: Changeset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Repository
+        uses: ./.github/actions/setup
+
+      - name: Ensure Changeset Added
+        shell: bash
+        run: pnpm changeset status --since=${{ github.base_ref }}
+
   verify:
     name: Verify
     uses: ./.github/workflows/verify.yml
