@@ -48,7 +48,10 @@ describe('Given an Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           sender: evmAddress(user.account!.address),
           amount: {
-            erc20: { value: '0.03', currency: ETHEREUM_WETH_ADDRESS },
+            erc20: {
+              value: bigDecimal('0.03'),
+              currency: ETHEREUM_WETH_ADDRESS,
+            },
           },
           chainId: ETHEREUM_FORK_ID,
         })
@@ -58,7 +61,10 @@ describe('Given an Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           sender: evmAddress(user.account!.address),
           amount: {
-            erc20: { value: '99', currency: ETHEREUM_USDC_ADDRESS },
+            erc20: {
+              value: bigDecimal('99'),
+              currency: ETHEREUM_USDC_ADDRESS,
+            },
           },
           chainId: ETHEREUM_FORK_ID,
         })
@@ -72,7 +78,10 @@ describe('Given an Aave Market', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           sender: evmAddress(user.account!.address),
           amount: {
-            erc20: { value: '0.0003', currency: ETHEREUM_WETH_ADDRESS },
+            erc20: {
+              value: bigDecimal('0.0003'),
+              currency: ETHEREUM_WETH_ADDRESS,
+            },
           },
           chainId: ETHEREUM_FORK_ID,
         })
@@ -81,7 +90,12 @@ describe('Given an Aave Market', () => {
         borrow(c, {
           market: ETHEREUM_MARKET_ADDRESS,
           sender: evmAddress(user.account!.address),
-          amount: { erc20: { value: '1', currency: ETHEREUM_USDC_ADDRESS } },
+          amount: {
+            erc20: {
+              value: bigDecimal('1'),
+              currency: ETHEREUM_USDC_ADDRESS,
+            },
+          },
           chainId: ETHEREUM_FORK_ID,
         })
           .andThen(sendWith(user))
