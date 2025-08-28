@@ -1,4 +1,5 @@
 import {
+  type EvmAddress,
   evmAddress,
   nonNullable,
   okAsync,
@@ -30,7 +31,7 @@ export function createVault(
     token?: {
       name: string;
       symbol: string;
-      address: string;
+      address: EvmAddress;
     };
   },
 ): ResultAsync<Vault, Error> {

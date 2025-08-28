@@ -1,9 +1,10 @@
 import {
+  type AmountInput,
   assertOk,
   bigDecimal,
   evmAddress,
+  nonNullable,
   ResultAsync,
-  type SupplyRequest,
 } from '@aave/client';
 import {
   borrow,
@@ -30,32 +31,38 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 function supplyAndBorrow(
   wallet: WalletClient,
-  request: SupplyRequest,
+  amount: AmountInput,
 ): ResultAsync<string, Error> {
   const userAddress = evmAddress(wallet.account!.address);
-  return supply(client, request)
+  return supply(client, {
+    market: ETHEREUM_MARKET_ADDRESS,
+    chainId: ETHEREUM_FORK_ID,
+    sender: evmAddress(wallet.account!.address),
+    amount,
+  })
     .andThen(sendWith(wallet))
     .andThen(client.waitForTransaction)
     .andThen(() =>
       reserve(client, {
-        market: request.market,
+        market: ETHEREUM_MARKET_ADDRESS,
         user: userAddress,
-        chainId: request.chainId,
+        chainId: ETHEREUM_FORK_ID,
         underlyingToken:
-          'erc20' in request.amount ? request.amount.erc20.currency : undefined,
+          'erc20' in amount ? amount.erc20.currency : ETHEREUM_WETH_ADDRESS,
       }),
     )
+    .map(nonNullable)
     .andThen((reserve) =>
       borrow(client, {
-        market: reserve?.market.address,
+        market: reserve.market.address,
         amount: {
           erc20: {
-            currency: reserve?.underlyingToken.address,
-            value: reserve?.userState?.borrowable.amount.value,
+            currency: reserve.underlyingToken.address,
+            value: reserve.userState!.borrowable.amount.value,
           },
         },
         sender: userAddress,
-        chainId: request.chainId,
+        chainId: ETHEREUM_FORK_ID,
       }),
     )
     .andThen(sendWith(wallet))
@@ -74,11 +81,9 @@ describe('Given an Aave Market', () => {
           bigDecimal('0.02'),
         ).andThen(() =>
           supplyAndBorrow(user, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: bigDecimal('0.01'),
             },
           }),
         );
@@ -130,11 +135,9 @@ describe('Given an Aave Market', () => {
           bigDecimal('0.02'),
         ).andThen(() =>
           supplyAndBorrow(user, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+            erc20: {
+              currency: ETHEREUM_WETH_ADDRESS,
+              value: bigDecimal('0.01'),
             },
           }),
         );
@@ -214,11 +217,9 @@ describe('Given an Aave Market', () => {
             )
             .andThen(() =>
               supplyAndBorrow(user, {
-                market: ETHEREUM_MARKET_ADDRESS,
-                chainId: ETHEREUM_FORK_ID,
-                sender: evmAddress(user.account!.address),
-                amount: {
-                  erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+                erc20: {
+                  currency: ETHEREUM_WETH_ADDRESS,
+                  value: bigDecimal('0.01'),
                 },
               }),
             );
@@ -231,7 +232,7 @@ describe('Given an Aave Market', () => {
           annotate(`user address: ${evmAddress(user.account!.address)}`);
 
           const result = await repay(client, {
-            amount: { native: '0.01' },
+            amount: { native: bigDecimal('0.01') },
             sender: evmAddress(user.account!.address),
             chainId: ETHEREUM_FORK_ID,
             market: ETHEREUM_MARKET_ADDRESS,
@@ -278,11 +279,9 @@ describe('Given an Aave Market', () => {
           ),
         ]).andThen(() =>
           supplyAndBorrow(anotherUser, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(anotherUser.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: bigDecimal('100'),
             },
           }),
         );
@@ -306,7 +305,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_USDC_ADDRESS,
-              value: { exact: '100' }, // Not possible to repay with max value when onBehalfOf is provided
+              value: { exact: bigDecimal('100') }, // Not possible to repay with max value when onBehalfOf is provided
             },
           },
           sender: evmAddress(user.account!.address),
@@ -343,11 +342,9 @@ describe('Given an Aave Market', () => {
           6,
         ).andThen(() =>
           supplyAndBorrow(user, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(user.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: bigDecimal('100'),
             },
           }),
         );
@@ -361,7 +358,7 @@ describe('Given an Aave Market', () => {
 
         const signature = await permitTypedData(client, {
           currency: ETHEREUM_USDC_ADDRESS,
-          amount: '100',
+          amount: bigDecimal('100'),
           chainId: ETHEREUM_FORK_ID,
           spender: ETHEREUM_MARKET_ADDRESS,
           owner: evmAddress(user.account!.address),
@@ -421,11 +418,9 @@ describe('Given an Aave Market', () => {
           ),
         ]).andThen(() =>
           supplyAndBorrow(anotherUser, {
-            market: ETHEREUM_MARKET_ADDRESS,
-            chainId: ETHEREUM_FORK_ID,
-            sender: evmAddress(anotherUser.account!.address),
-            amount: {
-              erc20: { currency: ETHEREUM_USDC_ADDRESS, value: '100' },
+            erc20: {
+              currency: ETHEREUM_USDC_ADDRESS,
+              value: bigDecimal('100'),
             },
           }),
         );
@@ -445,7 +440,7 @@ describe('Given an Aave Market', () => {
 
         const result = await permitTypedData(client, {
           currency: reserve.underlyingToken.address,
-          amount: '100',
+          amount: bigDecimal('100'),
           chainId: reserve.market.chain.chainId,
           spender: reserve.market.address,
           owner: evmAddress(user.account!.address),
@@ -457,7 +452,7 @@ describe('Given an Aave Market', () => {
               amount: {
                 erc20: {
                   currency: ETHEREUM_USDC_ADDRESS,
-                  value: { exact: '100' }, // Not possible to repay with max value when onBehalfOf is provided
+                  value: { exact: bigDecimal('100') }, // Not possible to repay with max value when onBehalfOf is provided
                   permitSig: signature,
                 },
               },

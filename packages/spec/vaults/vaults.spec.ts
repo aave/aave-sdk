@@ -66,8 +66,8 @@ describe('Given the Aave Vaults', () => {
         market: ETHEREUM_MARKET_ADDRESS,
         deployer: evmAddress(organization.account!.address),
         owner: evmAddress(organization.account!.address),
-        initialFee: '3',
-        initialLockDeposit: '0.05',
+        initialFee: bigDecimal('3'),
+        initialLockDeposit: bigDecimal('0.05'),
         shareName: 'Aave WETH Vault Shares',
         shareSymbol: 'avWETH',
         underlyingToken: ETHEREUM_WETH_ADDRESS,
@@ -177,7 +177,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`initial vault address: ${initialVault.value?.address}`);
         const mintResult = await vaultMintShares(client, {
           shares: {
-            amount: '0.03',
+            amount: bigDecimal('0.03'),
           },
           vault: initialVault.value!.address,
           minter: evmAddress(user.account!.address),
@@ -610,13 +610,11 @@ describe('Given the Aave Vaults', () => {
       assertOk(listOfVaultsDesc);
       expect(
         Number(
-          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value *
-            listOfVaultsDesc.value.items[0]?.userShares?.shares.usdPerToken,
+          listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.value,
         ),
       ).toBeGreaterThanOrEqual(
         Number(
-          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value *
-            listOfVaultsDesc.value.items[1]?.userShares?.shares.usdPerToken,
+          listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.value,
         ),
       );
 
@@ -627,15 +625,9 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(
-          listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value *
-            listOfVaultsAsc.value.items[0]?.userShares?.shares.usdPerToken,
-        ),
+        Number(listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.value),
       ).toBeLessThanOrEqual(
-        Number(
-          listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value *
-            listOfVaultsAsc.value.items[1]?.userShares?.shares.usdPerToken,
-        ),
+        Number(listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.value),
       );
     });
 

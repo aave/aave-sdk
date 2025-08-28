@@ -1,4 +1,10 @@
-import { assertErr, assertOk, chainId, evmAddress } from '@aave/types';
+import {
+  assertErr,
+  assertOk,
+  bigDecimal,
+  chainId,
+  evmAddress,
+} from '@aave/types';
 import { PrivyClient } from '@privy-io/server-auth';
 import { describe, expect, it } from 'vitest';
 import { permitTypedData } from './actions';
@@ -36,7 +42,7 @@ describe('Given a PrivyClient instance', () => {
     it('Then it should resolve with the expected EIP712Signature object', async () => {
       const result = await permitTypedData(client, {
         currency: ETHEREUM_USDC_ADDRESS,
-        amount: '1',
+        amount: bigDecimal('1'),
         chainId: chainId(1),
         spender: ETHEREUM_MARKET_ADDRESS,
         owner: evmAddress('0x0000000000000000000000000000000000000000'),

@@ -75,6 +75,30 @@ exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > The
 exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 3`] = `
 {
   "__typename": "Market",
+  "address": "0xAe05Cd22df81871bc7cC2a04BeCfb516bFe332C8",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": false,
+    "name": "Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumHorizon",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 4`] = `
+{
+  "__typename": "Market",
   "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
   "borrowReserves": Any<Array>,
   "chain": {

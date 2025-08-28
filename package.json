@@ -42,7 +42,8 @@
     "test:client": "vitest --project client",
     "test:client:privy": "vitest --project client packages/client/src/privy.test.ts",
     "test:client:thirdweb": "vitest --project client packages/client/src/thirdweb.test.ts",
-    "test:react": "vitest --project react"
+    "test:react": "vitest --project react",
+    "typecheck:spec": "pnpm --filter spec typecheck"
   },
   "license": "MIT",
   "devDependencies": {

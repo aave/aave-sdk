@@ -73,7 +73,7 @@ describe('Given an Aave Market', () => {
   describe('And a user with a supply position', () => {
     describe('When the user withdraws part of their supply', () => {
       const wallet = createNewWallet();
-      const amountToSupply = '0.01';
+      const suppliedAmount = bigDecimal('0.01');
 
       beforeAll(async () => {
         // Fund the wallet with WETH
@@ -90,7 +90,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: amountToSupply,
+              value: suppliedAmount,
             },
           },
         });
@@ -106,7 +106,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: { exact: bigDecimal(Number(amountToSupply) * 0.5) },
+              value: { exact: bigDecimal(Number(suppliedAmount) * 0.5) },
             },
           },
           chainId: wethReserve.market.chain.chainId,
@@ -131,7 +131,7 @@ describe('Given an Aave Market', () => {
             balance: expect.objectContaining({
               amount: expect.objectContaining({
                 value: expect.toBeBigDecimalCloseTo(
-                  bigDecimal(Number(amountToSupply) * 0.5),
+                  bigDecimal(Number(suppliedAmount) * 0.5),
                 ),
               }),
             }),
@@ -142,7 +142,7 @@ describe('Given an Aave Market', () => {
 
     describe('When the user withdraws all of their supply', () => {
       const wallet = createNewWallet();
-      const amountToSupply = '0.01';
+      const suppliedAmount = bigDecimal('0.01');
 
       beforeAll(async () => {
         // Fund the wallet with WETH
@@ -159,7 +159,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: amountToSupply,
+              value: suppliedAmount,
             },
           },
         });
@@ -204,7 +204,7 @@ describe('Given an Aave Market', () => {
     describe('When the user withdraws tokens specifying another address', () => {
       const user = createNewWallet();
       const anotherUser = createNewWallet();
-      const amountToSupply = '0.01';
+      const suppliedAmount = bigDecimal('0.01');
 
       beforeAll(async () => {
         await fundErc20Address(
@@ -220,7 +220,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: amountToSupply,
+              value: suppliedAmount,
             },
           },
         });
@@ -265,7 +265,7 @@ describe('Given an Aave Market', () => {
           evmAddress(anotherUser.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-        expect(balance).toBeCloseTo(Number(amountToSupply), 3);
+        expect(balance).toBeCloseTo(Number(suppliedAmount), 3);
       });
     });
 
@@ -273,7 +273,7 @@ describe('Given an Aave Market', () => {
     describe.skip('When the user withdraws tokens specifying another address with a permit signature', () => {
       const user = createNewWallet();
       const anotherUser = createNewWallet();
-      const amountToSupply = '0.01';
+      const suppliedAmount = bigDecimal('0.01');
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
@@ -290,7 +290,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_WETH_ADDRESS,
-              value: amountToSupply,
+              value: suppliedAmount,
             },
           },
         });
@@ -305,7 +305,7 @@ describe('Given an Aave Market', () => {
 
         const result = await permitTypedData(client, {
           currency: ETHEREUM_WETH_ADDRESS,
-          amount: '0.2', // To make sure the user has enough balance to remove the interest
+          amount: bigDecimal('0.2'), // To make sure the user has enough balance to remove the interest
           chainId: ETHEREUM_FORK_ID,
           spender: wethReserve.market.address,
           owner: evmAddress(user.account!.address),
@@ -329,7 +329,12 @@ describe('Given an Aave Market', () => {
               .andThen(client.waitForTransaction)
               .andThen(() =>
                 userSupplies(client, {
-                  markets: [wethReserve.market.address],
+                  markets: [
+                    {
+                      address: wethReserve.market.address,
+                      chainId: wethReserve.market.chain.chainId,
+                    },
+                  ],
                   user: evmAddress(user.account!.address),
                 }),
               ),
@@ -342,7 +347,7 @@ describe('Given an Aave Market', () => {
     // TODO: Only possible to test with WETH reserve and the reserve is not supporting `permit`
     describe.skip('When the user withdraws tokens with a permit signature', () => {
       const user = createNewWallet();
-      const amountToSupply = '100';
+      const suppliedAmount = bigDecimal('100');
 
       beforeAll(async () => {
         const funds = await fundErc20Address(
@@ -361,7 +366,7 @@ describe('Given an Aave Market', () => {
           amount: {
             erc20: {
               currency: ETHEREUM_USDC_ADDRESS,
-              value: amountToSupply,
+              value: suppliedAmount,
             },
           },
         });
@@ -374,7 +379,7 @@ describe('Given an Aave Market', () => {
 
         const signature = await permitTypedData(client, {
           currency: ETHEREUM_USDC_ADDRESS,
-          amount: amountToSupply,
+          amount: suppliedAmount,
           chainId: ETHEREUM_FORK_ID,
           spender: usdcReserve.market.address,
           owner: evmAddress(user.account!.address),
@@ -386,7 +391,7 @@ describe('Given an Aave Market', () => {
           sender: evmAddress(user.account!.address),
           amount: {
             native: {
-              value: { exact: amountToSupply },
+              value: { exact: suppliedAmount },
               permitSig: signature.value,
             },
           },
@@ -416,7 +421,7 @@ describe('Given an Aave Market', () => {
   describe('And the reserve allows withdrawals in native tokens', () => {
     describe('When the user withdraws from the reserve in native tokens', () => {
       const wallet = createNewWallet();
-      const amount = '0.01';
+      const suppliedAmount = bigDecimal('0.01');
 
       beforeAll(async () => {
         // Fund the wallet with WETH
@@ -430,7 +435,7 @@ describe('Given an Aave Market', () => {
           chainId: wethReserve.market.chain.chainId,
           sender: evmAddress(wallet.account!.address),
           amount: {
-            native: amount,
+            native: suppliedAmount,
           },
         });
       });
@@ -448,7 +453,7 @@ describe('Given an Aave Market', () => {
           sender: evmAddress(wallet.account!.address),
           amount: {
             native: {
-              value: { exact: amount },
+              value: { exact: suppliedAmount },
             },
           },
           chainId: wethReserve.market.chain.chainId,

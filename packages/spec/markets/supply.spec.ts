@@ -15,7 +15,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve', () => {
     const user = createNewWallet();
-    const amountToSupply = '0.01';
+    const amountToSupply = bigDecimal('0.01');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
@@ -72,7 +72,7 @@ describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve in behalf of another address', () => {
     const user = createNewWallet();
     const anotherUser = createNewWallet();
-    const amountToSupply = '100';
+    const amountToSupply = bigDecimal('100');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
@@ -135,7 +135,7 @@ describe('Given an Aave Market', () => {
 
   describe('When the user supplies tokens to the Reserve with a permit signature', () => {
     const user = createNewWallet();
-    const amountToSupply = '100';
+    const amountToSupply = bigDecimal('100');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
@@ -208,7 +208,7 @@ describe('Given an Aave Market', () => {
   describe('When the user supplies tokens to a Reserve in behalf of another address with a permit signature', () => {
     const user = createNewWallet();
     const anotherUser = createNewWallet();
-    const amountToSupply = '100';
+    const amountToSupply = bigDecimal('100');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
@@ -281,7 +281,7 @@ describe('Given an Aave Market', () => {
   describe('And the Reserve allows to supply in native tokens', () => {
     describe('When the user supplies to the Reserve in native tokens', () => {
       const wallet = createNewWallet();
-      const amountToSupply = '0.01';
+      const amountToSupply = bigDecimal('0.01');
 
       beforeAll(async () => {
         const setup = await fundNativeAddress(

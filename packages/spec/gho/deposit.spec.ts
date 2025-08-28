@@ -101,7 +101,7 @@ describe('Given Savings GHO', () => {
 
   describe('When a user wants to deposit GHO for sGHO with a permit signature', () => {
     const user = createNewWallet();
-    const amountToSupply = '100';
+    const amountToSupply = bigDecimal('100');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
@@ -149,7 +149,7 @@ describe('Given Savings GHO', () => {
   describe('When a user wants to deposit GHO for sGHO in behalf of another user with a permit signature', () => {
     const user = createNewWallet();
     const anotherUser = createNewWallet();
-    const amountToSupply = '100';
+    const amountToSupply = bigDecimal('100');
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
