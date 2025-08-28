@@ -29,7 +29,6 @@ jobs:
         with:
           title: '[Release] Candidate'
           commit: 'chore: bumps package versions'
-          branch: next
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
