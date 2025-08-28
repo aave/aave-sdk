@@ -20,18 +20,18 @@ describe.skip('Given Savings GHO', () => {
   describe('And a user with sGHO balance', () => {
     describe('When the user withdraws part of their sGHO for GHO', () => {
       const user = createNewWallet();
-      const amountToSupply = 100;
+      const depositedAmount = 100;
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal(amountToSupply),
+          bigDecimal(depositedAmount),
         ).andThen(() =>
           savingsGhoDeposit(client, {
             depositor: evmAddress(user.account!.address),
             amount: {
-              value: bigDecimal(amountToSupply),
+              value: bigDecimal(depositedAmount),
             },
             chainId: ETHEREUM_FORK_ID,
           }),
@@ -62,7 +62,7 @@ describe.skip('Given Savings GHO', () => {
           );
         assertOk(savingsGhoWithdrawResult);
         expect(savingsGhoWithdrawResult.value.amount.value).toBe(
-          bigDecimal(amountToSupply - amountToWithdraw),
+          bigDecimal(depositedAmount - amountToWithdraw),
         );
         const balanceGho = await getBalance(
           evmAddress(user.account!.address),
@@ -74,18 +74,18 @@ describe.skip('Given Savings GHO', () => {
 
     describe('When the user withdraws all of their sGHO for GHO', () => {
       const user = createNewWallet();
-      const amountToSupply = 100;
+      const depositedAmount = 100;
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal(amountToSupply),
+          bigDecimal(depositedAmount),
         ).andThen(() =>
           savingsGhoDeposit(client, {
             depositor: evmAddress(user.account!.address),
             amount: {
-              value: bigDecimal(amountToSupply),
+              value: bigDecimal(depositedAmount),
             },
             chainId: ETHEREUM_FORK_ID,
           }),
@@ -120,25 +120,25 @@ describe.skip('Given Savings GHO', () => {
           evmAddress(user.account!.address),
           ETHEREUM_GHO_ADDRESS,
         );
-        expect(balanceGho).toBe(amountToSupply);
+        expect(balanceGho).toBe(depositedAmount);
       });
     });
 
     describe('When the user withdraws sGHO for GHO specifying another address', () => {
       const user = createNewWallet();
       const anotherUser = createNewWallet();
-      const amountToSupply = 100;
+      const depositedAmount = 100;
 
       beforeAll(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
-          bigDecimal(amountToSupply),
+          bigDecimal(depositedAmount),
         ).andThen(() =>
           savingsGhoDeposit(client, {
             depositor: evmAddress(user.account!.address),
             amount: {
-              value: bigDecimal(amountToSupply),
+              value: bigDecimal(depositedAmount),
             },
             chainId: ETHEREUM_FORK_ID,
           }),
@@ -171,7 +171,7 @@ describe.skip('Given Savings GHO', () => {
           );
         assertOk(savingsGhoWithdrawResult);
         expect(savingsGhoWithdrawResult.value.amount.value).toBe(
-          bigDecimal(amountToSupply - amountToWithdraw),
+          bigDecimal(depositedAmount - amountToWithdraw),
         );
 
         const balanceGho = await getBalance(

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Given the Aave client > When using the 'chains(client)' action > Then it should return the supported chains 1`] = `
+exports[`Given the Aave Protocol > When listing all supported chains > Then it should return the expected list chains 1`] = `
 [
   {
     "__typename": "Chain",
