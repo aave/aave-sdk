@@ -56,6 +56,10 @@ jobs:
         shell: bash
         run: pnpm test
 
+      - name: Typecheck Spec
+        shell: bash
+        run: pnpm typecheck:spec
+
       - name: Run Acceptance Tests
         if: ${{ inputs.run-acceptance }}
         shell: bash
