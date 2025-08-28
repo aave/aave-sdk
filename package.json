@@ -28,6 +28,8 @@
     "spec:emode": "vitest --project spec packages/spec/markets/eMode.spec.ts",
     "spec:healthFactor": "vitest --project spec packages/spec/markets/healthFactor.spec.ts",
     "spec:history": "vitest --project spec packages/spec/markets/history.spec.ts",
+    "spec:gho:deposit": "vitest --project spec packages/spec/gho/deposit.spec.ts",
+    "spec:gho:withdraw": "vitest --project spec packages/spec/gho/withdraw.spec.ts",
     "spec:markets": "vitest --project spec packages/spec/markets/markets.spec.ts",
     "spec:incentives": "vitest --project spec packages/spec/markets/incentives.spec.ts",
     "spec:positions": "vitest --project spec packages/spec/markets/positions.spec.ts",

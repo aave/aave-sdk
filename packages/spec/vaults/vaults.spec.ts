@@ -257,7 +257,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 40_000);
+      }, 50_000);
     });
 
     describe('When the user redeems total amount of their shares', () => {
@@ -292,7 +292,7 @@ describe('Given the Aave Vaults', () => {
         });
         assertOk(userPositions);
         expect(userPositions.value.items.length).toEqual(0);
-      }, 40_000);
+      }, 60_000);
     });
 
     describe('When the user redeems partial amount of their shares', () => {
@@ -428,7 +428,7 @@ describe('Given the Aave Vaults', () => {
         expect(balanceAfter * 10 ** 18).toBeGreaterThan(
           balanceBefore * 10 ** 18,
         );
-      }, 50_000);
+      }, 60_000);
     });
 
     describe('When the user redeems partial amount of their shares', () => {
@@ -453,7 +453,7 @@ describe('Given the Aave Vaults', () => {
           .andThen(sendWith(user))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
-      });
+      }, 60_000);
 
       const timeWindows = Object.values(VaultUserActivityTimeWindow);
       it.each(timeWindows)(

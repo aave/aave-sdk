@@ -1232,6 +1232,9 @@ type ReserveUserState {
 input SavingsGhoBalanceRequest {
   """The user to query the savings GHO balance"""
   user: EvmAddress!
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SavingsGhoDepositRequest {
@@ -1245,6 +1248,9 @@ input SavingsGhoDepositRequest {
   The address to which saving GHO shares will be minted to - defaults to `depositor`.
   """
   recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SavingsGhoWithdrawAmount @oneOf {
@@ -1266,6 +1272,9 @@ input SavingsGhoWithdrawRequest {
 
   """The address to which GHO will be minted to - defaults to `depositor`."""
   recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SayingsGhoDepositAmountInput {

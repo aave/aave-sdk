@@ -42,7 +42,7 @@ export function savingsGhoBalance(
  *     exact: '1000',
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * }).andThen(sendWith(wallet))
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -72,7 +72,7 @@ export function savingsGhoWithdraw(
  *     value: '1000',
  *   },
  *   depositor: evmAddress('0x9abc…'),
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * }).andThen(sendWith(wallet))
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
