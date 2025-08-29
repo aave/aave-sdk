@@ -118,7 +118,7 @@ describe('Given Savings GHO', () => {
       annotate(`user address: ${user.account!.address}`);
       const signature = await permitTypedData(client, {
         currency: ETHEREUM_GHO_ADDRESS,
-        amount: bigDecimal(amountToSupply),
+        amount: amountToSupply,
         chainId: ETHEREUM_FORK_ID,
         spender: ETHEREUM_SGHO_ADDRESS,
         owner: evmAddress(user.account!.address),
@@ -127,7 +127,7 @@ describe('Given Savings GHO', () => {
 
       const result = await savingsGhoDeposit(client, {
         amount: {
-          value: bigDecimal(amountToSupply),
+          value: amountToSupply,
           permitSig: signature.value,
         },
         depositor: evmAddress(user.account!.address),
@@ -142,7 +142,7 @@ describe('Given Savings GHO', () => {
           }),
         );
       assertOk(result);
-      expect(result.value.amount.value).toBe(bigDecimal(amountToSupply));
+      expect(result.value.amount.value).toBe(amountToSupply);
     });
   });
 
@@ -169,7 +169,7 @@ describe('Given Savings GHO', () => {
 
       const signature = await permitTypedData(client, {
         currency: ETHEREUM_GHO_ADDRESS,
-        amount: bigDecimal(amountToSupply),
+        amount: amountToSupply,
         chainId: ETHEREUM_FORK_ID,
         spender: ETHEREUM_SGHO_ADDRESS,
         owner: evmAddress(user.account!.address),
@@ -178,7 +178,7 @@ describe('Given Savings GHO', () => {
 
       const result = await savingsGhoDeposit(client, {
         amount: {
-          value: bigDecimal(amountToSupply),
+          value: amountToSupply,
           permitSig: signature.value,
         },
         depositor: evmAddress(user.account!.address),
@@ -194,7 +194,7 @@ describe('Given Savings GHO', () => {
           }),
         );
       assertOk(result);
-      expect(result.value.amount.value).toBe(bigDecimal(amountToSupply));
+      expect(result.value.amount.value).toBe(amountToSupply);
     });
   });
 });
