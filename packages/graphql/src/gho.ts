@@ -1,8 +1,5 @@
 import { TokenAmountFragment } from './fragments/common';
-import {
-  ExecutionPlanFragment,
-  TransactionRequestFragment,
-} from './fragments/transactions';
+import { ExecutionPlanFragment } from './fragments/transactions';
 import { graphql, type RequestOf } from './graphql';
 
 export const SavingsGhoBalanceQuery = graphql(
@@ -18,10 +15,10 @@ export type SavingsGhoBalanceRequest = RequestOf<typeof SavingsGhoBalanceQuery>;
 export const SavingsGhoWithdrawQuery = graphql(
   `query SavingsGhoWithdraw($request: SavingsGhoWithdrawRequest!) {
     value: savingsGhoWithdraw(request: $request) {
-      ...TransactionRequest
+      ...ExecutionPlan
     }
   }`,
-  [TransactionRequestFragment],
+  [ExecutionPlanFragment],
 );
 export type SavingsGhoWithdrawRequest = RequestOf<
   typeof SavingsGhoWithdrawQuery

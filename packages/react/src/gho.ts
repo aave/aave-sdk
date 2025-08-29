@@ -6,7 +6,6 @@ import type {
   SavingsGhoDepositRequest,
   SavingsGhoWithdrawRequest,
   TokenAmount,
-  TransactionRequest,
 } from '@aave/graphql';
 import { SavingsGhoBalanceQuery } from '@aave/graphql';
 import { useAaveClient } from './context';
@@ -81,7 +80,21 @@ export function useSavingsGhoBalance({
  * // …
  *
  * const result = await withdraw({ ... })
- *   .andThen(sendTransaction);
+ *   .andThen((plan) => {
+ *     switch (plan.__typename) {
+ *       case 'TransactionRequest':
+ *         return sendTransaction(plan);
+ *
+ *       case 'ApprovalRequired':
+ *         return sendTransaction(plan.approval)
+ *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance to withdraw: ${plan.required.value} is the maximum withdrawal allowed.`)
+ *         );
+ *     }
+ *   });
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -93,7 +106,7 @@ export function useSavingsGhoBalance({
  */
 export function useSavingsGhoWithdraw(): UseAsyncTask<
   SavingsGhoWithdrawRequest,
-  TransactionRequest,
+  ExecutionPlan,
   UnexpectedError
 > {
   const client = useAaveClient();
