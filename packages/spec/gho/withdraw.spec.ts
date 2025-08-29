@@ -15,8 +15,7 @@ import {
 import { sendWith } from '@aave/client/viem';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-// TODO: needs to be added cooldown call to the backend to be able to withdraw
-describe.skip('Given Savings GHO', () => {
+describe('Given Savings GHO', () => {
   describe('And a user with sGHO balance', () => {
     describe('When the user withdraws part of their sGHO for GHO', () => {
       const user = createNewWallet();
@@ -27,15 +26,17 @@ describe.skip('Given Savings GHO', () => {
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal(depositedAmount),
-        ).andThen(() =>
-          savingsGhoDeposit(client, {
-            depositor: evmAddress(user.account!.address),
-            amount: {
-              value: bigDecimal(depositedAmount),
-            },
-            chainId: ETHEREUM_FORK_ID,
-          }),
-        );
+        )
+          .andThen(() =>
+            savingsGhoDeposit(client, {
+              depositor: evmAddress(user.account!.address),
+              amount: {
+                value: bigDecimal(depositedAmount),
+              },
+              chainId: ETHEREUM_FORK_ID,
+            }),
+          )
+          .andThen(sendWith(user));
         assertOk(setup);
       });
 
@@ -81,15 +82,17 @@ describe.skip('Given Savings GHO', () => {
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal(depositedAmount),
-        ).andThen(() =>
-          savingsGhoDeposit(client, {
-            depositor: evmAddress(user.account!.address),
-            amount: {
-              value: bigDecimal(depositedAmount),
-            },
-            chainId: ETHEREUM_FORK_ID,
-          }),
-        );
+        )
+          .andThen(() =>
+            savingsGhoDeposit(client, {
+              depositor: evmAddress(user.account!.address),
+              amount: {
+                value: bigDecimal(depositedAmount),
+              },
+              chainId: ETHEREUM_FORK_ID,
+            }),
+          )
+          .andThen(sendWith(user));
         assertOk(setup);
       });
 
@@ -106,7 +109,6 @@ describe.skip('Given Savings GHO', () => {
         })
           .andThen(sendWith(user))
           .andTee((tx) => annotate(`tx to withdraw all sGHO: ${tx.txHash}`))
-          .andThen(client.waitForTransaction)
           .andThen(() =>
             savingsGhoBalance(client, {
               user: evmAddress(user.account!.address),
@@ -134,15 +136,17 @@ describe.skip('Given Savings GHO', () => {
           ETHEREUM_GHO_ADDRESS,
           evmAddress(user.account!.address),
           bigDecimal(depositedAmount),
-        ).andThen(() =>
-          savingsGhoDeposit(client, {
-            depositor: evmAddress(user.account!.address),
-            amount: {
-              value: bigDecimal(depositedAmount),
-            },
-            chainId: ETHEREUM_FORK_ID,
-          }),
-        );
+        )
+          .andThen(() =>
+            savingsGhoDeposit(client, {
+              depositor: evmAddress(user.account!.address),
+              amount: {
+                value: bigDecimal(depositedAmount),
+              },
+              chainId: ETHEREUM_FORK_ID,
+            }),
+          )
+          .andThen(sendWith(user));
         assertOk(setup);
       });
 
