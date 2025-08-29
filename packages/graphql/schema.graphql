@@ -938,7 +938,7 @@ type Query {
   savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
 
   """Withdraw sGHO (savings GHO) back to GHO"""
-  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): TransactionRequest!
+  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
 }
 
 input RepayAmountInput @oneOf {

@@ -7,7 +7,6 @@ import {
   SavingsGhoWithdrawQuery,
   type SavingsGhoWithdrawRequest,
   type TokenAmount,
-  type TransactionRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -59,7 +58,7 @@ export function savingsGhoBalance(
 export function savingsGhoWithdraw(
   client: AaveClient,
   request: SavingsGhoWithdrawRequest,
-): ResultAsync<TransactionRequest, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(SavingsGhoWithdrawQuery, { request });
 }
 
