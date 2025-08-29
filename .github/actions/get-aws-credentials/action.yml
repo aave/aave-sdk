@@ -1,0 +1,26 @@
+name: 'AWS credentials'
+description: 'Get AWS credentials'
+
+inputs:
+  aws_assume_role:
+    description: 'AWS assume role ARN'
+    required: true
+  aws_region:
+    description: 'AWS region'
+    required: true
+
+outputs:
+  env_vars:
+    description: "Encoded environment variables"
+    value: ${{ steps.generate_env.outputs.env_vars }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ inputs.aws_assume_role }}
+        aws-region: ${{ inputs.aws_region }}
+        role-session-name: "lens-e2e-testing-${{ github.run_id }}-${{ github.run_attempt }}"
+        role-duration-seconds: 2400
