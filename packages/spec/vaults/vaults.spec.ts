@@ -46,55 +46,154 @@ import {
 
 describe('Given the Aave Vaults', () => {
   describe('When an organization deploys a new vault', () => {
-    const organization = createNewWallet();
+    describe("And is single recipient of the vault's fees", () => {
+      const organization = createNewWallet();
 
-    beforeAll(async () => {
-      const setup = await fundErc20Address(
-        ETHEREUM_WETH_ADDRESS,
-        evmAddress(organization.account!.address),
-        bigDecimal('0.1'),
-      );
-      assertOk(setup);
-    });
-
-    it('Then it should be available in the organization vaults', async ({
-      annotate,
-    }) => {
-      annotate(`organization address: ${organization.account!.address}`);
-      const initialVault = await vaultDeploy(client, {
-        chainId: ETHEREUM_FORK_ID,
-        market: ETHEREUM_MARKET_ADDRESS,
-        deployer: evmAddress(organization.account!.address),
-        owner: evmAddress(organization.account!.address),
-        initialFee: '3',
-        initialLockDeposit: '0.05',
-        shareName: 'Aave WETH Vault Shares',
-        shareSymbol: 'avWETH',
-        underlyingToken: ETHEREUM_WETH_ADDRESS,
-      })
-        .andThen(sendWith(organization))
-        .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
-        .andThen(client.waitForTransaction)
-        .andThen((txHash) =>
-          vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
-        )
-        .map(nonNullable);
-      assertOk(initialVault);
-      annotate(`initial vault: ${initialVault.value?.address}`);
-
-      const result = await vaults(client, {
-        criteria: {
-          ownedBy: [evmAddress(organization.account!.address)],
-        },
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(organization.account!.address),
+          bigDecimal('0.1'),
+        );
+        assertOk(setup);
       });
 
-      assertOk(result);
-      expect(result.value.items).toEqual([
-        expect.objectContaining({
-          owner: organization.account!.address,
-          address: initialVault.value!.address,
-        }),
-      ]);
+      it('Then it should be available in the organization vaults', async ({
+        annotate,
+      }) => {
+        annotate(`organization address: ${organization.account!.address}`);
+        const initialVault = await vaultDeploy(client, {
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+          deployer: evmAddress(organization.account!.address),
+          owner: evmAddress(organization.account!.address),
+          initialFee: '3',
+          initialLockDeposit: '0.05',
+          shareName: 'Aave WETH Vault Shares',
+          shareSymbol: 'avWETH',
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen((txHash) =>
+            vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
+          )
+          .map(nonNullable);
+        assertOk(initialVault);
+        annotate(`initial vault: ${initialVault.value?.address}`);
+
+        expect(initialVault.value.owner).toEqual(
+          organization.account!.address.toString(),
+        );
+        expect(initialVault.value.feeRecipients).toEqual([
+          expect.objectContaining({
+            address: organization.account!.address,
+            percent: expect.objectContaining({
+              formatted: '100',
+            }),
+          }),
+        ]);
+
+        const result = await vaults(client, {
+          criteria: {
+            ownedBy: [evmAddress(organization.account!.address)],
+          },
+        });
+
+        assertOk(result);
+
+        expect(result.value.items).toEqual([
+          expect.objectContaining({
+            owner: organization.account!.address,
+            address: initialVault.value!.address,
+          }),
+        ]);
+      });
+    });
+
+    describe("And has multiple recipient of the vault's fees", () => {
+      const organization = createNewWallet();
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(organization.account!.address),
+          bigDecimal('0.1'),
+        );
+        assertOk(setup);
+      });
+
+      it('Then it should be available in the organization vaults', async ({
+        annotate,
+      }) => {
+        annotate(`organization address: ${organization.account!.address}`);
+        const initialVault = await vaultDeploy(client, {
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+          deployer: evmAddress(organization.account!.address),
+          owner: evmAddress(organization.account!.address),
+          initialFee: '3',
+          initialLockDeposit: '0.05',
+          shareName: 'Aave WETH Vault Shares',
+          shareSymbol: 'avWETH',
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
+          recipients: [
+            {
+              address: evmAddress(organization.account!.address),
+              percent: bigDecimal('50'),
+            },
+            {
+              address: evmAddress('0x1234567890123456789012345678901234567890'),
+              percent: bigDecimal('50'),
+            },
+          ],
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen((txHash) =>
+            vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
+          )
+          .map(nonNullable);
+
+        assertOk(initialVault);
+        annotate(`initial vault: ${initialVault.value?.address}`);
+
+        expect(initialVault.value.owner).toEqual(
+          organization.account!.address.toString(),
+        );
+        expect(initialVault.value.feeRecipients).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              address: organization.account!.address,
+              percent: expect.objectContaining({
+                formatted: '50.00',
+              }),
+            }),
+            expect.objectContaining({
+              address: '0x1234567890123456789012345678901234567890',
+              percent: expect.objectContaining({
+                formatted: '50.00',
+              }),
+            }),
+          ]),
+        );
+
+        const result = await vaults(client, {
+          criteria: {
+            ownedBy: [evmAddress(organization.account!.address)],
+          },
+        });
+
+        assertOk(result);
+        expect(result.value.items).toEqual([
+          expect.objectContaining({
+            owner: organization.account!.address,
+            address: initialVault.value!.address,
+          }),
+        ]);
+      });
     });
   });
 
@@ -341,94 +440,214 @@ describe('Given the Aave Vaults', () => {
     });
 
     describe(`When the organization changes the vault's fee`, () => {
-      const organization = createNewWallet();
+      describe("And is single recipient of the vault's fees", () => {
+        const organization = createNewWallet();
 
-      it('Then the new fee should be reflected in the vault object', async ({
-        annotate,
-      }) => {
-        annotate(`organization address: ${organization.account!.address}`);
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
+        it('Then the new fee should be reflected in the vault object', async ({
+          annotate,
+        }) => {
+          annotate(`organization address: ${organization.account!.address}`);
+          const initialVault = await createVault(organization);
+          assertOk(initialVault);
 
-        const newFee = bigDecimal('4.60');
-        const updateResult = await vaultSetFee(client, {
-          chainId: initialVault.value.chainId,
-          vault: initialVault.value.address,
-          newFee: newFee,
-        })
-          .andThen(sendWith(organization))
-          .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
-          .andThen(client.waitForTransaction);
-        assertOk(updateResult);
+          const newFee = bigDecimal('4.60');
+          const updateResult = await vaultSetFee(client, {
+            chainId: initialVault.value.chainId,
+            vault: initialVault.value.address,
+            newFee: newFee,
+          })
+            .andThen(sendWith(organization))
+            .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
+            .andThen(client.waitForTransaction);
+          assertOk(updateResult);
 
-        const newVaultInfo = await vault(client, {
-          by: { address: initialVault.value.address },
-          chainId: initialVault.value.chainId,
-        });
-        assertOk(newVaultInfo);
-        expect(newVaultInfo.value).toEqual(
-          expect.objectContaining({
-            fee: expect.objectContaining({
-              formatted: expect.toBeBigDecimalCloseTo(newFee, 4),
+          const newVaultInfo = await vault(client, {
+            by: { address: initialVault.value.address },
+            chainId: initialVault.value.chainId,
+          });
+          assertOk(newVaultInfo);
+          expect(newVaultInfo.value).toEqual(
+            expect.objectContaining({
+              fee: expect.objectContaining({
+                formatted: expect.toBeBigDecimalCloseTo(newFee, 4),
+              }),
             }),
-          }),
-        );
-      }, 30_000);
+          );
+        }, 30_000);
+      });
+
+      describe('And vault has multiple recipient of the fee', () => {
+        const organization = createNewWallet();
+
+        it('Then the new fee should be reflected in the vault object', async ({
+          annotate,
+        }) => {
+          annotate(`organization address: ${organization.account!.address}`);
+          const initialVault = await createVault(organization, {
+            recipients: [
+              {
+                address: evmAddress(organization.account!.address),
+                percent: bigDecimal('50'),
+              },
+              {
+                address: evmAddress(
+                  '0x1234567890123456789012345678901234567890',
+                ),
+                percent: bigDecimal('50'),
+              },
+            ],
+          });
+          assertOk(initialVault);
+
+          const newFee = bigDecimal('4.60');
+          const updateResult = await vaultSetFee(client, {
+            chainId: initialVault.value.chainId,
+            vault: initialVault.value.address,
+            newFee: newFee,
+          })
+            .andThen(sendWith(organization))
+            .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
+            .andThen(client.waitForTransaction);
+          assertOk(updateResult);
+
+          const newVaultInfo = await vault(client, {
+            by: { address: initialVault.value.address },
+            chainId: initialVault.value.chainId,
+          });
+          assertOk(newVaultInfo);
+          expect(newVaultInfo.value).toEqual(
+            expect.objectContaining({
+              fee: expect.objectContaining({
+                formatted: expect.toBeBigDecimalCloseTo(newFee, 4),
+              }),
+            }),
+          );
+        }, 30_000);
+      });
     });
 
     describe(`When the organization withdraws the vault's fees`, () => {
-      const organization = createNewWallet();
-      const user = createNewWallet();
+      describe("And is single recipient of the vault's fees", () => {
+        const organization = createNewWallet();
+        const user = createNewWallet();
 
-      it('Then they should receive the expected ERC-20 amount', async ({
-        annotate,
-      }) => {
-        annotate(`user address: ${user.account!.address}`);
-        annotate(`organization address: ${organization.account!.address}`);
-        const initialVault = await createVault(organization)
-          .andThen(depositOntoVault(user, 0.03))
-          .andThen(mintSharesFromVault(user, 0.03));
-        assertOk(initialVault);
+        it('Then they should receive the expected ERC-20 amount', async ({
+          annotate,
+        }) => {
+          annotate(`user address: ${user.account!.address}`);
+          annotate(`organization address: ${organization.account!.address}`);
+          const initialVault = await createVault(organization)
+            .andThen(depositOntoVault(user, 0.03))
+            .andThen(mintSharesFromVault(user, 0.03));
+          assertOk(initialVault);
 
-        // Check vault contains fees
-        const vaultInfoBefore = await vault(client, {
-          by: { address: initialVault.value.address },
-          chainId: initialVault.value.chainId,
-        });
-        assertOk(vaultInfoBefore);
-        annotate(
-          `totalFeeRevenue: ${Number(
+          // Check vault contains fees
+          const vaultInfoBefore = await vault(client, {
+            by: { address: initialVault.value.address },
+            chainId: initialVault.value.chainId,
+          });
+          assertOk(vaultInfoBefore);
+          annotate(
+            `totalFeeRevenue: ${Number(
+              vaultInfoBefore.value?.totalFeeRevenue.amount.value,
+            )}`,
+          );
+          expect(
+            Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
+          ).toBeGreaterThan(0);
+          const balanceBefore = await getBalance(
+            evmAddress(organization.account!.address),
+            initialVault.value?.usedReserve.aToken.address,
+          );
+          annotate(`balance before: ${balanceBefore}`);
+          const withdrawResult = await vaultWithdrawFees(client, {
+            chainId: initialVault.value.chainId,
+            vault: initialVault.value.address,
+            sendTo: evmAddress(organization.account!.address),
+            amount: { max: true },
+          })
+            .andThen(sendWith(organization))
+            .andTee((tx) => annotate(`tx to withdraw fees: ${tx.txHash}`))
+            .andThen(client.waitForTransaction);
+          assertOk(withdrawResult);
+
+          const balanceAfter = await getBalance(
+            evmAddress(organization.account!.address),
+            initialVault.value?.usedReserve.aToken.address,
+          );
+          annotate(`balance after: ${balanceAfter}`);
+          expect(balanceAfter * 10 ** 18).toBeGreaterThan(
+            balanceBefore * 10 ** 18,
+          );
+        }, 50_000);
+      });
+
+      describe('And vault has multiple recipient of the fee', () => {
+        const organization = createNewWallet();
+        const user = createNewWallet();
+        const recipient1 = createNewWallet();
+        const recipient2 = createNewWallet();
+
+        it('Then all recipients should receive the expected ERC-20 amount', async ({
+          annotate,
+        }) => {
+          annotate(`user address: ${user.account!.address}`);
+          annotate(`organization address: ${organization.account!.address}`);
+
+          const initialVault = await createVault(organization, {
+            recipients: [
+              {
+                address: evmAddress(recipient1.account!.address),
+                percent: bigDecimal('50'),
+              },
+              {
+                address: evmAddress(recipient2.account!.address),
+                percent: bigDecimal('50'),
+              },
+            ],
+          })
+            .andTee((vault) => annotate(`vault: ${vault.address}`))
+            .andThen(depositOntoVault(user, 0.03))
+            .andThen(mintSharesFromVault(user, 0.03));
+          assertOk(initialVault);
+
+          const withdrawResult = await vaultWithdrawFees(client, {
+            chainId: initialVault.value.chainId,
+            vault: initialVault.value.address,
+            amount: { max: true },
+          })
+            .andThen(sendWith(organization))
+            .andTee((tx) => annotate(`tx to withdraw fees: ${tx.txHash}`))
+            .andThen(client.waitForTransaction);
+          assertOk(withdrawResult);
+
+          const vaultInfoBefore = await vault(client, {
+            by: { address: initialVault.value.address },
+            chainId: initialVault.value.chainId,
+          });
+          assertOk(vaultInfoBefore);
+
+          const totalFeeRevenue = Number(
             vaultInfoBefore.value?.totalFeeRevenue.amount.value,
-          )}`,
-        );
-        expect(
-          Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
-        ).toBeGreaterThan(0);
-        const balanceBefore = await getBalance(
-          evmAddress(organization.account!.address),
-          initialVault.value?.usedReserve.aToken.address,
-        );
-        annotate(`balance before: ${balanceBefore}`);
-        const withdrawResult = await vaultWithdrawFees(client, {
-          chainId: initialVault.value.chainId,
-          vault: initialVault.value.address,
-          sendTo: evmAddress(organization.account!.address),
-          amount: { max: true },
-        })
-          .andThen(sendWith(organization))
-          .andTee((tx) => annotate(`tx to withdraw fees: ${tx.txHash}`))
-          .andThen(client.waitForTransaction);
-        assertOk(withdrawResult);
+          );
+          annotate(
+            `totalFeeRevenue: ${vaultInfoBefore.value?.totalFeeRevenue.amount.raw}`,
+          );
+          expect(totalFeeRevenue).toBeGreaterThan(0);
 
-        const balanceAfter = await getBalance(
-          evmAddress(organization.account!.address),
-          initialVault.value?.usedReserve.aToken.address,
-        );
-        annotate(`balance after: ${balanceAfter}`);
-        expect(balanceAfter * 10 ** 18).toBeGreaterThan(
-          balanceBefore * 10 ** 18,
-        );
-      }, 50_000);
+          const recipient1Balance = await getBalance(
+            evmAddress(recipient1.account!.address),
+            initialVault.value?.usedReserve.aToken.address,
+          );
+          expect(recipient1Balance).toBeCloseTo(totalFeeRevenue / 2, 1);
+
+          const recipient2Balance = await getBalance(
+            evmAddress(recipient2.account!.address),
+            initialVault.value?.usedReserve.aToken.address,
+          );
+          expect(recipient2Balance).toBeCloseTo(totalFeeRevenue / 2, 1);
+        }, 50_000);
+      });
     });
 
     describe('When the user redeems partial amount of their shares', () => {

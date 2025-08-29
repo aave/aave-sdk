@@ -680,6 +680,8 @@ enum OperationType {
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
   LIQUIDATION
+  REVENUE_SPLITTER_OWNER_DEPLOYED
+  REVENUE_SPLITTER_RECIPIENT_SET
 }
 
 enum OrderDirection {
@@ -939,6 +941,24 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): TransactionRequest!
+}
+
+type RecipientPercent {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """
+  Percentage of the fee that will be sent to the recipient, expressed in basis points.
+  """
+  percent: PercentValue!
+}
+
+input RecipientPercentInput {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """Percentage of the fee that will be sent to the recipient."""
+  percent: BigDecimal!
 }
 
 input RepayAmountInput @oneOf {
@@ -1232,6 +1252,9 @@ type ReserveUserState {
 input SavingsGhoBalanceRequest {
   """The user to query the savings GHO balance"""
   user: EvmAddress!
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SavingsGhoDepositRequest {
@@ -1245,6 +1268,9 @@ input SavingsGhoDepositRequest {
   The address to which saving GHO shares will be minted to - defaults to `depositor`.
   """
   recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SavingsGhoWithdrawAmount @oneOf {
@@ -1266,6 +1292,9 @@ input SavingsGhoWithdrawRequest {
 
   """The address to which GHO will be minted to - defaults to `depositor`."""
   recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
 }
 
 input SayingsGhoDepositAmountInput {
@@ -1699,9 +1728,6 @@ type Vault {
   """The vault address"""
   address: EvmAddress!
 
-  """The owner of the vault"""
-  owner: EvmAddress!
-
   """The name of the share"""
   shareName: String!
 
@@ -1728,11 +1754,15 @@ type Vault {
   """The user's shares info on the vault"""
   userShares: UserVaultShares
 
+  """The owner of the vault"""
+  owner: EvmAddress!
+
   """The total fees the owner can claim currently for the vault"""
   feesBalance: TokenAmount!
 
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
+  feeRecipients: [RecipientPercent!]!
 }
 
 input VaultDeployRequest {
@@ -1766,6 +1796,12 @@ input VaultDeployRequest {
   The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
   """
   initialLockDeposit: BigDecimal!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  If not provided, the fee revenue will be sent to the owner of the vault.
+  """
+  recipients: [RecipientPercentInput!]
 }
 
 input VaultDepositAmountInput {
