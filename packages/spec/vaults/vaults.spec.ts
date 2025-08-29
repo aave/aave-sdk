@@ -531,7 +531,7 @@ describe('Given the Aave Vaults', () => {
         const organization = createNewWallet();
         const user = createNewWallet();
 
-        it('Then they should receive the expected ERC-20 amount', async ({
+        it('Then recipient should receive the expected ERC-20 amount', async ({
           annotate,
         }) => {
           annotate(`user address: ${user.account!.address}`);
