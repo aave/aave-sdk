@@ -1,5 +1,17 @@
 # @aave/graphql
 
+## 0.6.0
+
+### Minor Changes
+
+- fb93351: **fix:** support for meritClaimRewards query
+- 3eef682: **feat:** Add withdraw/deposit/balance sGHO support
+
+### Patch Changes
+
+- be59081: **fix:** expose `AmountInput` type.
+- 3bcb8b2: **fix:** modify sGHO withdraws to support execution plan
+
 ## 0.5.0
 
 ### Minor Changes
