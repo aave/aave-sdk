@@ -1,4 +1,4 @@
-import { assertOk, chainId, evmAddress } from '@aave/types';
+import { assertOk, bigDecimal, chainId, evmAddress } from '@aave/types';
 import { AaveV3BaseSepolia } from '@bgd-labs/aave-address-book';
 import { createThirdwebClient } from 'thirdweb';
 import { describe, expect, it } from 'vitest';
@@ -34,7 +34,7 @@ describe('Given a ThirdwebClient instance', () => {
     it('Then it should resolve with the expected EIP712Signature object', async () => {
       const result = await permitTypedData(client, {
         currency: usdc,
-        amount: '1',
+        amount: bigDecimal('1'),
         chainId: baseSepolia,
         spender: market,
         owner: evmAddress(import.meta.env.THIRDWEB_TEST_WALLET_ADDRESS),

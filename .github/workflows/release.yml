@@ -29,7 +29,14 @@ jobs:
         with:
           title: '[Release] Candidate'
           commit: 'chore: bumps package versions'
-          branch: release
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify:
+    needs: release
+    if: ${{ needs.release.outputs.pullRequestNumber != '' }}
+    uses: ./.github/workflows/verify.yml
+    secrets: inherit
+    with:
+      run-acceptance: true

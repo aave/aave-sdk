@@ -32,7 +32,7 @@ export function createVault(
     token?: {
       name: string;
       symbol: string;
-      address: string;
+      address: EvmAddress;
     };
     recipients?: {
       address: EvmAddress;

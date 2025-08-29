@@ -21,3 +21,8 @@ export type OrderByUserCriteria = ReturnType<
 export type MarketReservesRequestOrderBy = ReturnType<
   typeof graphql.scalar<'MarketReservesRequestOrderBy'>
 >;
+
+/**
+ * An object describing an amount of tokens either in native or ERC20 format.
+ */
+export type AmountInput = ReturnType<typeof graphql.scalar<'AmountInput'>>;

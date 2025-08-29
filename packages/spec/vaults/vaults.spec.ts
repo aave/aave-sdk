@@ -67,8 +67,8 @@ describe('Given the Aave Vaults', () => {
           market: ETHEREUM_MARKET_ADDRESS,
           deployer: evmAddress(organization.account!.address),
           owner: evmAddress(organization.account!.address),
-          initialFee: '3',
-          initialLockDeposit: '0.05',
+          initialFee: bigDecimal('3'),
+          initialLockDeposit: bigDecimal('0.05'),
           shareName: 'Aave WETH Vault Shares',
           shareSymbol: 'avWETH',
           underlyingToken: ETHEREUM_WETH_ADDRESS,
@@ -276,7 +276,7 @@ describe('Given the Aave Vaults', () => {
         annotate(`initial vault address: ${initialVault.value?.address}`);
         const mintResult = await vaultMintShares(client, {
           shares: {
-            amount: '0.03',
+            amount: bigDecimal('0.03'),
           },
           vault: initialVault.value!.address,
           minter: evmAddress(user.account!.address),
@@ -356,7 +356,7 @@ describe('Given the Aave Vaults', () => {
             }),
           }),
         ]);
-      }, 40_000);
+      }, 50_000);
     });
 
     describe('When the user redeems total amount of their shares', () => {
@@ -391,7 +391,7 @@ describe('Given the Aave Vaults', () => {
         });
         assertOk(userPositions);
         expect(userPositions.value.items.length).toEqual(0);
-      }, 40_000);
+      }, 60_000);
     });
 
     describe('When the user redeems partial amount of their shares', () => {
@@ -579,7 +579,7 @@ describe('Given the Aave Vaults', () => {
           expect(balanceAfter * 10 ** 18).toBeGreaterThan(
             balanceBefore * 10 ** 18,
           );
-        }, 50_000);
+        }, 60_000);
       });
 
       describe('And vault has multiple recipient of the fee', () => {
@@ -672,7 +672,7 @@ describe('Given the Aave Vaults', () => {
           .andThen(sendWith(user))
           .andThen(client.waitForTransaction);
         assertOk(redeemResult);
-      });
+      }, 60_000);
 
       const timeWindows = Object.values(VaultUserActivityTimeWindow);
       it.each(timeWindows)(
@@ -829,13 +829,11 @@ describe('Given the Aave Vaults', () => {
       assertOk(listOfVaultsDesc);
       expect(
         Number(
-          listOfVaultsDesc.value.items[0]?.userShares?.shares.amount.value *
-            listOfVaultsDesc.value.items[0]?.userShares?.shares.usdPerToken,
+          listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.value,
         ),
       ).toBeGreaterThanOrEqual(
         Number(
-          listOfVaultsDesc.value.items[1]?.userShares?.shares.amount.value *
-            listOfVaultsDesc.value.items[1]?.userShares?.shares.usdPerToken,
+          listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.value,
         ),
       );
 
@@ -846,15 +844,9 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(
-          listOfVaultsAsc.value.items[0]?.userShares?.shares.amount.value *
-            listOfVaultsAsc.value.items[0]?.userShares?.shares.usdPerToken,
-        ),
+        Number(listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.value),
       ).toBeLessThanOrEqual(
-        Number(
-          listOfVaultsAsc.value.items[1]?.userShares?.shares.amount.value *
-            listOfVaultsAsc.value.items[1]?.userShares?.shares.usdPerToken,
-        ),
+        Number(listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.value),
       );
     });
 

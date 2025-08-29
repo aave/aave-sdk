@@ -1,4 +1,6 @@
 {
+  // This root tsconfig is solely used for IDE support, it is not used for building the project.
+  // See the tsconfig.build.json file for the actual build configuration of each package.
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "skipLibCheck": true, // Important for ambient types (e.g., vite-env.d.ts) to work
@@ -15,5 +17,5 @@
     }
   },
   "include": ["**/*.ts"],
-  "exclude": ["dist", "node_modules", "examples"]
+  "exclude": ["dist", "node_modules", "examples", "templates"]
 }

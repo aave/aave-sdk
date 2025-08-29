@@ -27,7 +27,10 @@ describe('Given Aave Market', () => {
             chainId: ETHEREUM_FORK_ID,
             sender: evmAddress(wallet.account!.address),
             amount: {
-              erc20: { currency: ETHEREUM_WETH_ADDRESS, value: '0.01' },
+              erc20: {
+                currency: ETHEREUM_WETH_ADDRESS,
+                value: bigDecimal('0.01'),
+              },
             },
           })
             .andThen(sendWith(wallet))

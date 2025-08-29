@@ -7,7 +7,6 @@ import {
   SavingsGhoWithdrawQuery,
   type SavingsGhoWithdrawRequest,
   type TokenAmount,
-  type TransactionRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../client';
@@ -42,7 +41,7 @@ export function savingsGhoBalance(
  *     exact: '1000',
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * }).andThen(sendWith(wallet))
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -59,7 +58,7 @@ export function savingsGhoBalance(
 export function savingsGhoWithdraw(
   client: AaveClient,
   request: SavingsGhoWithdrawRequest,
-): ResultAsync<TransactionRequest, UnexpectedError> {
+): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(SavingsGhoWithdrawQuery, { request });
 }
 
@@ -72,7 +71,7 @@ export function savingsGhoWithdraw(
  *     value: '1000',
  *   },
  *   depositor: evmAddress('0x9abc…'),
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * }).andThen(sendWith(wallet))
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.

@@ -62,7 +62,7 @@ describe('Given an Aave Market', () => {
             amount: {
               erc20: {
                 currency: ETHEREUM_USDC_ADDRESS,
-                value: '100',
+                value: bigDecimal('100'),
               },
             },
           }),
@@ -132,7 +132,7 @@ describe('Given an Aave Market', () => {
             chainId: ETHEREUM_FORK_ID,
             sender: evmAddress(wallet.account!.address),
             amount: {
-              native: '0.5',
+              native: bigDecimal('0.5'),
             },
           }),
         );

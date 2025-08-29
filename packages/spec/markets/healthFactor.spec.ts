@@ -1,4 +1,4 @@
-import { assertOk, evmAddress } from '@aave/client';
+import { assertOk, bigDecimal, evmAddress } from '@aave/client';
 import { healthFactorPreview, userMarketState } from '@aave/client/actions';
 import {
   client,
@@ -31,7 +31,7 @@ describe('Given the Aave client', () => {
               amount: {
                 erc20: {
                   currency: ETHEREUM_USDC_ADDRESS,
-                  value: '10',
+                  value: bigDecimal('10'),
                 },
               },
             },
