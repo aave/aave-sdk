@@ -32,3 +32,11 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  verify:
+    needs: release
+    if: ${{ needs.release.outputs.pullRequestNumber != '' }}
+    uses: ./.github/workflows/verify.yml
+    secrets: inherit
+    with:
+      run-acceptance: true
