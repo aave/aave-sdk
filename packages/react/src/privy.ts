@@ -134,7 +134,7 @@ export function useSendTransaction(): UseAsyncTask<
 
         return sendTransactionAndWait(walletClient, request);
       })
-      .andThen(client.waitForTransaction);
+      .andThen(client.waitForSupportedTransaction);
   });
 }
 

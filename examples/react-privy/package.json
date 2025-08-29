@@ -8,7 +8,8 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@aave/react": "workspace:*",
+    "@aave/react": "latest",
+    "@bgd-labs/aave-address-book": "^4.25.3",
     "@privy-io/react-auth": "^2.20.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

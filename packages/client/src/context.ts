@@ -7,6 +7,7 @@ import { FragmentResolver } from './fragments';
  */
 export type Context = {
   environment: EnvironmentConfig;
+  headers?: Record<string, string>;
   cache: boolean;
   debug: boolean;
   fragments: FragmentResolver;
@@ -18,6 +19,7 @@ export type Context = {
 export function configureContext(from: ClientConfig): Context {
   return {
     environment: from.environment ?? production,
+    headers: from.headers,
     cache: from.cache ?? false,
     debug: from.debug ?? false,
     fragments: FragmentResolver.from(from.fragments ?? []),

@@ -43,6 +43,7 @@ export const NativeCurrencyFragment = graphql(
     symbol
     decimals
     chainId
+    wrappedToken
   }`,
 );
 export type NativeCurrency = FragmentOf<typeof NativeCurrencyFragment>;

@@ -15,8 +15,8 @@ export const HealthQuery = graphql(
  * @internal
  */
 export const ChainsQuery = graphql(
-  `query Chains {
-    value: chains {
+  `query Chains($filter: ChainsFilter!) {
+    value: chains(filter: $filter) {
       ...Chain
     }
   }`,
@@ -27,10 +27,13 @@ export const ChainsQuery = graphql(
  * @internal
  */
 export const HasProcessedKnownTransactionQuery = graphql(
-  `query HasProcessedKnownTransaction($txHash: TxHash!) {
-    value: hasProcessedKnownTransaction(txHash: $txHash)
+  `query HasProcessedKnownTransaction($request: HasProcessedKnownTransactionRequest!) {
+    value: hasProcessedKnownTransaction(request: $request)
   }`,
 );
+export type HasProcessedKnownTransactionRequest = RequestOf<
+  typeof HasProcessedKnownTransactionQuery
+>;
 
 export const UsdExchangeRateFragment = graphql(
   `fragment UsdExchangeRate on UsdExchangeRate {
@@ -56,3 +59,26 @@ export const UsdExchangeRatesQuery = graphql(
   [UsdExchangeRateFragment],
 );
 export type UsdExchangeRatesRequest = RequestOf<typeof UsdExchangeRatesQuery>;
+
+export const HealthFactorPreviewResponseFragment = graphql(
+  `fragment HealthFactorPreviewResponse on HealthFactorPreviewResponse {
+    __typename
+    before
+    after
+  }`,
+);
+export type HealthFactorPreviewResponse = FragmentOf<
+  typeof HealthFactorPreviewResponseFragment
+>;
+
+export const HealthFactorPreviewQuery = graphql(
+  `query HealthFactorPreview($request: HealthFactorPreviewRequest!) {
+    value: healthFactorPreview(request: $request) {
+      ...HealthFactorPreviewResponse
+    }
+  }`,
+  [HealthFactorPreviewResponseFragment],
+);
+export type HealthFactorPreviewRequest = RequestOf<
+  typeof HealthFactorPreviewQuery
+>;

@@ -2,6 +2,8 @@ import { resolve } from 'node:path';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+
 export default defineConfig({
   root: './',
   test: {
@@ -10,12 +12,22 @@ export default defineConfig({
     env: loadEnv('', process.cwd(), ''),
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    reporters: ['json', 'github-actions', 'html', 'default'],
+    reporters: isCI
+      ? ['json', 'github-actions', 'default', 'html']
+      : ['default', 'html'],
     outputFile: {
       json: 'reports/test-results.json',
       html: 'reports/index.html',
     },
     projects: [
+      {
+        extends: true,
+        test: {
+          name: 'spec',
+          include: ['packages/spec/**/*.spec.ts'],
+          environment: 'node',
+        },
+      },
       {
         extends: true,
         test: {

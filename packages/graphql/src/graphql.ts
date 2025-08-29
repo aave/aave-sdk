@@ -19,7 +19,15 @@ import {
   type TadaDocumentNode,
 } from 'gql.tada';
 import type { StandardData } from './common';
-import type { OrderDirection, PageSize, TimeWindow } from './enums';
+import type {
+  ChainsFilter,
+  OperationType,
+  OrderDirection,
+  PageSize,
+  TimeWindow,
+  VaultUserActivityTimeWindow,
+  VaultUserHistoryAction,
+} from './enums';
 import type { introspection } from './graphql-env';
 
 export type { FragmentOf } from 'gql.tada';
@@ -33,6 +41,7 @@ export const graphql = initGraphQLTada<{
     BigInt: BigIntString;
     BlockchainData: BlockchainData;
     Boolean: boolean;
+    ChainsFilter: ChainsFilter;
     ChainId: ChainId;
     Cursor: Cursor;
     DateTime: DateTime;
@@ -41,6 +50,7 @@ export const graphql = initGraphQLTada<{
     Float: number;
     ID: ID;
     Int: number;
+    OperationType: OperationType;
     OrderDirection: OrderDirection;
     PageSize: PageSize;
     Signature: Signature;
@@ -48,6 +58,8 @@ export const graphql = initGraphQLTada<{
     TxHash: TxHash;
     Void: Void;
     TimeWindow: TimeWindow;
+    VaultUserHistoryAction: VaultUserHistoryAction;
+    VaultUserActivityTimeWindow: VaultUserActivityTimeWindow;
   };
 }>();
 

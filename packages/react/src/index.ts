@@ -2,6 +2,8 @@ export * from '@aave/client';
 
 export * from './AaveProvider';
 export { useAaveClient } from './context';
+export * from './gho';
+export * from './incentives';
 export * from './markets';
 export * from './misc';
 export * from './reserves';

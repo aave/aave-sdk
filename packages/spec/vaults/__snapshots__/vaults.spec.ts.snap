@@ -1,0 +1,269 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Given the Aave Vaults > And a deployed organization vault > When the user redeems partial amount of their shares > Then the user's vault activity can be fetched for the time window LAST_MONTH 1`] = `
+{
+  "__typename": "VaultUserActivityResult",
+  "breakdown": [
+    {
+      "__typename": "VaultUserActivityItem",
+      "balance": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.02, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "date": Any<String>,
+      "deposited": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "50000000000000000",
+          "value": "0.05",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "earned": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.03, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "withdrew": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "30000000000000000",
+          "value": "0.03",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+    },
+  ],
+  "earned": {
+    "__typename": "TokenAmount",
+    "amount": {
+      "__typename": "DecimalValue",
+      "decimals": 18,
+      "raw": Any<String>,
+      "value": toBeBigDecimalCloseTo<0.03, 4>,
+    },
+    "usd": Any<String>,
+    "usdPerToken": Any<String>,
+  },
+}
+`;
+
+exports[`Given the Aave Vaults > And a deployed organization vault > When the user redeems partial amount of their shares > Then the user's vault activity can be fetched for the time window LAST_WEEK 1`] = `
+{
+  "__typename": "VaultUserActivityResult",
+  "breakdown": [
+    {
+      "__typename": "VaultUserActivityItem",
+      "balance": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.02, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "date": Any<String>,
+      "deposited": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "50000000000000000",
+          "value": "0.05",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "earned": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.03, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "withdrew": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "30000000000000000",
+          "value": "0.03",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+    },
+  ],
+  "earned": {
+    "__typename": "TokenAmount",
+    "amount": {
+      "__typename": "DecimalValue",
+      "decimals": 18,
+      "raw": Any<String>,
+      "value": toBeBigDecimalCloseTo<0.03, 4>,
+    },
+    "usd": Any<String>,
+    "usdPerToken": Any<String>,
+  },
+}
+`;
+
+exports[`Given the Aave Vaults > And a deployed organization vault > When the user redeems partial amount of their shares > Then the user's vault activity can be fetched for the time window LAST_YEAR 1`] = `
+{
+  "__typename": "VaultUserActivityResult",
+  "breakdown": [
+    {
+      "__typename": "VaultUserActivityItem",
+      "balance": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.02, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "date": Any<String>,
+      "deposited": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "50000000000000000",
+          "value": "0.05",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "earned": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.03, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "withdrew": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "30000000000000000",
+          "value": "0.03",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+    },
+  ],
+  "earned": {
+    "__typename": "TokenAmount",
+    "amount": {
+      "__typename": "DecimalValue",
+      "decimals": 18,
+      "raw": Any<String>,
+      "value": toBeBigDecimalCloseTo<0.03, 4>,
+    },
+    "usd": Any<String>,
+    "usdPerToken": Any<String>,
+  },
+}
+`;
+
+exports[`Given the Aave Vaults > And a deployed organization vault > When the user redeems partial amount of their shares > Then the user's vault activity can be fetched for the time window MAX 1`] = `
+{
+  "__typename": "VaultUserActivityResult",
+  "breakdown": [
+    {
+      "__typename": "VaultUserActivityItem",
+      "balance": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.02, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "date": Any<String>,
+      "deposited": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "50000000000000000",
+          "value": "0.05",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "earned": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": Any<String>,
+          "value": toBeBigDecimalCloseTo<0.03, 4>,
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+      "withdrew": {
+        "__typename": "TokenAmount",
+        "amount": {
+          "__typename": "DecimalValue",
+          "decimals": 18,
+          "raw": "30000000000000000",
+          "value": "0.03",
+        },
+        "usd": Any<String>,
+        "usdPerToken": Any<String>,
+      },
+    },
+  ],
+  "earned": {
+    "__typename": "TokenAmount",
+    "amount": {
+      "__typename": "DecimalValue",
+      "decimals": 18,
+      "raw": Any<String>,
+      "value": toBeBigDecimalCloseTo<0.03, 4>,
+    },
+    "usd": Any<String>,
+    "usdPerToken": Any<String>,
+  },
+}
+`;

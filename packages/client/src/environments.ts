@@ -1,5 +1,3 @@
-import { never } from '@aave/types';
-
 /**
  * The environment configuration type.
  */
@@ -13,14 +11,12 @@ export type EnvironmentConfig = {
 /**
  * The production environment configuration.
  */
-export const production: EnvironmentConfig = new Proxy<EnvironmentConfig>(
-  {} as EnvironmentConfig,
-  {
-    get: () => {
-      never(`The 'production' environment is not available (yet)`);
-    },
-  },
-);
+export const production: EnvironmentConfig = {
+  name: 'production',
+  backend: 'https://api.v3.aave.com/graphql',
+  indexingTimeout: 60_000,
+  pollingInterval: 100,
+};
 
 /**
  * @internal

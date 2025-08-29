@@ -16,7 +16,11 @@ import type { PrivyClient } from '@privy-io/server-auth';
 import { createPublicClient, http } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { SigningError, type TransactionError, ValidationError } from './errors';
-import type { ExecutionPlanHandler, PermitHandler } from './types';
+import type {
+  ExecutionPlanHandler,
+  PermitHandler,
+  TransactionExecutionResult,
+} from './types';
 import { supportedChains, transactionError } from './viem';
 
 async function sendTransaction(
@@ -38,14 +42,11 @@ async function sendTransaction(
   return txHash(hash);
 }
 
-/**
- * @internal
- */
 function sendTransactionAndWait(
   privy: PrivyClient,
   request: TransactionRequest,
   walletId: string,
-): ResultAsync<TxHash, SigningError | TransactionError> {
+): ResultAsync<TransactionExecutionResult, SigningError | TransactionError> {
   // TODO: verify it's on the correct chain, ask to switch if possible
   // TODO: verify if wallet account is correct, switch if possible
   const publicClient = createPublicClient({
@@ -73,7 +74,10 @@ function sendTransactionAndWait(
           transactionError(supportedChains[request.chainId], hash, request),
         );
       }
-      return okAsync(hash);
+      return okAsync({
+        txHash: hash,
+        operation: request.operation,
+      });
     });
 }
 
@@ -89,7 +93,7 @@ export function sendWith(
   return (
     result: ExecutionPlan,
   ): ResultAsync<
-    TxHash,
+    TransactionExecutionResult,
     SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
     switch (result.__typename) {

@@ -46,7 +46,11 @@ import {
   zksync,
 } from 'viem/chains';
 import { SigningError, TransactionError, ValidationError } from './errors';
-import type { ExecutionPlanHandler, PermitHandler } from './types';
+import type {
+  ExecutionPlanHandler,
+  PermitHandler,
+  TransactionExecutionResult,
+} from './types';
 
 // Other chains
 const sonic: Chain = defineChain({
@@ -130,12 +134,9 @@ export function transactionError(
   request: TransactionRequest,
 ): TransactionError {
   const baseUrl = chain?.blockExplorers?.default?.url;
-  const link = baseUrl ? `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}` : null;
-  const message = link
-    ? `Transaction failed: ${txHash}\n→ View on explorer: ${link}`
-    : `Transaction failed: ${txHash}`;
+  const link = baseUrl && `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}`;
 
-  return new TransactionError(message, request);
+  return TransactionError.new({ txHash, request, link });
 }
 
 /**
@@ -144,7 +145,7 @@ export function transactionError(
 export function sendTransactionAndWait(
   walletClient: WalletClient,
   request: TransactionRequest,
-): ResultAsync<TxHash, SigningError | TransactionError> {
+): ResultAsync<TransactionExecutionResult, SigningError | TransactionError> {
   // TODO: verify it's on the correct chain, ask to switch if possible
   // TODO: verify if wallet account is correct, switch if possible
 
@@ -166,7 +167,10 @@ export function sendTransactionAndWait(
       if (receipt.status === 'reverted') {
         return errAsync(transactionError(walletClient.chain, hash, request));
       }
-      return okAsync(hash);
+      return okAsync({
+        txHash: hash,
+        operation: request.operation,
+      });
     });
 }
 
@@ -179,7 +183,7 @@ export function sendWith(walletClient: WalletClient): ExecutionPlanHandler {
   return (
     result: ExecutionPlan,
   ): ResultAsync<
-    TxHash,
+    TransactionExecutionResult,
     SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
     switch (result.__typename) {

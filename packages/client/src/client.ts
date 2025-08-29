@@ -1,4 +1,7 @@
-import type { StandardData } from '@aave/graphql';
+import type {
+  HasProcessedKnownTransactionRequest,
+  StandardData,
+} from '@aave/graphql';
 import {
   errAsync,
   invariant,
@@ -22,6 +25,10 @@ import type { ClientConfig } from './config';
 import { type Context, configureContext } from './context';
 import { TimeoutError, UnexpectedError } from './errors';
 import { Logger, LogLevel } from './logger';
+import {
+  isHasProcessedKnownTransactionRequest,
+  type TransactionExecutionResult,
+} from './types';
 import { delay } from './utils';
 
 function takeValue<T>({
@@ -50,6 +57,7 @@ export class AaveClient {
       url: context.environment.backend,
       fetchOptions: {
         credentials: 'omit',
+        headers: context.headers,
       },
       exchanges: this.exchanges(),
     });
@@ -377,19 +385,36 @@ export class AaveClient {
   }
 
   /**
+   * @internal
+   */
+  readonly waitForSupportedTransaction = (
+    result: TransactionExecutionResult,
+  ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
+    if (isHasProcessedKnownTransactionRequest(result)) {
+      return this.waitForTransaction(result);
+    }
+    return okAsync(result.txHash);
+  };
+
+  /**
    * Given the transaction hash of an Aave protocol transaction, wait for the transaction to be
    * processed by the Aave v3 API.
    *
    * Returns a {@link TimeoutError} if the transaction is not processed within the expected timeout period.
    *
-   * @param hash - The transaction hash to wait for.
+   * @param result - The transaction execution result to wait for.
    * @returns The transaction hash or a TimeoutError
    */
   readonly waitForTransaction = (
-    txHash: TxHash,
+    result: TransactionExecutionResult,
   ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
+    invariant(
+      isHasProcessedKnownTransactionRequest(result),
+      `Received a transaction result for an untracked operation. Make sure you're following the instructions in the docs.`,
+    );
+
     return ResultAsync.fromPromise(
-      this.pollTransactionStatus(txHash),
+      this.pollTransactionStatus(result),
       (err) => {
         if (err instanceof TimeoutError || err instanceof UnexpectedError) {
           return err;
@@ -399,11 +424,13 @@ export class AaveClient {
     );
   };
 
-  protected async pollTransactionStatus(txHash: TxHash): Promise<TxHash> {
+  protected async pollTransactionStatus(
+    request: HasProcessedKnownTransactionRequest,
+  ): Promise<TxHash> {
     const startedAt = Date.now();
 
     while (Date.now() - startedAt < this.context.environment.indexingTimeout) {
-      const processed = await hasProcessedKnownTransaction(this, txHash).match(
+      const processed = await hasProcessedKnownTransaction(this, request).match(
         (ok) => ok,
         (err) => {
           throw err;
@@ -411,12 +438,14 @@ export class AaveClient {
       );
 
       if (processed) {
-        return txHash;
+        return request.txHash;
       }
 
       await delay(this.context.environment.pollingInterval);
     }
-    throw TimeoutError.from(`Timeout waiting for transaction ${txHash}`);
+    throw TimeoutError.from(
+      `Timeout waiting for transaction ${request.txHash} to be processed.`,
+    );
   }
 
   protected exchanges(): Exchange[] {

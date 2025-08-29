@@ -39,18 +39,30 @@ export const ETHEREUM_FORK_ID = chainId(
   Number.parseInt(import.meta.env.ETHEREUM_TENDERLY_FORK_ID),
 );
 
+export const ETHEREUM_GHO_ADDRESS = evmAddress(
+  '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+);
+
 export const ETHEREUM_WETH_ADDRESS = evmAddress(
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
 );
+
 export const ETHEREUM_USDC_ADDRESS = evmAddress(
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 );
+
 export const ETHEREUM_DAI_ADDRESS = evmAddress(
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 );
+
 export const ETHEREUM_MARKET_ADDRESS = evmAddress(
   '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
+
+export const ETHEREUM_SGHO_ADDRESS = evmAddress(
+  '0x1a88Df1cFe15Af22B3c4c783D4e6F7F9e0C1885d',
+);
+
 export const ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY = 1;
 
 const ETHEREUM_FORK_RPC_URL = import.meta.env.ETHEREUM_TENDERLY_PUBLIC_RPC;
@@ -80,18 +92,18 @@ export const ethereumForkChain: Chain = defineChain({
 
 export const client = AaveClient.create({
   environment,
+  headers: {
+    'x-e2e-tests': import.meta.env.API_X_E2E_TESTS_HEADER,
+  },
 });
 
-export function createNewWallet(): WalletClient {
-  const privateKey = generatePrivateKey();
-  // Log private key to debug test issues
-  console.log(`private key ${privateKey}`);
+export function createNewWallet(privateKey?: `0x${string}`): WalletClient {
+  const privateKeyToUse = privateKey ?? generatePrivateKey();
   const wallet = createWalletClient({
-    account: privateKeyToAccount(privateKey),
+    account: privateKeyToAccount(privateKeyToUse),
     chain: ethereumForkChain,
     transport: http(),
   });
-  console.log(`wallet address ${wallet.account.address}`);
   return wallet;
 }
 
@@ -131,10 +143,15 @@ export function fundNativeAddress(
   const amountHex = `0x${amountInWei.toString(16)}`;
 
   return ResultAsync.fromPromise(
-    publicClient.request<TSetBalanceRpc>({
-      method: 'tenderly_setBalance',
-      params: [[address], amountHex],
-    }),
+    publicClient
+      .request<TSetBalanceRpc>({
+        method: 'tenderly_setBalance',
+        params: [[address], amountHex],
+      })
+      .then(async (res) => {
+        await wait(500); // Temporal fix to avoid tenderly issues with the balance not being set
+        return res;
+      }),
     (err) => UnexpectedError.from(err),
   );
 }
@@ -163,10 +180,15 @@ export function fundErc20Address(
   const amountHex = `0x${amountInSmallestUnit.toString(16)}`;
 
   return ResultAsync.fromPromise(
-    publicClient.request<TSetErc20BalanceRpc>({
-      method: 'tenderly_setErc20Balance',
-      params: [tokenAddress, address, amountHex],
-    }),
+    publicClient
+      .request<TSetErc20BalanceRpc>({
+        method: 'tenderly_setErc20Balance',
+        params: [tokenAddress, address, amountHex],
+      })
+      .then(async (res) => {
+        await wait(500); // Temporal fix to avoid tenderly issues with the balance not being set
+        return res;
+      }),
     (err) => UnexpectedError.from(err),
   );
 }

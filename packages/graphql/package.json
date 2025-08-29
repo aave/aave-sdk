@@ -1,6 +1,6 @@
 {
   "name": "@aave/graphql",
-  "version": "0.0.0",
+  "version": "0.5.0",
   "description": "GraphQL bindings for the Aave API",
   "repository": {
     "directory": "packages/graphql",
@@ -23,9 +23,15 @@
   },
   "typesVersions": {
     "*": {
-      "import": ["./dist/index.d.ts"],
-      "require": ["./dist/index.d.cts"],
-      "test-utils": ["./dist/test-utils.d.ts"]
+      "import": [
+        "./dist/index.d.ts"
+      ],
+      "require": [
+        "./dist/index.d.cts"
+      ],
+      "test-utils": [
+        "./dist/test-utils.d.ts"
+      ]
     }
   },
   "files": [
@@ -45,13 +51,13 @@
   },
   "dependencies": {
     "@aave/types": "workspace:*",
-    "gql.tada": "^1.8.11",
+    "gql.tada": "^1.8.13",
     "graphql": "^16.11.0",
     "type-fest": "^4.41.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.9.2"
   },
   "license": "MIT"
 }

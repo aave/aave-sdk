@@ -9,7 +9,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changeset:
+    name: Changeset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # important: full history, otherwise no common ancestor
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Fetch base branch
+        shell: bash
+        run: |
+          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
+
+      - name: Setup Repository
+        uses: ./.github/actions/setup
+
+      - name: Ensure Changeset Added
+        shell: bash
+        run: pnpm changeset status --since=${{ github.base_ref }}
+
   verify:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    with:
+      run-acceptance: false

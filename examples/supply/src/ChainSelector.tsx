@@ -1,4 +1,9 @@
-import { type Chain, type ChainId, useAaveChains } from '@aave/react';
+import {
+  type Chain,
+  type ChainId,
+  ChainsFilter,
+  useAaveChains,
+} from '@aave/react';
 
 interface ChainSelectorProps {
   initialValue?: ChainId;
@@ -11,7 +16,10 @@ export function ChainSelector({
   onChange: onChainSelect,
   disabled = false,
 }: ChainSelectorProps) {
-  const { data: chains } = useAaveChains({ suspense: true });
+  const { data: chains } = useAaveChains({
+    suspense: true,
+    filter: ChainsFilter.ALL,
+  });
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedChain = chains.find(

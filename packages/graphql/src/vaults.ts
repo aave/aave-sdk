@@ -1,7 +1,10 @@
 import { TokenAmountFragment } from './fragments/common';
 import {
   PaginatedVaultsResultFragment,
+  type PaginatedVaultUserTransactionHistoryResult,
+  PaginatedVaultUserTransactionHistoryResultFragment,
   VaultFragment,
+  VaultUserActivityResultFragment,
 } from './fragments/vaults';
 import { graphql, type RequestOf } from './graphql';
 
@@ -101,3 +104,31 @@ export const VaultPreviewRedeemQuery = graphql(
 export type VaultPreviewRedeemRequest = RequestOf<
   typeof VaultPreviewRedeemQuery
 >;
+
+/**
+ * @internal
+ */
+export const VaultUserTransactionHistoryQuery = graphql(
+  `query VaultUserTransactionHistory($request: VaultUserTransactionHistoryRequest!) {
+    value: vaultUserTransactionHistory(request: $request) {
+      ...PaginatedVaultUserTransactionHistoryResult
+    }
+  }`,
+  [PaginatedVaultUserTransactionHistoryResultFragment],
+);
+export type VaultUserTransactionHistoryRequest = RequestOf<
+  typeof VaultUserTransactionHistoryQuery
+>;
+export type VaultUserTransactionHistoryResult = {
+  value: PaginatedVaultUserTransactionHistoryResult;
+};
+
+export const VaultUserActivityQuery = graphql(
+  `query VaultUserActivity($request: VaultUserActivityRequest!) {
+    value: vaultUserActivity(request: $request) {
+      ...VaultUserActivityResult
+    }
+  }`,
+  [VaultUserActivityResultFragment],
+);
+export type VaultUserActivityRequest = RequestOf<typeof VaultUserActivityQuery>;

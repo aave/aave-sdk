@@ -1,6 +1,11 @@
 name: 'Verify'
 on:
   workflow_call:
+    inputs:
+      run-acceptance:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   lint:
@@ -33,6 +38,9 @@ jobs:
       ETHEREUM_TENDERLY_PUBLIC_RPC: ${{ secrets.ETHEREUM_TENDERLY_PUBLIC_RPC }}
       ETHEREUM_TENDERLY_ADMIN_RPC: ${{ secrets.ETHEREUM_TENDERLY_ADMIN_RPC }}
       ETHEREUM_TENDERLY_BLOCKEXPLORER: ${{ secrets.ETHEREUM_TENDERLY_BLOCKEXPLORER }}
+      API_X_E2E_TESTS_HEADER: ${{ secrets.API_X_E2E_TESTS_HEADER }}
+      THIRDWEB_TEST_SECRET_KEY: ${{ secrets.THIRDWEB_TEST_SECRET_KEY }}
+      THIRDWEB_TEST_WALLET_ADDRESS: ${{ vars.THIRDWEB_TEST_WALLET_ADDRESS }}
 
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +55,15 @@ jobs:
       - name: Run Tests
         shell: bash
         run: pnpm test
+
+      - name: Typecheck Spec
+        shell: bash
+        run: pnpm typecheck:spec
+
+      - name: Run Acceptance Tests
+        if: ${{ inputs.run-acceptance }}
+        shell: bash
+        run: pnpm spec
+
+      
+

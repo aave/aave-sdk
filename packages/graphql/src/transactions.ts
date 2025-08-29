@@ -1,4 +1,8 @@
-import { ExecutionPlanFragment, TransactionRequestFragment } from './fragments';
+import {
+  ExecutionPlanFragment,
+  TokenAmountFragment,
+  TransactionRequestFragment,
+} from './fragments';
 import { graphql, type RequestOf } from './graphql';
 
 /**
@@ -182,3 +186,33 @@ export const LiquidateQuery = graphql(
   [TransactionRequestFragment],
 );
 export type LiquidateRequest = RequestOf<typeof LiquidateQuery>;
+
+/**
+ * @internal
+ */
+export const ApproveBorrowCreditDelegationQuery = graphql(
+  `query ApproveBorrowCreditDelegation($request: ApproveBorrowCreditDelegatorRequest!) {
+    value: approveBorrowCreditDelegation(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type ApproveBorrowCreditDelegatorRequest = RequestOf<
+  typeof ApproveBorrowCreditDelegationQuery
+>;
+
+/**
+ * @internal
+ */
+export const CreditDelegateeAllowanceQuery = graphql(
+  `query CreditDelegateeAllowance($request: CreditDelegateeAmountRequest!) {
+    value: creditDelegateeAllowance(request: $request) {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type CreditDelegateeAmountRequest = RequestOf<
+  typeof CreditDelegateeAllowanceQuery
+>;

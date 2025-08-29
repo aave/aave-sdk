@@ -10,6 +10,9 @@ interface ImportMetaEnv {
   readonly ETHEREUM_TENDERLY_PUBLIC_RPC: string;
   readonly ETHEREUM_TENDERLY_ADMIN_RPC: string;
   readonly ETHEREUM_TENDERLY_BLOCKEXPLORER: string;
+  readonly API_X_E2E_TESTS_HEADER: string;
+  readonly THIRDWEB_TEST_SECRET_KEY: string;
+  readonly THIRDWEB_TEST_WALLET_ADDRESS: string;
 }
 
 interface ImportMeta {

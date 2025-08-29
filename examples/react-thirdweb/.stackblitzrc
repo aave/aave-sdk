@@ -1,0 +1,5 @@
+{
+  "env": {
+    "VITE_THIRDWEB_CLIENT_ID": "b06b1c828091c58ea75f3ce68b448b25"
+  }
+}
