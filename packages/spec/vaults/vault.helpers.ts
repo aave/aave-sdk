@@ -1,4 +1,5 @@
 import {
+  type BigDecimal,
   type EvmAddress,
   evmAddress,
   nonNullable,
@@ -33,6 +34,10 @@ export function createVault(
       symbol: string;
       address: EvmAddress;
     };
+    recipients?: {
+      address: EvmAddress;
+      percent: BigDecimal;
+    }[];
   },
 ): ResultAsync<Vault, Error> {
   return fundErc20Address(
@@ -55,6 +60,7 @@ export function createVault(
         shareName: config?.token?.name ?? 'Aave WETH Vault Shares',
         shareSymbol: config?.token?.symbol ?? 'avWETH',
         underlyingToken: reserve!.underlyingToken.address,
+        recipients: config?.recipients,
       })
         .andThen(sendWith(organization))
         .andThen(client.waitForTransaction)
