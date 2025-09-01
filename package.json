@@ -18,7 +18,7 @@
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
-    "prepublish": "pnpm run build",
+    "prepare": "pnpm run build",
     "publish:results": "tsx scripts/publishResults.ts",
     "release": "pnpm changeset publish",
     "spec": "vitest --project spec",
