@@ -1,16 +1,11 @@
-import type {
-  HasProcessedKnownTransactionRequest,
-  StandardData,
-} from '@aave/graphql';
 import {
+  type AnyVariables,
   errAsync,
   invariant,
   okAsync,
   ResultAsync,
-  type TxHash,
 } from '@aave/types';
 import {
-  type AnyVariables,
   createClient,
   type Exchange,
   fetchExchange,
@@ -19,27 +14,15 @@ import {
   type TypedDocumentNode,
   type Client as UrqlClient,
 } from '@urql/core';
-import { hasProcessedKnownTransaction } from './actions';
 import { BatchQueryBuilder } from './batch';
-import type { ClientConfig } from './config';
-import { type Context, configureContext } from './context';
-import { TimeoutError, UnexpectedError } from './errors';
+import type { Context } from './context';
+import { UnexpectedError } from './errors';
+import { FragmentResolver } from './fragments';
 import { Logger, LogLevel } from './logger';
-import {
-  isHasProcessedKnownTransactionRequest,
-  type TransactionExecutionResult,
-} from './types';
-import { delay } from './utils';
+import type { StandardData } from './types';
+import { takeValue } from './utils';
 
-function takeValue<T>({
-  data,
-  error,
-}: OperationResult<StandardData<T> | undefined, AnyVariables>): T {
-  invariant(data, `Expected a value, got: ${error?.message}`);
-  return data.value;
-}
-
-export class AaveClient {
+export class GqlClient {
   /**
    * @internal
    */
@@ -47,7 +30,10 @@ export class AaveClient {
 
   private readonly logger: Logger;
 
-  private constructor(private readonly context: Context) {
+  private readonly resolver: FragmentResolver;
+
+  protected constructor(protected readonly context: Context) {
+    this.resolver = FragmentResolver.from(context.fragments);
     this.logger = Logger.named(
       this.constructor.name,
       context.debug ? LogLevel.DEBUG : LogLevel.SILENT,
@@ -64,23 +50,6 @@ export class AaveClient {
   }
 
   /**
-   * Create a new instance of the {@link AaveClient}.
-   *
-   * ```ts
-   * const client = AaveClient.create({
-   *   environment: production,
-   *   origin: 'http://example.com',
-   * });
-   * ```
-   *
-   * @param options - The options to configure the client.
-   * @returns The new instance of the client.
-   */
-  static create(options?: ClientConfig): AaveClient {
-    return new AaveClient(configureContext(options ?? {}));
-  }
-
-  /**
    * Execute a GraphQL query operation.
    *
    * @param document - The GraphQL document to execute.
@@ -91,7 +60,7 @@ export class AaveClient {
     document: TypedDocumentNode<StandardData<TValue>, TVariables>,
     variables: TVariables,
   ): ResultAsync<TValue, UnexpectedError> {
-    const query = this.context.fragments.replaceFrom(document);
+    const query = this.resolver.replaceFrom(document);
     return this.resultFrom(this.urql.query(query, variables)).map(takeValue);
   }
 
@@ -111,32 +80,8 @@ export class AaveClient {
     );
   }
 
-  // TODO update example below
   /**
    * Execute a batch of GraphQL query operations.
-   *
-   * @alpha This is an alpha API and may be subject to breaking changes.
-   *
-   * ```ts
-   * const result = await client.batch((c) => [
-   *   fetchAccount(c, { address: evmAddress('0x1234…') }).map(nonNullable),
-   *   fetchBalancesBulk(c, {
-   *     includeNative: true,
-   *     tokens: [
-   *       evmAddress("0x5678…"),
-   *       evmAddress("0x9012…"),
-   *     ],
-   *   }),
-   * ]);
-   *
-   * // const result: Result<
-   * //   [
-   * //     Account,
-   * //     AnyAccountBalance[],
-   * //   ],
-   * //   UnauthenticatedError | UnexpectedError
-   * // >
-   * ```
    *
    * @param cb - The callback with the scoped client to execute the actions with.
    * @returns The results of all queries in the same order as they were added.
@@ -374,7 +319,7 @@ export class AaveClient {
     const combined = ResultAsync.combine(cb(client));
     const [document, variables] = builder.build();
 
-    const query = this.context.fragments.replaceFrom(document);
+    const query = this.resolver.replaceFrom(document);
 
     return this.resultFrom(this.urql.query(query, variables))
       .andTee(({ data, error }) => {
@@ -382,70 +327,6 @@ export class AaveClient {
         builder.resolve(data);
       })
       .andThen(() => combined);
-  }
-
-  /**
-   * @internal
-   */
-  readonly waitForSupportedTransaction = (
-    result: TransactionExecutionResult,
-  ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
-    if (isHasProcessedKnownTransactionRequest(result)) {
-      return this.waitForTransaction(result);
-    }
-    return okAsync(result.txHash);
-  };
-
-  /**
-   * Given the transaction hash of an Aave protocol transaction, wait for the transaction to be
-   * processed by the Aave v3 API.
-   *
-   * Returns a {@link TimeoutError} if the transaction is not processed within the expected timeout period.
-   *
-   * @param result - The transaction execution result to wait for.
-   * @returns The transaction hash or a TimeoutError
-   */
-  readonly waitForTransaction = (
-    result: TransactionExecutionResult,
-  ): ResultAsync<TxHash, TimeoutError | UnexpectedError> => {
-    invariant(
-      isHasProcessedKnownTransactionRequest(result),
-      `Received a transaction result for an untracked operation. Make sure you're following the instructions in the docs.`,
-    );
-
-    return ResultAsync.fromPromise(
-      this.pollTransactionStatus(result),
-      (err) => {
-        if (err instanceof TimeoutError || err instanceof UnexpectedError) {
-          return err;
-        }
-        return UnexpectedError.from(err);
-      },
-    );
-  };
-
-  protected async pollTransactionStatus(
-    request: HasProcessedKnownTransactionRequest,
-  ): Promise<TxHash> {
-    const startedAt = Date.now();
-
-    while (Date.now() - startedAt < this.context.environment.indexingTimeout) {
-      const processed = await hasProcessedKnownTransaction(this, request).match(
-        (ok) => ok,
-        (err) => {
-          throw err;
-        },
-      );
-
-      if (processed) {
-        return request.txHash;
-      }
-
-      await delay(this.context.environment.pollingInterval);
-    }
-    throw TimeoutError.from(
-      `Timeout waiting for transaction ${request.txHash} to be processed.`,
-    );
   }
 
   protected exchanges(): Exchange[] {

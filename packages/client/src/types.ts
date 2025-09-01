@@ -1,4 +1,9 @@
 import type {
+  SigningError,
+  TransactionError,
+  ValidationError,
+} from '@aave/core';
+import type {
   ERC712Signature,
   ExecutionPlan,
   HasProcessedKnownTransactionRequest,
@@ -7,7 +12,6 @@ import type {
   PermitTypedDataResponse,
 } from '@aave/graphql';
 import type { ResultAsync, TxHash } from '@aave/types';
-import type { SigningError, TransactionError, ValidationError } from './errors';
 
 export type TransactionExecutionResult = {
   txHash: TxHash;

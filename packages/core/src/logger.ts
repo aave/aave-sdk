@@ -1,5 +1,8 @@
 type LogMethod = (...args: unknown[]) => void;
 
+/**
+ * @internal
+ */
 export enum LogLevel {
   TRACE = 0,
   DEBUG = 1,
@@ -9,6 +12,9 @@ export enum LogLevel {
   SILENT = 5,
 }
 
+/**
+ * @internal
+ */
 export class Logger {
   private level: LogLevel;
   private name: string;

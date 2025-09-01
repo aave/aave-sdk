@@ -2,7 +2,7 @@ import {
   UserMeritRewardsQuery,
   type UserMeritRewardsRequest,
 } from '@aave/graphql';
-import type { AaveClient } from '../client';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Fetches Merit rewards for a user with the transaction request to claim them.

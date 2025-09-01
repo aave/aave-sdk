@@ -1,9 +1,9 @@
 {
-  "name": "@aave/{{name}}",
+  "name": "@aave/core",
   "version": "0.0.0",
-  "description": "{{description}}",
+  "description": "The shared core across Aave SDKs.",
   "repository": {
-    "directory": "packages/{{name}}",
+    "directory": "packages/core",
     "type": "git",
     "url": "git://github.com/aave/aave-sdk.git"
   },
@@ -28,7 +28,9 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@aave/types": "workspace:*"
+    "@aave/types": "workspace:*",
+    "@urql/core": "^5.2.0",
+    "graphql": "^16.11.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",

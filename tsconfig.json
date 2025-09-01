@@ -6,6 +6,7 @@
     "skipLibCheck": true, // Important for ambient types (e.g., vite-env.d.ts) to work
     "types": ["node"],
     "paths": {
+      "@aave/core": ["./packages/core/src"],
       "@aave/client": ["./packages/client/src"],
       "@aave/client/actions": ["./packages/client/src/actions"],
       "@aave/client/ethers": ["./packages/client/src/ethers"],

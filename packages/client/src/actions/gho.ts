@@ -1,3 +1,4 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type ExecutionPlan,
   SavingsGhoBalanceQuery,
@@ -9,8 +10,7 @@ import {
   type TokenAmount,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Fetches the current sGHO balance for a user.
