@@ -680,8 +680,6 @@ enum OperationType {
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
   LIQUIDATION
-  REVENUE_SPLITTER_OWNER_DEPLOYED
-  REVENUE_SPLITTER_RECIPIENT_SET
 }
 
 enum OrderDirection {
@@ -1762,6 +1760,8 @@ type Vault {
 
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
+
+  """The recipients of the vault revenue"""
   feeRecipients: [RecipientPercent!]!
 }
 

@@ -29,6 +29,7 @@ import {
 import {
   client,
   createNewWallet,
+  ETHEREUM_DAI_ADDRESS,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_USDC_ADDRESS,
@@ -83,9 +84,7 @@ describe('Given the Aave Vaults', () => {
         assertOk(initialVault);
         annotate(`initial vault: ${initialVault.value?.address}`);
 
-        expect(initialVault.value.owner).toEqual(
-          organization.account!.address.toString(),
-        );
+        expect(initialVault.value.owner).toEqual(organization.account!.address);
         expect(initialVault.value.feeRecipients).toEqual([
           expect.objectContaining({
             address: organization.account!.address,
@@ -160,9 +159,7 @@ describe('Given the Aave Vaults', () => {
         assertOk(initialVault);
         annotate(`initial vault: ${initialVault.value?.address}`);
 
-        expect(initialVault.value.owner).toEqual(
-          organization.account!.address.toString(),
-        );
+        expect(initialVault.value.owner).toEqual(organization.account!.address);
         expect(initialVault.value.feeRecipients).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -803,7 +800,12 @@ describe('Given the Aave Vaults', () => {
     beforeAll(async () => {
       const vault1 = await createVault(organization, {
         initialFee: 2.0,
-      }).andThen(mintSharesFromVault(user, 0.03));
+        token: {
+          name: 'Aave GHO Vault Shares',
+          symbol: 'avGHO',
+          address: ETHEREUM_DAI_ADDRESS,
+        },
+      }).andThen(mintSharesFromVault(user, 0.03, ETHEREUM_DAI_ADDRESS));
       assertOk(vault1);
 
       const vault2 = await createVault(organization, {
@@ -827,6 +829,7 @@ describe('Given the Aave Vaults', () => {
       });
 
       assertOk(listOfVaultsDesc);
+
       expect(
         Number(
           listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.value,
@@ -884,7 +887,7 @@ describe('Given the Aave Vaults', () => {
       const listOfVaults = await userVaults(client, {
         user: evmAddress(user.account!.address),
         filters: {
-          underlyingTokens: [ETHEREUM_WETH_ADDRESS],
+          underlyingTokens: [ETHEREUM_DAI_ADDRESS],
         },
       });
 
@@ -893,7 +896,7 @@ describe('Given the Aave Vaults', () => {
         expect.objectContaining({
           usedReserve: expect.objectContaining({
             underlyingToken: expect.objectContaining({
-              address: ETHEREUM_WETH_ADDRESS,
+              address: ETHEREUM_DAI_ADDRESS,
             }),
           }),
         }),
