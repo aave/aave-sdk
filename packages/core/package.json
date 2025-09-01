@@ -28,7 +28,9 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@aave/types": "workspace:*"
+    "@aave/types": "workspace:*",
+    "@urql/core": "^5.2.0",
+    "graphql": "^16.11.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",
