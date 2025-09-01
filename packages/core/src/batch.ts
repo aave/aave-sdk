@@ -1,4 +1,3 @@
-import type { AnyVariables, StandardData } from '@aave/graphql';
 import { Deferred, invariant, never, ResultAsync } from '@aave/types';
 import type { TypedDocumentNode } from '@urql/core';
 import {
@@ -13,6 +12,7 @@ import {
 } from 'graphql';
 
 import { UnexpectedError } from './errors';
+import type { AnyVariables, StandardData } from './types';
 
 interface StoredQuery<TValue, TVariables extends AnyVariables> {
   alias: string;

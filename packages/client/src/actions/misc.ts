@@ -1,3 +1,4 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type Chain,
   ChainsFilter,
@@ -13,8 +14,7 @@ import {
   type UsdExchangeRatesRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Health check query.

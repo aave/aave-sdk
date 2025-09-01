@@ -1,5 +1,12 @@
-import type { TransactionRequest, TypedSelectionSet } from '@aave/graphql';
-import { ResultAwareError, type TxHash } from '@aave/types';
+import {
+  type BigIntString,
+  type BlockchainData,
+  type ChainId,
+  type EvmAddress,
+  ResultAwareError,
+  type TxHash,
+  type TypedSelectionSet,
+} from '@aave/types';
 import type { CombinedError } from '@urql/core';
 
 /**
@@ -38,9 +45,17 @@ export class SigningError extends ResultAwareError {
   name = 'SigningError' as const;
 }
 
+export type UnsignedTransactionRequest = {
+  to: EvmAddress;
+  from: EvmAddress;
+  data: BlockchainData;
+  value: BigIntString;
+  chainId: ChainId;
+};
+
 export type TransactionErrorArgs = {
   txHash: TxHash;
-  request: TransactionRequest;
+  request: UnsignedTransactionRequest;
   link?: string;
 };
 
@@ -50,7 +65,7 @@ export type TransactionErrorArgs = {
 export class TransactionError extends ResultAwareError {
   name = 'TransactionError' as const;
 
-  protected constructor(message: string, cause: TransactionRequest) {
+  protected constructor(message: string, cause: UnsignedTransactionRequest) {
     super(message, { cause });
   }
 
