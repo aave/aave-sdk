@@ -6,7 +6,6 @@ import type {
   Cursor,
   DateTime,
   EvmAddress,
-  FixedBytes32,
   ID,
   Signature,
   TxHash,
@@ -46,7 +45,6 @@ export const graphql = initGraphQLTada<{
     Cursor: Cursor;
     DateTime: DateTime;
     EvmAddress: EvmAddress;
-    FixedBytes32: FixedBytes32;
     Float: number;
     ID: ID;
     Int: number;
