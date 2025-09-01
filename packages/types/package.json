@@ -1,6 +1,6 @@
 {
   "name": "@aave/types",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Core types for the Aave SDK",
   "repository": {
     "directory": "packages/types",

@@ -1,5 +1,14 @@
 # @aave/client
 
+## 0.6.1
+
+### Patch Changes
+
+- 9fbf4bd: **fix:** republish due to CI issue with previous release
+- Updated dependencies [9fbf4bd]
+  - @aave/graphql@0.6.1
+  - @aave/types@0.1.1
+
 ## 0.6.0
 
 ### Minor Changes
