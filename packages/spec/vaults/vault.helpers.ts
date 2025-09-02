@@ -55,7 +55,7 @@ export function createVault(
         market: reserve!.market.address,
         deployer: evmAddress(organization.account!.address),
         owner: evmAddress(organization.account!.address),
-        initialFee: bigDecimal(config?.initialFee ?? '3'),
+        initialFee: bigDecimal(config?.initialFee ?? '10'),
         initialLockDeposit: bigDecimal('0.05'),
         shareName: config?.token?.name ?? 'Aave WETH Vault Shares',
         shareSymbol: config?.token?.symbol ?? 'avWETH',
