@@ -941,6 +941,24 @@ type Query {
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
 }
 
+type RecipientPercent {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """
+  Percentage of the fee that will be sent to the recipient, expressed in basis points.
+  """
+  percent: PercentValue!
+}
+
+input RecipientPercentInput {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """Percentage of the fee that will be sent to the recipient."""
+  percent: BigDecimal!
+}
+
 input RepayAmountInput @oneOf {
   """The native amount"""
   native: BigDecimal
@@ -1708,9 +1726,6 @@ type Vault {
   """The vault address"""
   address: EvmAddress!
 
-  """The owner of the vault"""
-  owner: EvmAddress!
-
   """The name of the share"""
   shareName: String!
 
@@ -1737,11 +1752,17 @@ type Vault {
   """The user's shares info on the vault"""
   userShares: UserVaultShares
 
+  """The owner of the vault"""
+  owner: EvmAddress!
+
   """The total fees the owner can claim currently for the vault"""
   feesBalance: TokenAmount!
 
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
+
+  """The recipients of the vault revenue"""
+  feeRecipients: [RecipientPercent!]!
 }
 
 input VaultDeployRequest {
@@ -1775,6 +1796,12 @@ input VaultDeployRequest {
   The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
   """
   initialLockDeposit: BigDecimal!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  If not provided, the fee revenue will be sent to the owner of the vault.
+  """
+  recipients: [RecipientPercentInput!]
 }
 
 input VaultDepositAmountInput {

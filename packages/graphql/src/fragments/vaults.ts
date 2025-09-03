@@ -3,6 +3,7 @@ import { type FragmentDocumentFor, graphql } from '../graphql';
 import {
   PaginatedResultInfoFragment,
   PercentValueFragment,
+  RecipientPercentFragment,
   TokenAmountFragment,
 } from './common';
 import { ReserveFragment } from './reserve';
@@ -37,6 +38,9 @@ export const VaultFragment = graphql(
     totalFeeRevenue {
       ...TokenAmount
     }
+    feeRecipients {
+       ...RecipientPercent
+    }
     balance {
       ...TokenAmount
     }
@@ -56,6 +60,7 @@ export const VaultFragment = graphql(
     PercentValueFragment,
     TokenAmountFragment,
     UserVaultSharesFragment,
+    RecipientPercentFragment,
   ],
 );
 export type Vault = FragmentOf<typeof VaultFragment>;

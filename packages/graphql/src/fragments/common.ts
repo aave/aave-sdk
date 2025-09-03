@@ -22,6 +22,18 @@ export const PercentValueFragment = graphql(
 );
 export type PercentValue = FragmentOf<typeof PercentValueFragment>;
 
+export const RecipientPercentFragment = graphql(
+  `fragment RecipientPercent on RecipientPercent {
+    __typename
+    address
+    percent {
+      ...PercentValue
+    }
+  }`,
+  [PercentValueFragment],
+);
+export type RecipientPercent = FragmentOf<typeof RecipientPercentFragment>;
+
 export const CurrencyFragment = graphql(
   `fragment Currency on Currency {
     __typename
