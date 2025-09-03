@@ -1,9 +1,9 @@
 {
-  "name": "@aave/types",
-  "version": "0.1.1",
-  "description": "Core types for the Aave SDK",
+  "name": "@aave/core",
+  "version": "0.0.0",
+  "description": "The shared core across Aave SDKs.",
   "repository": {
-    "directory": "packages/types",
+    "directory": "packages/core",
     "type": "git",
     "url": "git://github.com/aave/aave-sdk.git"
   },
@@ -19,24 +19,18 @@
   },
   "typesVersions": {
     "*": {
-      "import": [
-        "./dist/index.d.ts"
-      ],
-      "require": [
-        "./dist/index.d.cts"
-      ]
+      "import": ["./dist/index.d.ts"],
+      "require": ["./dist/index.d.cts"]
     }
   },
-  "files": [
-    "dist"
-  ],
-  "sideEffects": false,
+  "files": ["dist"],
   "scripts": {
     "build": "tsup"
   },
   "dependencies": {
-    "neverthrow": "^8.2.0",
-    "type-fest": "^4.41.0"
+    "@aave/types": "workspace:*",
+    "@urql/core": "^5.2.0",
+    "graphql": "^16.11.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",

@@ -50,26 +50,7 @@ export type Signature = Tagged<HexString, 'Signature'>;
 export const signatureFrom = hexString<Signature>;
 
 /**
- * An RLP-encoded transaction.
- */
-export type EncodedTransaction = Tagged<HexString, 'EncodedTransaction'>;
-
-/**
  * A transaction hash.
  */
 export type TxHash = Tagged<HexString, 'TxHash'>;
 export const txHash = hexString<TxHash>;
-
-/**
- * A fixed 32 bytes long hexadecimal string.
- *
- * Typically the result of a hash function like `keccak256`.
- */
-export type FixedBytes32 = Tagged<HexString, 'FixedBytes32'>;
-export function fixedBytes32(value: string) {
-  invariant(
-    value.length === 66,
-    `FixedBytes32: invalid length ${value.length}`,
-  );
-  return hexString<FixedBytes32>(value);
-}

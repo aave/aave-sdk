@@ -79,6 +79,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@aave/core':
+        specifier: workspace:*
+        version: link:../core
       '@aave/graphql':
         specifier: workspace:*
         version: link:../graphql
@@ -113,6 +116,25 @@ importers:
       viem:
         specifier: ^2.31.6
         version: 2.31.6(bufferutil@4.0.9)(typescript@5.9.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+
+  packages/core:
+    dependencies:
+      '@aave/types':
+        specifier: workspace:*
+        version: link:../types
+      '@urql/core':
+        specifier: ^5.2.0
+        version: 5.2.0(graphql@16.11.0)
+      graphql:
+        specifier: ^16.11.0
+        version: 16.11.0
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(@swc/core@1.13.3(@swc/helpers@0.5.17))(postcss@8.5.6)(tsx@4.20.3)(typescript@5.9.2)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   packages/graphql:
     dependencies:

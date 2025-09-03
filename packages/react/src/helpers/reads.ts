@@ -1,6 +1,5 @@
-import { UnexpectedError } from '@aave/client';
-import type { AnyVariables, StandardData } from '@aave/graphql';
-import { invariant } from '@aave/types';
+import { type StandardData, UnexpectedError } from '@aave/client';
+import { type AnyVariables, invariant } from '@aave/types';
 import { useMemo } from 'react';
 import { type TypedDocumentNode, useQuery } from 'urql';
 import {

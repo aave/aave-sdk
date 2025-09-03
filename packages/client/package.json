@@ -1,6 +1,6 @@
 {
   "name": "@aave/client",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "The official JavaScript client for the Aave API",
   "repository": {
     "directory": "packages/client",
@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "@aave/graphql": "workspace:*",
+    "@aave/core": "workspace:*",
     "@aave/types": "workspace:*",
     "@urql/core": "^5.2.0",
     "graphql": "^16.11.0"

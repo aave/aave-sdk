@@ -1,12 +1,4 @@
-/**
- * The environment configuration type.
- */
-export type EnvironmentConfig = {
-  name: string;
-  backend: string;
-  indexingTimeout: number;
-  pollingInterval: number;
-};
+import type { EnvironmentConfig } from '@aave/core';
 
 /**
  * The production environment configuration.

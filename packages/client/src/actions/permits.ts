@@ -1,11 +1,11 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   PermitTypedDataQuery,
   type PermitTypedDataRequest,
   type PermitTypedDataResponse,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Generates EIP-712 typed data for ERC-20 permit signature.

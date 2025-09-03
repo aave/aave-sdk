@@ -1,3 +1,4 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type PaginatedVaultsResult,
   type PaginatedVaultUserTransactionHistoryResult,
@@ -24,8 +25,7 @@ import {
   type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Fetches a specific vault by address and chain ID.
