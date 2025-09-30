@@ -1,6 +1,6 @@
 {
   "name": "@aave/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "The shared core across Aave SDKs.",
   "repository": {
     "directory": "packages/core",
@@ -19,11 +19,17 @@
   },
   "typesVersions": {
     "*": {
-      "import": ["./dist/index.d.ts"],
-      "require": ["./dist/index.d.cts"]
+      "import": [
+        "./dist/index.d.ts"
+      ],
+      "require": [
+        "./dist/index.d.cts"
+      ]
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup"
   },
