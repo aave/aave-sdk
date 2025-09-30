@@ -397,13 +397,13 @@ describe('Given the Aave Vaults', () => {
         });
         assertOk(vaultInfoBefore);
         annotate(
-          `totalFeeRevenue: ${Number(
-            vaultInfoBefore.value?.totalFeeRevenue.amount.value,
-          )}`,
+          `totalFeeRevenue: ${
+            vaultInfoBefore.value?.totalFeeRevenue.amount.value
+          }`,
         );
         expect(
-          Number(vaultInfoBefore.value?.totalFeeRevenue.amount.value),
-        ).toBeGreaterThan(0);
+          vaultInfoBefore.value?.totalFeeRevenue.amount.value,
+        ).toBeBigDecimalGreaterThan('0');
         const balanceBefore = await getBalance(
           evmAddress(organization.account!.address),
           initialVault.value?.usedReserve.aToken.address,
@@ -425,9 +425,7 @@ describe('Given the Aave Vaults', () => {
           initialVault.value?.usedReserve.aToken.address,
         );
         annotate(`balance after: ${balanceAfter}`);
-        expect(balanceAfter * 10 ** 18).toBeGreaterThan(
-          balanceBefore * 10 ** 18,
-        );
+        expect(balanceAfter).toBeGreaterThan(balanceBefore);
       }, 60_000);
     });
 
@@ -609,13 +607,9 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsDesc);
       expect(
-        Number(
-          listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.value,
-        ),
-      ).toBeGreaterThanOrEqual(
-        Number(
-          listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.value,
-        ),
+        listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.raw,
+      ).toBeBigDecimalGreaterThan(
+        listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.raw,
       );
 
       const listOfVaultsAsc = await userVaults(client, {
@@ -625,9 +619,9 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.value),
-      ).toBeLessThanOrEqual(
-        Number(listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.value),
+        listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.raw,
+      ).toBeBigDecimalGreaterThan(
+        listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.raw,
       );
     });
 
@@ -642,10 +636,8 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsDesc);
       expect(
-        Number(listOfVaultsDesc.value.items[0]?.fee.value),
-      ).toBeGreaterThanOrEqual(
-        Number(listOfVaultsDesc.value.items[1]?.fee.value),
-      );
+        listOfVaultsDesc.value.items[0]?.fee.value,
+      ).toBeBigDecimalGreaterThan(listOfVaultsDesc.value.items[1]?.fee.value);
 
       const listOfVaultsAsc = await userVaults(client, {
         user: evmAddress(user.account!.address),
@@ -654,8 +646,8 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]?.fee.value),
-      ).toBeLessThanOrEqual(Number(listOfVaultsAsc.value.items[1]?.fee.value));
+        listOfVaultsAsc.value.items[1]?.fee.value,
+      ).toBeBigDecimalGreaterThan(listOfVaultsAsc.value.items[0]?.fee.value);
     });
 
     it('Then it should be possible so filter them by underlying tokens', async ({
