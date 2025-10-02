@@ -1,3 +1,4 @@
+import { TransactionRequestFragment } from './fragments';
 import { TokenAmountFragment } from './fragments/common';
 import {
   PaginatedVaultsResultFragment,
@@ -123,6 +124,9 @@ export type VaultUserTransactionHistoryResult = {
   value: PaginatedVaultUserTransactionHistoryResult;
 };
 
+/**
+ * @internal
+ */
 export const VaultUserActivityQuery = graphql(
   `query VaultUserActivity($request: VaultUserActivityRequest!) {
     value: vaultUserActivity(request: $request) {
@@ -132,3 +136,48 @@ export const VaultUserActivityQuery = graphql(
   [VaultUserActivityResultFragment],
 );
 export type VaultUserActivityRequest = RequestOf<typeof VaultUserActivityQuery>;
+
+/**
+ * @internal
+ */
+export const vaultTransferOwnershipQuery = graphql(
+  `query VaultTransferOwnership($request: VaultTransferOwnershipRequest!) {
+    value: vaultTransferOwnership(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultTransferOwnershipRequest = RequestOf<
+  typeof vaultTransferOwnershipQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultDeployRevenueSplitterQuery = graphql(
+  `query VaultDeployRevenueSplitter($request: VaultDeployRevenueSplitterRequest!) {
+    value: vaultDeployRevenueSplitter(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultDeployRevenueSplitterRequest = RequestOf<
+  typeof vaultDeployRevenueSplitterQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultSetRevenueSplitterQuery = graphql(
+  `query VaultSetRevenueSplitter($request: VaultSetRevenueSplitterRequest!) {
+    value: vaultSetRevenueSplitter(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultSetRevenueSplitterRequest = RequestOf<
+  typeof vaultSetRevenueSplitterQuery
+>;

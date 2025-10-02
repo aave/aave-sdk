@@ -3,9 +3,11 @@ import {
   type PaginatedVaultsResult,
   type PaginatedVaultUserTransactionHistoryResult,
   type TokenAmount,
+  type TransactionRequest,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
+  type VaultDeployRevenueSplitterRequest,
   VaultPreviewDepositQuery,
   type VaultPreviewDepositRequest,
   VaultPreviewMintQuery,
@@ -16,13 +18,18 @@ import {
   type VaultPreviewWithdrawRequest,
   VaultQuery,
   type VaultRequest,
+  type VaultSetRevenueSplitterRequest,
   VaultsQuery,
   type VaultsRequest,
+  type VaultTransferOwnershipRequest,
   VaultUserActivityQuery,
   type VaultUserActivityRequest,
   type VaultUserActivityResult,
   VaultUserTransactionHistoryQuery,
   type VaultUserTransactionHistoryRequest,
+  vaultDeployRevenueSplitterQuery,
+  vaultSetRevenueSplitterQuery,
+  vaultTransferOwnershipQuery,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../AaveClient';
@@ -299,6 +306,87 @@ export function vaultUserActivity(
   request: VaultUserActivityRequest,
 ): ResultAsync<VaultUserActivityResult, UnexpectedError> {
   return client.query(VaultUserActivityQuery, {
+    request,
+  });
+}
+
+/**
+ * Creates a transaction to transfer ownership of a vault.
+ *
+ * ```ts
+ * const result = await vaultTransferOwnership(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   newOwner: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault transfer ownership request parameters.
+ * @returns The transaction data for transferring vault ownership.
+ */
+export function vaultTransferOwnership(
+  client: AaveClient,
+  request: VaultTransferOwnershipRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultTransferOwnershipQuery, {
+    request,
+  });
+}
+
+/**
+ * Creates a transaction to deploy a revenue splitter for a vault.
+ *
+ * ```ts
+ * const result = await vaultDeployRevenueSplitter(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   recipients: [
+ *     {
+ *       account: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *       shares: 5000, // 50%
+ *     },
+ *     {
+ *       account: evmAddress('0x9abc123456789012345678901234567890abcdef'),
+ *       shares: 5000, // 50%
+ *     },
+ *   ],
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault deploy revenue splitter request parameters.
+ * @returns The transaction data for deploying a revenue splitter.
+ */
+export function vaultDeployRevenueSplitter(
+  client: AaveClient,
+  request: VaultDeployRevenueSplitterRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultDeployRevenueSplitterQuery, {
+    request,
+  });
+}
+
+/**
+ * Creates a transaction to set the revenue splitter for a vault.
+ *
+ * ```ts
+ * const result = await vaultSetRevenueSplitter(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   revenueSplitter: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault set revenue splitter request parameters.
+ * @returns The transaction data for setting a revenue splitter.
+ */
+export function vaultSetRevenueSplitter(
+  client: AaveClient,
+  request: VaultSetRevenueSplitterRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultSetRevenueSplitterQuery, {
     request,
   });
 }

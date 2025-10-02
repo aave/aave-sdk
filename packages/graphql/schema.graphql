@@ -679,6 +679,9 @@ enum OperationType {
   VAULT_FEE_UPDATED
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
+  VAULT_TRANSFER
+  REVENUE_SPLITTER_OWNER_DEPLOYED
+  REVENUE_SPLITTER_OWNER_TRANSFER
   LIQUIDATION
 }
 
@@ -846,6 +849,23 @@ type Query {
   """
   vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
 
+  """
+  Update a vault owner. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
+
+  """
+  Deploy a new vault revenue spitter. You MUST be the owner of the vault to send this tx request.
+  Once deployed, the splitter must be set using the `vaultSetRecipientsSplitter`
+  """
+  vaultDeployRevenueSplitter(request: VaultDeployRevenueSplitterRequest!): TransactionRequest!
+
+  """
+  Set revenue splitter for the vault. You MUST be the owner of the vault to send this tx request.
+  Must be called after deploying the revenue splitter through `vaultDeployRevenueSplitter.
+  """
+  vaultSetRevenueSplitter(request: VaultSetRevenueSplitterRequest!): TransactionRequest!
+
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
 
@@ -939,6 +959,24 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+}
+
+type RecipientPercent {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """
+  Percentage of the fee that will be sent to the recipient, expressed in basis points.
+  """
+  percent: PercentValue!
+}
+
+input RecipientPercentInput {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """Percentage of the fee that will be sent to the recipient."""
+  percent: BigDecimal!
 }
 
 input RepayAmountInput @oneOf {
@@ -1708,9 +1746,6 @@ type Vault {
   """The vault address"""
   address: EvmAddress!
 
-  """The owner of the vault"""
-  owner: EvmAddress!
-
   """The name of the share"""
   shareName: String!
 
@@ -1737,11 +1772,17 @@ type Vault {
   """The user's shares info on the vault"""
   userShares: UserVaultShares
 
+  """The owner of the vault"""
+  owner: EvmAddress!
+
   """The total fees the owner can claim currently for the vault"""
   feesBalance: TokenAmount!
 
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
+
+  """The recipients of the vault revenue"""
+  feeRecipients: [RecipientPercent!]!
 }
 
 input VaultDeployRequest {
@@ -1775,6 +1816,27 @@ input VaultDeployRequest {
   The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
   """
   initialLockDeposit: BigDecimal!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  If not provided, the fee revenue will be sent to the owner of the vault.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [RecipientPercentInput!]
+}
+
+input VaultDeployRevenueSplitterRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [RecipientPercentInput!]!
 }
 
 input VaultDepositAmountInput {
@@ -1937,6 +1999,28 @@ input VaultSetFeeRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+input VaultSetRevenueSplitterRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The revenue splitter address to set for the vault."""
+  revenueSplitter: EvmAddress!
+}
+
+input VaultTransferOwnershipRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The new vault owner address"""
+  newOwner: EvmAddress!
 }
 
 type VaultUserActivityItem {
