@@ -8,10 +8,12 @@ import {
   supply,
   userSetEmode,
   vaultDeploy,
+  vaultDeployRevenueSplitter,
   vaultDeposit,
   vaultMintShares,
   vaultRedeemShares,
   vaultSetFee,
+  vaultSetRevenueSplitter,
   vaultTransferOwnership,
   vaultWithdraw,
   vaultWithdrawFees,
@@ -28,10 +30,12 @@ import type {
   TransactionRequest,
   UserSetEmodeRequest,
   VaultDeployRequest,
+  VaultDeployRevenueSplitterRequest,
   VaultDepositRequest,
   VaultMintSharesRequest,
   VaultRedeemSharesRequest,
   VaultSetFeeRequest,
+  VaultSetRevenueSplitterRequest,
   VaultTransferOwnershipRequest,
   VaultWithdrawFeesRequest,
   VaultWithdrawRequest,
@@ -632,11 +636,8 @@ export function useVaultWithdrawFees(): UseAsyncTask<
  *
  * // …
  *
- * const result = await transferOwnership({
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   newOwner: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
- * }).andThen(sendTransaction);
+ * const result = await transferOwnership({ ... })
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
  *   console.error(result.error);
@@ -655,6 +656,76 @@ export function useVaultTransferOwnership(): UseAsyncTask<
 
   return useAsyncTask((request: VaultTransferOwnershipRequest) =>
     vaultTransferOwnership(client, request),
+  );
+}
+
+/**
+ * A hook that provides a way to deploy a revenue splitter for a vault.
+ *
+ * ```ts
+ * const [deployRevenueSplitter, deploying] = useVaultDeployRevenueSplitter();
+ * const [sendTransaction, sending] = useSendTransaction(wallet);
+ *
+ * const loading = deploying.loading && sending.loading;
+ * const error = deploying.error || sending.error;
+ *
+ * // …
+ *
+ * const result = await deployRevenueSplitter({ ... })
+ *   .andThen(sendTransaction);
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ *   return;
+ * }
+ *
+ * console.log('Transaction sent with hash:', result.value);
+ * ```
+ */
+export function useVaultDeployRevenueSplitter(): UseAsyncTask<
+  VaultDeployRevenueSplitterRequest,
+  TransactionRequest,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultDeployRevenueSplitterRequest) =>
+    vaultDeployRevenueSplitter(client, request),
+  );
+}
+
+/**
+ * A hook that provides a way to set the revenue splitter for a vault.
+ *
+ * ```ts
+ * const [setRevenueSplitter, setting] = useVaultSetRevenueSplitter();
+ * const [sendTransaction, sending] = useSendTransaction(wallet);
+ *
+ * const loading = setting.loading && sending.loading;
+ * const error = setting.error || sending.error;
+ *
+ * // …
+ *
+ * const result = await setRevenueSplitter({ ... })
+ *   .andThen(sendTransaction);
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ *   return;
+ * }
+ *
+ * console.log('Transaction sent with hash:', result.value);
+ * ```
+ */
+export function useVaultSetRevenueSplitter(): UseAsyncTask<
+  VaultSetRevenueSplitterRequest,
+  TransactionRequest,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultSetRevenueSplitterRequest) =>
+    vaultSetRevenueSplitter(client, request),
   );
 }
 
