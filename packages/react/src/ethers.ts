@@ -1,20 +1,28 @@
 import type {
   SigningError,
+  TimeoutError,
+  TransactionError,
   UnexpectedError,
-  ValidationError,
 } from '@aave/client';
-import { sendTransactionAndWait } from '@aave/client/ethers';
+import { permitTypedData } from '@aave/client/actions';
+import {
+  sendTransactionAndWait,
+  signERC20PermitWith,
+} from '@aave/client/ethers';
 import type {
-  InsufficientBalanceError,
+  ERC712Signature,
+  PermitTypedDataRequest,
   TransactionRequest,
 } from '@aave/graphql';
-import { invariant, type TxHash } from '@aave/types';
+import type { TxHash } from '@aave/types';
 import type { Signer } from 'ethers';
+import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError =
+export type SendTransactionError =
   | SigningError
-  | ValidationError<InsufficientBalanceError>
+  | TimeoutError
+  | TransactionError
   | UnexpectedError;
 
 /**
@@ -40,12 +48,12 @@ export type TransactionError =
  *   const result = await toggle({
  *     chainId: chainId(1), // Ethereum mainnet
  *     market: evmAddress('0x1234…'),
- *     user: evmAddress(account.address!),
+ *     user: evmAddress(await signer.getAddress()),
  *   })
  *     .andThen(sendTransaction);
  *
  *   if (result.isErr()) {
- *     console.error(`Failed to sign the transaction: ${error.message}`);
+ *     console.error(result.error);
  *     return;
  *   }
  *
@@ -68,7 +76,7 @@ export type TransactionError =
  *         value: '42.42',
  *       }
  *     },
- *     supplier: evmAddress(account.address!),
+ *     supplier: evmAddress(await signer.getAddress()),
  *   })
  *     .andThen((plan) => {
  *       switch (plan.__typename) {
@@ -79,34 +87,77 @@ export type TransactionError =
  *           return sendTransaction(plan.approval).andThen(() =>
  *             sendTransaction(plan.originalTransaction),
  *           );
+ *
+ *         case 'InsufficientBalanceError':
+ *           return errAsync(new Error(`Insufficient balance: ${error.cause.required.value} required.`));
  *        }
  *      });
  *
- *    if (result.isErr()) {
- *      switch (error.name) {
- *        case 'SigningError':
- *          console.error(`Failed to sign the transaction: ${error.message}`);
- *          break;
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
  *
- *        case 'ValidationError':
- *          console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *          break;
- *      }
- *      return;
- *    }
- *
- *    console.log('Transaction sent with hash:', result.value);
+ *   console.log('Transaction sent with hash:', result.value);
  * }
  * ```
  *
  * @param signer - The ethers Signer to use for sending transactions.
  */
 export function useSendTransaction(
-  signer: Signer | undefined,
-): UseAsyncTask<TransactionRequest, TxHash, TransactionError> {
-  return useAsyncTask((request: TransactionRequest) => {
-    invariant(signer, 'Expected a Signer to handle the operation result.');
+  signer: Signer,
+): UseAsyncTask<TransactionRequest, TxHash, SendTransactionError> {
+  const client = useAaveClient();
 
-    return sendTransactionAndWait(signer, request);
+  return useAsyncTask((request: TransactionRequest) => {
+    return sendTransactionAndWait(signer, request).andThen(
+      client.waitForSupportedTransaction,
+    );
+  });
+}
+
+export type SignERC20PermitError = SigningError | UnexpectedError;
+
+/**
+ * A hook that provides a way to sign ERC20 permits using an ethers Signer instance.
+ *
+ * ```ts
+ * const provider = new ethers.providers.Web3Provider(window.ethereum);
+ * const signer = provider.getSigner();
+ *
+ * // …
+ *
+ * const [signERC20Permit, { loading, error, data }] = useERC20Permit(signer);
+ *
+ * const run = async () => {
+ *   const result = await signERC20Permit({
+ *     chainId: chainId(1), // Ethereum mainnet
+ *     market: evmAddress('0x1234…'),
+ *     underlyingToken: evmAddress('0x5678…'),
+ *     amount: '42.42',
+ *     spender: evmAddress('0x9abc…'),
+ *     owner: evmAddress(await signer.getAddress()),
+ *   });
+ *
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
+ *
+ *   console.log('ERC20 permit signed:', result.value);
+ * };
+ * ```
+ *
+ * @param signer - The ethers Signer to use for signing ERC20 permits.
+ */
+export function useERC20Permit(
+  signer: Signer,
+): UseAsyncTask<PermitTypedDataRequest, ERC712Signature, SignERC20PermitError> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: PermitTypedDataRequest) => {
+    return permitTypedData(client, request).andThen(
+      signERC20PermitWith(signer),
+    );
   });
 }

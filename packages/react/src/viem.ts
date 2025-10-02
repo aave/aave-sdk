@@ -1,21 +1,26 @@
 import type {
   SigningError,
+  TimeoutError,
+  TransactionError,
   UnexpectedError,
-  ValidationError,
 } from '@aave/client';
-import { sendTransactionAndWait } from '@aave/client/viem';
+import { permitTypedData } from '@aave/client/actions';
+import { sendTransactionAndWait, signERC20PermitWith } from '@aave/client/viem';
 import type {
-  InsufficientBalanceError,
+  ERC712Signature,
+  PermitTypedDataRequest,
   TransactionRequest,
 } from '@aave/graphql';
+import type { TxHash } from '@aave/types';
 import { invariant } from '@aave/types';
 import type { WalletClient } from 'viem';
-import type { TxHash } from '../../types/dist';
+import { useAaveClient } from './context';
 import { type UseAsyncTask, useAsyncTask } from './helpers';
 
-export type TransactionError =
+export type SendTransactionError =
   | SigningError
-  | ValidationError<InsufficientBalanceError>
+  | TimeoutError
+  | TransactionError
   | UnexpectedError;
 
 /**
@@ -45,7 +50,7 @@ export type TransactionError =
  *     .andThen(sendTransaction);
  *
  *   if (result.isErr()) {
- *     console.error(`Failed to sign the transaction: ${error.message}`);
+ *     console.error(result.error);
  *     return;
  *   }
  *
@@ -81,23 +86,18 @@ export type TransactionError =
  *           return sendTransaction(plan.approval).andThen(() =>
  *             sendTransaction(plan.originalTransaction),
  *           );
+ *
+ *         case 'InsufficientBalanceError':
+ *           return errAsync(new Error(`Insufficient balance: ${error.cause.required.value} required.`));
  *        }
  *      });
  *
- *    if (result.isErr()) {
- *      switch (error.name) {
- *        case 'SigningError':
- *          console.error(`Failed to sign the transaction: ${error.message}`);
- *          break;
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
  *
- *        case 'ValidationError':
- *          console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *          break;
- *      }
- *      return;
- *    }
- *
- *    console.log('Transaction sent with hash:', result.value);
+ *   console.log('Transaction sent with hash:', result.value);
  * }
  * ```
  *
@@ -105,13 +105,56 @@ export type TransactionError =
  */
 export function useSendTransaction(
   walletClient: WalletClient | undefined,
-): UseAsyncTask<TransactionRequest, TxHash, TransactionError> {
+): UseAsyncTask<TransactionRequest, TxHash, SendTransactionError> {
+  const client = useAaveClient();
+
   return useAsyncTask((request: TransactionRequest) => {
     invariant(
       walletClient,
       'Expected a WalletClient to handle the operation result.',
     );
 
-    return sendTransactionAndWait(walletClient, request);
+    return sendTransactionAndWait(walletClient, request).andThen(
+      client.waitForSupportedTransaction,
+    );
+  });
+}
+
+export type SignERC20PermitError = SigningError | UnexpectedError;
+
+/**
+ * A hook that provides a way to sign ERC20 permits using a viem WalletClient instance.
+ *
+ * ```ts
+ * const { data: wallet } = useWalletClient(); // wagmi hook
+ * const [signERC20Permit, { loading, error, data }] = useERC20Permit(wallet);
+ *
+ * const run = async () => {
+ *   const result = await signERC20Permit({
+ *     chainId: chainId(1), // Ethereum mainnet
+ *     market: evmAddress('0x1234…'),
+ *     user: evmAddress(account.address!),
+ *   });
+ *
+ *   if (result.isErr()) {
+ *     console.error(result.error);
+ *     return;
+ *   }
+ *
+ *   console.log('ERC20 permit signed:', result.value);
+ * };
+ * ```
+ */
+export function useERC20Permit(
+  walletClient: WalletClient | undefined,
+): UseAsyncTask<PermitTypedDataRequest, ERC712Signature, SignERC20PermitError> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: PermitTypedDataRequest) => {
+    invariant(walletClient, 'Expected a WalletClient to sign ERC20 permits');
+
+    return permitTypedData(client, request).andThen(
+      signERC20PermitWith(walletClient),
+    );
   });
 }

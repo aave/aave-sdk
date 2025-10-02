@@ -1,10 +1,24 @@
 type APYSample {
   """The avg rate"""
-  avgRate: DecimalValue!
+  avgRate: PercentValue!
 
   """The date"""
   date: DateTime!
 }
+
+type AaveBorrowIncentive {
+  borrowAprDiscount: PercentValue!
+  rewardTokenAddress: EvmAddress!
+  rewardTokenSymbol: String!
+}
+
+type AaveSupplyIncentive {
+  extraSupplyApr: PercentValue!
+  rewardTokenAddress: EvmAddress!
+  rewardTokenSymbol: String!
+}
+
+scalar AlwaysTrue
 
 input AmountInput @oneOf {
   """The native amount"""
@@ -20,6 +34,8 @@ Indicates that an approval transaction must be performed before proceeding to th
 type ApprovalRequired {
   """The transaction requires an approval first"""
   approval: TransactionRequest!
+
+  """The reason for the approval"""
   reason: String!
 
   """The required amount missing to be able to do the original transaction"""
@@ -30,6 +46,28 @@ type ApprovalRequired {
 
   """The transaction to send after the approval is complete"""
   originalTransaction: TransactionRequest!
+}
+
+input ApproveBorrowCreditDelegatorRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token address."""
+  underlyingToken: EvmAddress!
+
+  """
+  Token value in its main unit to approve (e.g., 1.5 DAI), not in the smallest fraction (e.g. wei).
+  """
+  amount: BigDecimal!
+
+  """The user allowing the delegation from"""
+  user: EvmAddress!
+
+  """The delegatee to approve the ability to borrow on the `user` behalf"""
+  delegatee: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
 }
 
 scalar BigDecimal
@@ -52,20 +90,39 @@ input BorrowAPYHistoryRequest {
   chainId: ChainId!
 }
 
+input BorrowAmountInput @oneOf {
+  """The native amount"""
+  native: BigDecimal
+
+  """The erc20 amount input"""
+  erc20: BorrowErc20AmountInput
+}
+
+input BorrowErc20AmountInput {
+  """The token address."""
+  currency: EvmAddress!
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g.,
+  wei).
+  """
+  value: BigDecimal!
+}
+
 input BorrowRequest {
   """The market pool address"""
   market: EvmAddress!
 
   """The amount borrowing"""
-  amount: AmountInput!
+  amount: BorrowAmountInput!
 
-  """The user who is borrowing"""
-  borrower: EvmAddress!
+  """The user sending the transaction (normally the user's wallet address)"""
+  sender: EvmAddress!
 
   """
-  If not supplied, this will use `borrower` in most cases this is what the user wants if they want
-  to borrow against their own collateral. You can also pass in the credit delegator if the caller has
-  been given credit delegation allowance
+  If not supplied, this will use `sender` in most cases this is what the user wants if they want
+  to borrow themselves. You can also pass in the credit delegator if the caller has
+  been given credit delegation allowance. You can approve those with `approveBorrowCreditDelegation`.
   """
   onBehalfOf: EvmAddress
 
@@ -74,21 +131,27 @@ input BorrowRequest {
 }
 
 type Chain {
-  """The chain name"""
   name: String!
-
-  """The chain icon"""
   icon: String!
-
-  """The chain id"""
   chainId: ChainId!
-
-  """Explorer URL"""
   explorerUrl: String!
+  isTestnet: Boolean!
+  nativeWrappedToken: EvmAddress!
 }
 
 """A supported blockchain chain ID"""
 scalar ChainId
+
+enum ChainsFilter {
+  TESTNET_ONLY
+  MAINNET_ONLY
+  ALL
+}
+
+type ClaimableMeritReward {
+  currency: Currency!
+  amount: TokenAmount!
+}
 
 input CollateralToggleRequest {
   """The pool address for the market"""
@@ -99,6 +162,23 @@ input CollateralToggleRequest {
 
   """The user to toggle emode on"""
   user: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input CreditDelegateeAmountRequest {
+  """The market pool address"""
+  market: EvmAddress!
+
+  """The underlying token address."""
+  underlyingToken: EvmAddress!
+
+  """The user allowing the delegation from"""
+  user: EvmAddress!
+
+  """The delegatee to approve the ability to borrow on the `user` behalf"""
+  delegatee: EvmAddress!
 
   """The chain id"""
   chainId: ChainId!
@@ -133,7 +213,7 @@ input DebtToCover @oneOf {
   exact: BigDecimal
 
   """Maximum debt amount (equivalent to uint(-1))"""
-  max: Boolean
+  max: AlwaysTrue
 }
 
 type DecimalValue {
@@ -147,12 +227,19 @@ type DecimalValue {
   value: BigDecimal!
 }
 
+type DomainData {
+  name: String!
+  version: String!
+  chainId: ChainId!
+  verifyingContract: EvmAddress!
+}
+
 input ERC712Signature {
   """The signature for the erc721"""
   value: Signature!
 
   """The deadline for the erc721"""
-  deadline: DateTime!
+  deadline: Int!
 }
 
 type EmodeMarketCategory {
@@ -163,13 +250,13 @@ type EmodeMarketCategory {
   label: String!
 
   """The maximum loan-to-value ratio in efficiency mode"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold in efficiency mode"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation penalty applied in efficiency mode"""
-  liquidationPenalty: DecimalValue!
+  liquidationPenalty: PercentValue!
 
   """The list of reserves which will tailor for this eMode"""
   reserves: [EmodeMarketReserveInfo!]!
@@ -195,13 +282,13 @@ type EmodeReserveInfo {
   label: String!
 
   """The maximum loan-to-value ratio in efficiency mode"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold in efficiency mode"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation penalty applied in efficiency mode"""
-  liquidationPenalty: DecimalValue!
+  liquidationPenalty: PercentValue!
 
   """If the underlying token can be collateral with this eMode on"""
   canBeCollateral: Boolean!
@@ -220,8 +307,10 @@ input Erc20AmountInput {
   """
   value: BigDecimal!
 
-  """The erc712 signature, which can also be used for permit functionality"""
-  erc712: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 scalar EvmAddress
@@ -231,6 +320,63 @@ An execution plan represents what needs to happen to fulfill a requested operati
 It could be an immediate transaction, an approval followed by a transaction, or indicate insufficient balance.
 """
 union ExecutionPlan = TransactionRequest | ApprovalRequired | InsufficientBalanceError
+
+input ForkTopUpErc20 {
+  """The token address"""
+  currency: EvmAddress!
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction
+  """
+  value: BigDecimal!
+}
+
+input ForkTopUpRequest {
+  """The address you want the funds to be topped up against"""
+  user: EvmAddress!
+
+  """The erc20 information"""
+  erc20: ForkTopUpErc20
+
+  """
+  Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction
+  """
+  native: BigDecimal
+}
+
+type ForkTopUpResponse {
+  message: String!
+
+  """The tx hash of the newly created transaction"""
+  txHash: String
+}
+
+input HasProcessedKnownTransactionRequest {
+  """
+  The operation type this is given to you on the TransactionRequest::operation
+  """
+  operation: OperationType!
+
+  """The tx hash"""
+  txHash: TxHash!
+}
+
+input HealthFactorPreviewRequest {
+  """The action to simulate"""
+  action: PreviewAction!
+}
+
+type HealthFactorPreviewResponse {
+  """
+  The user health factor before - if null, they don't have one because they are not borrowing
+  """
+  before: BigDecimal
+
+  """
+  The user health factor after - if null, they don't have one because they are not borrowing
+  """
+  after: BigDecimal
+}
 
 """
 Indicates the user does not have enough balance to perform the operation.
@@ -390,7 +536,7 @@ type MarketUserReserveBorrowPosition {
   debt: TokenAmount!
 
   """The annual percentage yield for this borrow position"""
-  apy: DecimalValue!
+  apy: PercentValue!
 }
 
 type MarketUserReserveSupplyPosition {
@@ -404,7 +550,7 @@ type MarketUserReserveSupplyPosition {
   balance: TokenAmount!
 
   """The annual percentage yield for this supply position"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """Whether this position is being used as collateral"""
   isCollateral: Boolean!
@@ -418,10 +564,12 @@ type MarketUserState {
   netWorth: BigDecimal!
 
   """The user's net annual percentage yield across all positions"""
-  netAPY: BigDecimal!
+  netAPY: PercentValue!
 
-  """The user's health factor (risk metric for liquidation)"""
-  healthFactor: BigDecimal!
+  """
+  The user's health factor (risk metric for liquidation) - if null, the user does not have a borrow
+  """
+  healthFactor: BigDecimal
 
   """Whether efficiency mode is enabled for the user"""
   eModeEnabled: Boolean!
@@ -440,10 +588,10 @@ type MarketUserState {
   availableBorrowsBase: BigDecimal!
 
   """The liquidation threshold of the user"""
-  currentLiquidationThreshold: BigDecimal!
+  currentLiquidationThreshold: PercentValue!
 
   """The loan to value of the user"""
-  ltv: BigDecimal!
+  ltv: PercentValue!
 
   """One of the user collateral is in isolation mode"""
   isInIsolationMode: Boolean!
@@ -458,6 +606,44 @@ input MarketsRequest {
   user features
   """
   user: EvmAddress
+}
+
+type MeritBorrowAndSupplyIncentiveCondition {
+  """The APR incentive for meeting the conditions"""
+  extraApr: PercentValue!
+
+  """The token that must be supplied as collateral"""
+  supplyToken: Currency!
+
+  """The token that must be borrowed"""
+  borrowToken: Currency!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+}
+
+type MeritBorrowIncentive {
+  """Extra APR for borrowing this asset from AAVE Merit program"""
+  borrowAprDiscount: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+}
+
+type MeritSupplyIncentive {
+  """Extra APR for supplying this asset from AAVE Merit program"""
+  extraSupplyApr: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+}
+
+type MessageData {
+  owner: EvmAddress!
+  spender: EvmAddress!
+  value: BigInt!
+  nonce: BigInt!
+  deadline: Int!
 }
 
 type NativeCurrency {
@@ -475,6 +661,25 @@ type NativeCurrency {
 
   """The chain id"""
   chainId: ChainId!
+
+  """The wrapped version of this token"""
+  wrappedToken: EvmAddress!
+}
+
+enum OperationType {
+  BORROW
+  REPAY
+  RESERVE_USED_AS_COLLATERAL_ENABLED
+  RESERVE_USED_AS_COLLATERAL_DISABLED
+  SUPPLY
+  USER_EMODE_SET
+  WITHDRAW
+  VAULT_DEPLOYED
+  VAULT_DEPOSIT
+  VAULT_FEE_UPDATED
+  VAULT_FEE_WITHDRAWN
+  VAULT_WITHDRAW
+  LIQUIDATION
 }
 
 enum OrderDirection {
@@ -504,17 +709,72 @@ type PaginatedUserTransactionHistoryResult {
   pageInfo: PaginatedResultInfo!
 }
 
+type PaginatedVaultUserTransactionHistoryResult {
+  items: [VaultUserTransactionItem!]!
+  pageInfo: PaginatedResultInfo!
+}
+
 type PaginatedVaultsResult {
   items: [Vault!]!
   pageInfo: PaginatedResultInfo!
+}
+
+type PercentValue {
+  """The raw none normalized percentage (the value that lives onchain)"""
+  raw: BigInt!
+
+  """The decimals representing the precision of the onchain raw value"""
+  decimals: Int!
+
+  """The normalized percentage (1.0 = 100%)"""
+  value: BigDecimal!
+
+  """
+  The human-readable formatted value you can render on a UI straight away.
+  For example, this will turn `0.01232343` to `1.23`, it will always round to `2` decimal points.
+  """
+  formatted: BigDecimal!
+}
+
+input PermitRequest {
+  """The spender (when doing this with aave this is the market address)"""
+  spender: EvmAddress!
+
+  """The token you want to do the permit with"""
+  currency: EvmAddress!
+
+  """
+  The amount to permit - in human-readable form aka 0.001 eth is 0.001 eth here
+  """
+  amount: BigDecimal!
+
+  """The chain id the pool is deployed on"""
+  chainId: ChainId!
+
+  """The owner of the funds"""
+  owner: EvmAddress!
+}
+
+type PermitTypedDataResponse {
+  types: TypeDefinition!
+  primaryType: String!
+  domain: DomainData!
+  message: MessageData!
+}
+
+input PreviewAction @oneOf {
+  supply: SupplyRequest
+  borrow: BorrowRequest
+  repay: RepayRequest
+  withdraw: WithdrawRequest
 }
 
 type Query {
   """Get if the API is healthy"""
   health: Boolean!
 
-  """All chains the protocol supports"""
-  chains: [Chain!]!
+  """Chains the protocol supports"""
+  chains(filter: ChainsFilter! = ALL): [Chain!]!
 
   """
   Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
@@ -548,10 +808,13 @@ type Query {
   """
   vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
 
+  """User vault transaction history"""
+  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
+
   """
-  Claim rewards from the specified vault. You MUST be the owner of the vault to send this tx request.
+  Vault user activity for a given vault and user, within a specified time window.
   """
-  vaultClaimRewards(request: VaultClaimRewardsRequest!): TransactionRequest!
+  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
 
   """
   Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
@@ -563,6 +826,26 @@ type Query {
   """
   vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
 
+  """
+  This will return you the amount of shares that would be minted to the receiver
+  """
+  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be deposited by the caller
+  """
+  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the number of shares burnt based on the amount of assets you want to withdraw
+  """
+  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be withdrawn by the receiver.
+  """
+  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
 
@@ -571,6 +854,14 @@ type Query {
 
   """Create the transaction to borrow from a market"""
   borrow(request: BorrowRequest!): ExecutionPlan!
+
+  """Approve a credit borrow delegator to be able to borrow on your behalf"""
+  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
+
+  """
+  Gets the amount delegated to the credit delegatee that can borrow on your behalf
+  """
+  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
 
   """Create the transaction to supply to a market"""
   supply(request: SupplyRequest!): ExecutionPlan!
@@ -610,12 +901,76 @@ type Query {
   """Get the supply APY history"""
   supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
 
+  """Generate EIP-712 typed data for EIP-2612 permit signature"""
+  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
+
   """Get the reserve for on a market"""
   reserve(request: ReserveRequest!): Reserve
 
-  """The user's transaction history"""
+  """The user's market transaction history"""
   userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
-  _service: _Service!
+
+  """
+  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
+  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
+  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
+  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
+  cater for the race condition.
+  """
+  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
+  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
+
+  """Top up a balance for a user or yourself on the fork"""
+  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
+
+  """
+  The user merits reward information and transaction if you wish to claim
+  """
+  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards
+
+  """
+  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
+  this can be claimed using `userMeritRewards`
+  """
+  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
+
+  """Deposit into savings GHO"""
+  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
+
+  """Withdraw sGHO (savings GHO) back to GHO"""
+  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+}
+
+input RepayAmountInput @oneOf {
+  """The native amount"""
+  native: BigDecimal
+
+  """The erc20 amount input"""
+  erc20: RepayErc20AmountInput
+}
+
+input RepayErc20Amount @oneOf {
+  """
+  Exact amount to repay
+  Token value in its main unit (e.g., 1.5 GHO), not in the smallest fraction (e.g., wei).
+  """
+  exact: BigDecimal
+
+  """Repay all the amount completely"""
+  max: AlwaysTrue
+}
+
+input RepayErc20AmountInput {
+  """The token address."""
+  currency: EvmAddress!
+
+  """The amount to repay"""
+  value: RepayErc20Amount!
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without the need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input RepayRequest {
@@ -623,15 +978,15 @@ input RepayRequest {
   market: EvmAddress!
 
   """
-  The amount to repay - you can pass in the underlying or the aToken if you pass in the aToken address it will repay with the aToken
+  The amount to repay - you can pass in the underlying or the aToken if you pass in the aToken address, it will repay with the aToken
   """
-  amount: AmountInput!
+  amount: RepayAmountInput!
 
-  """The user who is repaying"""
-  borrower: EvmAddress!
+  """The user sending the transaction (normally the user's wallet address)"""
+  sender: EvmAddress!
 
   """
-  The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
+  If not supplied, this will use `sender`. The address of the user who will get their debt reduced/removed. This should be the address of the user calling the function if they want to
   """
   onBehalfOf: EvmAddress
 
@@ -689,49 +1044,57 @@ type Reserve {
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
 
-  """A list eModes the reserve can support"""
-  eModeInfo: [EmodeReserveInfo!]!
+  """Does the underlying reserve support permit"""
+  permitSupported: Boolean!
 
   """
-  The state of the user in the context of this reserve, note this can change borrow and supply criteria
+  This exposes the extra incentives you can earn from third parties (Merit) or from
+  incentives set by governance through the RewardsController.
+  Note Aave Labs does not guarantee third party program and accepts no liability to those
   """
+  incentives: [ReserveIncentive!]!
+
+  """The emode information for the reserve"""
+  eModeInfo: [EmodeReserveInfo!]!
+
+  """Get the user state on the reserve"""
   userState: ReserveUserState
 }
 
 type ReserveBorrowInfo {
   """The annual percentage yield for borrowing this asset"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """The total amount borrowed from this reserve"""
   total: TokenAmount!
 
   """The reserve factor percentage"""
-  reserveFactor: DecimalValue!
+  reserveFactor: PercentValue!
 
   """The available liquidity"""
   availableLiquidity: TokenAmount!
 
   """The reserve utilization rate"""
-  utilizationRate: DecimalValue!
+  utilizationRate: PercentValue!
 
   """
   Variable rate slope 1 - the rate of interest increase when utilization rate is below optimal
   This is the slope of the interest rate curve in the first segment (0% to optimal utilization)
   """
-  variableRateSlope1: DecimalValue!
+  variableRateSlope1: PercentValue!
 
   """
   Variable rate slope 2 - the rate of interest increase when utilization rate is above optimal
   This is the slope of the interest rate curve in the second segment (optimal to 100% utilization)
   Typically much steeper than slope1 to discourage over-utilization
   """
-  variableRateSlope2: DecimalValue!
+  variableRateSlope2: PercentValue!
 
   """
   The optimal usage rate - the utilization rate at which the variable rate curve transitions
   from slope1 to slope2. This represents the target utilization rate for the reserve
   """
-  optimalUsageRate: DecimalValue!
+  optimalUsageRate: PercentValue!
 
   """
   Borrowing can have different states based on the criteria of the user or the market
@@ -756,6 +1119,8 @@ enum ReserveBorrowingState {
   USER_EMODE_DISABLED_BORROW
 }
 
+union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive
+
 type ReserveInfo {
   """The market information the reserve is under"""
   market: MarketInfo!
@@ -771,6 +1136,16 @@ type ReserveInfo {
 
   """The usd exchange rate for the underlying token"""
   usdExchangeRate: BigDecimal!
+
+  """Does the underlying reserve support permit"""
+  permitSupported: Boolean!
+
+  """
+  This exposes the extra incentives you can earn from third parties (Merit) or from
+  incentives set by governance through the RewardsController.
+  Note Aave Labs does not guarantee third party program and accepts no liability to those
+  """
+  incentives: [ReserveIncentive!]!
 }
 
 type ReserveIsolationModeConfig {
@@ -778,6 +1153,9 @@ type ReserveIsolationModeConfig {
   canBeCollateral: Boolean!
   canBeBorrowed: Boolean!
   debtCeiling: TokenAmount!
+
+  """The decimals used for the debt ceiling"""
+  debtCeilingDecimals: Int!
 
   """Only the amount that is borrowed by the users in isolation"""
   totalBorrows: TokenAmount!
@@ -802,16 +1180,16 @@ input ReserveRequest {
 
 type ReserveSupplyInfo {
   """The annual percentage yield for supplying this asset"""
-  apy: DecimalValue!
+  apy: PercentValue!
 
   """The maximum loan-to-value ratio when used as collateral"""
-  maxLTV: DecimalValue!
+  maxLTV: PercentValue!
 
   """The liquidation threshold for this asset"""
-  liquidationThreshold: DecimalValue!
+  liquidationThreshold: PercentValue!
 
   """The liquidation bonus applied when liquidated"""
-  liquidationBonus: DecimalValue!
+  liquidationBonus: PercentValue!
 
   """If the asset can be used for collateral"""
   canBeCollateral: Boolean!
@@ -851,6 +1229,64 @@ type ReserveUserState {
   isInIsolationMode: Boolean!
 }
 
+input SavingsGhoBalanceRequest {
+  """The user to query the savings GHO balance"""
+  user: EvmAddress!
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
+}
+
+input SavingsGhoDepositRequest {
+  """The details of the amounts to deposit."""
+  amount: SayingsGhoDepositAmountInput!
+
+  """The user who is depositing"""
+  depositor: EvmAddress!
+
+  """
+  The address to which saving GHO shares will be minted to - defaults to `depositor`.
+  """
+  recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
+}
+
+input SavingsGhoWithdrawAmount @oneOf {
+  """Exact amount to withdraw"""
+  exact: BigDecimal
+
+  """Withdraw all"""
+  max: AlwaysTrue
+}
+
+input SavingsGhoWithdrawRequest {
+  """The amount of GHO to withdraw."""
+  amount: SavingsGhoWithdrawAmount!
+
+  """
+  The address from which saving GHO shares will be burned in return for GHO (normally your own wallet).
+  """
+  sharesOwner: EvmAddress!
+
+  """The address to which GHO will be minted to - defaults to `depositor`."""
+  recipient: EvmAddress
+
+  """The chain id - savings GHO for now only works on Ethereum"""
+  chainId: ChainId
+}
+
+input SayingsGhoDepositAmountInput {
+  """The amount of GHO to deposit"""
+  value: BigDecimal!
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 scalar Signature
 
 input SupplyAPYHistoryRequest {
@@ -874,11 +1310,11 @@ input SupplyRequest {
   """The amount supplying"""
   amount: AmountInput!
 
-  """The user who is supplying"""
-  supplier: EvmAddress!
+  """The user sending the transaction (normally the users wallet address)"""
+  sender: EvmAddress!
 
   """
-  The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
+  If not supplied, this will use `sender`. The address that will receive the corresponding aTokens. This is the only address that will be able to withdraw the asset from the pool.
   This will be the same as msg.sender if the user wants to receive aTokens into their own wallet, or use a different address if the beneficiary
   of aTokens is a different wallet
   """
@@ -910,14 +1346,41 @@ type TokenAmount {
 Represents a transaction that must be executed, such as a direct supply, borrow, etc.
 """
 type TransactionRequest {
+  """Who the transaction is going to (normally a contract)"""
   to: EvmAddress!
+
+  """Who is sending the transaction"""
   from: EvmAddress!
+
+  """The blockchain transaction encoded data"""
   data: BlockchainData!
+
+  """The native token value"""
   value: BigInt!
+
+  """The chain id"""
   chainId: ChainId!
+
+  """
+  The primary well-known operation the transaction is - you use this to track hasProcessedKnownTransaction
+  If null the API does not track/require the outcome - once receipt is done, everything is ready to go
+  """
+  operation: OperationType
 }
 
 scalar TxHash
+
+type TypeDefinition {
+  EIP712Domain: [TypeField!]!
+  Permit: [TypeField!]!
+}
+
+type TypeField {
+  name: String!
+  type: String!
+}
+
+scalar URL
 
 type UsdExchangeRate {
   currency: Currency!
@@ -1002,6 +1465,33 @@ input UserMarketStateRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type UserMeritRewards {
+  """The chain the transaction is on"""
+  chain: ChainId!
+
+  """
+  The reward tokens being claimed in the transaction - this is aggregated
+  """
+  claimable: [ClaimableMeritReward!]!
+
+  """The transaction to execute to claim the rewards"""
+  transaction: TransactionRequest!
+}
+
+input UserMeritRewardsFilter {
+  """If you only care about certain tokens to claim and see details of"""
+  tokens: [EvmAddress!]
+}
+
+input UserMeritRewardsRequest {
+  """The user to claim with"""
+  user: EvmAddress!
+
+  """The chain id to claim on"""
+  chainId: ChainId!
+  filter: UserMeritRewardsFilter
 }
 
 """A transaction where the user repaid borrowed assets."""
@@ -1159,7 +1649,7 @@ type UserVaultShares {
   """The user's shares on the vault"""
   shares: TokenAmount!
 
-  """The amount of underlying tokens they have in the vault."""
+  """The balance you can withdraw"""
   balance: TokenAmount!
 }
 
@@ -1174,9 +1664,6 @@ input UserVaultsFilter {
 input UserVaultsOrderBy @oneOf {
   """Order by shares"""
   shares: OrderDirection
-
-  """Order by deposited amount in USD"""
-  depositedInUsd: OrderDirection
 
   """Order by fee"""
   fee: OrderDirection
@@ -1234,7 +1721,7 @@ type Vault {
   usedReserve: Reserve!
 
   """The current fee percentage set for the vault."""
-  fee: BigDecimal!
+  fee: PercentValue!
 
   """How much this vault has made in revenue"""
   totalFeeRevenue: TokenAmount!
@@ -1249,17 +1736,12 @@ type Vault {
 
   """The user's shares info on the vault"""
   userShares: UserVaultShares
-}
 
-input VaultClaimRewardsRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
+  """The total fees the owner can claim currently for the vault"""
+  feesBalance: TokenAmount!
 
-  """Who the rewards go to - if not supplied, it goes to the owner"""
-  sendTo: EvmAddress
-
-  """The chain id"""
-  chainId: ChainId!
+  """The total vault APR after their fee is taken off"""
+  vaultApr: PercentValue!
 }
 
 input VaultDeployRequest {
@@ -1295,14 +1777,25 @@ input VaultDeployRequest {
   initialLockDeposit: BigDecimal!
 }
 
+input VaultDepositAmountInput {
+  """The amount of assets to deposit."""
+  value: BigDecimal!
+
+  """Whether you are depositing in as a token or normal underlying"""
+  asAToken: Boolean! = false
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 input VaultDepositRequest {
   """The vault address"""
   vault: EvmAddress!
 
-  """
-  The amount of assets to deposit - you can pass in the underlying or the aToken if you pass in the aToken address it will deposit with the aToken
-  """
-  amount: Erc20AmountInput!
+  """The details of the amounts to deposit."""
+  amount: VaultDepositAmountInput!
 
   """The user who is depositing"""
   depositor: EvmAddress!
@@ -1331,8 +1824,10 @@ input VaultMintShareInput {
   """Whether the amount should be received as aToken."""
   asAToken: Boolean! = false
 
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input VaultMintSharesRequest {
@@ -1354,6 +1849,23 @@ input VaultMintSharesRequest {
   chainId: ChainId!
 }
 
+input VaultOperationPreviewRequest {
+  """The vault"""
+  vault: EvmAddress!
+
+  """The chain id the vault is deployed on"""
+  chainId: ChainId!
+
+  """
+  The amount in human-readable form
+  preview deposit = underlying
+  preview mint = shares
+  preview withdraw = underlying
+  preview redeem = shares
+  """
+  amount: BigDecimal!
+}
+
 input VaultRedeemShareInput {
   """The amount of vault shares"""
   amount: BigDecimal!
@@ -1361,8 +1873,10 @@ input VaultRedeemShareInput {
   """Whether the amount should be sent as aToken."""
   asAToken: Boolean! = false
 
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input VaultRedeemSharesRequest {
@@ -1425,6 +1939,113 @@ input VaultSetFeeRequest {
   chainId: ChainId!
 }
 
+type VaultUserActivityItem {
+  balance: TokenAmount!
+  earned: TokenAmount!
+  withdrew: TokenAmount
+  deposited: TokenAmount
+  date: DateTime!
+}
+
+input VaultUserActivityRequest {
+  """The vault"""
+  vault: EvmAddress!
+
+  """The chain id the vault is deployed on"""
+  chainId: ChainId!
+
+  """The user address"""
+  user: EvmAddress!
+
+  """The timing window for which to calculate user activity"""
+  window: VaultUserActivityTimeWindow!
+}
+
+type VaultUserActivityResult {
+  earned: TokenAmount!
+  breakdown: [VaultUserActivityItem!]!
+}
+
+enum VaultUserActivityTimeWindow {
+  """Samples data in days over the last week"""
+  LAST_WEEK
+
+  """Samples data in days over the last month"""
+  LAST_MONTH
+
+  """Samples data in months over the last year"""
+  LAST_YEAR
+
+  """Samples data in years for the maximum available period"""
+  MAX
+}
+
+"""A transaction where the user supplied assets to a reserve."""
+type VaultUserDepositItem {
+  asset: TokenAmount!
+  shares: TokenAmount!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
+enum VaultUserHistoryAction {
+  DEPOSIT
+  WITHDRAW
+}
+
+input VaultUserTransactionHistoryOrderBy @oneOf {
+  """Order by shares"""
+  date: OrderDirection
+}
+
+input VaultUserTransactionHistoryRequest {
+  """The vault address"""
+  vault: EvmAddress!
+
+  """The chain id where the transactions were sent"""
+  chainId: ChainId!
+
+  """The user that sent the transactions"""
+  user: EvmAddress!
+
+  """The filter to optionally filter the transactions by action type"""
+  filter: [VaultUserHistoryAction!]! = [DEPOSIT, WITHDRAW]
+
+  """Ordering criteria"""
+  orderBy: VaultUserTransactionHistoryOrderBy! = {date: ASC}
+
+  """The page size"""
+  pageSize: PageSize! = FIFTY
+
+  """Pagination cursor"""
+  cursor: Cursor
+}
+
+union VaultUserTransactionItem = VaultUserDepositItem | VaultUserWithdrawItem
+
+"""A transaction where the user withdrew assets from a reserve."""
+type VaultUserWithdrawItem {
+  asset: TokenAmount!
+  shares: TokenAmount!
+  blockExplorerUrl: String!
+  txHash: TxHash!
+  timestamp: DateTime!
+}
+
+input VaultWithdrawAmountInput {
+  """The amount of assets to withdraw."""
+  value: BigDecimal!
+
+  """Whether the amount should be sent/received as aToken."""
+  asAToken: Boolean! = false
+
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
 input VaultWithdrawFeesRequest {
   """The vault deployed address"""
   vault: EvmAddress!
@@ -1435,29 +2056,18 @@ input VaultWithdrawFeesRequest {
   sendTo: EvmAddress
 
   """Human-formatted amount"""
-  amount: BigDecimal!
+  amount: WithdrawAmount!
 
   """The chain id"""
   chainId: ChainId!
-}
-
-input VaultWithdrawInput {
-  """The amount of assets to withdraw."""
-  amount: BigDecimal!
-
-  """Whether the amount should be sent/received as aToken."""
-  asAToken: Boolean! = false
-
-  """The authorization to redeem the shares."""
-  signature: ERC712Signature
 }
 
 input VaultWithdrawRequest {
   """The vault address"""
   vault: EvmAddress!
 
-  """The details of the underlying token to withdraw."""
-  underlyingToken: VaultWithdrawInput!
+  """The details of the amounts to withdraw."""
+  amount: VaultWithdrawAmountInput!
 
   """
   The address from which vault shares will be burned (normally your own wallet).
@@ -1502,6 +2112,14 @@ input VaultsRequestFilterCriteria @oneOf {
   ownedBy: [EvmAddress!]
 }
 
+input WithdrawAmount @oneOf {
+  """Exact amount to withdraw, remember interest is generated on each block"""
+  exact: BigDecimal
+
+  """Withdraw all the position completely"""
+  max: AlwaysTrue
+}
+
 input WithdrawAmountInput @oneOf {
   """The native amount"""
   native: WithdrawNativeAmountInput
@@ -1517,15 +2135,17 @@ input WithdrawErc20AmountInput {
   """
   Token value in its main unit (e.g., 1.5 DAI), not in the smallest fraction (e.g., wei).
   """
-  value: BigDecimal!
+  value: WithdrawAmount!
 }
 
 input WithdrawNativeAmountInput {
   """The native value"""
-  value: BigDecimal!
+  value: WithdrawAmount!
 
-  """The permit for the transaction if required"""
-  permit: ERC712Signature
+  """
+  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  """
+  permitSig: ERC712Signature
 }
 
 input WithdrawRequest {
@@ -1536,20 +2156,16 @@ input WithdrawRequest {
   amount: WithdrawAmountInput!
 
   """
-  The user who is withdrawing, this should have the `aToken` that will be burned by the `Pool`
+  The user sending the transaction (normally the user's wallet address) this should have the `aToken` that will be burned by the `Pool`
   """
-  supplier: EvmAddress!
+  sender: EvmAddress!
 
   """
-  The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
-  their own wallet, or use a different address if the beneficiary is a different wallet
+  If not supplied, this will use `sender`. The address that will receive the underlying asset. This will go to the supplier if the user wants to receive the tokens into
+  their own wallet or use a different address if the beneficiary is a different wallet
   """
   recipient: EvmAddress
 
   """The chain id"""
   chainId: ChainId!
-}
-
-type _Service {
-  sdl: String
 }

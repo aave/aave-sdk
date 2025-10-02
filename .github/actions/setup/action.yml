@@ -3,7 +3,7 @@ description: 'Setup repo and install dependencies'
 
 runs:
   using: 'composite'
-  steps:
+  steps:   
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
 

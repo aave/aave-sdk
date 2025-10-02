@@ -2,7 +2,7 @@ import type { FragmentOf } from 'gql.tada';
 import { graphql } from '../graphql';
 import {
   CurrencyFragment,
-  DecimalValueFragment,
+  PercentValueFragment,
   TokenAmountFragment,
 } from './common';
 import { MarketInfoFragment } from './reserve';
@@ -20,14 +20,14 @@ export const MarketUserReserveBorrowPositionFragment = graphql(
       ...TokenAmount
     }
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
   }`,
   [
     MarketInfoFragment,
     CurrencyFragment,
     TokenAmountFragment,
-    DecimalValueFragment,
+    PercentValueFragment,
   ],
 );
 export type MarketUserReserveBorrowPosition = FragmentOf<
@@ -47,7 +47,7 @@ export const MarketUserReserveSupplyPositionFragment = graphql(
       ...TokenAmount
     }
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
     isCollateral
     canBeCollateral
@@ -56,7 +56,7 @@ export const MarketUserReserveSupplyPositionFragment = graphql(
     MarketInfoFragment,
     CurrencyFragment,
     TokenAmountFragment,
-    DecimalValueFragment,
+    PercentValueFragment,
   ],
 );
 export type MarketUserReserveSupplyPosition = FragmentOf<

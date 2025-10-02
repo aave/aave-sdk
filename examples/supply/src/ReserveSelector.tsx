@@ -15,6 +15,7 @@ export function ReserveSelector({
     const selectedReserve = reserves.find(
       (reserve) => reserve.underlyingToken.address === event.target.value,
     );
+    console.log(selectedReserve);
     if (selectedReserve) {
       onChange(selectedReserve);
     }
@@ -30,7 +31,7 @@ export function ReserveSelector({
             value={reserve.underlyingToken.address}
           >
             {reserve.underlyingToken.symbol} - APY:{' '}
-            {reserve.supplyInfo.apy.value}%
+            {reserve.supplyInfo.apy.formatted}%
           </option>
         ))}
       </select>

@@ -1,19 +1,24 @@
+import { SigningError, TransactionError, ValidationError } from '@aave/core';
 import type {
   ExecutionPlan,
   InsufficientBalanceError,
+  PermitTypedDataResponse,
   TransactionRequest,
 } from '@aave/graphql';
 import {
   errAsync,
-  invariant,
   nonNullable,
+  okAsync,
   ResultAsync,
-  type TxHash,
+  signatureFrom,
   txHash,
 } from '@aave/types';
 import type { Signer, TransactionResponse } from 'ethers';
-import { SigningError, ValidationError } from './errors';
-import type { ExecutionPlanHandler } from './types';
+import type {
+  ExecutionPlanHandler,
+  PermitHandler,
+  TransactionExecutionResult,
+} from './types';
 
 async function sendTransaction(
   signer: Signer,
@@ -33,12 +38,27 @@ async function sendTransaction(
 export function sendTransactionAndWait(
   signer: Signer,
   request: TransactionRequest,
-): ResultAsync<TxHash, SigningError> {
+): ResultAsync<TransactionExecutionResult, SigningError | TransactionError> {
   return ResultAsync.fromPromise(sendTransaction(signer, request), (err) =>
     SigningError.from(err),
   )
     .map((tx) => tx.wait())
-    .map((receipt) => txHash(nonNullable(receipt?.hash)));
+    .andThen((receipt) => {
+      const hash = txHash(nonNullable(receipt?.hash));
+
+      if (receipt?.status === 0) {
+        return errAsync(
+          TransactionError.new({
+            txHash: hash,
+            request,
+          }),
+        );
+      }
+      return okAsync({
+        txHash: hash,
+        operation: request.operation,
+      });
+    });
 }
 
 /**
@@ -46,15 +66,13 @@ export function sendTransactionAndWait(
  *
  * Handles {@link TransactionRequest} by signing and sending, {@link ApprovalRequired} by sending both approval and original transactions, and returns validation errors for {@link InsufficientBalanceError}.
  */
-export function sendWith(signer: Signer | undefined): ExecutionPlanHandler {
+export function sendWith(signer: Signer): ExecutionPlanHandler {
   return (
     result: ExecutionPlan,
   ): ResultAsync<
-    TxHash,
-    SigningError | ValidationError<InsufficientBalanceError>
+    TransactionExecutionResult,
+    SigningError | TransactionError | ValidationError<InsufficientBalanceError>
   > => {
-    invariant(signer, 'Expected a Signer to handle the operation result.');
-
     switch (result.__typename) {
       case 'TransactionRequest':
         return sendTransactionAndWait(signer, result);
@@ -67,5 +85,20 @@ export function sendWith(signer: Signer | undefined): ExecutionPlanHandler {
       case 'InsufficientBalanceError':
         return errAsync(ValidationError.fromGqlNode(result));
     }
+  };
+}
+
+/**
+ * Signs an ERC20 permit using the provided ethers signer.
+ */
+export function signERC20PermitWith(signer: Signer): PermitHandler {
+  return (result: PermitTypedDataResponse) => {
+    return ResultAsync.fromPromise(
+      signer.signTypedData(result.domain, result.types, result.message),
+      (err) => SigningError.from(err),
+    ).map((signature) => ({
+      deadline: result.message.deadline,
+      value: signatureFrom(signature),
+    }));
   };
 }

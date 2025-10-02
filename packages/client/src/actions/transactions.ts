@@ -1,8 +1,13 @@
+import type { UnexpectedError } from '@aave/core';
 import {
+  ApproveBorrowCreditDelegationQuery,
+  type ApproveBorrowCreditDelegatorRequest,
   BorrowQuery,
   type BorrowRequest,
   CollateralToggleQuery,
   type CollateralToggleRequest,
+  CreditDelegateeAllowanceQuery,
+  type CreditDelegateeAmountRequest,
   type ExecutionPlan,
   LiquidateQuery,
   type LiquidateRequest,
@@ -10,11 +15,10 @@ import {
   type RepayRequest,
   SupplyQuery,
   type SupplyRequest,
+  type TokenAmount,
   type TransactionRequest,
   UserSetEmodeQuery,
   type UserSetEmodeRequest,
-  VaultClaimRewardsQuery,
-  type VaultClaimRewardsRequest,
   VaultDeployQuery,
   type VaultDeployRequest,
   VaultDepositQuery,
@@ -33,8 +37,7 @@ import {
   type WithdrawRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Creates a transaction to borrow from a market.
@@ -50,7 +53,7 @@ import type { UnexpectedError } from '../errors';
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -85,7 +88,7 @@ export function borrow(
  *   },
  *   supplier: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -115,12 +118,14 @@ export function supply(
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
- *       value: '500',
+ *       value: {
+ *         exact: '500',
+ *       },
  *     },
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -150,12 +155,12 @@ export function repay(
  *   amount: {
  *     erc20: {
  *       currency: evmAddress('0x5678…'),
- *       value: '750',
+ *       value: { exact: '750' },
  *     },
  *   },
  *   supplier: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -186,7 +191,7 @@ export function withdraw(
  *   user: evmAddress('0x5678…'),
  *   categoryId: market.eModeCategories[0].id,
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -203,7 +208,7 @@ export function withdraw(
  *   user: evmAddress('0x5678…'),
  *   categoryId: null,
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -231,12 +236,11 @@ export function userSetEmode(
  * const result = await vaultDeposit(client, {
  *   vault: evmAddress('0x1234…'),
  *   amount: {
- *     currency: evmAddress('0x5678…'),
  *     value: '1000',
  *   },
  *   depositor: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -269,7 +273,7 @@ export function vaultDeposit(
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -303,7 +307,7 @@ export function vaultRedeemShares(
  *   shareSymbol: 'avs',
  *   initialLockDeposit: '1000',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, insufficient balance, etc.
@@ -332,7 +336,7 @@ export function vaultDeploy(
  *   vault: evmAddress('0x1234…'),
  *   newFee: '0.2',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -361,7 +365,7 @@ export function vaultSetFee(
  *   vault: evmAddress('0x1234…'),
  *   amount: '100',
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -383,46 +387,17 @@ export function vaultWithdrawFees(
 }
 
 /**
- * Creates a transaction to claim rewards from a vault (owner only).
- *
- * ```ts
- * const result = await vaultClaimRewards(client, {
- *   vault: evmAddress('0x1234…'),
- *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
- *
- * if (result.isErr()) {
- *   // Handle error, e.g. signing error, etc.
- *   return;
- * }
- *
- * // result.value: TxHash
- * ```
- *
- * @param client - Aave client.
- * @param request - The claim vault rewards request parameters.
- * @returns The transaction request data to claim vault rewards.
- */
-export function vaultClaimRewards(
-  client: AaveClient,
-  request: VaultClaimRewardsRequest,
-): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(VaultClaimRewardsQuery, { request });
-}
-
-/**
  * Creates a transaction to withdraw assets from a vault, burning shares.
  *
  * ```ts
  * const result = await vaultWithdraw(client, {
  *   vault: evmAddress('0x1234…'),
- *   shares: {
- *     amount: '500',
- *     asAToken: false,
+ *   amount: {
+ *     value: '500',
  *   },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -455,7 +430,7 @@ export function vaultWithdraw(
  *   },
  *   minter: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. insufficient balance, signing error, etc.
@@ -485,7 +460,7 @@ export function vaultMintShares(
  *   underlyingToken: market.supplyReserves[n].underlyingToken.address,
  *   user: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -516,7 +491,7 @@ export function collateralToggle(
  *   user: evmAddress('0x9abc…'),
  *   debtToCover: { max: true },
  *   chainId: chainId(1),
- * }).andThen(sendWith(wallet));
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
  *   // Handle error, e.g. signing error, etc.
@@ -535,4 +510,67 @@ export function liquidate(
   request: LiquidateRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
   return client.query(LiquidateQuery, { request });
+}
+
+/**
+ * Creates a transaction to approve a credit borrow delegator to be able to borrow on your behalf.
+ *
+ * ```ts
+ * const result = await approveBorrowCreditDelegation(client, {
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   amount: '1000',
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ *
+ * if (result.isErr()) {
+ *   // Handle error, e.g. signing error, etc.
+ *   return;
+ * }
+ *
+ * // result.value: TxHash
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The approve borrow credit delegation request parameters.
+ * @returns The transaction request data to approve credit delegation.
+ */
+export function approveBorrowCreditDelegation(
+  client: AaveClient,
+  request: ApproveBorrowCreditDelegatorRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(ApproveBorrowCreditDelegationQuery, { request });
+}
+
+/**
+ * Gets the amount delegated to the credit delegatee that can borrow on your behalf.
+ *
+ * ```ts
+ * const result = await creditDelegateeAllowance(client, {
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * });
+ *
+ * if (result.isErr()) {
+ *   // Handle error
+ *   return;
+ * }
+ *
+ * // result.value: TokenAmount with credit delegation allowance
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The credit delegatee allowance request parameters.
+ * @returns The token amount representing the credit delegation allowance.
+ */
+export function creditDelegateeAllowance(
+  client: AaveClient,
+  request: CreditDelegateeAmountRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(CreditDelegateeAllowanceQuery, { request });
 }

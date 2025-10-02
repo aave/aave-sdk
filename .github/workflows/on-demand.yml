@@ -1,0 +1,40 @@
+name: Run Aave V3 Spec
+
+on:
+  repository_dispatch:
+    types: [on-demand-test]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-tests-on-demand
+  cancel-in-progress: true
+
+jobs:   
+  run-tests:
+    name: All Tests
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: staging
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      ETHEREUM_TENDERLY_FORK_ID: ${{ vars.ETHEREUM_TENDERLY_FORK_ID }}
+      ETHEREUM_TENDERLY_PUBLIC_RPC: ${{ secrets.ETHEREUM_TENDERLY_PUBLIC_RPC }}
+      ETHEREUM_TENDERLY_ADMIN_RPC: ${{ secrets.ETHEREUM_TENDERLY_ADMIN_RPC }}
+      ETHEREUM_TENDERLY_BLOCKEXPLORER: ${{ secrets.ETHEREUM_TENDERLY_BLOCKEXPLORER }}
+      API_X_E2E_TESTS_HEADER: ${{ secrets.API_X_E2E_TESTS_HEADER }}
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Repository
+        uses: ./.github/actions/setup
+
+      - name: Build
+        shell: bash
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm spec
+      
+      - name: Publish results
+        if: always()
+        run: pnpm publish:results

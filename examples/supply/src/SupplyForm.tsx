@@ -15,7 +15,6 @@ interface SupplyFormProps {
 }
 
 export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
-  const [amount, setAmount] = useState<string>('');
   const [status, setStatus] = useState<string>('');
 
   const [supply, supplying] = useSupply();
@@ -24,7 +23,10 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
   const loading = supplying.loading || sending.loading;
   const error = supplying.error || sending.error;
 
-  const handleSupply = async () => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const amount = e.currentTarget.amount.value as string;
     if (!amount) {
       setStatus('Please enter an amount');
       return;
@@ -39,7 +41,7 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
           value: bigDecimal(amount),
         },
       },
-      supplier: evmAddress(walletClient.account!.address),
+      sender: evmAddress(walletClient.account!.address),
     }).andThen((plan) => {
       switch (plan.__typename) {
         case 'TransactionRequest':
@@ -65,13 +67,15 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
       }
     });
 
+    console.log(reserve);
+
     if (result.isOk()) {
       setStatus('Supply successful!');
     }
   };
 
   return (
-    <div>
+    <form onSubmit={submit}>
       <label
         style={{
           marginBottom: '5px',
@@ -79,9 +83,10 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
       >
         <strong style={{ display: 'block' }}>Amount:</strong>
         <input
-          disabled={loading}
+          name='amount'
           type='number'
-          onChange={(e) => setAmount(e.target.value)}
+          step='0.000000000000000001'
+          disabled={loading}
           style={{ width: '100%', padding: '8px' }}
           placeholder='Amount to supply (in token units)'
         />
@@ -90,13 +95,13 @@ export function SupplyForm({ reserve, walletClient }: SupplyFormProps) {
         </small>
       </label>
 
-      <button type='button' disabled={loading} onClick={handleSupply}>
+      <button type='submit' disabled={loading}>
         Supply
       </button>
 
       {status && <p style={{ marginBottom: '10px' }}>{status}</p>}
 
       {error && <p style={{ color: '#f44336' }}>Error: {error.toString()}</p>}
-    </div>
+    </form>
   );
 }

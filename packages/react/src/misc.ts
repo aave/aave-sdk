@@ -1,18 +1,29 @@
+import type { UnexpectedError } from '@aave/client';
+import { healthFactorPreview } from '@aave/client/actions';
 import {
   type Chain,
+  ChainsFilter,
   ChainsQuery,
+  type HealthFactorPreviewRequest,
+  type HealthFactorPreviewResponse,
   HealthQuery,
   type UsdExchangeRate,
   UsdExchangeRatesQuery,
   type UsdExchangeRatesRequest,
 } from '@aave/graphql';
+import { useAaveClient } from './context';
 import type {
   ReadResult,
   Suspendable,
   SuspendableResult,
   SuspenseResult,
+  UseAsyncTask,
 } from './helpers';
-import { useSuspendableQuery } from './helpers';
+import { useAsyncTask, useSuspendableQuery } from './helpers';
+
+export type UseAaveChainsArgs = {
+  filter?: ChainsFilter;
+};
 
 /**
  * Fetch all supported Aave chains.
@@ -21,29 +32,37 @@ import { useSuspendableQuery } from './helpers';
  *
  * ```tsx
  * const { data } = useAaveChains({
+ *   filter: ChainsFilter.MAINNET_ONLY,
  *   suspense: true,
  * });
  * ```
  */
-export function useAaveChains(args: Suspendable): SuspenseResult<Chain[]>;
+export function useAaveChains(
+  args: UseAaveChainsArgs & Suspendable,
+): SuspenseResult<Chain[]>;
 
 /**
  * Fetch all supported Aave chains.
  *
  * ```tsx
- * const { data, loading } = useAaveChains();
+ * const { data, error, loading } = useAaveChains({
+ *   filter: ChainsFilter.MAINNET_ONLY,
+ * });
  * ```
  */
-export function useAaveChains(): ReadResult<Chain[]>;
+export function useAaveChains(args: UseAaveChainsArgs): ReadResult<Chain[]>;
 
 export function useAaveChains({
   suspense = false,
-}: {
+  filter = ChainsFilter.ALL,
+}: UseAaveChainsArgs & {
   suspense?: boolean;
-} = {}): SuspendableResult<Chain[]> {
+}): SuspendableResult<Chain[]> {
   return useSuspendableQuery({
     document: ChainsQuery,
-    variables: {},
+    variables: {
+      filter,
+    },
     suspense,
   });
 }
@@ -65,7 +84,7 @@ export function useAaveHealth(args: Suspendable): SuspenseResult<boolean>;
  * Health check query.
  *
  * ```tsx
- * const { data, loading } = useAaveHealth();
+ * const { data, error, loading } = useAaveHealth();
  * ```
  */
 export function useAaveHealth(): ReadResult<boolean>;
@@ -106,7 +125,7 @@ export function useUsdExchangeRates(
  * Fetch USD exchange rates for different tokens on a given market.
  *
  * ```tsx
- * const { data, loading } = useUsdExchangeRates({
+ * const { data, error, loading } = useUsdExchangeRates({
  *   market: evmAddress('0x1234…'),
  *   underlyingTokens: [evmAddress('0x5678…'), evmAddress('0x90ab…')],
  *   chainId: chainId(1),
@@ -130,4 +149,47 @@ export function useUsdExchangeRates({
     },
     suspense,
   });
+}
+
+/**
+ * Determines the health factor after a given action.
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useAaveHealthFactorPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   action: {
+ *     borrow: {
+ *       market: market.address,
+ *       amount: {
+ *         erc20: {
+ *           currency: evmAddress('0x5678…'),
+ *           value: '1000',
+ *         },
+ *       },
+ *       borrower: evmAddress('0x9abc…'),
+ *       chainId: market.chain.chainId,
+ *     },
+ *   },
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useAaveHealthFactorPreview(): UseAsyncTask<
+  HealthFactorPreviewRequest,
+  HealthFactorPreviewResponse,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: HealthFactorPreviewRequest) =>
+    healthFactorPreview(client, request),
+  );
 }

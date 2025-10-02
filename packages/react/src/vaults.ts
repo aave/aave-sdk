@@ -1,20 +1,40 @@
+import type { UnexpectedError } from '@aave/client';
+import {
+  vaultPreviewDeposit,
+  vaultPreviewMint,
+  vaultPreviewRedeem,
+  vaultPreviewWithdraw,
+} from '@aave/client/actions';
 import {
   type PaginatedVaultsResult,
+  type PaginatedVaultUserTransactionHistoryResult,
+  type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
+  type VaultPreviewDepositRequest,
+  type VaultPreviewMintRequest,
+  type VaultPreviewRedeemRequest,
+  type VaultPreviewWithdrawRequest,
   VaultQuery,
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserActivityQuery,
+  type VaultUserActivityRequest,
+  type VaultUserActivityResult,
+  VaultUserTransactionHistoryQuery,
+  type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
+import { useAaveClient } from './context';
 import type {
   ReadResult,
   Suspendable,
   SuspendableResult,
   SuspenseResult,
+  UseAsyncTask,
 } from './helpers';
-import { useSuspendableQuery } from './helpers';
+import { useAsyncTask, useSuspendableQuery } from './helpers';
 
 export type UseVaultArgs = VaultRequest;
 
@@ -42,7 +62,7 @@ export function useVault(
  * Fetch a single vault by address and chain ID.
  *
  * ```tsx
- * const { data, loading } = useVault({
+ * const { data, error, loading } = useVault({
  *   address: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   user: evmAddress('0x5678…'),
@@ -92,7 +112,7 @@ export function useVaults(
  * Fetch vaults based on filter criteria.
  *
  * ```tsx
- * const { data, loading } = useVaults({
+ * const { data, error, loading } = useVaults({
  *   criteria: {
  *     ownedBy: [evmAddress('0x1234…')]
  *   },
@@ -147,7 +167,7 @@ export function useUserVaults(
  * Fetch vaults that a user has shares in.
  *
  * ```tsx
- * const { data, loading } = useUserVaults({
+ * const { data, error, loading } = useUserVaults({
  *   user: evmAddress('0x1234…'),
  *   filters: {
  *     markets: [evmAddress('0x5678…')]
@@ -169,6 +189,249 @@ export function useUserVaults({
 }): SuspendableResult<PaginatedVaultsResult> {
   return useSuspendableQuery({
     document: UserVaultsQuery,
+    variables: {
+      request,
+    },
+    suspense,
+  });
+}
+
+/**
+ * Determines the amount of shares that would be received for a deposit.
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useVaultDepositPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('1000'),
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useVaultDepositPreview(): UseAsyncTask<
+  VaultPreviewDepositRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultPreviewDepositRequest) =>
+    vaultPreviewDeposit(client, request),
+  );
+}
+
+/**
+ * Determines the amount of assets that would be required to mint a specific amount of vault shares.
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useVaultMintPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('500'),
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useVaultMintPreview(): UseAsyncTask<
+  VaultPreviewMintRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultPreviewMintRequest) =>
+    vaultPreviewMint(client, request),
+  );
+}
+
+/**
+ * Determines the amount of shares that would be burned for a withdrawal.
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useVaultWithdrawPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('750'),
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useVaultWithdrawPreview(): UseAsyncTask<
+  VaultPreviewWithdrawRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultPreviewWithdrawRequest) =>
+    vaultPreviewWithdraw(client, request),
+  );
+}
+
+/**
+ * Determines the amount of assets that would be received for redeeming a specific amount of vault shares.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```ts
+ * const [preview, { loading, error }] = useVaultRedeemPreview();
+ *
+ * // …
+ *
+ * const result = await preview({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('200'),
+ * });
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ * } else {
+ *   console.log(result.value);
+ * }
+ * ```
+ */
+export function useVaultRedeemPreview(): UseAsyncTask<
+  VaultPreviewRedeemRequest,
+  TokenAmount,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultPreviewRedeemRequest) =>
+    vaultPreviewRedeem(client, request),
+  );
+}
+
+export type UseVaultUserTransactionHistoryArgs =
+  VaultUserTransactionHistoryRequest;
+
+/**
+ * Fetch user transaction history for a vault.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useVaultUserTransactionHistory({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useVaultUserTransactionHistory(
+  args: UseVaultUserTransactionHistoryArgs & Suspendable,
+): SuspenseResult<PaginatedVaultUserTransactionHistoryResult>;
+
+/**
+ * Fetch user transaction history for a vault.
+ *
+ * ```tsx
+ * const { data, error, loading } = useVaultUserTransactionHistory({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ * ```
+ */
+export function useVaultUserTransactionHistory(
+  args: UseVaultUserTransactionHistoryArgs,
+): ReadResult<PaginatedVaultUserTransactionHistoryResult>;
+
+export function useVaultUserTransactionHistory({
+  suspense = false,
+  ...request
+}: UseVaultUserTransactionHistoryArgs & {
+  suspense?: boolean;
+}): SuspendableResult<PaginatedVaultUserTransactionHistoryResult> {
+  return useSuspendableQuery({
+    document: VaultUserTransactionHistoryQuery,
+    variables: {
+      request,
+    },
+    suspense,
+  });
+}
+
+export type UseVaultUserActivityArgs = VaultUserActivityRequest;
+
+/**
+ * Fetch user activity data for a vault, including earnings breakdown over time.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useVaultUserActivity({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useVaultUserActivity(
+  args: UseVaultUserActivityArgs & Suspendable,
+): SuspenseResult<VaultUserActivityResult>;
+
+/**
+ * Fetch user activity data for a vault, including earnings breakdown over time.
+ *
+ * ```tsx
+ * const { data, error, loading } = useVaultUserActivity({
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (data) {
+ *   console.log('Total earned:', data.earned.amount.value);
+ *   data.breakdown.forEach(activity => {
+ *     console.log('Date:', activity.date);
+ *     console.log('Balance:', activity.balance.amount.value);
+ *   });
+ * }
+ * ```
+ */
+export function useVaultUserActivity(
+  args: UseVaultUserActivityArgs,
+): ReadResult<VaultUserActivityResult>;
+
+export function useVaultUserActivity({
+  suspense = false,
+  ...request
+}: UseVaultUserActivityArgs & {
+  suspense?: boolean;
+}): SuspendableResult<VaultUserActivityResult> {
+  return useSuspendableQuery({
+    document: VaultUserActivityQuery,
     variables: {
       request,
     },

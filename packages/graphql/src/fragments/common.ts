@@ -11,6 +11,17 @@ export const DecimalValueFragment = graphql(
 );
 export type DecimalValue = FragmentOf<typeof DecimalValueFragment>;
 
+export const PercentValueFragment = graphql(
+  `fragment PercentValue on PercentValue {
+    __typename
+    raw
+    decimals
+    value
+    formatted
+  }`,
+);
+export type PercentValue = FragmentOf<typeof PercentValueFragment>;
+
 export const CurrencyFragment = graphql(
   `fragment Currency on Currency {
     __typename
@@ -32,6 +43,7 @@ export const NativeCurrencyFragment = graphql(
     symbol
     decimals
     chainId
+    wrappedToken
   }`,
 );
 export type NativeCurrency = FragmentOf<typeof NativeCurrencyFragment>;

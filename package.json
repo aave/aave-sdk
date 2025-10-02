@@ -18,25 +18,53 @@
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
-    "prepublish": "pnpm run build",
+    "prepare": "pnpm run build",
+    "publish:results": "tsx scripts/publishResults.ts",
+    "release": "pnpm changeset publish",
+    "spec": "vitest --project spec",
+    "spec:borrow": "vitest --project spec packages/spec/markets/borrow.spec.ts",
+    "spec:chains": "vitest --project spec packages/spec/misc/chains.spec.ts",
+    "spec:collateral": "vitest --project spec packages/spec/markets/collateralToggle.spec.ts",
+    "spec:emode": "vitest --project spec packages/spec/markets/eMode.spec.ts",
+    "spec:healthFactor": "vitest --project spec packages/spec/markets/healthFactor.spec.ts",
+    "spec:history": "vitest --project spec packages/spec/markets/history.spec.ts",
+    "spec:gho:deposit": "vitest --project spec packages/spec/gho/deposit.spec.ts",
+    "spec:gho:withdraw": "vitest --project spec packages/spec/gho/withdraw.spec.ts",
+    "spec:markets": "vitest --project spec packages/spec/markets/markets.spec.ts",
+    "spec:incentives": "vitest --project spec packages/spec/markets/incentives.spec.ts",
+    "spec:positions": "vitest --project spec packages/spec/markets/positions.spec.ts",
+    "spec:repay": "vitest --project spec packages/spec/markets/repay.spec.ts",
+    "spec:reserve": "vitest --project spec packages/spec/markets/reserve.spec.ts",
+    "spec:supply": "vitest --project spec packages/spec/markets/supply.spec.ts",
+    "spec:vaults": "vitest --project spec packages/spec/vaults/vaults.spec.ts",
+    "spec:withdraw": "vitest --project spec packages/spec/markets/withdraw.spec.ts",
+    "test": "pnpm test:client && pnpm test:react",
     "test:client": "vitest --project client",
-    "test:client:local": "ENVIRONMENT=local vitest --project client",
+    "test:client:privy": "vitest --project client packages/client/src/privy.test.ts",
+    "test:client:thirdweb": "vitest --project client packages/client/src/thirdweb.test.ts",
     "test:react": "vitest --project react",
-    "test": "vitest"
+    "typecheck:spec": "pnpm --filter spec typecheck"
   },
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.0.6",
     "@changesets/cli": "^2.29.5",
     "@types/node": "^24.0.7",
+    "@vitest/ui": "^3.2.4",
     "jest-extended": "^6.0.0",
     "plop": "^4.0.1",
     "rimraf": "^6.0.1",
     "tsx": "^4.20.3",
     "turbo": "^2.5.4",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0",
     "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "^19.1.0",
+      "react-dom": "^19.1.0"
+    }
   },
   "packageManager": "pnpm@9.15.4"
 }

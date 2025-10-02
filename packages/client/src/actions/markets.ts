@@ -1,3 +1,4 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type Market,
   MarketQuery,
@@ -9,8 +10,7 @@ import {
   type UserMarketStateRequest,
 } from '@aave/graphql';
 import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 export const defaultMarketReservesRequestOrderBy: MarketReservesRequestOrderBy =
   {

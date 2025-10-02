@@ -1,8 +1,12 @@
-import type { AnyVariables, StandardData } from '@aave/graphql';
-import { invariant } from '@aave/types';
+import { type StandardData, UnexpectedError } from '@aave/client';
+import { type AnyVariables, invariant } from '@aave/types';
 import { useMemo } from 'react';
 import { type TypedDocumentNode, useQuery } from 'urql';
-import { ReadResult, type SuspendableResult } from './results';
+import {
+  ReadResult,
+  type SuspendableResult,
+  type SuspenseResult,
+} from './results';
 
 /**
  * @internal
@@ -12,15 +16,40 @@ export type Suspendable = { suspense: true };
 /**
  * @internal
  */
-export type UseSuspendableQueryArgs<Value, Variables extends AnyVariables> = {
+export type UseSuspendableQueryArgs<
+  Value,
+  Variables extends AnyVariables,
+  Suspense extends boolean = boolean,
+> = {
   document: TypedDocumentNode<StandardData<Value>, Variables>;
   variables: Variables;
-  suspense: boolean;
+  suspense: Suspense;
 };
 
 /**
  * @internal
  */
+export function useSuspendableQuery<Value, Variables extends AnyVariables>({
+  document,
+  variables,
+  suspense,
+}: UseSuspendableQueryArgs<Value, Variables, false>): ReadResult<Value>;
+/**
+ * @internal
+ */
+export function useSuspendableQuery<Value, Variables extends AnyVariables>({
+  document,
+  variables,
+  suspense,
+}: UseSuspendableQueryArgs<Value, Variables, true>): SuspenseResult<Value>;
+/**
+ * @internal
+ */
+export function useSuspendableQuery<Value, Variables extends AnyVariables>({
+  document,
+  variables,
+  suspense,
+}: UseSuspendableQueryArgs<Value, Variables>): SuspendableResult<Value>;
 export function useSuspendableQuery<Value, Variables extends AnyVariables>({
   document,
   variables,
@@ -37,8 +66,12 @@ export function useSuspendableQuery<Value, Variables extends AnyVariables>({
   }
 
   if (error) {
-    // biome-ignore lint/suspicious/noExplicitAny: temporary workaround
-    return ReadResult.Failure(error) as any;
+    const unexpected = UnexpectedError.from(error);
+    if (suspense) {
+      throw unexpected;
+    }
+
+    return ReadResult.Failure(unexpected);
   }
 
   invariant(data, 'No data returned');

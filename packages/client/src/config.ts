@@ -1,5 +1,7 @@
-import type { EnvironmentConfig } from '@aave/env';
+import type { Context } from '@aave/core';
 import type { TypedDocumentNode } from '@urql/core';
+import type { EnvironmentConfig } from '../../core/src/types';
+import { production } from './environments';
 
 /**
  * The client configuration.
@@ -10,6 +12,10 @@ export type ClientConfig = {
    * @defaultValue `production`
    */
   environment?: EnvironmentConfig;
+  /**
+   * @internal
+   */
+  headers?: Record<string, string>;
   /**
    * Whether to enable caching.
    *
@@ -29,3 +35,16 @@ export type ClientConfig = {
    */
   fragments?: TypedDocumentNode[];
 };
+
+/**
+ * @internal
+ */
+export function configureContext(from: ClientConfig): Context {
+  return {
+    environment: from.environment ?? production,
+    headers: from.headers,
+    cache: from.cache ?? false,
+    debug: from.debug ?? false,
+    fragments: from.fragments ?? [],
+  };
+}

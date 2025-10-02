@@ -1,12 +1,12 @@
 import type { UnexpectedError } from '@aave/client';
 import {
+  approveBorrowCreditDelegation,
   borrow,
   collateralToggle,
   liquidate,
   repay,
   supply,
   userSetEmode,
-  vaultClaimRewards,
   vaultDeploy,
   vaultDeposit,
   vaultMintShares,
@@ -17,6 +17,7 @@ import {
   withdraw,
 } from '@aave/client/actions';
 import type {
+  ApproveBorrowCreditDelegatorRequest,
   BorrowRequest,
   CollateralToggleRequest,
   ExecutionPlan,
@@ -25,7 +26,6 @@ import type {
   SupplyRequest,
   TransactionRequest,
   UserSetEmodeRequest,
-  VaultClaimRewardsRequest,
   VaultDeployRequest,
   VaultDepositRequest,
   VaultMintSharesRequest,
@@ -59,19 +59,16 @@ import { type UseAsyncTask, useAsyncTask } from './helpers';
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -109,19 +106,16 @@ export function useSupply(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -159,19 +153,16 @@ export function useBorrow(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -209,19 +200,16 @@ export function useRepay(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -251,27 +239,10 @@ export function useWithdraw(): UseAsyncTask<
  * // …
  *
  * const result = await setUserEMode({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -306,7 +277,7 @@ export function useUserEMode(): UseAsyncTask<
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   console.error(`Failed to sign the transaction: ${error.message}`);
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -341,7 +312,7 @@ export function useCollateralToggle(): UseAsyncTask<
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   console.error(`Failed to sign the transaction: ${error.message}`);
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -381,19 +352,16 @@ export function useLiquidate(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -433,19 +401,16 @@ export function useVaultDeposit(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -477,27 +442,10 @@ export function useVaultMintShares(): UseAsyncTask<
  * // …
  *
  * const result = await redeem({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -529,27 +477,10 @@ export function useVaultRedeemShares(): UseAsyncTask<
  * // …
  *
  * const result = await withdraw({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -589,19 +520,16 @@ export function useVaultWithdraw(): UseAsyncTask<
  *       case 'ApprovalRequired':
  *         return sendTransaction(plan.approval)
  *           .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *       case 'InsufficientBalanceError':
+ *         return errAsync(
+ *           new Error(`Insufficient balance: ${plan.required.value} required.`)
+ *         );
  *     }
  *   });
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -633,27 +561,10 @@ export function useVaultDeploy(): UseAsyncTask<
  * // …
  *
  * const result = await setFee({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -685,27 +596,10 @@ export function useVaultSetFee(): UseAsyncTask<
  * // …
  *
  * const result = await withdraw({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
@@ -725,53 +619,42 @@ export function useVaultWithdrawFees(): UseAsyncTask<
 }
 
 /**
- * A hook that provides a way to claim vault rewards.
+ * A hook that provides a way to approve a credit borrow delegator to be able to borrow on your behalf.
  *
  * ```ts
- * const [claim, claiming] = useVaultClaimRewards();
+ * const [approve, approving] = useApproveBorrowCreditDelegation();
  * const [sendTransaction, sending] = useSendTransaction(wallet);
  *
- * const loading = claiming.loading && sending.loading;
- * const error = claiming.error || sending.error;
+ * const loading = approving.loading && sending.loading;
+ * const error = approving.error || sending.error;
  *
  * // …
  *
- * const result = await claim({ ... })
- *   .andThen((plan) => {
- *     switch (plan.__typename) {
- *       case 'TransactionRequest':
- *         return sendTransaction(plan);
- *
- *       case 'ApprovalRequired':
- *         return sendTransaction(plan.approval)
- *           .andThen(() => sendTransaction(plan.originalTransaction));
- *     }
- *   });
+ * const result = await approve({
+ *   market: evmAddress('0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2'),
+ *   underlyingToken: evmAddress('0xa0b86a33e6441c8c5f0bb9b7e5e1f8bbf5b78b5c'),
+ *   amount: '1000',
+ *   user: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+ *   delegatee: evmAddress('0x5678…'),
+ *   chainId: chainId(1),
+ * }).andThen(sendTransaction);
  *
  * if (result.isErr()) {
- *   switch (error.name) {
- *     case 'SigningError':
- *       console.error(`Failed to sign the transaction: ${error.message}`);
- *       break;
- *
- *     case 'ValidationError':
- *       console.error(`Insufficient balance: ${error.cause.required.value} required.`);
- *       break;
- *   }
+ *   console.error(result.error);
  *   return;
  * }
  *
  * console.log('Transaction sent with hash:', result.value);
  * ```
  */
-export function useVaultClaimRewards(): UseAsyncTask<
-  VaultClaimRewardsRequest,
+export function useApproveBorrowCreditDelegation(): UseAsyncTask<
+  ApproveBorrowCreditDelegatorRequest,
   TransactionRequest,
   UnexpectedError
 > {
   const client = useAaveClient();
 
-  return useAsyncTask((request: VaultClaimRewardsRequest) =>
-    vaultClaimRewards(client, request),
+  return useAsyncTask((request: ApproveBorrowCreditDelegatorRequest) =>
+    approveBorrowCreditDelegation(client, request),
   );
 }

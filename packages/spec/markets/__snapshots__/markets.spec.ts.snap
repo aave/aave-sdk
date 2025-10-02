@@ -1,0 +1,137 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Given the Aave Protocol v3 > When fetching a single market > Then it should return the expected data for the market 1`] = `
+{
+  "__typename": "Market",
+  "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 99999999,
+    "explorerUrl": "https://dashboard.tenderly.co/explorer/vnet/27ff3c60-0e2c-4d46-8190-f5170dc7da8c",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": true,
+    "name": "Forked Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3ForkedEthereum",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 1`] = `
+{
+  "__typename": "Market",
+  "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": false,
+    "name": "Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3Ethereum",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 2`] = `
+{
+  "__typename": "Market",
+  "address": "0x0AA97c284e98396202b6A04024F5E2c65026F3c0",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": false,
+    "name": "Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumEtherFi",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 3`] = `
+{
+  "__typename": "Market",
+  "address": "0xAe05Cd22df81871bc7cC2a04BeCfb516bFe332C8",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": false,
+    "name": "Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumHorizon",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching markets by chain ID(s) > Then it should return the expected data for each market 4`] = `
+{
+  "__typename": "Market",
+  "address": "0x4e033931ad43597d96D6bcc25c280717730B58B1",
+  "borrowReserves": Any<Array>,
+  "chain": {
+    "__typename": "Chain",
+    "chainId": 1,
+    "explorerUrl": "https://etherscan.io",
+    "icon": "https://statics.aave.com/ethereum.svg",
+    "isTestnet": false,
+    "name": "Ethereum",
+    "nativeWrappedToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  },
+  "eModeCategories": Any<Array>,
+  "icon": "https://statics.aave.com/ethereum.svg",
+  "name": "AaveV3EthereumLido",
+  "supplyReserves": Any<Array>,
+  "totalAvailableLiquidity": Any<String>,
+  "totalMarketSize": Any<String>,
+  "userState": null,
+}
+`;
+
+exports[`Given the Aave Protocol v3 > When fetching user market state for a new user > Then it should return the expected data for a user that has never interacted with the market 1`] = `
+{
+  "__typename": "MarketUserState",
+  "availableBorrowsBase": Any<String>,
+  "currentLiquidationThreshold": Any<Object>,
+  "eModeEnabled": false,
+  "healthFactor": null,
+  "isInIsolationMode": false,
+  "ltv": Any<Object>,
+  "netAPY": Any<Object>,
+  "netWorth": Any<String>,
+  "totalCollateralBase": Any<String>,
+  "totalDebtBase": Any<String>,
+}
+`;

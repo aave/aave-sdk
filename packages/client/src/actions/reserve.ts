@@ -1,3 +1,4 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type APYSample,
   BorrowAPYHistoryQuery,
@@ -9,8 +10,7 @@ import {
   type SupplyAPYHistoryRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Fetches a specific reserve by market address, token address, and chain ID.

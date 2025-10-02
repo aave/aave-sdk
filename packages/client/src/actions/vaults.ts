@@ -1,16 +1,31 @@
+import type { UnexpectedError } from '@aave/core';
 import {
   type PaginatedVaultsResult,
+  type PaginatedVaultUserTransactionHistoryResult,
+  type TokenAmount,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
+  VaultPreviewDepositQuery,
+  type VaultPreviewDepositRequest,
+  VaultPreviewMintQuery,
+  type VaultPreviewMintRequest,
+  VaultPreviewRedeemQuery,
+  type VaultPreviewRedeemRequest,
+  VaultPreviewWithdrawQuery,
+  type VaultPreviewWithdrawRequest,
   VaultQuery,
   type VaultRequest,
   VaultsQuery,
   type VaultsRequest,
+  VaultUserActivityQuery,
+  type VaultUserActivityRequest,
+  type VaultUserActivityResult,
+  VaultUserTransactionHistoryQuery,
+  type VaultUserTransactionHistoryRequest,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
-import type { AaveClient } from '../client';
-import type { UnexpectedError } from '../errors';
+import type { AaveClient } from '../AaveClient';
 
 /**
  * Fetches a specific vault by address and chain ID.
@@ -99,6 +114,191 @@ export function userVaults(
   request: UserVaultsRequest,
 ): ResultAsync<PaginatedVaultsResult, UnexpectedError> {
   return client.query(UserVaultsQuery, {
+    request,
+  });
+}
+
+/**
+ * Determines the amount of shares that would be received for a deposit.
+ *
+ * ```ts
+ * const result = await vaultPreviewDeposit(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('1000'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Shares to receive:', result.value.amount.value);
+ *   console.log('USD value:', result.value.usd);
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault preview deposit request parameters.
+ * @returns The simulated shares amount that would be received.
+ */
+export function vaultPreviewDeposit(
+  client: AaveClient,
+  request: VaultPreviewDepositRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(VaultPreviewDepositQuery, {
+    request,
+  });
+}
+
+/**
+ * Determines the amount of assets that would be required to mint a specific amount of vault shares.
+ *
+ * ```ts
+ * const result = await vaultPreviewMint(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('500'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Assets required:', result.value.amount.value);
+ *   console.log('USD value:', result.value.usd);
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault preview mint request parameters.
+ * @returns The simulated assets amount that would be required.
+ */
+export function vaultPreviewMint(
+  client: AaveClient,
+  request: VaultPreviewMintRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(VaultPreviewMintQuery, {
+    request,
+  });
+}
+
+/**
+ * Determines the amount of shares that would be burned for a withdrawal.
+ *
+ * ```ts
+ * const result = await vaultPreviewWithdraw(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('750'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Shares to burn:', result.value.amount.value);
+ *   console.log('USD value:', result.value.usd);
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault preview withdraw request parameters.
+ * @returns The simulated shares amount that would be burned.
+ */
+export function vaultPreviewWithdraw(
+  client: AaveClient,
+  request: VaultPreviewWithdrawRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(VaultPreviewWithdrawQuery, {
+    request,
+  });
+}
+
+/**
+ * Determines the amount of assets that would be received for redeeming a specific amount of vault shares.
+ *
+ * ```ts
+ * const result = await vaultPreviewRedeem(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   amount: bigDecimal('200'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Assets to receive:', result.value.amount.value);
+ *   console.log('USD value:', result.value.usd);
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault preview redeem request parameters.
+ * @returns The simulated assets amount that would be received.
+ */
+export function vaultPreviewRedeem(
+  client: AaveClient,
+  request: VaultPreviewRedeemRequest,
+): ResultAsync<TokenAmount, UnexpectedError> {
+  return client.query(VaultPreviewRedeemQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches the user transaction history for a vault.
+ *
+ * ```ts
+ * const result = await vaultUserTransactionHistory(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Transaction count:', result.value.items.length);
+ *   result.value.items.forEach(tx => {
+ *     if (tx.__typename === 'VaultUserDepositItem') {
+ *       console.log('Deposit:', tx.asset.amount.value, 'shares:', tx.shares.amount.value);
+ *     } else if (tx.__typename === 'VaultUserWithdrawItem') {
+ *       console.log('Withdraw:', tx.asset.amount.value, 'shares:', tx.shares.amount.value);
+ *     }
+ *   });
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault user transaction history request parameters.
+ * @returns The paginated vault user transaction history result.
+ */
+export function vaultUserTransactionHistory(
+  client: AaveClient,
+  request: VaultUserTransactionHistoryRequest,
+): ResultAsync<PaginatedVaultUserTransactionHistoryResult, UnexpectedError> {
+  return client.query(VaultUserTransactionHistoryQuery, {
+    request,
+  });
+}
+
+/**
+ * Fetches the user activity data for a vault, including earnings breakdown over time.
+ *
+ * ```ts
+ * const result = await vaultUserActivity(client, {
+ *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   chainId: chainId(1),
+ *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Total earned:', result.value.earned.amount.value);
+ *   console.log('Activity breakdown count:', result.value.breakdown.length);
+ *   result.value.breakdown.forEach(activity => {
+ *     console.log('Date:', activity.date);
+ *     console.log('Balance:', activity.balance.amount.value);
+ *     console.log('Earned:', activity.earned.amount.value);
+ *   });
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault user activity request parameters.
+ * @returns The vault user activity result.
+ */
+export function vaultUserActivity(
+  client: AaveClient,
+  request: VaultUserActivityRequest,
+): ResultAsync<VaultUserActivityResult, UnexpectedError> {
+  return client.query(VaultUserActivityQuery, {
     request,
   });
 }

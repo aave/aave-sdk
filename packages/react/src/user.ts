@@ -46,7 +46,7 @@ export function useUserSupplies(
  * Fetch all user supply positions.
  *
  * ```tsx
- * const { data, loading } = useUserSupplies({
+ * const { data, error, loading } = useUserSupplies({
  *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
  *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
@@ -96,7 +96,7 @@ export function useUserBorrows(
  * Fetch all user borrow positions.
  *
  * ```tsx
- * const { data, loading } = useUserBorrows({
+ * const { data, error, loading } = useUserBorrows({
  *   markets: [{ address: evmAddress('0x87870bca…'), chainId: chainId(1) }],
  *   user: evmAddress('0x742d35cc…'),
  *   orderBy: { name: OrderDirection.ASC },
@@ -146,7 +146,7 @@ export function useUserMarketState(
  * Fetch user account market data across all reserves.
  *
  * ```tsx
- * const { data, loading } = useUserMarketState({
+ * const { data, error, loading } = useUserMarketState({
  *   market: evmAddress('0x1234…'),
  *   user: evmAddress('0x5678…'),
  *   chainId: chainId(1),
@@ -193,7 +193,7 @@ export function useUserTransactionHistory(
  * Fetch user transaction history.
  *
  * ```tsx
- * const { data, loading } = useUserTransactionHistory();
+ * const { data, error, loading } = useUserTransactionHistory();
  * ```
  */
 export function useUserTransactionHistory(

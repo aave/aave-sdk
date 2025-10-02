@@ -1,9 +1,10 @@
 /// <reference path="../../../vite-env.d.ts" />
 
-import { local, staging } from '@aave/env';
-import type { AnyVariables, Reserve } from '@aave/graphql';
+import { GraphQLErrorCode, UnexpectedError } from '@aave/core';
+import type { Reserve } from '@aave/graphql';
 import { schema } from '@aave/graphql/test-utils';
 import {
+  type AnyVariables,
   assertOk,
   type BigDecimal,
   bigDecimal,
@@ -17,6 +18,7 @@ import type { TypedDocumentNode } from '@urql/core';
 import { validate } from 'graphql';
 import type { ValidationRule } from 'graphql/validation/ValidationContext';
 import {
+  type Chain,
   createPublicClient,
   createWalletClient,
   defineChain,
@@ -27,59 +29,79 @@ import {
 } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { expect } from 'vitest';
+import { AaveClient } from './AaveClient';
 import { reserve } from './actions';
-import { AaveClient } from './client';
-import { GraphQLErrorCode, UnexpectedError } from './errors';
+import { local, staging } from './environments';
 
-export const signer = privateKeyToAccount(import.meta.env.PRIVATE_KEY);
 export const environment =
   import.meta.env.ENVIRONMENT === 'local' ? local : staging;
 
-export const ETHEREUM_FORK_ID = chainId(99999999);
+export const ETHEREUM_FORK_ID = chainId(
+  Number.parseInt(import.meta.env.ETHEREUM_TENDERLY_FORK_ID),
+);
 
-export const WETH_ADDRESS = evmAddress(
+export const ETHEREUM_GHO_ADDRESS = evmAddress(
+  '0x40D16FC0246aD3160Ccc09B8D0D3A2cD28aE6C2f',
+);
+
+export const ETHEREUM_WETH_ADDRESS = evmAddress(
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
 );
-export const USDC_ADDRESS = evmAddress(
+
+export const ETHEREUM_USDC_ADDRESS = evmAddress(
   '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
 );
-export const DEFAULT_MARKET_ADDRESS = evmAddress(
+
+export const ETHEREUM_DAI_ADDRESS = evmAddress(
+  '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+);
+
+export const ETHEREUM_MARKET_ADDRESS = evmAddress(
   '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
 );
 
-export const ETHEREUM_FORK_RPC_URL =
-  'https://virtual.mainnet.rpc.tenderly.co/27ff3c60-0e2c-4d46-8190-f5170dc7da8c';
+export const ETHEREUM_SGHO_ADDRESS = evmAddress(
+  '0x1a88Df1cFe15Af22B3c4c783D4e6F7F9e0C1885d',
+);
 
-export const ETHEREUM_FORK_RPC_URL_ADMIN =
-  'https://virtual.mainnet.rpc.tenderly.co/95925d93-2ca7-4986-8b4f-e606f6b243bd';
+export const ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY = 1;
+
+const ETHEREUM_FORK_RPC_URL = import.meta.env.ETHEREUM_TENDERLY_PUBLIC_RPC;
+
+const ETHEREUM_FORK_RPC_URL_ADMIN = import.meta.env.ETHEREUM_TENDERLY_ADMIN_RPC;
 
 // Re-export for convenience
 export { bigDecimal } from '@aave/types';
 
-const ethereumForkChain = defineChain({
-  id: ETHEREUM_FORK_ID,
+export const ethereumForkChain: Chain = defineChain({
+  id: chainId(99999999),
   name: 'Ethereum Fork',
   network: 'ethereum-fork',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: [ETHEREUM_FORK_RPC_URL] } },
+  rpcUrls: {
+    default: {
+      http: [ETHEREUM_FORK_RPC_URL],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Ethereum Fork Explorer',
+      url: import.meta.env.ETHEREUM_TENDERLY_BLOCKEXPLORER,
+    },
+  },
 });
 
 export const client = AaveClient.create({
   environment,
+  headers: {
+    'x-e2e-tests': import.meta.env.API_X_E2E_TESTS_HEADER,
+  },
 });
 
-export const wallet: WalletClient = createWalletClient({
-  account: signer,
-  chain: ethereumForkChain,
-  transport: http(),
-});
-
-export function createNewWallet(): WalletClient {
-  const privateKey = generatePrivateKey();
-  // Log private key to debug test issues
-  console.log(`private key ${privateKey}`);
+export function createNewWallet(privateKey?: `0x${string}`): WalletClient {
+  const privateKeyToUse = privateKey ?? generatePrivateKey();
   const wallet = createWalletClient({
-    account: privateKeyToAccount(privateKey),
+    account: privateKeyToAccount(privateKeyToUse),
     chain: ethereumForkChain,
     transport: http(),
   });
@@ -122,10 +144,15 @@ export function fundNativeAddress(
   const amountHex = `0x${amountInWei.toString(16)}`;
 
   return ResultAsync.fromPromise(
-    publicClient.request<TSetBalanceRpc>({
-      method: 'tenderly_setBalance',
-      params: [[address], amountHex],
-    }),
+    publicClient
+      .request<TSetBalanceRpc>({
+        method: 'tenderly_setBalance',
+        params: [[address], amountHex],
+      })
+      .then(async (res) => {
+        await wait(500); // Temporal fix to avoid tenderly issues with the balance not being set
+        return res;
+      }),
     (err) => UnexpectedError.from(err),
   );
 }
@@ -154,19 +181,28 @@ export function fundErc20Address(
   const amountHex = `0x${amountInSmallestUnit.toString(16)}`;
 
   return ResultAsync.fromPromise(
-    publicClient.request<TSetErc20BalanceRpc>({
-      method: 'tenderly_setErc20Balance',
-      params: [tokenAddress, address, amountHex],
-    }),
+    publicClient
+      .request<TSetErc20BalanceRpc>({
+        method: 'tenderly_setErc20Balance',
+        params: [tokenAddress, address, amountHex],
+      })
+      .then(async (res) => {
+        await wait(500); // Temporal fix to avoid tenderly issues with the balance not being set
+        return res;
+      }),
     (err) => UnexpectedError.from(err),
   );
 }
 
-export async function fetchReserve(tokenAddress: EvmAddress): Promise<Reserve> {
+export async function fetchReserve(
+  tokenAddress: EvmAddress,
+  user?: EvmAddress,
+): Promise<Reserve> {
   const result = await reserve(client, {
     chainId: ETHEREUM_FORK_ID,
-    market: DEFAULT_MARKET_ADDRESS,
+    market: ETHEREUM_MARKET_ADDRESS,
     underlyingToken: tokenAddress,
+    user: user,
   }).map(nonNullable);
   assertOk(result);
   return result.value;
@@ -204,4 +240,55 @@ export function assertTypedDocumentSatisfies<
   rules: ReadonlyArray<ValidationRule>,
 ) {
   expect(validate(schema, document, rules)).toEqual([]);
+}
+
+export function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Function to get balance ERC20 token
+export async function getBalance(
+  address: EvmAddress,
+  tokenAddress: EvmAddress,
+): Promise<number> {
+  const publicClient = createPublicClient({
+    chain: ethereumForkChain,
+    transport: http(ETHEREUM_FORK_RPC_URL),
+  });
+
+  const [balance, decimals] = await Promise.all([
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: [
+        {
+          inputs: [
+            { internalType: 'address', name: 'account', type: 'address' },
+          ],
+          name: 'balanceOf',
+          outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'balanceOf',
+      args: [address],
+    }),
+    publicClient.readContract({
+      address: tokenAddress,
+      abi: [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+          stateMutability: 'pure',
+          type: 'function',
+        },
+      ] as const,
+      functionName: 'decimals',
+    }),
+  ]);
+
+  return Number.parseFloat(
+    (Number(balance) / 10 ** Number(decimals)).toFixed(decimals),
+  );
 }

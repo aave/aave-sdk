@@ -1,10 +1,11 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
+import { type FragmentDocumentFor, graphql } from '../graphql';
 import { ChainFragment } from './chain';
 import {
   CurrencyFragment,
   DecimalValueFragment,
   NativeCurrencyFragment,
+  PercentValueFragment,
   TokenAmountFragment,
 } from './common';
 
@@ -22,6 +23,122 @@ export const MarketInfoFragment = graphql(
 );
 export type MarketInfo = FragmentOf<typeof MarketInfoFragment>;
 
+export const MeritSupplyIncentiveFragment = graphql(
+  `fragment MeritSupplyIncentive on MeritSupplyIncentive {
+    __typename
+    extraSupplyApr {
+      ...PercentValue
+    }
+    claimLink
+  }`,
+  [PercentValueFragment],
+);
+export type MeritSupplyIncentive = FragmentOf<
+  typeof MeritSupplyIncentiveFragment
+>;
+
+export const MeritBorrowIncentiveFragment = graphql(
+  `fragment MeritBorrowIncentive on MeritBorrowIncentive {
+    __typename
+    borrowAprDiscount {
+      ...PercentValue
+    }
+    claimLink
+  }`,
+  [PercentValueFragment],
+);
+export type MeritBorrowIncentive = FragmentOf<
+  typeof MeritBorrowIncentiveFragment
+>;
+
+export const MeritBorrowAndSupplyIncentiveConditionFragment = graphql(
+  `fragment MeritBorrowAndSupplyIncentiveCondition on MeritBorrowAndSupplyIncentiveCondition {
+    __typename
+    extraApr {
+      ...PercentValue
+    }
+    supplyToken {
+      ...Currency
+    }
+    borrowToken {
+      ...Currency
+    }
+    claimLink
+  }`,
+  [PercentValueFragment, CurrencyFragment],
+);
+export type MeritBorrowAndSupplyIncentiveCondition = FragmentOf<
+  typeof MeritBorrowAndSupplyIncentiveConditionFragment
+>;
+
+export const AaveSupplyIncentiveFragment = graphql(
+  `fragment AaveSupplyIncentive on AaveSupplyIncentive {
+    __typename
+    extraSupplyApr {
+      ...PercentValue
+    }
+    rewardTokenAddress
+    rewardTokenSymbol
+  }`,
+  [PercentValueFragment],
+);
+export type AaveSupplyIncentive = FragmentOf<
+  typeof AaveSupplyIncentiveFragment
+>;
+
+export const AaveBorrowIncentiveFragment = graphql(
+  `fragment AaveBorrowIncentive on AaveBorrowIncentive {
+    __typename
+    borrowAprDiscount {
+      ...PercentValue
+    }
+    rewardTokenAddress
+    rewardTokenSymbol
+  }`,
+  [PercentValueFragment],
+);
+export type AaveBorrowIncentive = FragmentOf<
+  typeof AaveBorrowIncentiveFragment
+>;
+
+export type ReserveIncentive =
+  | MeritSupplyIncentive
+  | MeritBorrowIncentive
+  | MeritBorrowAndSupplyIncentiveCondition
+  | AaveSupplyIncentive
+  | AaveBorrowIncentive;
+
+export const ReserveIncentiveFragment: FragmentDocumentFor<
+  ReserveIncentive,
+  'ReserveIncentive'
+> = graphql(
+  `fragment ReserveIncentive on ReserveIncentive {
+    __typename
+    ... on MeritSupplyIncentive {
+      ...MeritSupplyIncentive
+    }
+    ... on MeritBorrowIncentive {
+      ...MeritBorrowIncentive
+    }
+    ... on MeritBorrowAndSupplyIncentiveCondition {
+      ...MeritBorrowAndSupplyIncentiveCondition
+    }
+    ... on AaveSupplyIncentive {
+      ...AaveSupplyIncentive
+    }
+    ... on AaveBorrowIncentive {
+      ...AaveBorrowIncentive
+    }
+  }`,
+  [
+    MeritSupplyIncentiveFragment,
+    MeritBorrowIncentiveFragment,
+    MeritBorrowAndSupplyIncentiveConditionFragment,
+    AaveSupplyIncentiveFragment,
+    AaveBorrowIncentiveFragment,
+  ],
+);
+
 export const ReserveInfoFragment = graphql(
   `fragment ReserveInfo on ReserveInfo {
     __typename
@@ -38,8 +155,12 @@ export const ReserveInfoFragment = graphql(
       ...Currency
     }
     usdExchangeRate
+    permitSupported
+    incentives {
+      ...ReserveIncentive
+    }
   }`,
-  [MarketInfoFragment, CurrencyFragment],
+  [MarketInfoFragment, CurrencyFragment, ReserveIncentiveFragment],
 );
 export type ReserveInfo = FragmentOf<typeof ReserveInfoFragment>;
 
@@ -49,18 +170,18 @@ export const EmodeReserveInfoFragment = graphql(
     categoryId
     label
     maxLTV {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationThreshold {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationPenalty {
-      ...DecimalValue
+      ...PercentValue
     }
     canBeCollateral
     canBeBorrowed
   }`,
-  [DecimalValueFragment],
+  [PercentValueFragment],
 );
 export type EmodeReserveInfo = FragmentOf<typeof EmodeReserveInfoFragment>;
 
@@ -68,19 +189,19 @@ export const ReserveSupplyInfoFragment = graphql(
   `fragment ReserveSupplyInfo on ReserveSupplyInfo {
     __typename
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
     total {
       ...DecimalValue
     }
     maxLTV {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationThreshold {
-      ...DecimalValue
+      ...PercentValue
     }
     liquidationBonus {
-      ...DecimalValue
+      ...PercentValue
     }
     canBeCollateral
     supplyCap {
@@ -88,7 +209,7 @@ export const ReserveSupplyInfoFragment = graphql(
     }
     supplyCapReached
   }`,
-  [DecimalValueFragment, TokenAmountFragment],
+  [PercentValueFragment, DecimalValueFragment, TokenAmountFragment],
 );
 export type ReserveSupplyInfo = FragmentOf<typeof ReserveSupplyInfoFragment>;
 
@@ -96,7 +217,7 @@ export const ReserveBorrowInfoFragment = graphql(
   `fragment ReserveBorrowInfo on ReserveBorrowInfo {
     __typename
     apy {
-      ...DecimalValue
+      ...PercentValue
     }
     total {
       ...TokenAmount
@@ -105,27 +226,27 @@ export const ReserveBorrowInfoFragment = graphql(
       ...TokenAmount
     }
     reserveFactor {
-      ...DecimalValue
+      ...PercentValue
     }
     availableLiquidity {
       ...TokenAmount
     }
     utilizationRate {
-      ...DecimalValue
+      ...PercentValue
     }
     variableRateSlope1 {
-      ...DecimalValue
+      ...PercentValue
     }
     variableRateSlope2 {
-      ...DecimalValue
+      ...PercentValue
     }
     optimalUsageRate {
-      ...DecimalValue
+      ...PercentValue
     }
     borrowingState
     borrowCapReached
   }`,
-  [DecimalValueFragment, TokenAmountFragment],
+  [PercentValueFragment, TokenAmountFragment],
 );
 export type ReserveBorrowInfo = FragmentOf<typeof ReserveBorrowInfoFragment>;
 
@@ -137,6 +258,7 @@ export const ReserveIsolationModeConfigFragment = graphql(
     debtCeiling {
       ...TokenAmount
     }
+    debtCeilingDecimals
     totalBorrows {
       ...TokenAmount
     }
@@ -196,6 +318,7 @@ export const ReserveFragment = graphql(
     isFrozen
     isPaused
     flashLoanEnabled
+    permitSupported
     supplyInfo {
       ...ReserveSupplyInfo
     }
@@ -207,6 +330,9 @@ export const ReserveFragment = graphql(
     }
     eModeInfo {
       ...EmodeReserveInfo
+    }
+    incentives {
+      ...ReserveIncentive
     }
     userState {
       ...ReserveUserState
@@ -221,6 +347,7 @@ export const ReserveFragment = graphql(
     ReserveBorrowInfoFragment,
     ReserveIsolationModeConfigFragment,
     EmodeReserveInfoFragment,
+    ReserveIncentiveFragment,
     ReserveUserStateFragment,
   ],
 );

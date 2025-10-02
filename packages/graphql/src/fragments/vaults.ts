@@ -1,6 +1,10 @@
 import type { FragmentOf } from 'gql.tada';
-import { graphql } from '../graphql';
-import { PaginatedResultInfoFragment, TokenAmountFragment } from './common';
+import { type FragmentDocumentFor, graphql } from '../graphql';
+import {
+  PaginatedResultInfoFragment,
+  PercentValueFragment,
+  TokenAmountFragment,
+} from './common';
 import { ReserveFragment } from './reserve';
 
 export const UserVaultSharesFragment = graphql(
@@ -27,19 +31,32 @@ export const VaultFragment = graphql(
     usedReserve {
       ...Reserve
     }
-    fee
+    fee {
+      ...PercentValue
+    }
     totalFeeRevenue {
       ...TokenAmount
     }
     balance {
       ...TokenAmount
     }
+    feesBalance {
+      ...TokenAmount
+    }
     chainId
+    vaultApr {
+      ...PercentValue
+    }
     userShares {
       ...UserVaultShares
     }
   }`,
-  [ReserveFragment, TokenAmountFragment, UserVaultSharesFragment],
+  [
+    ReserveFragment,
+    PercentValueFragment,
+    TokenAmountFragment,
+    UserVaultSharesFragment,
+  ],
 );
 export type Vault = FragmentOf<typeof VaultFragment>;
 
@@ -60,4 +77,121 @@ export const PaginatedVaultsResultFragment = graphql(
 );
 export type PaginatedVaultsResult = FragmentOf<
   typeof PaginatedVaultsResultFragment
+>;
+
+export const VaultUserDepositItemFragment = graphql(
+  `fragment VaultUserDepositItem on VaultUserDepositItem {
+    __typename
+    asset {
+      ...TokenAmount
+    }
+    shares {
+      ...TokenAmount
+    }
+    blockExplorerUrl
+    txHash
+    timestamp
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultUserDepositItem = FragmentOf<
+  typeof VaultUserDepositItemFragment
+>;
+
+export const VaultUserWithdrawItemFragment = graphql(
+  `fragment VaultUserWithdrawItem on VaultUserWithdrawItem {
+    __typename
+    asset {
+      ...TokenAmount
+    }
+    shares {
+      ...TokenAmount
+    }
+    blockExplorerUrl
+    txHash
+    timestamp
+  }`,
+  [TokenAmountFragment],
+);
+export type VaultUserWithdrawItem = FragmentOf<
+  typeof VaultUserWithdrawItemFragment
+>;
+
+export type VaultUserTransactionItem =
+  | VaultUserDepositItem
+  | VaultUserWithdrawItem;
+
+export const VaultUserTransactionItemFragment: FragmentDocumentFor<
+  VaultUserTransactionItem,
+  'VaultUserTransactionItem'
+> = graphql(
+  `fragment VaultUserTransactionItem on VaultUserTransactionItem {
+    __typename
+    ... on VaultUserDepositItem {
+      ...VaultUserDepositItem
+    }
+    ... on VaultUserWithdrawItem {
+      ...VaultUserWithdrawItem
+    }
+  }`,
+  [VaultUserDepositItemFragment, VaultUserWithdrawItemFragment],
+);
+
+/**
+ * @internal
+ */
+export const PaginatedVaultUserTransactionHistoryResultFragment = graphql(
+  `fragment PaginatedVaultUserTransactionHistoryResult on PaginatedVaultUserTransactionHistoryResult {
+    __typename
+    items {
+      ...VaultUserTransactionItem
+    }
+    pageInfo {
+      ...PaginatedResultInfo
+    }
+  }`,
+  [PaginatedResultInfoFragment, VaultUserTransactionItemFragment],
+);
+export type PaginatedVaultUserTransactionHistoryResult = FragmentOf<
+  typeof PaginatedVaultUserTransactionHistoryResultFragment
+>;
+
+export const VaultUserActivityItemFragment = graphql(
+  `fragment VaultUserActivityItem on VaultUserActivityItem {
+    __typename
+    balance {
+      ...TokenAmount
+    }
+    earned {
+      ...TokenAmount
+    }
+    withdrew {
+      ...TokenAmount
+    }
+    deposited {
+      ...TokenAmount
+    }
+    date 
+  }`,
+  [TokenAmountFragment],
+);
+
+export type VaultUserActivityItem = FragmentOf<
+  typeof VaultUserActivityItemFragment
+>;
+
+export const VaultUserActivityResultFragment = graphql(
+  `fragment VaultUserActivityResult on VaultUserActivityResult {
+    __typename
+    earned {
+      ...TokenAmount
+    }
+    breakdown {
+      ...VaultUserActivityItem
+    }
+  }`,
+  [TokenAmountFragment, VaultUserActivityItemFragment],
+);
+export type VaultUserActivityResult = FragmentOf<
+  typeof VaultUserActivityResultFragment
 >;

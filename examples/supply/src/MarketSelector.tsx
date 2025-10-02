@@ -1,9 +1,8 @@
 import { type ChainId, type Market, useAaveMarkets } from '@aave/react';
-import { useEffect } from 'react';
 
 interface MarketSelectorProps {
   chainId: ChainId;
-  onChange: (market: Market) => void;
+  onChange: (market: Market | null) => void;
 }
 
 export function MarketSelector({
@@ -15,19 +14,12 @@ export function MarketSelector({
     suspense: true,
   });
 
-  useEffect(() => {
-    if (markets.length > 0) {
-      onMarketSelect(markets[0]);
-    }
-  }, [markets, onMarketSelect]);
-
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedMarket = markets.find(
       (market) => market.address === event.target.value,
     );
-    if (selectedMarket) {
-      onMarketSelect(selectedMarket);
-    }
+
+    onMarketSelect(selectedMarket ?? null);
   };
 
   if (markets.length === 0) {
@@ -35,13 +27,14 @@ export function MarketSelector({
   }
 
   return (
-    <label>
+    <label style={{ marginBottom: '5px' }}>
       <strong style={{ display: 'block' }}>Market:</strong>
       <select
         onChange={handleChange}
         disabled={markets.length === 1}
         style={{ padding: '8px', width: '100%' }}
       >
+        <option value=''>Select a market</option>
         {markets.map((market) => (
           <option key={market.address} value={market.address}>
             {market.name} - ${market.totalMarketSize}

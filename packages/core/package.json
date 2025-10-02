@@ -1,0 +1,40 @@
+{
+  "name": "@aave/core",
+  "version": "0.0.0",
+  "description": "The shared core across Aave SDKs.",
+  "repository": {
+    "directory": "packages/core",
+    "type": "git",
+    "url": "git://github.com/aave/aave-sdk.git"
+  },
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "import": ["./dist/index.d.ts"],
+      "require": ["./dist/index.d.cts"]
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@aave/types": "workspace:*",
+    "@urql/core": "^5.2.0",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "license": "MIT"
+}
