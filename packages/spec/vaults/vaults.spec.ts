@@ -712,13 +712,9 @@ describe('Given the Aave Vaults', () => {
       assertOk(listOfVaultsDesc);
 
       expect(
-        Number(
-          listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.value,
-        ),
-      ).toBeGreaterThanOrEqual(
-        Number(
-          listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.value,
-        ),
+        listOfVaultsDesc.value.items[0]!.userShares!.shares.amount.raw,
+      ).toBeBigDecimalGreaterThan(
+        listOfVaultsDesc.value.items[1]!.userShares!.shares.amount.raw,
       );
 
       const listOfVaultsAsc = await userVaults(client, {
@@ -728,9 +724,9 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.value),
-      ).toBeLessThanOrEqual(
-        Number(listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.value),
+        listOfVaultsAsc.value.items[1]!.userShares!.shares.amount.raw,
+      ).toBeBigDecimalGreaterThan(
+        listOfVaultsAsc.value.items[0]!.userShares!.shares.amount.raw,
       );
     });
 
@@ -745,10 +741,8 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsDesc);
       expect(
-        Number(listOfVaultsDesc.value.items[0]?.fee.value),
-      ).toBeGreaterThanOrEqual(
-        Number(listOfVaultsDesc.value.items[1]?.fee.value),
-      );
+        listOfVaultsDesc.value.items[0]?.fee.value,
+      ).toBeBigDecimalGreaterThan(listOfVaultsDesc.value.items[1]?.fee.value);
 
       const listOfVaultsAsc = await userVaults(client, {
         user: evmAddress(user.account!.address),
@@ -757,8 +751,8 @@ describe('Given the Aave Vaults', () => {
 
       assertOk(listOfVaultsAsc);
       expect(
-        Number(listOfVaultsAsc.value.items[0]?.fee.value),
-      ).toBeLessThanOrEqual(Number(listOfVaultsAsc.value.items[1]?.fee.value));
+        listOfVaultsAsc.value.items[1]?.fee.value,
+      ).toBeBigDecimalGreaterThan(listOfVaultsAsc.value.items[0]?.fee.value);
     });
 
     it('Then it should be possible so filter them by underlying tokens', async ({

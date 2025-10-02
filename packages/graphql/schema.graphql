@@ -679,6 +679,9 @@ enum OperationType {
   VAULT_FEE_UPDATED
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
+  VAULT_TRANSFER
+  REVENUE_SPLITTER_OWNER_DEPLOYED
+  REVENUE_SPLITTER_OWNER_TRANSFER
   LIQUIDATION
 }
 
@@ -845,6 +848,23 @@ type Query {
   This will return you the amount of assets that would be withdrawn by the receiver.
   """
   vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Update a vault owner. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
+
+  """
+  Deploy a new vault revenue spitter. You MUST be the owner of the vault to send this tx request.
+  Once deployed, the splitter must be set using the `vaultSetRecipientsSplitter`
+  """
+  vaultDeployRevenueSplitter(request: VaultDeployRevenueSplitterRequest!): TransactionRequest!
+
+  """
+  Set revenue splitter for the vault. You MUST be the owner of the vault to send this tx request.
+  Must be called after deploying the revenue splitter through `vaultDeployRevenueSplitter.
+  """
+  vaultSetRevenueSplitter(request: VaultSetRevenueSplitterRequest!): TransactionRequest!
 
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
@@ -1800,8 +1820,23 @@ input VaultDeployRequest {
   """
   The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
   If not provided, the fee revenue will be sent to the owner of the vault.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
   """
   recipients: [RecipientPercentInput!]
+}
+
+input VaultDeployRevenueSplitterRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [RecipientPercentInput!]!
 }
 
 input VaultDepositAmountInput {
@@ -1964,6 +1999,28 @@ input VaultSetFeeRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+input VaultSetRevenueSplitterRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The revenue splitter address to set for the vault."""
+  revenueSplitter: EvmAddress!
+}
+
+input VaultTransferOwnershipRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The new vault owner address"""
+  newOwner: EvmAddress!
 }
 
 type VaultUserActivityItem {

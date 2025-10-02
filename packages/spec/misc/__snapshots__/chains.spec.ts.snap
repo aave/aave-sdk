@@ -94,6 +94,15 @@ exports[`Given the Aave Protocol > When listing all supported chains > Then it s
   },
   {
     "__typename": "Chain",
+    "chainId": 9745,
+    "explorerUrl": "https://plasmascan.to/",
+    "icon": "https://statics.aave.com/plasma.svg",
+    "isTestnet": false,
+    "name": "Plasma",
+    "nativeWrappedToken": "0x6100E367285b01F48D07953803A2d8dCA5D19873",
+  },
+  {
+    "__typename": "Chain",
     "chainId": 42161,
     "explorerUrl": "https://arbiscan.io",
     "icon": "https://statics.aave.com/arbitrum.svg",
