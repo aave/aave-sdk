@@ -191,7 +191,7 @@ export function vaultPreviewMint(
  *
  * ```ts
  * const result = await vaultPreviewWithdraw(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('750'),
  * });
@@ -220,7 +220,7 @@ export function vaultPreviewWithdraw(
  *
  * ```ts
  * const result = await vaultPreviewRedeem(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('200'),
  * });
@@ -249,9 +249,9 @@ export function vaultPreviewRedeem(
  *
  * ```ts
  * const result = await vaultUserTransactionHistory(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
- *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   user: evmAddress('0x5678…'),
  * });
  *
  * if (result.isOk()) {
@@ -284,9 +284,9 @@ export function vaultUserTransactionHistory(
  *
  * ```ts
  * const result = await vaultUserActivity(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
- *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   user: evmAddress('0x5678…'),
  * });
  *
  * if (result.isOk()) {
@@ -318,9 +318,9 @@ export function vaultUserActivity(
  *
  * ```ts
  * const result = await vaultTransferOwnership(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
- *   newOwner: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   newOwner: evmAddress('0x5678…'),
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  * ```
  *
@@ -342,15 +342,21 @@ export function vaultTransferOwnership(
  *
  * ```ts
  * const result = await vaultCreateRecipientsConfiguration(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   recipients: [
  *     {
- *       address: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *       address: evmAddress('0x5678…'),
+ *       percent: bigDecimal('5000'), // 50%
+ *     },
+ *     {
+ *       address: evmAddress('0x9abc…'),
  *       percent: bigDecimal('5000'), // 50%
  *     },
  *   ],
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * })
+ *  .andThen(sendWith(wallet))
+ *  .andThen(client.waitForTransaction);
  * ```
  *
  * @param client - Aave client.
@@ -403,7 +409,9 @@ export function vaultRecipientConfiguration(
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   configuration: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
- * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * })
+ *   .andThen(sendWith(wallet))
+ *   .andThen(client.waitForTransaction);
  * ```
  *
  * @param client - Aave client.

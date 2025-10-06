@@ -267,3 +267,44 @@ exports[`Given the Aave Vaults > And a deployed organization vault > When the us
   },
 }
 `;
+
+exports[`Given the Aave Vaults > When an organization deploys a new vault > Then it should set recipients to be 50% organization recipients/50% aave 1`] = `
+[
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0x18aed7dd156D23a46Ad4670b3d4776fb2B198731",
+    "isAaveLabs": false,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "25.00",
+      "raw": "2500",
+      "value": "0.25",
+    },
+  },
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0x1234567890123456789012345678901234567890",
+    "isAaveLabs": false,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "25.00",
+      "raw": "2500",
+      "value": "0.25",
+    },
+  },
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0xbA3Fa06E181D4a64B07D0ed0e8369811F0aD44BA",
+    "isAaveLabs": true,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "50.00",
+      "raw": "5000",
+      "value": "0.50",
+    },
+  },
+]
+`;

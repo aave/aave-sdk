@@ -11,6 +11,7 @@ import {
 import {
   userVaults,
   vault,
+  vaultCreateRecipientsConfiguration,
   vaultDeploy,
   vaultDeposit,
   vaultMintShares,
@@ -18,9 +19,12 @@ import {
   vaultPreviewMint,
   vaultPreviewRedeem,
   vaultPreviewWithdraw,
+  vaultRecipientConfiguration,
   vaultRedeemShares,
   vaultSetFee,
+  vaultSetRecipientsConfiguration,
   vaults,
+  vaultTransferOwnership,
   vaultUserActivity,
   vaultUserTransactionHistory,
   vaultWithdraw,
@@ -47,98 +51,75 @@ import {
 describe('Given the Aave Vaults', () => {
   describe('When an organization deploys a new vault', () => {
     const organization = createNewWallet();
+    let initialVault: Vault;
 
     beforeAll(async () => {
       const setup = await fundErc20Address(
         ETHEREUM_WETH_ADDRESS,
         evmAddress(organization.account!.address),
         bigDecimal('0.1'),
+      ).andThen(() =>
+        vaultDeploy(client, {
+          chainId: ETHEREUM_FORK_ID,
+          market: ETHEREUM_MARKET_ADDRESS,
+          deployer: evmAddress(organization.account!.address),
+          owner: evmAddress(organization.account!.address),
+          initialFee: bigDecimal('10'),
+          initialLockDeposit: bigDecimal('0.05'),
+          shareName: 'Aave WETH Vault Shares',
+          shareSymbol: 'avWETH',
+          underlyingToken: ETHEREUM_WETH_ADDRESS,
+          recipients: [
+            {
+              address: evmAddress(organization.account!.address),
+              percent: bigDecimal('50'),
+            },
+            {
+              address: evmAddress('0x1234567890123456789012345678901234567890'),
+              percent: bigDecimal('50'),
+            },
+          ],
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => {
+            console.log(tx.txHash);
+          })
+          .andThen(client.waitForTransaction)
+          .andThen((txHash) =>
+            vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
+          )
+          .map(nonNullable),
       );
       assertOk(setup);
+      initialVault = setup.value;
     });
 
     it('Then it should be available in the organization vaults', async ({
       annotate,
     }) => {
       annotate(`organization address: ${organization.account!.address}`);
-      const initialVault = await vaultDeploy(client, {
-        chainId: ETHEREUM_FORK_ID,
-        market: ETHEREUM_MARKET_ADDRESS,
-        deployer: evmAddress(organization.account!.address),
-        owner: evmAddress(organization.account!.address),
-        initialFee: bigDecimal('30'),
-        initialLockDeposit: bigDecimal('0.05'),
-        shareName: 'Aave WETH Vault Shares',
-        shareSymbol: 'avWETH',
-        underlyingToken: ETHEREUM_WETH_ADDRESS,
-      })
-        .andThen(sendWith(organization))
-        .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
-        .andThen(client.waitForTransaction)
-        .andThen((txHash) =>
-          vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
-        )
-        .map(nonNullable);
-      assertOk(initialVault);
-      annotate(`initial vault: ${initialVault.value?.address}`);
-
+      annotate(`initial vault: ${initialVault.address}`);
       const result = await vaults(client, {
         criteria: {
           ownedBy: [evmAddress(organization.account!.address)],
         },
       });
-
       assertOk(result);
 
       expect(result.value.items).toEqual([
         expect.objectContaining({
           owner: organization.account!.address,
-          address: initialVault.value!.address,
+          address: initialVault.address,
         }),
       ]);
     });
 
-    it('Then it should set recipients to be 50% organisation recipients/50% aave', async ({
+    it('Then it should set recipients to be 50% organization recipients/50% aave', async ({
       annotate,
     }) => {
       annotate(`organization address: ${organization.account!.address}`);
-      const initialVault = await vaultDeploy(client, {
-        chainId: ETHEREUM_FORK_ID,
-        market: ETHEREUM_MARKET_ADDRESS,
-        deployer: evmAddress(organization.account!.address),
-        owner: evmAddress(organization.account!.address),
-        initialFee: bigDecimal('10'),
-        initialLockDeposit: bigDecimal('0.05'),
-        shareName: 'Aave WETH Vault Shares',
-        shareSymbol: 'avWETH',
-        underlyingToken: ETHEREUM_WETH_ADDRESS,
-        recipients: [
-          {
-            address: evmAddress(organization.account!.address),
-            percent: bigDecimal('50'),
-          },
-          {
-            address: evmAddress('0x1234567890123456789012345678901234567890'),
-            percent: bigDecimal('50'),
-          },
-        ],
-      })
-        .andThen(sendWith(organization))
-        .andTee((tx) => {
-          console.log(tx.txHash);
-          return annotate(`tx to deploy vault: ${tx.txHash}`);
-        })
-        .andThen(client.waitForTransaction)
-        .andThen((txHash) =>
-          vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
-        )
-        .map(nonNullable);
-
-      assertOk(initialVault);
-      annotate(`initial vault: ${initialVault.value?.address}`);
-
-      expect(initialVault.value.owner).toEqual(organization.account!.address);
-      expect(initialVault.value.recipients?.entries).toEqual(
+      annotate(`initial vault: ${initialVault.address}`);
+      expect(initialVault.recipients?.entries).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             address: organization.account!.address,
@@ -167,6 +148,153 @@ describe('Given the Aave Vaults', () => {
   });
 
   describe('And a deployed organization vault', () => {
+    describe('When the organization wants to manage the vault', () => {
+      const organization = createNewWallet();
+      const newOwner = createNewWallet();
+      let initialVault: Vault;
+
+      beforeAll(async () => {
+        const setup = await fundErc20Address(
+          ETHEREUM_WETH_ADDRESS,
+          evmAddress(organization.account!.address),
+          bigDecimal('0.1'),
+        ).andThen(() =>
+          vaultDeploy(client, {
+            chainId: ETHEREUM_FORK_ID,
+            market: ETHEREUM_MARKET_ADDRESS,
+            deployer: evmAddress(organization.account!.address),
+            owner: evmAddress(organization.account!.address),
+            initialFee: bigDecimal('10'),
+            initialLockDeposit: bigDecimal('0.05'),
+            shareName: 'Aave WETH Vault Shares',
+            shareSymbol: 'avWETH',
+            underlyingToken: ETHEREUM_WETH_ADDRESS,
+            recipients: [
+              {
+                address: evmAddress(organization.account!.address),
+                percent: bigDecimal('50'),
+              },
+              {
+                address: evmAddress(
+                  '0x1234567890123456789012345678901234567890',
+                ),
+                percent: bigDecimal('50'),
+              },
+            ],
+          })
+            .andThen(sendWith(organization))
+            .andTee((tx) => {
+              console.log(tx.txHash);
+            })
+            .andThen(client.waitForTransaction)
+            .andThen((txHash) =>
+              vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
+            )
+            .map(nonNullable),
+        );
+        assertOk(setup);
+        initialVault = setup.value;
+      });
+
+      it('Then the organization should be able to transfer the ownership of the vault', async ({
+        annotate,
+      }) => {
+        annotate(`organization address: ${organization.account!.address}`);
+        annotate(`initial vault: ${initialVault.address}`);
+        const transferResult = await vaultTransferOwnership(client, {
+          vault: initialVault.address,
+          chainId: initialVault.chainId,
+          newOwner: evmAddress(newOwner.account!.address),
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to transfer ownership: ${tx.txHash}`))
+          .andThen(client.waitForTransaction);
+        assertOk(transferResult);
+
+        const newVaultInfo = await vault(client, {
+          by: { address: initialVault.address },
+          chainId: initialVault.chainId,
+        }).map(nonNullable);
+
+        assertOk(newVaultInfo);
+        expect(newVaultInfo.value.owner).toEqual(newOwner.account!.address);
+      }, 30_000);
+
+      it('Then the organization should be able to modify the fee of the vault', async ({
+        annotate,
+      }) => {
+        annotate(`organization address: ${organization.account!.address}`);
+        const newFee = bigDecimal('50');
+        const updateResult = await vaultSetFee(client, {
+          chainId: initialVault.chainId,
+          vault: initialVault.address,
+          newFee: newFee,
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
+          .andThen(client.waitForTransaction);
+        assertOk(updateResult);
+
+        const newVaultInfo = await vault(client, {
+          by: { address: initialVault.address },
+          chainId: initialVault.chainId,
+        }).map(nonNullable);
+        assertOk(newVaultInfo);
+        expect(newVaultInfo.value.fee.formatted).toEqual('50.00');
+      }, 30_000);
+
+      it('Then the organization should be able to modify the recipients of the vault', async ({
+        annotate,
+      }) => {
+        const newRecipient1 = '0x1234567890123456789012345678901234567890';
+        const newRecipient2 = '0x1234567890123456789012345678901234567891';
+
+        const newRecipients = [
+          {
+            address: evmAddress(newRecipient1),
+            percent: bigDecimal('50'),
+          },
+          {
+            address: evmAddress(newRecipient2),
+            percent: bigDecimal('50'),
+          },
+        ];
+        const updateResult = await vaultCreateRecipientsConfiguration(client, {
+          chainId: initialVault.chainId,
+          vault: initialVault.address,
+          recipients: newRecipients,
+        })
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to create recipients: ${tx.txHash}`))
+          .andThen(client.waitForTransaction)
+          .andThen((tx) =>
+            vaultRecipientConfiguration(client, {
+              by: { txHash: tx },
+              chainId: initialVault.chainId,
+            }),
+          )
+          .map(nonNullable)
+          .andThen((recipientConfig) =>
+            vaultSetRecipientsConfiguration(client, {
+              vault: initialVault.address,
+              chainId: initialVault.chainId,
+              configuration: recipientConfig.address,
+            }),
+          )
+          .andThen(sendWith(organization))
+          .andTee((tx) => annotate(`tx to set recipients: ${tx.txHash}`))
+          .andThen(client.waitForTransaction);
+        assertOk(updateResult);
+
+        const newVaultInfo = await vault(client, {
+          by: { address: initialVault.address },
+          chainId: initialVault.chainId,
+        }).map(nonNullable);
+        assertOk(newVaultInfo);
+        expect(newVaultInfo.value.recipients?.entries).toMatchSnapshot();
+      });
+    });
+
     describe('When a user deposits into the vault', () => {
       const organization = createNewWallet();
       const user = createNewWallet();
@@ -406,42 +534,6 @@ describe('Given the Aave Vaults', () => {
           }),
         ]);
       }, 50_000);
-    });
-
-    describe(`When the organization changes the vault's fee`, () => {
-      const organization = createNewWallet();
-
-      it('Then the new fee should be reflected in the vault object', async ({
-        annotate,
-      }) => {
-        annotate(`organization address: ${organization.account!.address}`);
-        const initialVault = await createVault(organization);
-        assertOk(initialVault);
-
-        const newFee = bigDecimal('50');
-        const updateResult = await vaultSetFee(client, {
-          chainId: initialVault.value.chainId,
-          vault: initialVault.value.address,
-          newFee: newFee,
-        })
-          .andThen(sendWith(organization))
-          .andTee((tx) => annotate(`tx to set fee: ${tx.txHash}`))
-          .andThen(client.waitForTransaction);
-        assertOk(updateResult);
-
-        const newVaultInfo = await vault(client, {
-          by: { address: initialVault.value.address },
-          chainId: initialVault.value.chainId,
-        });
-        assertOk(newVaultInfo);
-        expect(newVaultInfo.value).toEqual(
-          expect.objectContaining({
-            fee: expect.objectContaining({
-              formatted: '50.00',
-            }),
-          }),
-        );
-      }, 30_000);
     });
 
     describe(`When the organization withdraws the vault's fees`, () => {
