@@ -679,6 +679,9 @@ enum OperationType {
   VAULT_FEE_UPDATED
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
+  VAULT_TRANSFER
+  REVENUE_SPLITTER_OWNER_DEPLOYED
+  REVENUE_SPLITTER_OWNER_TRANSFER
   LIQUIDATION
 }
 
@@ -845,6 +848,25 @@ type Query {
   This will return you the amount of assets that would be withdrawn by the receiver.
   """
   vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Update a vault owner. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
+
+  """
+  Deploy a new recipients configuration contract for fee distribution.
+  You MUST be the owner of the vault to send this tx request.
+  """
+  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
+
+  """
+  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
+
+  """Get a vault recipients configuration"""
+  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
 
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
@@ -1043,6 +1065,9 @@ type Reserve {
 
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
+
+  """The interest rate strategy address"""
+  interestRateStrategyAddress: EvmAddress!
 
   """Does the underlying reserve support permit"""
   permitSupported: Boolean!
@@ -1708,9 +1733,6 @@ type Vault {
   """The vault address"""
   address: EvmAddress!
 
-  """The owner of the vault"""
-  owner: EvmAddress!
-
   """The name of the share"""
   shareName: String!
 
@@ -1737,11 +1759,34 @@ type Vault {
   """The user's shares info on the vault"""
   userShares: UserVaultShares
 
+  """The owner of the vault"""
+  owner: EvmAddress!
+
   """The total fees the owner can claim currently for the vault"""
   feesBalance: TokenAmount!
 
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
+
+  """
+  The recipient configuration for distributing the vault fees.
+  Returns None if the vault doesn't have any recipients configured (in which case the owner is the sole fee recipient)
+  """
+  recipients: VaultFeesRecipientsConfiguration
+}
+
+input VaultCreateRecipientsConfigurationRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [VaultFeesRecipientSplitInput!]!
 }
 
 input VaultDeployRequest {
@@ -1775,6 +1820,13 @@ input VaultDeployRequest {
   The initial amount of underlying assets to deposit. This must be a non-zero, non-trivial amount, depending on the underlying asset's decimals.
   """
   initialLockDeposit: BigDecimal!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  If not provided, the fee revenue will be sent to the owner of the vault.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [VaultFeesRecipientSplitInput!]
 }
 
 input VaultDepositAmountInput {
@@ -1807,6 +1859,33 @@ input VaultDepositRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type VaultFeesRecipientSplit {
+  """Address receiving the fee share"""
+  address: EvmAddress!
+
+  """Portion of the owner share allocated to this recipient"""
+  split: PercentValue!
+
+  """True, if it's an Aave Labs recipient address"""
+  isAaveLabs: Boolean!
+}
+
+input VaultFeesRecipientSplitInput {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """Percentage of the fee that will be sent to the recipient."""
+  percent: BigDecimal!
+}
+
+type VaultFeesRecipientsConfiguration {
+  """Revenue splitter contract address responsible for distributing fees"""
+  address: EvmAddress!
+
+  """Recipients receiving the vault owner's share"""
+  entries: [VaultFeesRecipientSplit!]!
 }
 
 input VaultInput {
@@ -1864,6 +1943,24 @@ input VaultOperationPreviewRequest {
   preview redeem = shares
   """
   amount: BigDecimal!
+}
+
+input VaultRecipientConfigurationRequest {
+  """The retrieve criteria"""
+  by: VaultRecipientConfigurationRequestBy!
+
+  """The chain id the recipient configuration is deployed on"""
+  chainId: ChainId!
+}
+
+input VaultRecipientConfigurationRequestBy @oneOf {
+  """The vault recipient configuration address"""
+  address: EvmAddress
+
+  """
+  You can use this if you deployed a recipient configuration and want to get information
+  """
+  txHash: TxHash
 }
 
 input VaultRedeemShareInput {
@@ -1937,6 +2034,28 @@ input VaultSetFeeRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+input VaultSetRecipientsConfigurationRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The recipients configuration contract address to set for the vault."""
+  configuration: EvmAddress!
+}
+
+input VaultTransferOwnershipRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """The new vault owner address"""
+  newOwner: EvmAddress!
 }
 
 type VaultUserActivityItem {

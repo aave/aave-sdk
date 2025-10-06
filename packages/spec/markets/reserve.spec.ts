@@ -1,17 +1,13 @@
-import { assertOk, chainId, evmAddress, TimeWindow } from '@aave/client';
-import {
-  borrowAPYHistory,
-  reserve,
-  supplyAPYHistory,
-} from '@aave/client/actions';
+import { assertOk, chainId, evmAddress, TimeWindow } from "@aave/client";
+import { borrowAPYHistory, reserve, supplyAPYHistory } from "@aave/client/actions";
 import {
   client,
   createNewWallet,
   ETHEREUM_FORK_ID,
   ETHEREUM_MARKET_ADDRESS,
   ETHEREUM_WETH_ADDRESS,
-} from '@aave/client/test-utils';
-import { describe, expect, it } from 'vitest';
+} from "@aave/client/test-utils";
+import { describe, expect, it } from "vitest";
 
 function windowToDate(window: TimeWindow): Date {
   switch (window) {
@@ -30,12 +26,12 @@ function windowToDate(window: TimeWindow): Date {
   }
 }
 
-describe('Given an Aave Market reserve', () => {
+describe("Given an Aave Market reserve", () => {
   const wallet = createNewWallet();
   const windowEnum = Object.values(TimeWindow);
 
-  describe('When fetching the reserve data', () => {
-    it('Then it should return the expected reserve details', async () => {
+  describe("When fetching the reserve data", () => {
+    it("Then it should return the expected reserve details", async () => {
       const result = await reserve(client, {
         market: ETHEREUM_MARKET_ADDRESS,
         chainId: ETHEREUM_FORK_ID,
@@ -48,6 +44,7 @@ describe('Given an Aave Market reserve', () => {
         underlyingToken: {
           address: ETHEREUM_WETH_ADDRESS,
         },
+        interestRateStrategyAddress: expect.any(String),
         usdExchangeRate: expect.any(String),
         vToken: expect.any(Object),
         supplyInfo: expect.any(Object),
@@ -61,9 +58,9 @@ describe('Given an Aave Market reserve', () => {
     });
   });
 
-  describe('When fetching the borrow APY history for it', () => {
+  describe("When fetching the borrow APY history for it", () => {
     it.each(windowEnum)(
-      'Then it should return a time series for the specified window %s',
+      "Then it should return a time series for the specified window %s",
       async (window) => {
         const result = await borrowAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
@@ -77,16 +74,16 @@ describe('Given an Aave Market reserve', () => {
           expect(point).toEqual(
             expect.objectContaining({
               date: expect.toBeBetweenDates(windowToDate(window), new Date()),
-            }),
+            })
           );
         }
-      },
+      }
     );
   });
 
-  describe('When fetching the supply APY history for it', () => {
+  describe("When fetching the supply APY history for it", () => {
     it.each(windowEnum)(
-      'Then it should return a time series for the specified window %s',
+      "Then it should return a time series for the specified window %s",
       async (window) => {
         const result = await supplyAPYHistory(client, {
           market: ETHEREUM_MARKET_ADDRESS,
@@ -100,10 +97,10 @@ describe('Given an Aave Market reserve', () => {
           result.value?.map(() =>
             expect.objectContaining({
               date: expect.toBeBetweenDates(windowToDate(window), new Date()),
-            }),
-          ),
+            })
+          )
         );
-      },
+      }
     );
   });
 });
