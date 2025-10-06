@@ -855,16 +855,18 @@ type Query {
   vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
 
   """
-  Deploy a new vault revenue spitter. You MUST be the owner of the vault to send this tx request.
-  Once deployed, the splitter must be set using the `vaultSetRecipientsSplitter`
+  Deploy a new recipients configuration contract for fee distribution.
+  You MUST be the owner of the vault to send this tx request.
   """
-  vaultDeployRevenueSplitter(request: VaultDeployRevenueSplitterRequest!): TransactionRequest!
+  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
 
   """
-  Set revenue splitter for the vault. You MUST be the owner of the vault to send this tx request.
-  Must be called after deploying the revenue splitter through `vaultDeployRevenueSplitter.
+  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
   """
-  vaultSetRevenueSplitter(request: VaultSetRevenueSplitterRequest!): TransactionRequest!
+  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
+
+  """Get a vault recipients configuration"""
+  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
 
   """Lists all the markets"""
   markets(request: MarketsRequest!): [Market!]!
@@ -959,24 +961,6 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
-}
-
-type RecipientPercent {
-  """Address of the recipient."""
-  address: EvmAddress!
-
-  """
-  Percentage of the fee that will be sent to the recipient, expressed in basis points.
-  """
-  percent: PercentValue!
-}
-
-input RecipientPercentInput {
-  """Address of the recipient."""
-  address: EvmAddress!
-
-  """Percentage of the fee that will be sent to the recipient."""
-  percent: BigDecimal!
 }
 
 input RepayAmountInput @oneOf {
@@ -1081,6 +1065,9 @@ type Reserve {
 
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
+
+  """The interest rate strategy address"""
+  interestRateStrategyAddress: EvmAddress!
 
   """Does the underlying reserve support permit"""
   permitSupported: Boolean!
@@ -1781,8 +1768,25 @@ type Vault {
   """The total vault APR after their fee is taken off"""
   vaultApr: PercentValue!
 
-  """The recipients of the vault revenue"""
-  feeRecipients: [RecipientPercent!]!
+  """
+  The recipient configuration for distributing the vault fees.
+  Returns None if the vault doesn't have any recipients configured (in which case the owner is the sole fee recipient)
+  """
+  recipients: VaultFeesRecipientsConfiguration
+}
+
+input VaultCreateRecipientsConfigurationRequest {
+  """The vault deployed address"""
+  vault: EvmAddress!
+
+  """The chain id"""
+  chainId: ChainId!
+
+  """
+  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
+  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
+  """
+  recipients: [VaultFeesRecipientSplitInput!]!
 }
 
 input VaultDeployRequest {
@@ -1822,21 +1826,7 @@ input VaultDeployRequest {
   If not provided, the fee revenue will be sent to the owner of the vault.
   Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
   """
-  recipients: [RecipientPercentInput!]
-}
-
-input VaultDeployRevenueSplitterRequest {
-  """The vault deployed address"""
-  vault: EvmAddress!
-
-  """The chain id"""
-  chainId: ChainId!
-
-  """
-  The recipients of the fee revenue, expressed as a percentage of the total fee revenue.
-  Vault revenue is split between the recipients and the Aave fee recipient (50/50 split).
-  """
-  recipients: [RecipientPercentInput!]!
+  recipients: [VaultFeesRecipientSplitInput!]
 }
 
 input VaultDepositAmountInput {
@@ -1869,6 +1859,33 @@ input VaultDepositRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type VaultFeesRecipientSplit {
+  """Address receiving the fee share"""
+  address: EvmAddress!
+
+  """Portion of the owner share allocated to this recipient"""
+  split: PercentValue!
+
+  """True, if it's an Aave Labs recipient address"""
+  isAaveLabs: Boolean!
+}
+
+input VaultFeesRecipientSplitInput {
+  """Address of the recipient."""
+  address: EvmAddress!
+
+  """Percentage of the fee that will be sent to the recipient."""
+  percent: BigDecimal!
+}
+
+type VaultFeesRecipientsConfiguration {
+  """Revenue splitter contract address responsible for distributing fees"""
+  address: EvmAddress!
+
+  """Recipients receiving the vault owner's share"""
+  entries: [VaultFeesRecipientSplit!]!
 }
 
 input VaultInput {
@@ -1926,6 +1943,24 @@ input VaultOperationPreviewRequest {
   preview redeem = shares
   """
   amount: BigDecimal!
+}
+
+input VaultRecipientConfigurationRequest {
+  """The retrieve criteria"""
+  by: VaultRecipientConfigurationRequestBy!
+
+  """The chain id the recipient configuration is deployed on"""
+  chainId: ChainId!
+}
+
+input VaultRecipientConfigurationRequestBy @oneOf {
+  """The vault recipient configuration address"""
+  address: EvmAddress
+
+  """
+  You can use this if you deployed a recipient configuration and want to get information
+  """
+  txHash: TxHash
 }
 
 input VaultRedeemShareInput {
@@ -2001,15 +2036,15 @@ input VaultSetFeeRequest {
   chainId: ChainId!
 }
 
-input VaultSetRevenueSplitterRequest {
+input VaultSetRecipientsConfigurationRequest {
   """The vault deployed address"""
   vault: EvmAddress!
 
   """The chain id"""
   chainId: ChainId!
 
-  """The revenue splitter address to set for the vault."""
-  revenueSplitter: EvmAddress!
+  """The recipients configuration contract address to set for the vault."""
+  configuration: EvmAddress!
 }
 
 input VaultTransferOwnershipRequest {

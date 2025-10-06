@@ -4,6 +4,7 @@ import {
   PaginatedVaultsResultFragment,
   type PaginatedVaultUserTransactionHistoryResult,
   PaginatedVaultUserTransactionHistoryResultFragment,
+  VaultFeesRecipientsConfigurationFragment,
   VaultFragment,
   VaultUserActivityResultFragment,
 } from './fragments/vaults';
@@ -155,29 +156,44 @@ export type VaultTransferOwnershipRequest = RequestOf<
 /**
  * @internal
  */
-export const vaultDeployRevenueSplitterQuery = graphql(
-  `query VaultDeployRevenueSplitter($request: VaultDeployRevenueSplitterRequest!) {
-    value: vaultDeployRevenueSplitter(request: $request) {
+export const vaultCreateRecipientsConfigurationQuery = graphql(
+  `query VaultCreateRecipientsConfiguration($request: VaultCreateRecipientsConfigurationRequest!) {
+    value: vaultCreateRecipientsConfiguration(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type VaultDeployRevenueSplitterRequest = RequestOf<
-  typeof vaultDeployRevenueSplitterQuery
+export type VaultCreateRecipientsConfigurationRequest = RequestOf<
+  typeof vaultCreateRecipientsConfigurationQuery
 >;
 
 /**
  * @internal
  */
-export const vaultSetRevenueSplitterQuery = graphql(
-  `query VaultSetRevenueSplitter($request: VaultSetRevenueSplitterRequest!) {
-    value: vaultSetRevenueSplitter(request: $request) {
+export const vaultSetRecipientsConfigurationQuery = graphql(
+  `query VaultSetRecipientsConfiguration($request: VaultSetRecipientsConfigurationRequest!) {
+    value: vaultSetRecipientsConfiguration(request: $request) {
       ...TransactionRequest
     }
   }`,
   [TransactionRequestFragment],
 );
-export type VaultSetRevenueSplitterRequest = RequestOf<
-  typeof vaultSetRevenueSplitterQuery
+export type VaultSetRecipientsConfigurationRequest = RequestOf<
+  typeof vaultSetRecipientsConfigurationQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultRecipientConfigurationQuery = graphql(
+  `query VaultRecipientConfiguration($request: VaultRecipientConfigurationRequest!) {
+    value: vaultRecipientConfiguration(request: $request) {
+      ...VaultFeesRecipientsConfiguration
+    }
+  }`,
+  [VaultFeesRecipientsConfigurationFragment],
+);
+export type VaultRecipientConfigurationRequest = RequestOf<
+  typeof vaultRecipientConfigurationQuery
 >;

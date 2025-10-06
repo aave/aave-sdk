@@ -7,13 +7,13 @@ import {
   repay,
   supply,
   userSetEmode,
+  vaultCreateRecipientsConfiguration,
   vaultDeploy,
-  vaultDeployRevenueSplitter,
   vaultDeposit,
   vaultMintShares,
   vaultRedeemShares,
   vaultSetFee,
-  vaultSetRevenueSplitter,
+  vaultSetRecipientsConfiguration,
   vaultTransferOwnership,
   vaultWithdraw,
   vaultWithdrawFees,
@@ -29,13 +29,13 @@ import type {
   SupplyRequest,
   TransactionRequest,
   UserSetEmodeRequest,
+  VaultCreateRecipientsConfigurationRequest,
   VaultDeployRequest,
-  VaultDeployRevenueSplitterRequest,
   VaultDepositRequest,
   VaultMintSharesRequest,
   VaultRedeemSharesRequest,
   VaultSetFeeRequest,
-  VaultSetRevenueSplitterRequest,
+  VaultSetRecipientsConfigurationRequest,
   VaultTransferOwnershipRequest,
   VaultWithdrawFeesRequest,
   VaultWithdrawRequest,
@@ -660,10 +660,10 @@ export function useVaultTransferOwnership(): UseAsyncTask<
 }
 
 /**
- * A hook that provides a way to deploy a revenue splitter for a vault.
+ * A hook that provides a way to deploy a recipients configuration for a vault.
  *
  * ```ts
- * const [deployRevenueSplitter, deploying] = useVaultDeployRevenueSplitter();
+ * const [createRecipientsConfiguration, deploying] = useVaultCreateRecipientsConfiguration();
  * const [sendTransaction, sending] = useSendTransaction(wallet);
  *
  * const loading = deploying.loading && sending.loading;
@@ -671,7 +671,7 @@ export function useVaultTransferOwnership(): UseAsyncTask<
  *
  * // …
  *
- * const result = await deployRevenueSplitter({ ... })
+ * const result = await createRecipientsConfiguration({ ... })
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
@@ -682,23 +682,23 @@ export function useVaultTransferOwnership(): UseAsyncTask<
  * console.log('Transaction sent with hash:', result.value);
  * ```
  */
-export function useVaultDeployRevenueSplitter(): UseAsyncTask<
-  VaultDeployRevenueSplitterRequest,
+export function useVaultCreateRecipientsConfiguration(): UseAsyncTask<
+  VaultCreateRecipientsConfigurationRequest,
   TransactionRequest,
   UnexpectedError
 > {
   const client = useAaveClient();
 
-  return useAsyncTask((request: VaultDeployRevenueSplitterRequest) =>
-    vaultDeployRevenueSplitter(client, request),
+  return useAsyncTask((request: VaultCreateRecipientsConfigurationRequest) =>
+    vaultCreateRecipientsConfiguration(client, request),
   );
 }
 
 /**
- * A hook that provides a way to set the revenue splitter for a vault.
+ * A hook that provides a way to set the recipients configuration for a vault.
  *
  * ```ts
- * const [setRevenueSplitter, setting] = useVaultSetRevenueSplitter();
+ * const [setRecipientsConfiguration, setting] = useVaultSetRecipientsConfiguration();
  * const [sendTransaction, sending] = useSendTransaction(wallet);
  *
  * const loading = setting.loading && sending.loading;
@@ -706,7 +706,7 @@ export function useVaultDeployRevenueSplitter(): UseAsyncTask<
  *
  * // …
  *
- * const result = await setRevenueSplitter({ ... })
+ * const result = await setRecipientsConfiguration({ ... })
  *   .andThen(sendTransaction);
  *
  * if (result.isErr()) {
@@ -717,15 +717,15 @@ export function useVaultDeployRevenueSplitter(): UseAsyncTask<
  * console.log('Transaction sent with hash:', result.value);
  * ```
  */
-export function useVaultSetRevenueSplitter(): UseAsyncTask<
-  VaultSetRevenueSplitterRequest,
+export function useVaultSetRecipientsConfiguration(): UseAsyncTask<
+  VaultSetRecipientsConfigurationRequest,
   TransactionRequest,
   UnexpectedError
 > {
   const client = useAaveClient();
 
-  return useAsyncTask((request: VaultSetRevenueSplitterRequest) =>
-    vaultSetRevenueSplitter(client, request),
+  return useAsyncTask((request: VaultSetRecipientsConfigurationRequest) =>
+    vaultSetRecipientsConfiguration(client, request),
   );
 }
 

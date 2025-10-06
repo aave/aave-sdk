@@ -124,7 +124,10 @@ describe('Given the Aave Vaults', () => {
         ],
       })
         .andThen(sendWith(organization))
-        .andTee((tx) => annotate(`tx to deploy vault: ${tx.txHash}`))
+        .andTee((tx) => {
+          console.log(tx.txHash);
+          return annotate(`tx to deploy vault: ${tx.txHash}`);
+        })
         .andThen(client.waitForTransaction)
         .andThen((txHash) =>
           vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
@@ -135,25 +138,28 @@ describe('Given the Aave Vaults', () => {
       annotate(`initial vault: ${initialVault.value?.address}`);
 
       expect(initialVault.value.owner).toEqual(organization.account!.address);
-      expect(initialVault.value.feeRecipients).toEqual(
+      expect(initialVault.value.recipients?.entries).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             address: organization.account!.address,
-            percent: expect.objectContaining({
+            split: expect.objectContaining({
               formatted: '25.00',
             }),
+            isAaveLabs: false,
           }),
           expect.objectContaining({
             address: evmAddress('0x1234567890123456789012345678901234567890'),
-            percent: expect.objectContaining({
+            split: expect.objectContaining({
               formatted: '25.00',
             }),
+            isAaveLabs: false,
           }),
           expect.objectContaining({
             address: expect.any(String),
-            percent: expect.objectContaining({
+            split: expect.objectContaining({
               formatted: '50.00',
             }),
+            isAaveLabs: true,
           }),
         ]),
       );
@@ -470,7 +476,7 @@ describe('Given the Aave Vaults', () => {
 
         // Aave recipient is the third one in the list
         const aaveRecipientAddress = nonNullable(
-          initialVault.value.feeRecipients.find(
+          initialVault.value.recipients?.entries.find(
             (recipient) =>
               recipient.address !== recipient1.account!.address &&
               recipient.address !== recipient2.account!.address,

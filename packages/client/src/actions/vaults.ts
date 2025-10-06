@@ -7,7 +7,8 @@ import {
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
-  type VaultDeployRevenueSplitterRequest,
+  type VaultCreateRecipientsConfigurationRequest,
+  type VaultFeesRecipientsConfiguration,
   VaultPreviewDepositQuery,
   type VaultPreviewDepositRequest,
   VaultPreviewMintQuery,
@@ -17,8 +18,9 @@ import {
   VaultPreviewWithdrawQuery,
   type VaultPreviewWithdrawRequest,
   VaultQuery,
+  type VaultRecipientConfigurationRequest,
   type VaultRequest,
-  type VaultSetRevenueSplitterRequest,
+  type VaultSetRecipientsConfigurationRequest,
   VaultsQuery,
   type VaultsRequest,
   type VaultTransferOwnershipRequest,
@@ -27,8 +29,9 @@ import {
   type VaultUserActivityResult,
   VaultUserTransactionHistoryQuery,
   type VaultUserTransactionHistoryRequest,
-  vaultDeployRevenueSplitterQuery,
-  vaultSetRevenueSplitterQuery,
+  vaultCreateRecipientsConfigurationQuery,
+  vaultRecipientConfigurationQuery,
+  vaultSetRecipientsConfigurationQuery,
   vaultTransferOwnershipQuery,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
@@ -335,58 +338,83 @@ export function vaultTransferOwnership(
 }
 
 /**
- * Creates a transaction to deploy a revenue splitter for a vault.
+ * Creates a transaction to deploy a recipients configuration contract for a vault.
  *
  * ```ts
- * const result = await vaultDeployRevenueSplitter(client, {
+ * const result = await vaultCreateRecipientsConfiguration(client, {
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
  *   recipients: [
  *     {
- *       account: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
- *       shares: 5000, // 50%
- *     },
- *     {
- *       account: evmAddress('0x9abc123456789012345678901234567890abcdef'),
- *       shares: 5000, // 50%
+ *       address: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *       percent: bigDecimal('5000'), // 50%
  *     },
  *   ],
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  * ```
  *
  * @param client - Aave client.
- * @param request - The vault deploy revenue splitter request parameters.
- * @returns The transaction data for deploying a revenue splitter.
+ * @param request - The vault create recipients configuration request parameters.
+ * @returns The transaction data for deploying a recipients configuration.
  */
-export function vaultDeployRevenueSplitter(
+export function vaultCreateRecipientsConfiguration(
   client: AaveClient,
-  request: VaultDeployRevenueSplitterRequest,
+  request: VaultCreateRecipientsConfigurationRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(vaultDeployRevenueSplitterQuery, {
+  return client.query(vaultCreateRecipientsConfigurationQuery, {
     request,
   });
 }
 
 /**
- * Creates a transaction to set the revenue splitter for a vault.
+ * Retrieves the current recipients configuration for a vault.
  *
  * ```ts
- * const result = await vaultSetRevenueSplitter(client, {
+ * const result = await vaultRecipientConfiguration(client, {
+ *   by: {
+ *     address: evmAddress('0x1234…'),
+ *   },
+ *   chainId: chainId(1),
+ * });
+ *
+ * if (result.isOk()) {
+ *   console.log('Splitter address:', result.value?.address);
+ * }
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault recipient configuration request parameters.
+ * @returns The recipients configuration data or null if not set.
+ */
+export function vaultRecipientConfiguration(
+  client: AaveClient,
+  request: VaultRecipientConfigurationRequest,
+): ResultAsync<VaultFeesRecipientsConfiguration | null, UnexpectedError> {
+  return client.query(vaultRecipientConfigurationQuery, {
+    request,
+  });
+}
+
+/**
+ * Creates a transaction to set the recipients configuration for a vault.
+ *
+ * ```ts
+ * const result = await vaultSetRecipientsConfiguration(client, {
  *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
  *   chainId: chainId(1),
- *   revenueSplitter: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   configuration: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  * ```
  *
  * @param client - Aave client.
- * @param request - The vault set revenue splitter request parameters.
- * @returns The transaction data for setting a revenue splitter.
+ * @param request - The vault set recipients configuration request parameters.
+ * @returns The transaction data for setting the recipients configuration.
  */
-export function vaultSetRevenueSplitter(
+export function vaultSetRecipientsConfiguration(
   client: AaveClient,
-  request: VaultSetRevenueSplitterRequest,
+  request: VaultSetRecipientsConfigurationRequest,
 ): ResultAsync<TransactionRequest, UnexpectedError> {
-  return client.query(vaultSetRevenueSplitterQuery, {
+  return client.query(vaultSetRecipientsConfigurationQuery, {
     request,
   });
 }
