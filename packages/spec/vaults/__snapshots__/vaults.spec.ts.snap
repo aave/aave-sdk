@@ -1,5 +1,46 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Given the Aave Vaults > And a deployed organization vault > When the organization wants to manage the vault > Then the organization should be able to modify the recipients of the vault 1`] = `
+[
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0x1234567890123456789012345678901234567890",
+    "isAaveLabs": false,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "25.00",
+      "raw": "2500",
+      "value": "0.25",
+    },
+  },
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0x1234567890123456789012345678901234567891",
+    "isAaveLabs": false,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "25.00",
+      "raw": "2500",
+      "value": "0.25",
+    },
+  },
+  {
+    "__typename": "VaultFeesRecipientSplit",
+    "address": "0xbA3Fa06E181D4a64B07D0ed0e8369811F0aD44BA",
+    "isAaveLabs": true,
+    "split": {
+      "__typename": "PercentValue",
+      "decimals": 4,
+      "formatted": "50.00",
+      "raw": "5000",
+      "value": "0.50",
+    },
+  },
+]
+`;
+
 exports[`Given the Aave Vaults > And a deployed organization vault > When the user redeems partial amount of their shares > Then the user's vault activity can be fetched for the time window LAST_MONTH 1`] = `
 {
   "__typename": "VaultUserActivityResult",

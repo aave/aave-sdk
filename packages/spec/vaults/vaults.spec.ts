@@ -41,7 +41,7 @@ import {
   getBalance,
 } from '@aave/client/test-utils';
 import { sendWith } from '@aave/client/viem';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   createVault,
   depositOntoVault,
@@ -150,10 +150,9 @@ describe('Given the Aave Vaults', () => {
   describe('And a deployed organization vault', () => {
     describe('When the organization wants to manage the vault', () => {
       const organization = createNewWallet();
-      const newOwner = createNewWallet();
       let initialVault: Vault;
 
-      beforeAll(async () => {
+      beforeEach(async () => {
         const setup = await fundErc20Address(
           ETHEREUM_WETH_ADDRESS,
           evmAddress(organization.account!.address),
@@ -199,8 +198,11 @@ describe('Given the Aave Vaults', () => {
       it('Then the organization should be able to transfer the ownership of the vault', async ({
         annotate,
       }) => {
+        const newOwner = createNewWallet();
         annotate(`organization address: ${organization.account!.address}`);
         annotate(`initial vault: ${initialVault.address}`);
+        annotate(`new owner address: ${newOwner.account!.address}`);
+
         const transferResult = await vaultTransferOwnership(client, {
           vault: initialVault.address,
           chainId: initialVault.chainId,
@@ -248,7 +250,6 @@ describe('Given the Aave Vaults', () => {
       }) => {
         const newRecipient1 = '0x1234567890123456789012345678901234567890';
         const newRecipient2 = '0x1234567890123456789012345678901234567891';
-
         const newRecipients = [
           {
             address: evmAddress(newRecipient1),
@@ -259,6 +260,7 @@ describe('Given the Aave Vaults', () => {
             percent: bigDecimal('50'),
           },
         ];
+
         const updateResult = await vaultCreateRecipientsConfiguration(client, {
           chainId: initialVault.chainId,
           vault: initialVault.address,
@@ -274,6 +276,9 @@ describe('Given the Aave Vaults', () => {
             }),
           )
           .map(nonNullable)
+          .andTee((recipientConfig) =>
+            console.log(`recipient config: ${recipientConfig.address}`),
+          )
           .andThen((recipientConfig) =>
             vaultSetRecipientsConfiguration(client, {
               vault: initialVault.address,
@@ -292,7 +297,7 @@ describe('Given the Aave Vaults', () => {
         }).map(nonNullable);
         assertOk(newVaultInfo);
         expect(newVaultInfo.value.recipients?.entries).toMatchSnapshot();
-      });
+      }, 50_000);
     });
 
     describe('When a user deposits into the vault', () => {

@@ -9,6 +9,7 @@ exports[`Given an Aave Market reserve > When fetching the reserve data > Then it
   "eModeInfo": Any<Array>,
   "flashLoanEnabled": true,
   "incentives": [],
+  "interestRateStrategyAddress": Any<String>,
   "isFrozen": false,
   "isPaused": false,
   "isolationModeConfig": null,
