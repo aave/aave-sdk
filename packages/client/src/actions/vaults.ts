@@ -338,6 +338,7 @@ export function vaultTransferOwnership(
 }
 
 /**
+ * @internal
  * Creates a transaction to deploy a recipients configuration contract for a vault.
  *
  * ```ts
@@ -382,10 +383,6 @@ export function vaultCreateRecipientsConfiguration(
  *   },
  *   chainId: chainId(1),
  * });
- *
- * if (result.isOk()) {
- *   console.log('Splitter address:', result.value?.address);
- * }
  * ```
  *
  * @param client - Aave client.
@@ -402,6 +399,7 @@ export function vaultRecipientConfiguration(
 }
 
 /**
+ * @internal
  * Creates a transaction to set the recipients configuration for a vault.
  *
  * ```ts
