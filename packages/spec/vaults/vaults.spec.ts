@@ -290,6 +290,7 @@ describe('Given the Aave Vaults', () => {
           chainId: initialVault.chainId,
         }).map(nonNullable);
         assertOk(newVaultInfo);
+        expect(newVaultInfo.value.owner).toEqual(initialVault.owner);
         expect(newVaultInfo.value.recipients?.entries).toMatchSnapshot();
       }, 50_000);
     });

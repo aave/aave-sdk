@@ -339,30 +339,6 @@ export function vaultTransferOwnership(
 
 /**
  * @internal
- * Creates a transaction to deploy a recipients configuration contract for a vault.
- *
- * ```ts
- * const result = await vaultCreateRecipientsConfiguration(client, {
- *   vault: evmAddress('0x1234…'),
- *   chainId: chainId(1),
- *   recipients: [
- *     {
- *       address: evmAddress('0x5678…'),
- *       percent: bigDecimal('5000'), // 50%
- *     },
- *     {
- *       address: evmAddress('0x9abc…'),
- *       percent: bigDecimal('5000'), // 50%
- *     },
- *   ],
- * })
- *  .andThen(sendWith(wallet))
- *  .andThen(client.waitForTransaction);
- * ```
- *
- * @param client - Aave client.
- * @param request - The vault create recipients configuration request parameters.
- * @returns The transaction data for deploying a recipients configuration.
  */
 export function vaultCreateRecipientsConfiguration(
   client: AaveClient,
@@ -374,20 +350,7 @@ export function vaultCreateRecipientsConfiguration(
 }
 
 /**
- * Retrieves the current recipients configuration for a vault.
- *
- * ```ts
- * const result = await vaultRecipientConfiguration(client, {
- *   by: {
- *     address: evmAddress('0x1234…'),
- *   },
- *   chainId: chainId(1),
- * });
- * ```
- *
- * @param client - Aave client.
- * @param request - The vault recipient configuration request parameters.
- * @returns The recipients configuration data or null if not set.
+ * @internal
  */
 export function vaultRecipientConfiguration(
   client: AaveClient,
@@ -400,21 +363,6 @@ export function vaultRecipientConfiguration(
 
 /**
  * @internal
- * Creates a transaction to set the recipients configuration for a vault.
- *
- * ```ts
- * const result = await vaultSetRecipientsConfiguration(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
- *   chainId: chainId(1),
- *   configuration: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
- * })
- *   .andThen(sendWith(wallet))
- *   .andThen(client.waitForTransaction);
- * ```
- *
- * @param client - Aave client.
- * @param request - The vault set recipients configuration request parameters.
- * @returns The transaction data for setting the recipients configuration.
  */
 export function vaultSetRecipientsConfiguration(
   client: AaveClient,
