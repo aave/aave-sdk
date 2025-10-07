@@ -81,9 +81,6 @@ describe('Given the Aave Vaults', () => {
           ],
         })
           .andThen(sendWith(organization))
-          .andTee((tx) => {
-            console.log(tx.txHash);
-          })
           .andThen(client.waitForTransaction)
           .andThen((txHash) =>
             vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
@@ -182,9 +179,6 @@ describe('Given the Aave Vaults', () => {
             ],
           })
             .andThen(sendWith(organization))
-            .andTee((tx) => {
-              console.log(tx.txHash);
-            })
             .andThen(client.waitForTransaction)
             .andThen((txHash) =>
               vault(client, { by: { txHash }, chainId: ETHEREUM_FORK_ID }),
@@ -277,7 +271,7 @@ describe('Given the Aave Vaults', () => {
           )
           .map(nonNullable)
           .andTee((recipientConfig) =>
-            console.log(`recipient config: ${recipientConfig.address}`),
+            annotate(`recipient config: ${recipientConfig.address}`),
           )
           .andThen((recipientConfig) =>
             vaultSetRecipientsConfiguration(client, {
