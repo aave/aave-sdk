@@ -25,9 +25,6 @@ jobs:
       - name: Setup Repository
         uses: ./.github/actions/setup
 
-      - name: Configure NPM Auth Token
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" >> ~/.npmrc
-
       - name: Create Snapshot
         id: create_snapshot
         run: pnpm changeset version --snapshot canary || echo "No unreleased changesets found"
