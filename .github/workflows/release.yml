@@ -1,6 +1,3 @@
-permissions:
-  contents: write
-  pull-requests: write
 name: Release
 
 on:
@@ -14,6 +11,11 @@ on:
         description: 'Run verification after release'
         required: false
         default: false
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
