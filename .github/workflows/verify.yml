@@ -1,4 +1,4 @@
-name: 'Verify'
+name: Verify
 on:
   workflow_call:
     inputs:
@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Repository
         uses: ./.github/actions/setup
 
@@ -64,6 +64,3 @@ jobs:
         if: ${{ inputs.run-acceptance }}
         shell: bash
         run: pnpm spec
-
-      
-
