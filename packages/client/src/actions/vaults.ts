@@ -3,9 +3,12 @@ import {
   type PaginatedVaultsResult,
   type PaginatedVaultUserTransactionHistoryResult,
   type TokenAmount,
+  type TransactionRequest,
   UserVaultsQuery,
   type UserVaultsRequest,
   type Vault,
+  type VaultCreateRecipientsConfigurationRequest,
+  type VaultFeesRecipientsConfiguration,
   VaultPreviewDepositQuery,
   type VaultPreviewDepositRequest,
   VaultPreviewMintQuery,
@@ -15,14 +18,21 @@ import {
   VaultPreviewWithdrawQuery,
   type VaultPreviewWithdrawRequest,
   VaultQuery,
+  type VaultRecipientConfigurationRequest,
   type VaultRequest,
+  type VaultSetRecipientsConfigurationRequest,
   VaultsQuery,
   type VaultsRequest,
+  type VaultTransferOwnershipRequest,
   VaultUserActivityQuery,
   type VaultUserActivityRequest,
   type VaultUserActivityResult,
   VaultUserTransactionHistoryQuery,
   type VaultUserTransactionHistoryRequest,
+  vaultCreateRecipientsConfigurationQuery,
+  vaultRecipientConfigurationQuery,
+  vaultSetRecipientsConfigurationQuery,
+  vaultTransferOwnershipQuery,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
 import type { AaveClient } from '../AaveClient';
@@ -181,7 +191,7 @@ export function vaultPreviewMint(
  *
  * ```ts
  * const result = await vaultPreviewWithdraw(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('750'),
  * });
@@ -210,7 +220,7 @@ export function vaultPreviewWithdraw(
  *
  * ```ts
  * const result = await vaultPreviewRedeem(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
  *   amount: bigDecimal('200'),
  * });
@@ -239,9 +249,9 @@ export function vaultPreviewRedeem(
  *
  * ```ts
  * const result = await vaultUserTransactionHistory(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
- *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   user: evmAddress('0x5678…'),
  * });
  *
  * if (result.isOk()) {
@@ -274,9 +284,9 @@ export function vaultUserTransactionHistory(
  *
  * ```ts
  * const result = await vaultUserActivity(client, {
- *   vault: evmAddress('0x1234567890abcdef1234567890abcdef12345678'),
+ *   vault: evmAddress('0x1234…'),
  *   chainId: chainId(1),
- *   user: evmAddress('0x5678901234567890abcdef1234567890abcdef12'),
+ *   user: evmAddress('0x5678…'),
  * });
  *
  * if (result.isOk()) {
@@ -299,6 +309,66 @@ export function vaultUserActivity(
   request: VaultUserActivityRequest,
 ): ResultAsync<VaultUserActivityResult, UnexpectedError> {
   return client.query(VaultUserActivityQuery, {
+    request,
+  });
+}
+
+/**
+ * Creates a transaction to transfer ownership of a vault.
+ *
+ * ```ts
+ * const result = await vaultTransferOwnership(client, {
+ *   vault: evmAddress('0x1234…'),
+ *   chainId: chainId(1),
+ *   newOwner: evmAddress('0x5678…'),
+ * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The vault transfer ownership request parameters.
+ * @returns The transaction data for transferring vault ownership.
+ */
+export function vaultTransferOwnership(
+  client: AaveClient,
+  request: VaultTransferOwnershipRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultTransferOwnershipQuery, {
+    request,
+  });
+}
+
+/**
+ * @internal
+ */
+export function vaultCreateRecipientsConfiguration(
+  client: AaveClient,
+  request: VaultCreateRecipientsConfigurationRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultCreateRecipientsConfigurationQuery, {
+    request,
+  });
+}
+
+/**
+ * @internal
+ */
+export function vaultRecipientConfiguration(
+  client: AaveClient,
+  request: VaultRecipientConfigurationRequest,
+): ResultAsync<VaultFeesRecipientsConfiguration | null, UnexpectedError> {
+  return client.query(vaultRecipientConfigurationQuery, {
+    request,
+  });
+}
+
+/**
+ * @internal
+ */
+export function vaultSetRecipientsConfiguration(
+  client: AaveClient,
+  request: VaultSetRecipientsConfigurationRequest,
+): ResultAsync<TransactionRequest, UnexpectedError> {
+  return client.query(vaultSetRecipientsConfigurationQuery, {
     request,
   });
 }

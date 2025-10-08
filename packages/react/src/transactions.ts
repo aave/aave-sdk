@@ -12,6 +12,7 @@ import {
   vaultMintShares,
   vaultRedeemShares,
   vaultSetFee,
+  vaultTransferOwnership,
   vaultWithdraw,
   vaultWithdrawFees,
   withdraw,
@@ -31,6 +32,7 @@ import type {
   VaultMintSharesRequest,
   VaultRedeemSharesRequest,
   VaultSetFeeRequest,
+  VaultTransferOwnershipRequest,
   VaultWithdrawFeesRequest,
   VaultWithdrawRequest,
   WithdrawRequest,
@@ -615,6 +617,41 @@ export function useVaultWithdrawFees(): UseAsyncTask<
 
   return useAsyncTask((request: VaultWithdrawFeesRequest) =>
     vaultWithdrawFees(client, request),
+  );
+}
+
+/**
+ * A hook that provides a way to transfer ownership of a vault.
+ *
+ * ```ts
+ * const [transferOwnership, transferring] = useVaultTransferOwnership();
+ * const [sendTransaction, sending] = useSendTransaction(wallet);
+ *
+ * const loading = transferring.loading && sending.loading;
+ * const error = transferring.error || sending.error;
+ *
+ * // …
+ *
+ * const result = await transferOwnership({ ... })
+ *   .andThen(sendTransaction);
+ *
+ * if (result.isErr()) {
+ *   console.error(result.error);
+ *   return;
+ * }
+ *
+ * console.log('Transaction sent with hash:', result.value);
+ * ```
+ */
+export function useVaultTransferOwnership(): UseAsyncTask<
+  VaultTransferOwnershipRequest,
+  TransactionRequest,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: VaultTransferOwnershipRequest) =>
+    vaultTransferOwnership(client, request),
   );
 }
 

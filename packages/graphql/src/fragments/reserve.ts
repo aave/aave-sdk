@@ -318,6 +318,7 @@ export const ReserveFragment = graphql(
     isFrozen
     isPaused
     flashLoanEnabled
+    interestRateStrategyAddress
     permitSupported
     supplyInfo {
       ...ReserveSupplyInfo
