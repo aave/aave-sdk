@@ -7,6 +7,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      run-verify:
+        type: boolean
+        description: 'Run verification after release'
+        required: false
+        default: false
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -32,7 +39,7 @@ jobs:
 
   verify:
     needs: release
-    if: ${{ needs.release.outputs.pullRequestNumber != '' }}
+    if: ${{ inputs.run-verify && needs.release.outputs.pullRequestNumber != '' }}
     uses: ./.github/workflows/verify.yml
     secrets: inherit
     with:
