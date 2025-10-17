@@ -130,6 +130,15 @@ exports[`Given the Aave Protocol > When listing all supported chains > Then it s
   },
   {
     "__typename": "Chain",
+    "chainId": 57073,
+    "explorerUrl": "https://explorer.inkonchain.com/",
+    "icon": "https://statics.aave.com/ink.svg",
+    "isTestnet": false,
+    "name": "Ink",
+    "nativeWrappedToken": "0x4200000000000000000000000000000000000006",
+  },
+  {
+    "__typename": "Chain",
     "chainId": 59144,
     "explorerUrl": "https://lineascan.build",
     "icon": "https://statics.aave.com/linea.svg",

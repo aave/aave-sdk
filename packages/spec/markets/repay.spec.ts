@@ -88,7 +88,7 @@ describe('Given an Aave Market', () => {
           }),
         );
         assertOk(setup);
-      });
+      }, 50_000);
 
       it('Then it should be reflected in the user borrow positions', async ({
         annotate,
