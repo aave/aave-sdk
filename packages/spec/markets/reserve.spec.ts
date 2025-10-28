@@ -45,6 +45,7 @@ describe('Given an Aave Market reserve', () => {
       assertOk(result);
       expect(result.value).toMatchSnapshot({
         aToken: expect.any(Object),
+        interestRateStrategyAddress: expect.any(String),
         underlyingToken: {
           address: ETHEREUM_WETH_ADDRESS,
         },

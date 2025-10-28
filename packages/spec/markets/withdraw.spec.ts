@@ -265,7 +265,7 @@ describe('Given an Aave Market', () => {
           evmAddress(anotherUser.account!.address),
           ETHEREUM_WETH_ADDRESS,
         );
-        expect(balance).toBeCloseTo(Number(suppliedAmount), 3);
+        expect(balance).toBeBigDecimalCloseTo(suppliedAmount, 3);
       });
     });
 

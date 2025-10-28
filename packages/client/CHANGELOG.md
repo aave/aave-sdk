@@ -1,5 +1,20 @@
 # @aave/client
 
+## 0.7.0
+
+### Minor Changes
+
+- 67ee5ad: **chore:** extract core logic into internal @aave/core package
+
+### Patch Changes
+
+- Updated dependencies [67ee5ad]
+- Updated dependencies [65cb5b6]
+- Updated dependencies [df44eb5]
+  - @aave/graphql@0.7.0
+  - @aave/types@0.2.0
+  - @aave/core@0.1.0
+
 ## 0.6.1
 
 ### Patch Changes

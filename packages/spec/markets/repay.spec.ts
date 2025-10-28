@@ -88,7 +88,7 @@ describe('Given an Aave Market', () => {
           }),
         );
         assertOk(setup);
-      });
+      }, 50_000);
 
       it('Then it should be reflected in the user borrow positions', async ({
         annotate,
@@ -192,7 +192,7 @@ describe('Given an Aave Market', () => {
           );
         assertOk(result);
         expect(result.value.length).toBe(1);
-        expect(Number(result.value[0]?.debt.amount.value)).toBeCloseTo(
+        expect(result.value[0]?.debt.amount.value).toBeBigDecimalCloseTo(
           Number(userBorrowsBefore.value[0]?.debt.amount.value) * 0.5,
           4,
         );

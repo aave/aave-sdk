@@ -42,6 +42,9 @@ export enum OperationType {
   VaultFeeWithdrawn = 'VAULT_FEE_WITHDRAWN',
   VaultWithdraw = 'VAULT_WITHDRAW',
   Liquidation = 'LIQUIDATION',
+  VaultTransfer = 'VAULT_TRANSFER',
+  RevenueSplitterOwnerDeployed = 'REVENUE_SPLITTER_OWNER_DEPLOYED',
+  RevenueSplitterOwnerTransfer = 'REVENUE_SPLITTER_OWNER_TRANSFER',
 }
 
 /**

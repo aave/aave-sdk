@@ -21,6 +21,35 @@ export const UserVaultSharesFragment = graphql(
 );
 export type UserVaultShares = FragmentOf<typeof UserVaultSharesFragment>;
 
+export const VaultFeesRecipientSplitFragment = graphql(
+  `fragment VaultFeesRecipientSplit on VaultFeesRecipientSplit {
+    __typename
+    address
+    split {
+      ...PercentValue
+    }
+    isAaveLabs
+  }`,
+  [PercentValueFragment],
+);
+export type VaultFeesRecipientSplit = FragmentOf<
+  typeof VaultFeesRecipientSplitFragment
+>;
+
+export const VaultFeesRecipientsConfigurationFragment = graphql(
+  `fragment VaultFeesRecipientsConfiguration on VaultFeesRecipientsConfiguration {
+    __typename
+    address
+    entries {
+      ...VaultFeesRecipientSplit
+    }
+  }`,
+  [VaultFeesRecipientSplitFragment],
+);
+export type VaultFeesRecipientsConfiguration = FragmentOf<
+  typeof VaultFeesRecipientsConfigurationFragment
+>;
+
 export const VaultFragment = graphql(
   `fragment Vault on Vault {
     __typename
@@ -36,6 +65,9 @@ export const VaultFragment = graphql(
     }
     totalFeeRevenue {
       ...TokenAmount
+    }
+    recipients {
+      ...VaultFeesRecipientsConfiguration
     }
     balance {
       ...TokenAmount
@@ -56,6 +88,7 @@ export const VaultFragment = graphql(
     PercentValueFragment,
     TokenAmountFragment,
     UserVaultSharesFragment,
+    VaultFeesRecipientsConfigurationFragment,
   ],
 );
 export type Vault = FragmentOf<typeof VaultFragment>;

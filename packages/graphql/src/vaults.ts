@@ -1,8 +1,10 @@
+import { TransactionRequestFragment } from './fragments';
 import { TokenAmountFragment } from './fragments/common';
 import {
   PaginatedVaultsResultFragment,
   type PaginatedVaultUserTransactionHistoryResult,
   PaginatedVaultUserTransactionHistoryResultFragment,
+  VaultFeesRecipientsConfigurationFragment,
   VaultFragment,
   VaultUserActivityResultFragment,
 } from './fragments/vaults';
@@ -123,6 +125,9 @@ export type VaultUserTransactionHistoryResult = {
   value: PaginatedVaultUserTransactionHistoryResult;
 };
 
+/**
+ * @internal
+ */
 export const VaultUserActivityQuery = graphql(
   `query VaultUserActivity($request: VaultUserActivityRequest!) {
     value: vaultUserActivity(request: $request) {
@@ -132,3 +137,63 @@ export const VaultUserActivityQuery = graphql(
   [VaultUserActivityResultFragment],
 );
 export type VaultUserActivityRequest = RequestOf<typeof VaultUserActivityQuery>;
+
+/**
+ * @internal
+ */
+export const vaultTransferOwnershipQuery = graphql(
+  `query VaultTransferOwnership($request: VaultTransferOwnershipRequest!) {
+    value: vaultTransferOwnership(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultTransferOwnershipRequest = RequestOf<
+  typeof vaultTransferOwnershipQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultCreateRecipientsConfigurationQuery = graphql(
+  `query VaultCreateRecipientsConfiguration($request: VaultCreateRecipientsConfigurationRequest!) {
+    value: vaultCreateRecipientsConfiguration(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultCreateRecipientsConfigurationRequest = RequestOf<
+  typeof vaultCreateRecipientsConfigurationQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultSetRecipientsConfigurationQuery = graphql(
+  `query VaultSetRecipientsConfiguration($request: VaultSetRecipientsConfigurationRequest!) {
+    value: vaultSetRecipientsConfiguration(request: $request) {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type VaultSetRecipientsConfigurationRequest = RequestOf<
+  typeof vaultSetRecipientsConfigurationQuery
+>;
+
+/**
+ * @internal
+ */
+export const vaultRecipientConfigurationQuery = graphql(
+  `query VaultRecipientConfiguration($request: VaultRecipientConfigurationRequest!) {
+    value: vaultRecipientConfiguration(request: $request) {
+      ...VaultFeesRecipientsConfiguration
+    }
+  }`,
+  [VaultFeesRecipientsConfigurationFragment],
+);
+export type VaultRecipientConfigurationRequest = RequestOf<
+  typeof vaultRecipientConfigurationQuery
+>;

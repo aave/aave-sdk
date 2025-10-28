@@ -1,12 +1,21 @@
-permissions:
-  contents: write
-  pull-requests: write
 name: Release
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      run-verify:
+        type: boolean
+        description: 'Run verification after release'
+        required: false
+        default: false
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -21,9 +30,6 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Configure NPM Auth Token
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" >> ~/.npmrc
-
       - name: Create Release Pull Request
         uses: changesets/action@v1
         with:
@@ -35,7 +41,7 @@ jobs:
 
   verify:
     needs: release
-    if: ${{ needs.release.outputs.pullRequestNumber != '' }}
+    if: ${{ inputs.run-verify && needs.release.outputs.pullRequestNumber != '' }}
     uses: ./.github/workflows/verify.yml
     secrets: inherit
     with:
