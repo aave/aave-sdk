@@ -27,9 +27,12 @@ examples/*/pnpm-lock.yaml
 
 # local env files
 .env
+.env.local
 
 # typescript
 *.tsbuildinfo
 
 # test results
 reports/
+
+

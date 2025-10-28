@@ -1,4 +1,4 @@
-import type { UnexpectedError } from '@aave/core';
+import type { UnexpectedError } from "@aave/core";
 import {
   type Market,
   MarketQuery,
@@ -8,14 +8,13 @@ import {
   OrderDirection,
   UserMarketStateQuery,
   type UserMarketStateRequest,
-} from '@aave/graphql';
-import type { ChainId, EvmAddress, ResultAsync } from '@aave/types';
-import type { AaveClient } from '../AaveClient';
+} from "@aave/graphql";
+import type { ChainId, EvmAddress, ResultAsync } from "@aave/types";
+import type { AaveClient } from "../AaveClient";
 
-export const defaultMarketReservesRequestOrderBy: MarketReservesRequestOrderBy =
-  {
-    tokenName: OrderDirection.Asc,
-  };
+export const defaultMarketReservesRequestOrderBy: MarketReservesRequestOrderBy = {
+  tokenName: OrderDirection.Asc,
+};
 
 export type MarketsRequest = {
   /**
@@ -62,7 +61,7 @@ export function markets(
     borrowsOrderBy = defaultMarketReservesRequestOrderBy,
     suppliesOrderBy = defaultMarketReservesRequestOrderBy,
     user,
-  }: MarketsRequest,
+  }: MarketsRequest
 ): ResultAsync<Market[], UnexpectedError> {
   return client.query(MarketsQuery, {
     request: { chainIds, user },
@@ -123,7 +122,7 @@ export function market(
     user,
     borrowsOrderBy = defaultMarketReservesRequestOrderBy,
     suppliesOrderBy = defaultMarketReservesRequestOrderBy,
-  }: MarketRequest,
+  }: MarketRequest
 ): ResultAsync<Market | null, UnexpectedError> {
   return client.query(MarketQuery, {
     request: { address, chainId, user },
@@ -149,7 +148,7 @@ export function market(
  */
 export function userMarketState(
   client: AaveClient,
-  request: UserMarketStateRequest,
+  request: UserMarketStateRequest
 ): ResultAsync<MarketUserState, UnexpectedError> {
   return client.query(UserMarketStateQuery, { request });
 }
