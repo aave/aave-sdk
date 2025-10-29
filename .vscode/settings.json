@@ -1,7 +1,7 @@
 {
   "[graphql]": {
     "editor.defaultFormatter": "biomejs.biome",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome",
@@ -34,5 +34,4 @@
   "disabledExtensions": ["Orta.vscode-jest"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "biome.lsp.bin": "./node_modules/.bin/biome"
 }

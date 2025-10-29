@@ -6,30 +6,30 @@ import { ReserveFragment } from "./reserve";
 
 export const MarketUserStateFragment = graphql(
 	`fragment MarketUserState on MarketUserState {
-      __typename
-      netWorth
-      netAPY {
-        ...PercentValue
-      }
-      userEarnedAPY {
-        ...PercentValue
-      }
-      userDebtAPY {
-        ...PercentValue
-      }
-      healthFactor
-      eModeEnabled
-      totalCollateralBase
-      totalDebtBase
-      availableBorrowsBase
-      currentLiquidationThreshold {
-        ...PercentValue
-      }
-      ltv {
-        ...PercentValue
-      }
-      isInIsolationMode
-    }`,
+    __typename
+    netWorth
+    netAPY {
+      ...PercentValue
+    }
+    userEarnedAPY {
+      ...PercentValue
+    }
+    userDebtAPY {
+      ...PercentValue
+    }
+    healthFactor
+    eModeEnabled
+    totalCollateralBase
+    totalDebtBase
+    availableBorrowsBase
+     currentLiquidationThreshold {
+      ...PercentValue
+    }
+    ltv {
+      ...PercentValue
+    }
+    isInIsolationMode
+  }`,
 	[PercentValueFragment],
 );
 export type MarketUserState = FragmentOf<typeof MarketUserStateFragment>;
