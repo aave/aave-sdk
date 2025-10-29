@@ -11,6 +11,12 @@ export const MarketUserStateFragment = graphql(
     netAPY {
       ...PercentValue
     }
+    userEarnedAPY {
+      ...PercentValue
+    }
+    userDebtAPY {
+      ...PercentValue
+    }
     healthFactor
     eModeEnabled
     totalCollateralBase
@@ -84,7 +90,6 @@ export const MarketFragment = graphql(
     userState {
       ...MarketUserState
     }
-
     borrowReserves: reserves(request: { reserveType: BORROW, orderBy: $borrowsOrderBy }) {
       ...Reserve
     }

@@ -566,6 +566,12 @@ type MarketUserState {
   """The user's net annual percentage yield across all positions"""
   netAPY: PercentValue!
 
+  """The user's earned annual percentage yield across all supply positions"""
+  userEarnedAPY: PercentValue!
+
+  """The user's debt annual percentage yield across all borrow positions"""
+  userDebtAPY: PercentValue!
+
   """
   The user's health factor (risk metric for liquidation) - if null, the user does not have a borrow
   """
@@ -679,7 +685,7 @@ enum OperationType {
   VAULT_FEE_UPDATED
   VAULT_FEE_WITHDRAWN
   VAULT_WITHDRAW
-  VAULT_TRANSFER
+  VAULT_OWNERSHIP_TRANSFERRED
   REVENUE_SPLITTER_OWNER_DEPLOYED
   REVENUE_SPLITTER_OWNER_TRANSFER
   LIQUIDATION
