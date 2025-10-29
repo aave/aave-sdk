@@ -74,7 +74,11 @@
 			}
 		},
 		{
-			"includes": ["packages/**/*.spec.ts", "packages/**/*.test.ts", "packages/**/*.helpers.ts"],
+			"includes": [
+				"packages/**/*.spec.ts",
+				"packages/**/*.test.ts",
+				"packages/**/*.helpers.ts"
+			],
 			"linter": {
 				"rules": {
 					"style": {
@@ -109,9 +113,9 @@
 					"style": {
 						"noNonNullAssertion": "off"
 					},
-          "a11y": {
-            "noLabelWithoutControl": "off"
-          }
+					"a11y": {
+						"noLabelWithoutControl": "off"
+					}
 				}
 			}
 		}
