@@ -1,11 +1,11 @@
-import type { FragmentOf } from "gql.tada";
-import { graphql } from "../graphql";
-import { ChainFragment } from "./chain";
-import { CurrencyFragment, PercentValueFragment } from "./common";
-import { ReserveFragment } from "./reserve";
+import type { FragmentOf } from 'gql.tada';
+import { graphql } from '../graphql';
+import { ChainFragment } from './chain';
+import { CurrencyFragment, PercentValueFragment } from './common';
+import { ReserveFragment } from './reserve';
 
 export const MarketUserStateFragment = graphql(
-	`fragment MarketUserState on MarketUserState {
+  `fragment MarketUserState on MarketUserState {
     __typename
     netWorth
     netAPY {
@@ -22,7 +22,7 @@ export const MarketUserStateFragment = graphql(
     totalCollateralBase
     totalDebtBase
     availableBorrowsBase
-     currentLiquidationThreshold {
+    currentLiquidationThreshold {
       ...PercentValue
     }
     ltv {
@@ -30,12 +30,12 @@ export const MarketUserStateFragment = graphql(
     }
     isInIsolationMode
   }`,
-	[PercentValueFragment],
+  [PercentValueFragment],
 );
 export type MarketUserState = FragmentOf<typeof MarketUserStateFragment>;
 
 export const EmodeMarketReserveInfoFragment = graphql(
-	`fragment EmodeMarketReserveInfo on EmodeMarketReserveInfo {
+  `fragment EmodeMarketReserveInfo on EmodeMarketReserveInfo {
     __typename
     underlyingToken {
       ...Currency
@@ -46,11 +46,11 @@ export const EmodeMarketReserveInfoFragment = graphql(
   [CurrencyFragment],
 );
 export type EmodeMarketReserveInfo = FragmentOf<
-	typeof EmodeMarketReserveInfoFragment
+  typeof EmodeMarketReserveInfoFragment
 >;
 
 export const EmodeMarketCategoryFragment = graphql(
-	`fragment EmodeMarketCategory on EmodeMarketCategory {
+  `fragment EmodeMarketCategory on EmodeMarketCategory {
     __typename
     id
     label
@@ -64,17 +64,17 @@ export const EmodeMarketCategoryFragment = graphql(
       ...PercentValue
     }
     reserves {
-       ...EmodeMarketReserveInfo
+      ...EmodeMarketReserveInfo
     }
   }`,
-	[PercentValueFragment, EmodeMarketReserveInfoFragment],
+  [PercentValueFragment, EmodeMarketReserveInfoFragment],
 );
 export type EmodeMarketCategory = FragmentOf<
-	typeof EmodeMarketCategoryFragment
+  typeof EmodeMarketCategoryFragment
 >;
 
 export const MarketFragment = graphql(
-	`fragment Market on Market {
+  `fragment Market on Market {
     __typename
     name
     chain {
@@ -98,11 +98,11 @@ export const MarketFragment = graphql(
       ...Reserve
     }
   }`,
-	[
-		ChainFragment,
-		EmodeMarketCategoryFragment,
-		ReserveFragment,
-		MarketUserStateFragment,
-	],
+  [
+    ChainFragment,
+    EmodeMarketCategoryFragment,
+    ReserveFragment,
+    MarketUserStateFragment,
+  ],
 );
 export type Market = FragmentOf<typeof MarketFragment>;
