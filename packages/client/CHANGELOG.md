@@ -1,5 +1,16 @@
 # @aave/client
 
+## 0.8.0
+
+### Minor Changes
+
+- 75fd88e: feat: expose user earned/debt APY in MarketUserState
+
+### Patch Changes
+
+- Updated dependencies [75fd88e]
+  - @aave/graphql@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
