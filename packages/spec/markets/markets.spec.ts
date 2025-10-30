@@ -136,6 +136,8 @@ describe('Given the Aave Protocol v3', () => {
         netWorth: expect.any(String),
         totalCollateralBase: expect.any(String),
         totalDebtBase: expect.any(String),
+        userDebtAPY: expect.any(Object),
+        userEarnedAPY: expect.any(Object),
       });
     });
   });

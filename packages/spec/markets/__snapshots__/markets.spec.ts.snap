@@ -133,5 +133,7 @@ exports[`Given the Aave Protocol v3 > When fetching user market state for a new 
   "netWorth": Any<String>,
   "totalCollateralBase": Any<String>,
   "totalDebtBase": Any<String>,
+  "userDebtAPY": Any<Object>,
+  "userEarnedAPY": Any<Object>,
 }
 `;
