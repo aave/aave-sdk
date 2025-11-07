@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.9.0
+
+### Minor Changes
+
+- d231b4b: exposed unbacked field on the backend and updated the sdk's schema
+
 ## 0.8.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@aave/react",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "The official React bindings for the Aave Protocol",
   "repository": {
     "directory": "packages/react",
