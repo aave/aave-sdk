@@ -1072,6 +1072,9 @@ type Reserve {
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
 
+  """The unbacked amount in the reserve"""
+  unbacked: TokenAmount!
+
   """The interest rate strategy address"""
   interestRateStrategyAddress: EvmAddress!
 
