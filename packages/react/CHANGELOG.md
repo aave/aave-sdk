@@ -1,5 +1,17 @@
 # @aave/react
 
+## 0.8.0
+
+### Minor Changes
+
+- d231b4b: exposed unbacked field on the backend and updated the sdk's schema
+
+### Patch Changes
+
+- Updated dependencies [d231b4b]
+  - @aave/graphql@0.9.0
+  - @aave/client@0.9.0
+
 ## 0.7.1
 
 ### Patch Changes
