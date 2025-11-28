@@ -52,6 +52,7 @@ describe('Given an Aave Market reserve', () => {
         usdExchangeRate: expect.any(String),
         vToken: expect.any(Object),
         supplyInfo: expect.any(Object),
+        unbacked: expect.any(Object),
         borrowInfo: expect.any(Object),
         eModeInfo: expect.any(Array),
         market: expect.any(Object),
