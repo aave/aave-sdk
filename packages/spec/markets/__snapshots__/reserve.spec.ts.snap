@@ -17,6 +17,7 @@ exports[`Given an Aave Market reserve > When fetching the reserve data > Then it
   "permitSupported": false,
   "size": Any<Object>,
   "supplyInfo": Any<Object>,
+  "unbacked": Any<Object>,
   "underlyingToken": {
     "__typename": "Currency",
     "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
