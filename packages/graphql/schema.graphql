@@ -1112,6 +1112,11 @@ type ReserveBorrowInfo {
   utilizationRate: PercentValue!
 
   """
+  The base variable borrow rate - the minimum interest rate for borrowing
+  """
+  baseVariableBorrowRate: PercentValue!
+
+  """
   Variable rate slope 1 - the rate of interest increase when utilization rate is below optimal
   This is the slope of the interest rate curve in the first segment (0% to optimal utilization)
   """

@@ -234,6 +234,9 @@ export const ReserveBorrowInfoFragment = graphql(
     utilizationRate {
       ...PercentValue
     }
+    baseVariableBorrowRate{
+      ...PercentValue
+    }
     variableRateSlope1 {
       ...PercentValue
     }
