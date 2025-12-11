@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.10.0
+
+### Minor Changes
+
+- c8300e3: populate baseVariableBorrowRate needed in the FE
+
 ## 0.9.0
 
 ### Minor Changes
