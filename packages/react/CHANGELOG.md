@@ -1,5 +1,13 @@
 # @aave/react
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [c8300e3]
+  - @aave/graphql@0.10.0
+  - @aave/client@0.9.1
+
 ## 0.8.0
 
 ### Minor Changes
