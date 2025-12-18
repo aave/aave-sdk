@@ -180,6 +180,7 @@ export const EmodeReserveInfoFragment = graphql(
     }
     canBeCollateral
     canBeBorrowed
+    hasLtvZero
   }`,
   [PercentValueFragment],
 );
@@ -321,9 +322,6 @@ export const ReserveFragment = graphql(
     isFrozen
     isPaused
     flashLoanEnabled
-    unbacked{
-      ...TokenAmount
-    }
     interestRateStrategyAddress
     permitSupported
     supplyInfo {
