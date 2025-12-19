@@ -1,5 +1,12 @@
 # @aave/client
 
+## 0.9.2
+
+### Patch Changes
+
+- Updated dependencies [6135af6]
+  - @aave/graphql@0.11.0
+
 ## 0.9.1
 
 ### Patch Changes
