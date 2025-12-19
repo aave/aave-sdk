@@ -271,6 +271,9 @@ type EmodeMarketReserveInfo {
 
   """If the underlying token can be borrowed with this eMode on"""
   canBeBorrowed: Boolean!
+
+  """If the underlying token has LTV zero in this eMode"""
+  hasLtvZero: Boolean!
 }
 
 """The emode reserve information"""
@@ -295,6 +298,9 @@ type EmodeReserveInfo {
 
   """If the underlying token can be borrowed with this eMode on"""
   canBeBorrowed: Boolean!
+
+  """If the underlying token has LTV zero in this eMode"""
+  hasLtvZero: Boolean!
 }
 
 input Erc20AmountInput {
@@ -1073,7 +1079,7 @@ type Reserve {
   flashLoanEnabled: Boolean!
 
   """The unbacked amount in the reserve"""
-  unbacked: TokenAmount!
+  unbacked: TokenAmount! @deprecated(reason: "This field is no longer supported")
 
   """The interest rate strategy address"""
   interestRateStrategyAddress: EvmAddress!
