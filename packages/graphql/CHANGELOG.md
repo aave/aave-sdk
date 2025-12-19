@@ -1,5 +1,11 @@
 # @aave/graphql
 
+## 0.11.0
+
+### Minor Changes
+
+- 6135af6: chore: updated schema for v3.6 upgrade
+
 ## 0.10.0
 
 ### Minor Changes
