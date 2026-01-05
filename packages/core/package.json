@@ -39,7 +39,7 @@
     "graphql": "^16.11.0"
   },
   "devDependencies": {
-    "tsup": "^8.5.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.2"
   },
   "license": "MIT"

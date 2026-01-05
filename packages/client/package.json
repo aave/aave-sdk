@@ -82,7 +82,7 @@
     "@bgd-labs/aave-address-book": "^4.25.3",
     "ethers": "^6.14.4",
     "thirdweb": "^5.105.25",
-    "tsup": "^8.5.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.2",
     "viem": "^2.31.6"
   },
