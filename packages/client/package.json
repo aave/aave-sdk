@@ -71,23 +71,22 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@aave/graphql": "workspace:*",
     "@aave/core": "workspace:*",
+    "@aave/graphql": "workspace:*",
     "@aave/types": "workspace:*",
+    "@privy-io/server-auth": "^1.32.5",
     "@urql/core": "^5.2.0",
     "graphql": "^16.11.0"
   },
   "devDependencies": {
     "@bgd-labs/aave-address-book": "^4.25.3",
-    "@privy-io/server-auth": "^1.28.8",
     "ethers": "^6.14.4",
     "thirdweb": "^5.105.25",
-    "tsup": "^8.5.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.2",
     "viem": "^2.31.6"
   },
   "peerDependencies": {
-    "@privy-io/server-auth": "^1.28.8",
     "ethers": "^6.14.4",
     "thirdweb": "^5.105.25",
     "viem": "^2.31.6"

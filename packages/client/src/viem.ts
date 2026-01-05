@@ -134,7 +134,7 @@ export function transactionError(
   request: TransactionRequest,
 ): TransactionError {
   const baseUrl = chain?.blockExplorers?.default?.url;
-  const link = baseUrl && `${baseUrl.replace(/\/+$/, '')}/tx/${txHash}`;
+  const link = baseUrl && new URL(`/tx/${txHash}`, baseUrl).toString();
 
   return TransactionError.new({ txHash, request, link });
 }

@@ -18,9 +18,8 @@
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "new:package": "NODE_OPTIONS='--import tsx' plop --plopfile=plopfile.ts",
-    "prepare": "pnpm run build",
     "publish:results": "tsx scripts/publishResults.ts",
-    "release": "pnpm changeset publish",
+    "release": "pnpm run build && pnpm changeset publish",
     "spec": "vitest --project spec",
     "spec:borrow": "vitest --project spec packages/spec/markets/borrow.spec.ts",
     "spec:chains": "vitest --project spec packages/spec/misc/chains.spec.ts",
@@ -48,16 +47,15 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.0.6",
-    "@changesets/cli": "^2.29.5",
     "@types/node": "^24.0.7",
     "@vitest/ui": "^3.2.4",
     "jest-extended": "^6.0.0",
-    "plop": "^4.0.1",
-    "rimraf": "^6.0.1",
+    "plop": "^4.0.4",
+    "rimraf": "^6.1.2",
     "tsx": "^4.20.3",
     "turbo": "^2.5.4",
     "typescript": "^5.9.2",
-    "vite": "^7.0.0",
+    "vite": "^7.3.0",
     "vitest": "^3.2.4"
   },
   "pnpm": {
@@ -66,5 +64,8 @@
       "react-dom": "^19.1.0"
     }
   },
-  "packageManager": "pnpm@9.15.4"
+  "packageManager": "pnpm@9.15.4",
+  "dependencies": {
+    "@changesets/cli": "^2.29.8"
+  }
 }
