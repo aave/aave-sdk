@@ -8,7 +8,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@aave/react": "workspace:*",
+    "@aave/react": "latest",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
