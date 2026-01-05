@@ -1,5 +1,11 @@
 # @aave/client
 
+## 0.9.3
+
+### Patch Changes
+
+- e3b8087: **fix:** polynomial regular expression used on uncontrolled data
+
 ## 0.9.2
 
 ### Patch Changes
