@@ -1,5 +1,13 @@
 # @aave/react
 
+## 0.8.3
+
+### Patch Changes
+
+- e3b8087: **fix:** polynomial regular expression used on uncontrolled data
+- Updated dependencies [e3b8087]
+  - @aave/client@0.9.3
+
 ## 0.8.2
 
 ### Patch Changes
