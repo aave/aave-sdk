@@ -94,6 +94,15 @@ exports[`Given the Aave Protocol > When listing all supported chains > Then it s
   },
   {
     "__typename": "Chain",
+    "chainId": 5000,
+    "explorerUrl": "https://mantlescan.xyz",
+    "icon": "https://statics.aave.com/mantle.svg",
+    "isTestnet": false,
+    "name": "Mantle",
+    "nativeWrappedToken": "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
+  },
+  {
+    "__typename": "Chain",
     "chainId": 8453,
     "explorerUrl": "https://basescan.org",
     "icon": "https://statics.aave.com/base.svg",
