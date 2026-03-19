@@ -44,6 +44,16 @@ export default defineConfig({
           environment: 'node',
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'cli',
+          include: ['packages/cli/**/*.test.ts'],
+          environment: 'node',
+          disableConsoleIntercept: true,
+          setupFiles: ['tsx/esm'],
+        },
+      },
     ],
   },
 });

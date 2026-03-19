@@ -1,0 +1,91 @@
+{
+  "name": "@aave/cli",
+  "version": "0.1.0",
+  "description": "CLI to interact with the Aave v3 API",
+  "keywords": [
+    "aave",
+    "cli"
+  ],
+  "repository": {
+    "directory": "packages/cli",
+    "type": "git",
+    "url": "git://github.com/aave/aave-sdk.git"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "aave3": "./bin/run.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "./bin",
+    "./dist",
+    "./oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "rimraf dist && tsc -b",
+    "postpack": "rimraf oclif.manifest.json",
+    "prepack": "oclif manifest",
+    "readme": "oclif readme"
+  },
+  "dependencies": {
+    "@aave/client": "workspace:*",
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "@oclif/plugin-plugins": "^5",
+    "tty-table": "^5.0.0"
+  },
+  "devDependencies": {
+    "@oclif/test": "^4",
+    "@types/node": "^24",
+    "oclif": "^4.22.81",
+    "rimraf": "^6.1.3",
+    "tsx": "^4.20.3",
+    "typescript": "^5"
+  },
+  "oclif": {
+    "bin": "aave3",
+    "dirname": "aave3",
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "markets": {
+        "description": "List Aave v3 markets"
+      },
+      "reserves": {
+        "description": "List reserves in a market"
+      },
+      "positions": {
+        "description": "View user positions"
+      },
+      "supplies": {
+        "description": "View user supply positions"
+      },
+      "borrows": {
+        "description": "View user borrow positions"
+      },
+      "vaults": {
+        "description": "List Aave v3 vaults"
+      },
+      "gho": {
+        "description": "GHO savings operations"
+      },
+      "history": {
+        "description": "View user transaction history"
+      },
+      "incentives": {
+        "description": "View user incentive rewards"
+      },
+      "health-factor": {
+        "description": "Preview health factor changes"
+      }
+    }
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
+}
