@@ -1,0 +1,25 @@
+packages/graphql/schema.graphql
+  bf424534f216d08d 262-263,611-614,1079,1081,1203-1205,1208,1211,1278-1281
+packages/graphql/src/graphql-env.d.ts
+  bf424534f216d08d 33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "2f44e2d8e745d7fa24e28ff32b7ec9a58580db57",
+  "prompts": {
+    "bf424534f216d08d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f1f1224-9ea5-4c2a-8fe5-1af34bbb6e90",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe",
+      "messages": [],
+      "total_additions": 2533,
+      "total_deletions": 12,
+      "accepted_lines": 18,
+      "overriden_lines": 1
+    }
+  }
+}
