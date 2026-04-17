@@ -1,0 +1,28 @@
+packages/client/src/privy.ts
+  de3072e4e5e364b6 35-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "4cc0999edbe3d0bc1b7e4700f65378631de138c6",
+  "prompts": {
+    "de3072e4e5e364b6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9599c9b6-9e64-4fc1-a419-51e40a1c2aef",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe",
+      "messages": [],
+      "total_additions": 19,
+      "total_deletions": 11,
+      "accepted_lines": 19,
+      "overriden_lines": 0
+    }
+  },
+  "humans": {
+    "h_075bcc15b434db": {
+      "author": "Mark Grothe"
+    }
+  }
+}
