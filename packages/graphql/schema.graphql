@@ -258,6 +258,9 @@ type EmodeMarketCategory {
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: PercentValue!
 
+  """Whether this eMode category is isolated in v3.7+"""
+  isolated: Boolean!
+
   """The list of reserves which will tailor for this eMode"""
   reserves: [EmodeMarketReserveInfo!]!
 }
@@ -605,8 +608,10 @@ type MarketUserState {
   """The loan to value of the user"""
   ltv: PercentValue!
 
-  """One of the user collateral is in isolation mode"""
-  isInIsolationMode: Boolean!
+  """
+  Deprecated compatibility field. Use the selected eMode category's `isolated` flag instead.
+  """
+  isInIsolationMode: Boolean! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 }
 
 input MarketsRequest {
@@ -1071,9 +1076,9 @@ type Reserve {
   isPaused: Boolean!
 
   """
-  If the reserve supports isolation mode this is defined and the configs are defined
+  Deprecated compatibility field. Use the selected eMode category's `isolated` flag instead.
   """
-  isolationModeConfig: ReserveIsolationModeConfig
+  isolationModeConfig: ReserveIsolationModeConfig @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 
   """If the reserve can use flash loans on it"""
   flashLoanEnabled: Boolean!
@@ -1195,15 +1200,15 @@ type ReserveInfo {
 
 type ReserveIsolationModeConfig {
   """This means that it can be used to borrow"""
-  canBeCollateral: Boolean!
-  canBeBorrowed: Boolean!
-  debtCeiling: TokenAmount!
+  canBeCollateral: Boolean! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
+  canBeBorrowed: Boolean! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
+  debtCeiling: TokenAmount! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 
   """The decimals used for the debt ceiling"""
-  debtCeilingDecimals: Int!
+  debtCeilingDecimals: Int! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 
   """Only the amount that is borrowed by the users in isolation"""
-  totalBorrows: TokenAmount!
+  totalBorrows: TokenAmount! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 }
 
 input ReserveRequest {
@@ -1270,8 +1275,10 @@ type ReserveUserState {
   """If the user is in a state to be able to borrow from the reserve"""
   canBeBorrowed: Boolean!
 
-  """Is the user in isolation mode"""
-  isInIsolationMode: Boolean!
+  """
+  Deprecated compatibility field. Use the selected eMode category's `isolated` flag instead.
+  """
+  isInIsolationMode: Boolean! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 }
 
 input SavingsGhoBalanceRequest {
