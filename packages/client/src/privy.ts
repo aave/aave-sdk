@@ -32,25 +32,17 @@ async function sendTransaction(
   request: TransactionRequest,
   walletId: string,
 ): Promise<TxHash> {
-  const { hash } = await Promise.race([
-    privy.walletApi.ethereum.sendTransaction({
-      walletId,
-      caip2: `eip155:${request.chainId}`,
-      transaction: {
-        from: request.from,
-        to: request.to,
-        value: `0x${BigInt(request.value).toString(16)}`,
-        chainId: request.chainId,
-        data: request.data,
-      },
-    }),
-    new Promise<never>((_, reject) =>
-      setTimeout(
-        () => reject(new Error('Privy sendTransaction timed out')),
-        15_000,
-      ),
-    ),
-  ]);
+  const { hash } = await privy.walletApi.ethereum.sendTransaction({
+    walletId,
+    caip2: `eip155:${request.chainId}`,
+    transaction: {
+      from: request.from,
+      to: request.to,
+      value: `0x${BigInt(request.value).toString(16)}`,
+      chainId: request.chainId,
+      data: request.data,
+    },
+  });
   return txHash(hash);
 }
 
