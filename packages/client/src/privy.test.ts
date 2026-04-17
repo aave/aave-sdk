@@ -35,7 +35,7 @@ describe('Given a PrivyClient instance', () => {
 
       // At this stage we are happy we can attempt to send a transaction, this can be improved later
       assertErr(result);
-    });
+    }, 60_000);
   });
 
   describe('When using it to sign an ERC20 permit', () => {

@@ -47,7 +47,7 @@ async function sendTransaction(
     new Promise<never>((_, reject) =>
       setTimeout(
         () => reject(new Error('Privy sendTransaction timed out')),
-        25_000,
+        15_000,
       ),
     ),
   ]);
