@@ -17,7 +17,7 @@ const usdc = evmAddress(AaveV3BaseSepolia.ASSETS.USDC.UNDERLYING);
 
 describe('Given a ThirdwebClient instance', () => {
   describe('When using it to send Aave v3 transactions', () => {
-    it.skip('Then it should work as expected', async () => {
+    it('Then it should work as expected', async () => {
       // Using userSetEmode simply because it's an operation that does not require any specific pre-conditions
       const result = await userSetEmode(client, {
         chainId: baseSepolia,
