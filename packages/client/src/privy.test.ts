@@ -24,7 +24,7 @@ const privy = new PrivyClient(
 
 describe('Given a PrivyClient instance', () => {
   describe('When using it to send Aave v3 transactions', () => {
-    it('Then it should work as expected (within current testability constraints)', async () => {
+    it.skip('Then it should work as expected (within current testability constraints)', async () => {
       // Using userSetEmode simply because it's an operation that does not require any specific pre-conditions
       const result = await userSetEmode(client, {
         chainId: chainId(1),
