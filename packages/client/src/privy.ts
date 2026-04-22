@@ -27,23 +27,11 @@ import type {
 } from './types';
 import { supportedChains, transactionError } from './viem';
 
-function debugLog(message: string, data?: Record<string, unknown>) {
-  const payload = data ? ` ${JSON.stringify(data)}` : '';
-  console.log(`[privy] ${message}${payload}`);
-}
-
 async function sendTransaction(
   privy: PrivyClient,
   request: TransactionRequest,
   walletId: string,
 ): Promise<TxHash> {
-  debugLog('sendTransaction:start', {
-    walletId,
-    chainId: request.chainId,
-    from: request.from,
-    to: request.to,
-    operation: request.operation,
-  });
   const { hash } = await privy.walletApi.ethereum.sendTransaction({
     walletId,
     caip2: `eip155:${request.chainId}`,
@@ -54,11 +42,6 @@ async function sendTransaction(
       chainId: request.chainId,
       data: request.data,
     },
-  });
-  debugLog('sendTransaction:success', {
-    walletId,
-    chainId: request.chainId,
-    hash,
   });
   return txHash(hash);
 }
@@ -77,54 +60,24 @@ function sendTransactionAndWait(
 
   return ResultAsync.fromPromise(
     sendTransaction(privy, request, walletId),
-    (err) => {
-      debugLog('sendTransaction:error', {
-        walletId,
-        chainId: request.chainId,
-        message: err instanceof Error ? err.message : String(err),
-      });
-      return SigningError.from(err);
-    },
+    (err) => SigningError.from(err),
   )
     .map(async (hash) => {
-      debugLog('waitForTransactionReceipt:start', {
-        walletId,
-        chainId: request.chainId,
-        hash,
-      });
-      const receipt = await waitForTransactionReceipt(publicClient, {
+      return waitForTransactionReceipt(publicClient, {
         hash,
         pollingInterval: 100,
         retryCount: 20,
         retryDelay: 50,
       });
-      debugLog('waitForTransactionReceipt:success', {
-        walletId,
-        chainId: request.chainId,
-        hash,
-        status: receipt.status,
-      });
-      return receipt;
     })
     .andThen((receipt) => {
       const hash = txHash(receipt.transactionHash);
 
       if (receipt.status === 'reverted') {
-        debugLog('transaction:reverted', {
-          walletId,
-          chainId: request.chainId,
-          hash,
-        });
         return errAsync(
           transactionError(supportedChains[request.chainId], hash, request),
         );
       }
-      debugLog('transaction:confirmed', {
-        walletId,
-        chainId: request.chainId,
-        hash,
-        operation: request.operation,
-      });
       return okAsync({
         txHash: hash,
         operation: request.operation,
@@ -171,10 +124,6 @@ export function signERC20PermitWith(
   walletId: string,
 ): PermitHandler {
   return (result: PermitTypedDataResponse) => {
-    debugLog('signTypedData:start', {
-      walletId,
-      primaryType: result.primaryType,
-    });
     return ResultAsync.fromPromise(
       privy.walletApi.ethereum.signTypedData({
         walletId,
@@ -185,17 +134,8 @@ export function signERC20PermitWith(
           primaryType: result.primaryType,
         },
       }),
-      (err) => {
-        debugLog('signTypedData:error', {
-          walletId,
-          message: err instanceof Error ? err.message : String(err),
-        });
-        return SigningError.from(err);
-      },
+      (err) => SigningError.from(err),
     ).map((response) => {
-      debugLog('signTypedData:success', {
-        walletId,
-      });
       return {
         deadline: result.message.deadline,
         value: signatureFrom(response.signature),
