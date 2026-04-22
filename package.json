@@ -60,6 +60,7 @@
   },
   "pnpm": {
     "overrides": {
+      "handlebars": "^4.7.9",
       "react": "^19.1.0",
       "react-dom": "^19.1.0",
       "rollup@>=4.0.0 <4.59.0": ">=4.59.0",
