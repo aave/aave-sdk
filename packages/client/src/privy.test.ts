@@ -22,6 +22,10 @@ const privy = new PrivyClient(
   import.meta.env.PRIVY_TEST_APP_SECRET,
 );
 
+const PRIVY_TEST_ADDRESS = evmAddress(
+  '0x6FDEfdfF4De7bb661E0B853a4d25aCe03d2c73c0',
+);
+
 describe('Given a PrivyClient instance', () => {
   describe('When using it to send Aave v3 transactions', () => {
     it('Then it should work as expected (within current testability constraints)', async () => {
@@ -30,7 +34,7 @@ describe('Given a PrivyClient instance', () => {
         chainId: chainId(1),
         market: ETHEREUM_MARKET_ADDRESS,
         categoryId: ETHEREUM_MARKET_ETH_CORRELATED_EMODE_CATEGORY,
-        user: evmAddress(import.meta.env.PRIVY_TEST_WALLET_ADDRESS),
+        user: PRIVY_TEST_ADDRESS,
       }).andThen(sendWith(privy, import.meta.env.PRIVY_TEST_WALLET_ID));
 
       // At this stage we are happy we can attempt to send a transaction, this can be improved later
