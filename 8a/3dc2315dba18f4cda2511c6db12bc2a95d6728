@@ -1,0 +1,29 @@
+packages/client/src/privy.test.ts
+  12f83c5ebe4907dc 25,27-28,37
+  h_075bcc15b434db 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.2",
+  "base_commit_sha": "8a3dc2315dba18f4cda2511c6db12bc2a95d6728",
+  "prompts": {
+    "12f83c5ebe4907dc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019db67a-1403-7033-94cf-adfd3f5bc3ea",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Mark Grothe",
+      "messages": [],
+      "total_additions": 17,
+      "total_deletions": 13,
+      "accepted_lines": 5,
+      "overriden_lines": 1
+    }
+  },
+  "humans": {
+    "h_075bcc15b434db": {
+      "author": "Mark Grothe"
+    }
+  }
+}
