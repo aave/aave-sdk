@@ -30,6 +30,14 @@ export const MeritSupplyIncentiveFragment = graphql(
       ...PercentValue
     }
     claimLink
+    actionKey
+    rewardTokenAddress
+    rewardTokenSymbol
+    customMessage
+    customForumLink
+    selfApr {
+      ...PercentValue
+    }
   }`,
   [PercentValueFragment],
 );
@@ -44,6 +52,14 @@ export const MeritBorrowIncentiveFragment = graphql(
       ...PercentValue
     }
     claimLink
+    actionKey
+    rewardTokenAddress
+    rewardTokenSymbol
+    customMessage
+    customForumLink
+    selfApr {
+      ...PercentValue
+    }
   }`,
   [PercentValueFragment],
 );
@@ -64,6 +80,14 @@ export const MeritBorrowAndSupplyIncentiveConditionFragment = graphql(
       ...Currency
     }
     claimLink
+    actionKey
+    rewardTokenAddress
+    rewardTokenSymbol
+    customMessage
+    customForumLink
+    selfApr {
+      ...PercentValue
+    }
   }`,
   [PercentValueFragment, CurrencyFragment],
 );
@@ -101,12 +125,213 @@ export type AaveBorrowIncentive = FragmentOf<
   typeof AaveBorrowIncentiveFragment
 >;
 
+/**
+ * One rule from a reward program's `criteria_rules` blob, already evaluated
+ * against the user (when one was passed on the surrounding query) so the UI
+ * can render eligibility state directly.
+ */
+export const IncentiveCriteriaFragment = graphql(
+  `fragment IncentiveCriteria on IncentiveCriteria {
+    __typename
+    id
+    text
+    userPassed
+  }`,
+);
+export type IncentiveCriteria = FragmentOf<typeof IncentiveCriteriaFragment>;
+
+/**
+ * Off-chain points program referenced by `SupplyPointsIncentive` /
+ * `BorrowPointsIncentive`.
+ */
+export const PointsProgramFragment = graphql(
+  `fragment PointsProgram on PointsProgram {
+    __typename
+    id
+    name
+    externalUrl
+    iconUrl
+  }`,
+);
+export type PointsProgram = FragmentOf<typeof PointsProgramFragment>;
+
+/**
+ * Supply-side incentive funded by an Aave-owned Merkl campaign. `extraApy`
+ * is the live APR from Merkl (the stored APY on the program row is BD intent,
+ * not used at read time).
+ */
+export const MerklSupplyIncentiveFragment = graphql(
+  `fragment MerklSupplyIncentive on MerklSupplyIncentive {
+    __typename
+    id
+    startDate
+    endDate
+    extraApy {
+      ...PercentValue
+    }
+    payoutToken {
+      ...Currency
+    }
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+    description
+    customMessage
+    customForumLink
+    customClaimMessage
+  }`,
+  [PercentValueFragment, CurrencyFragment, IncentiveCriteriaFragment],
+);
+export type MerklSupplyIncentive = FragmentOf<
+  typeof MerklSupplyIncentiveFragment
+>;
+
+export const MerklBorrowIncentiveFragment = graphql(
+  `fragment MerklBorrowIncentive on MerklBorrowIncentive {
+    __typename
+    id
+    startDate
+    endDate
+    discountApy {
+      ...PercentValue
+    }
+    payoutToken {
+      ...Currency
+    }
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+    description
+    customMessage
+    customForumLink
+    customClaimMessage
+  }`,
+  [PercentValueFragment, CurrencyFragment, IncentiveCriteriaFragment],
+);
+export type MerklBorrowIncentive = FragmentOf<
+  typeof MerklBorrowIncentiveFragment
+>;
+
+export const SupplyPointsIncentiveFragment = graphql(
+  `fragment SupplyPointsIncentive on SupplyPointsIncentive {
+    __typename
+    id
+    program {
+      ...PointsProgram
+    }
+    name
+    startDate
+    endDate
+    multiplier
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+    dailyPoints
+    pointsPerThousandUsd
+    description
+    customMessage
+    customForumLink
+  }`,
+  [PointsProgramFragment, IncentiveCriteriaFragment],
+);
+export type SupplyPointsIncentive = FragmentOf<
+  typeof SupplyPointsIncentiveFragment
+>;
+
+export const BorrowPointsIncentiveFragment = graphql(
+  `fragment BorrowPointsIncentive on BorrowPointsIncentive {
+    __typename
+    id
+    program {
+      ...PointsProgram
+    }
+    name
+    startDate
+    endDate
+    multiplier
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+    dailyPoints
+    pointsPerThousandUsd
+    description
+    customMessage
+    customForumLink
+  }`,
+  [PointsProgramFragment, IncentiveCriteriaFragment],
+);
+export type BorrowPointsIncentive = FragmentOf<
+  typeof BorrowPointsIncentiveFragment
+>;
+
+/**
+ * Fixed-APR partner incentive with an external claim flow (e.g. Ethena,
+ * EtherFi, Sonic). Display only — no on-chain claim through the Aave backend.
+ */
+export const StaticSupplyIncentiveFragment = graphql(
+  `fragment StaticSupplyIncentive on StaticSupplyIncentive {
+    __typename
+    id
+    partnerName
+    partnerIconUrl
+    description
+    externalClaimUrl
+    startDate
+    endDate
+    extraApr {
+      ...PercentValue
+    }
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+  }`,
+  [PercentValueFragment, IncentiveCriteriaFragment],
+);
+export type StaticSupplyIncentive = FragmentOf<
+  typeof StaticSupplyIncentiveFragment
+>;
+
+export const StaticBorrowIncentiveFragment = graphql(
+  `fragment StaticBorrowIncentive on StaticBorrowIncentive {
+    __typename
+    id
+    partnerName
+    partnerIconUrl
+    description
+    externalClaimUrl
+    startDate
+    endDate
+    discountApr {
+      ...PercentValue
+    }
+    criteria {
+      ...IncentiveCriteria
+    }
+    userEligible
+  }`,
+  [PercentValueFragment, IncentiveCriteriaFragment],
+);
+export type StaticBorrowIncentive = FragmentOf<
+  typeof StaticBorrowIncentiveFragment
+>;
+
 export type ReserveIncentive =
   | MeritSupplyIncentive
   | MeritBorrowIncentive
   | MeritBorrowAndSupplyIncentiveCondition
   | AaveSupplyIncentive
-  | AaveBorrowIncentive;
+  | AaveBorrowIncentive
+  | MerklSupplyIncentive
+  | MerklBorrowIncentive
+  | SupplyPointsIncentive
+  | BorrowPointsIncentive
+  | StaticSupplyIncentive
+  | StaticBorrowIncentive;
 
 export const ReserveIncentiveFragment: FragmentDocumentFor<
   ReserveIncentive,
@@ -129,6 +354,24 @@ export const ReserveIncentiveFragment: FragmentDocumentFor<
     ... on AaveBorrowIncentive {
       ...AaveBorrowIncentive
     }
+    ... on MerklSupplyIncentive {
+      ...MerklSupplyIncentive
+    }
+    ... on MerklBorrowIncentive {
+      ...MerklBorrowIncentive
+    }
+    ... on SupplyPointsIncentive {
+      ...SupplyPointsIncentive
+    }
+    ... on BorrowPointsIncentive {
+      ...BorrowPointsIncentive
+    }
+    ... on StaticSupplyIncentive {
+      ...StaticSupplyIncentive
+    }
+    ... on StaticBorrowIncentive {
+      ...StaticBorrowIncentive
+    }
   }`,
   [
     MeritSupplyIncentiveFragment,
@@ -136,6 +379,12 @@ export const ReserveIncentiveFragment: FragmentDocumentFor<
     MeritBorrowAndSupplyIncentiveConditionFragment,
     AaveSupplyIncentiveFragment,
     AaveBorrowIncentiveFragment,
+    MerklSupplyIncentiveFragment,
+    MerklBorrowIncentiveFragment,
+    SupplyPointsIncentiveFragment,
+    BorrowPointsIncentiveFragment,
+    StaticSupplyIncentiveFragment,
+    StaticBorrowIncentiveFragment,
   ],
 );
 
