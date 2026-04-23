@@ -1,0 +1,35 @@
+packages/graphql/src/fragments/reserve.ts
+  062b720160a324cc 33-40,55-62,83-90,128-322,328-334,357-374,382-387
+packages/graphql/src/incentives.ts
+  062b720160a324cc 46-89
+packages/client/package.json
+  062b720160a324cc 3
+packages/react/package.json
+  062b720160a324cc 3
+packages/react/src/incentives.ts
+  062b720160a324cc 2-7,19-22,40-41,69-116
+packages/client/src/actions/incentives.ts
+  062b720160a324cc 4-5,10-12,32-51,53
+packages/graphql/package.json
+  062b720160a324cc 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "15a9638ae138b0f49500f45d764c63df5e97614e",
+  "prompts": {
+    "062b720160a324cc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a3872dd3-ca5a-4507-9fe0-eef1e4fd7a7e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Martin Grabina",
+      "messages": [],
+      "total_additions": 395,
+      "total_deletions": 6,
+      "accepted_lines": 391,
+      "overriden_lines": 1
+    }
+  }
+}
