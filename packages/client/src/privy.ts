@@ -62,14 +62,14 @@ function sendTransactionAndWait(
     sendTransaction(privy, request, walletId),
     (err) => SigningError.from(err),
   )
-    .map(async (hash) => {
-      return waitForTransactionReceipt(publicClient, {
+    .map(async (hash) =>
+      waitForTransactionReceipt(publicClient, {
         hash,
         pollingInterval: 100,
         retryCount: 20,
         retryDelay: 50,
-      });
-    })
+      }),
+    )
     .andThen((receipt) => {
       const hash = txHash(receipt.transactionHash);
 
@@ -135,11 +135,9 @@ export function signERC20PermitWith(
         },
       }),
       (err) => SigningError.from(err),
-    ).map((response) => {
-      return {
-        deadline: result.message.deadline,
-        value: signatureFrom(response.signature),
-      };
-    });
+    ).map((response) => ({
+      deadline: result.message.deadline,
+      value: signatureFrom(response.signature),
+    }));
   };
 }
