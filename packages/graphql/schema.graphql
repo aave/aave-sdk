@@ -118,6 +118,11 @@ type BorrowPointsIncentive {
   multiplier: Float!
   criteria: [IncentiveCriteria!]
   userEligible: Boolean!
+  dailyPoints: Float
+  pointsPerThousandUsd: Float
+  description: String
+  customMessage: String
+  customForumLink: String
 }
 
 input BorrowRequest {
@@ -663,6 +668,12 @@ type MeritBorrowAndSupplyIncentiveCondition {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
+  selfApr: PercentValue
 }
 
 type MeritBorrowIncentive {
@@ -671,6 +682,12 @@ type MeritBorrowIncentive {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
+  selfApr: PercentValue
 }
 
 type MeritSupplyIncentive {
@@ -679,6 +696,33 @@ type MeritSupplyIncentive {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+
+  """
+  aavechan/Merit action slug (e.g. "ethereum-sgho"). Admin-set through
+  the Slack bot; used as join key between the DB row and the live
+  aavechan APR cache.
+  """
+  actionKey: String
+
+  """
+  Reward token paid out by the campaign (often an aToken like
+  aEthUSDC). Distinct from `claim_link`, which is just the landing page.
+  """
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+
+  """Anti-loop eligibility warning or other tooltip copy."""
+  customMessage: String
+
+  """Governance forum link with full campaign details."""
+  customForumLink: String
+
+  """
+  Extra APR when a parallel "self" campaign is running for this action
+  (sGHO / Safety Module lock). Populated from the `self-{action_key}`
+  row in the aavechan response. Null when disabled.
+  """
+  selfApr: PercentValue
 }
 
 """Borrow-side incentive funded by an Aave-owned Merkl campaign."""
@@ -694,6 +738,10 @@ type MerklBorrowIncentive {
   payoutToken: Currency!
   criteria: [IncentiveCriteria!]!
   userEligible: Boolean!
+  description: String
+  customMessage: String
+  customForumLink: String
+  customClaimMessage: String
 }
 
 """Supply-side incentive funded by an Aave-owned Merkl campaign."""
@@ -717,6 +765,27 @@ type MerklSupplyIncentive {
   criteria. False when no user is provided and rules exist.
   """
   userEligible: Boolean!
+
+  """
+  Short tooltip copy for the campaign. Seeded from admin input or the
+  aavechan override table for legacy third-party campaigns.
+  """
+  description: String
+
+  """
+  Eligibility conditions tooltip copy (anti-loop warnings, whitelist
+  requirements, etc.).
+  """
+  customMessage: String
+
+  """Governance forum link with full campaign details."""
+  customForumLink: String
+
+  """
+  Merkl-specific call-to-action copy shown next to the claim button
+  (e.g. "Rewards will be claimable starting in early August.").
+  """
+  customClaimMessage: String
 }
 
 type MessageData {
@@ -1485,6 +1554,22 @@ type SupplyPointsIncentive {
   multiplier: Float!
   criteria: [IncentiveCriteria!]
   userEligible: Boolean!
+
+  """
+  Daily points emitted across the entire reserve, surfaced from the
+  Merkl campaign's `rewardsRecord.breakdowns[].value`. Used by the V3
+  interface to render "X points / $1K / day" next to the reserve.
+  """
+  dailyPoints: Float
+
+  """
+  Daily points normalized per $1K of TVL: `daily_points / tvl * 1000`.
+  Computed server-side so the interface does not have to fetch TVL.
+  """
+  pointsPerThousandUsd: Float
+  description: String
+  customMessage: String
+  customForumLink: String
 }
 
 input SupplyRequest {
