@@ -1,0 +1,27 @@
+.changeset/jolly-geese-call.md
+  7d687082ac84000c 2,4-5,8-15
+packages/graphql/src/graphql.ts
+  7d687082ac84000c 12,56
+packages/types/src/id.ts
+  7d687082ac84000c 7-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "c70c111fcdcd2c55e98bbaf7c1e94a32d260bd1f",
+  "prompts": {
+    "7d687082ac84000c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c2edc4d3-1b33-40ac-b114-08c1880e0346",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Martin Grabina",
+      "messages": [],
+      "total_additions": 18,
+      "total_deletions": 1,
+      "accepted_lines": 18,
+      "overriden_lines": 0
+    }
+  }
+}
