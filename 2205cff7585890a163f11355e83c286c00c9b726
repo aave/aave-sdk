@@ -1,0 +1,40 @@
+packages/client/CHANGELOG.md
+  fa25385d8adb64f2 3-10
+.claude/skills/publish/SKILL.md
+  h_075bcc15b434db 1-62
+packages/react/CHANGELOG.md
+  fa25385d8adb64f2 3-12
+packages/react/package.json
+  fa25385d8adb64f2 3
+packages/client/package.json
+  fa25385d8adb64f2 3
+packages/graphql/package.json
+  fa25385d8adb64f2 3
+packages/graphql/CHANGELOG.md
+  fa25385d8adb64f2 3-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "2205cff7585890a163f11355e83c286c00c9b726",
+  "prompts": {
+    "fa25385d8adb64f2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5f593461-73aa-48e0-9e1a-643a1d00284a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe",
+      "messages": [],
+      "total_additions": 444,
+      "total_deletions": 20,
+      "accepted_lines": 444,
+      "overriden_lines": 0
+    }
+  },
+  "humans": {
+    "h_075bcc15b434db": {
+      "author": "Mark Grothe"
+    }
+  }
+}
