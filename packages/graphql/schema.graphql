@@ -1325,7 +1325,7 @@ enum ReserveBorrowingState {
   USER_EMODE_DISABLED_BORROW
 }
 
-union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive | MerklSupplyIncentive | MerklBorrowIncentive | SupplyPointsIncentive | BorrowPointsIncentive | StaticSupplyIncentive | StaticBorrowIncentive
+union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive | MerklSupplyIncentive | MerklBorrowIncentive | SupplyPointsIncentive | BorrowPointsIncentive
 
 type ReserveInfo {
   """The market information the reserve is under"""
@@ -1498,38 +1498,6 @@ input SayingsGhoDepositAmountInput {
 }
 
 scalar Signature
-
-"""Borrow-side counterpart of `StaticSupplyIncentive`."""
-type StaticBorrowIncentive {
-  id: RewardId!
-  partnerName: String!
-  partnerIconUrl: String
-  description: String
-  externalClaimUrl: String
-  startDate: DateTime!
-  endDate: DateTime!
-  discountApr: PercentValue!
-  criteria: [IncentiveCriteria!]!
-  userEligible: Boolean!
-}
-
-"""
-Supply-side incentive from a partner protocol that displays a fixed APR
-and links out to an external claim flow (e.g. Ethena, EtherFi, Sonic).
-No on-chain claim through this backend.
-"""
-type StaticSupplyIncentive {
-  id: RewardId!
-  partnerName: String!
-  partnerIconUrl: String
-  description: String
-  externalClaimUrl: String
-  startDate: DateTime!
-  endDate: DateTime!
-  extraApr: PercentValue!
-  criteria: [IncentiveCriteria!]!
-  userEligible: Boolean!
-}
 
 input SupplyAPYHistoryRequest {
   """The market pool address"""

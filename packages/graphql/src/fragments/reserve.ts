@@ -268,58 +268,6 @@ export type BorrowPointsIncentive = FragmentOf<
   typeof BorrowPointsIncentiveFragment
 >;
 
-/**
- * Fixed-APR partner incentive with an external claim flow (e.g. Ethena,
- * EtherFi, Sonic). Display only — no on-chain claim through the Aave backend.
- */
-export const StaticSupplyIncentiveFragment = graphql(
-  `fragment StaticSupplyIncentive on StaticSupplyIncentive {
-    __typename
-    id
-    partnerName
-    partnerIconUrl
-    description
-    externalClaimUrl
-    startDate
-    endDate
-    extraApr {
-      ...PercentValue
-    }
-    criteria {
-      ...IncentiveCriteria
-    }
-    userEligible
-  }`,
-  [PercentValueFragment, IncentiveCriteriaFragment],
-);
-export type StaticSupplyIncentive = FragmentOf<
-  typeof StaticSupplyIncentiveFragment
->;
-
-export const StaticBorrowIncentiveFragment = graphql(
-  `fragment StaticBorrowIncentive on StaticBorrowIncentive {
-    __typename
-    id
-    partnerName
-    partnerIconUrl
-    description
-    externalClaimUrl
-    startDate
-    endDate
-    discountApr {
-      ...PercentValue
-    }
-    criteria {
-      ...IncentiveCriteria
-    }
-    userEligible
-  }`,
-  [PercentValueFragment, IncentiveCriteriaFragment],
-);
-export type StaticBorrowIncentive = FragmentOf<
-  typeof StaticBorrowIncentiveFragment
->;
-
 export type ReserveIncentive =
   | MeritSupplyIncentive
   | MeritBorrowIncentive
@@ -329,9 +277,7 @@ export type ReserveIncentive =
   | MerklSupplyIncentive
   | MerklBorrowIncentive
   | SupplyPointsIncentive
-  | BorrowPointsIncentive
-  | StaticSupplyIncentive
-  | StaticBorrowIncentive;
+  | BorrowPointsIncentive;
 
 export const ReserveIncentiveFragment: FragmentDocumentFor<
   ReserveIncentive,
@@ -366,12 +312,6 @@ export const ReserveIncentiveFragment: FragmentDocumentFor<
     ... on BorrowPointsIncentive {
       ...BorrowPointsIncentive
     }
-    ... on StaticSupplyIncentive {
-      ...StaticSupplyIncentive
-    }
-    ... on StaticBorrowIncentive {
-      ...StaticBorrowIncentive
-    }
   }`,
   [
     MeritSupplyIncentiveFragment,
@@ -383,8 +323,6 @@ export const ReserveIncentiveFragment: FragmentDocumentFor<
     MerklBorrowIncentiveFragment,
     SupplyPointsIncentiveFragment,
     BorrowPointsIncentiveFragment,
-    StaticSupplyIncentiveFragment,
-    StaticBorrowIncentiveFragment,
   ],
 );
 
