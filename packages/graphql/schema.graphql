@@ -732,9 +732,12 @@ type MerklBorrowIncentive {
   endDate: DateTime!
 
   """
-  Discount on the borrow APY (the user effectively pays `borrow_apy - discount_apy`).
+  Borrow APR discount sourced live from Merkl. The user effectively
+  pays `borrow_apr - borrow_apr_discount`. Naming aligned with
+  `AaveBorrowIncentive.borrow_apr_discount` and
+  `MeritBorrowIncentive.borrow_apr_discount`.
   """
-  discountApy: PercentValue!
+  borrowAprDiscount: PercentValue!
   payoutToken: Currency!
   criteria: [IncentiveCriteria!]!
   userEligible: Boolean!
@@ -751,10 +754,12 @@ type MerklSupplyIncentive {
   endDate: DateTime!
 
   """
-  Extra APY for suppliers in this reserve, derived from the live Merkl
-  campaign APR.
+  Extra APR for suppliers in this reserve, sourced live from Merkl.
+  The interface converts APR → APY for display, matching how it
+  renders `AaveSupplyIncentive.extra_supply_apr` and
+  `MeritSupplyIncentive.extra_supply_apr`.
   """
-  extraApy: PercentValue!
+  extraSupplyApr: PercentValue!
 
   """The token the campaign pays out in."""
   payoutToken: Currency!

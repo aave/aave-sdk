@@ -156,9 +156,9 @@ export const PointsProgramFragment = graphql(
 export type PointsProgram = FragmentOf<typeof PointsProgramFragment>;
 
 /**
- * Supply-side incentive funded by an Aave-owned Merkl campaign. `extraApy`
- * is the live APR from Merkl (the stored APY on the program row is BD intent,
- * not used at read time).
+ * Supply-side incentive funded by an Aave-owned Merkl campaign.
+ * `extraSupplyApr` is the live APR from Merkl; consumers convert APR → APY
+ * for display (same as `Aave*` and `Merit*` incentives).
  */
 export const MerklSupplyIncentiveFragment = graphql(
   `fragment MerklSupplyIncentive on MerklSupplyIncentive {
@@ -166,7 +166,7 @@ export const MerklSupplyIncentiveFragment = graphql(
     id
     startDate
     endDate
-    extraApy {
+    extraSupplyApr {
       ...PercentValue
     }
     payoutToken {
@@ -193,7 +193,7 @@ export const MerklBorrowIncentiveFragment = graphql(
     id
     startDate
     endDate
-    discountApy {
+    borrowAprDiscount {
       ...PercentValue
     }
     payoutToken {
