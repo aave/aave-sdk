@@ -169,7 +169,7 @@ export function useUsdExchangeRates({
  *           value: '1000',
  *         },
  *       },
- *       borrower: evmAddress('0x9abc…'),
+ *       sender: evmAddress('0x9abc…'),
  *       chainId: market.chain.chainId,
  *     },
  *   },
