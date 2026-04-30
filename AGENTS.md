@@ -13,6 +13,11 @@
 - Use `pnpm test:react --run` to run `@aave/react` tests.
 - Use `pnpm vitest --run --project <project-name> <path-to-test-file> -t "<test-name>"` to focus on one single test.
 
+## Repo skills
+
+- If the user asks to publish a snapshot release, create a preview/canary/next npm release, or otherwise mentions a snapshot publish workflow, load and follow `.claude/skills/snapshot/SKILL.md`.
+- If the user asks to publish a normal package release, load and follow `.claude/skills/publish/SKILL.md`.
+
 ## Snapshot Releases
 
 Snapshot releases publish packages for testing without updating the real versions. Run locally:
