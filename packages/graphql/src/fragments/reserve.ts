@@ -30,14 +30,6 @@ export const MeritSupplyIncentiveFragment = graphql(
       ...PercentValue
     }
     claimLink
-    actionKey
-    rewardTokenAddress
-    rewardTokenSymbol
-    customMessage
-    customForumLink
-    selfApr {
-      ...PercentValue
-    }
   }`,
   [PercentValueFragment],
 );
@@ -52,14 +44,6 @@ export const MeritBorrowIncentiveFragment = graphql(
       ...PercentValue
     }
     claimLink
-    actionKey
-    rewardTokenAddress
-    rewardTokenSymbol
-    customMessage
-    customForumLink
-    selfApr {
-      ...PercentValue
-    }
   }`,
   [PercentValueFragment],
 );
@@ -80,14 +64,6 @@ export const MeritBorrowAndSupplyIncentiveConditionFragment = graphql(
       ...Currency
     }
     claimLink
-    actionKey
-    rewardTokenAddress
-    rewardTokenSymbol
-    customMessage
-    customForumLink
-    selfApr {
-      ...PercentValue
-    }
   }`,
   [PercentValueFragment, CurrencyFragment],
 );
@@ -125,11 +101,6 @@ export type AaveBorrowIncentive = FragmentOf<
   typeof AaveBorrowIncentiveFragment
 >;
 
-/**
- * One rule from a reward program's `criteria_rules` blob, already evaluated
- * against the user (when one was passed on the surrounding query) so the UI
- * can render eligibility state directly.
- */
 export const IncentiveCriteriaFragment = graphql(
   `fragment IncentiveCriteria on IncentiveCriteria {
     __typename
@@ -140,10 +111,6 @@ export const IncentiveCriteriaFragment = graphql(
 );
 export type IncentiveCriteria = FragmentOf<typeof IncentiveCriteriaFragment>;
 
-/**
- * Off-chain points program referenced by `SupplyPointsIncentive` /
- * `BorrowPointsIncentive`.
- */
 export const PointsProgramFragment = graphql(
   `fragment PointsProgram on PointsProgram {
     __typename
@@ -155,11 +122,6 @@ export const PointsProgramFragment = graphql(
 );
 export type PointsProgram = FragmentOf<typeof PointsProgramFragment>;
 
-/**
- * Supply-side incentive funded by an Aave-owned Merkl campaign.
- * `extraSupplyApr` is the live APR from Merkl; consumers convert APR → APY
- * for display (same as `Aave*` and `Merit*` incentives).
- */
 export const MerklSupplyIncentiveFragment = graphql(
   `fragment MerklSupplyIncentive on MerklSupplyIncentive {
     __typename

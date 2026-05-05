@@ -690,6 +690,21 @@ type MeritBorrowIncentive {
   selfApr: PercentValue
 }
 
+type MeritSavingsGhoIncentive {
+  """
+  APR earned for depositing GHO into Savings GHO via the AAVE Merit program
+  """
+  apr: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
+}
+
 type MeritSupplyIncentive {
   """Extra APR for supplying this asset from AAVE Merit program"""
   extraSupplyApr: PercentValue!
@@ -1133,6 +1148,12 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+
+  """
+  Merit APR incentive for depositing GHO into Savings GHO.
+  Returns null when no active savings GHO incentive campaign is running.
+  """
+  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
 }
 
 input RepayAmountInput @oneOf {
