@@ -1,0 +1,29 @@
+packages/graphql/src/fragments/index.ts
+  bbff673c43515ab6 3
+packages/graphql/src/fragments/incentives.ts
+  bbff673c43515ab6 1-23
+.changeset/savings-gho-incentive.md
+  bbff673c43515ab6 1-5
+packages/graphql/src/incentives.ts
+  bbff673c43515ab6 3,48-54,57,59-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "91e77f95b380603f455a17c1848dadf566766ca9",
+  "prompts": {
+    "bbff673c43515ab6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a0b1e777-fdca-4141-bf29-60f783a2cb5f",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Martin Grabina",
+      "messages": [],
+      "total_additions": 250,
+      "total_deletions": 11,
+      "accepted_lines": 240,
+      "overriden_lines": 0
+    }
+  }
+}
