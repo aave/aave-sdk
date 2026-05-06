@@ -1,0 +1,23 @@
+packages/graphql/src/incentives.ts
+  bbff673c43515ab6 91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "c3218d7c34e81c7acd0e43efba7fb5fa3e274324",
+  "prompts": {
+    "bbff673c43515ab6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a0b1e777-fdca-4141-bf29-60f783a2cb5f",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Martin Grabina",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 0,
+      "accepted_lines": 16,
+      "overriden_lines": 0
+    }
+  }
+}
