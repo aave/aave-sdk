@@ -1,13 +1,17 @@
-import type { UnexpectedError } from '@aave/client';
+import type { ChainId, UnexpectedError } from '@aave/client';
 import { savingsGhoDeposit, savingsGhoWithdraw } from '@aave/client/actions';
 import type {
   ExecutionPlan,
+  MeritSavingsGhoIncentive,
   SavingsGhoBalanceRequest,
   SavingsGhoDepositRequest,
   SavingsGhoWithdrawRequest,
   TokenAmount,
 } from '@aave/graphql';
-import { SavingsGhoBalanceQuery } from '@aave/graphql';
+import {
+  SavingsGhoBalanceQuery,
+  SavingsGhoIncentiveQuery,
+} from '@aave/graphql';
 import { useAaveClient } from './context';
 import type {
   ReadResult,
@@ -22,6 +26,9 @@ import {
 } from './helpers';
 
 export type SavingsGhoBalanceArgs = SavingsGhoBalanceRequest;
+export type SavingsGhoIncentiveArgs = {
+  chainId?: ChainId;
+};
 
 /**
  * Fetches the current sGHO balance for a user.
@@ -62,6 +69,50 @@ export function useSavingsGhoBalance({
     document: SavingsGhoBalanceQuery,
     variables: {
       request,
+    },
+    suspense,
+  });
+}
+
+/**
+ * Fetches the active Merit APR incentive for sGHO.
+ *
+ * This signature supports React Suspense:
+ *
+ * ```tsx
+ * const { data } = useSavingsGhoIncentive({
+ *   chainId: chainId(1),
+ *   suspense: true,
+ * });
+ * ```
+ */
+export function useSavingsGhoIncentive(
+  args: SavingsGhoIncentiveArgs & Suspendable,
+): SuspenseResult<MeritSavingsGhoIncentive | null>;
+
+/**
+ * Fetches the active Merit APR incentive for sGHO.
+ *
+ * ```tsx
+ * const { data, error, loading } = useSavingsGhoIncentive({
+ *   chainId: chainId(1),
+ * });
+ * ```
+ */
+export function useSavingsGhoIncentive(
+  args?: SavingsGhoIncentiveArgs,
+): ReadResult<MeritSavingsGhoIncentive | null>;
+
+export function useSavingsGhoIncentive({
+  suspense = false,
+  chainId,
+}: SavingsGhoIncentiveArgs & {
+  suspense?: boolean;
+} = {}): SuspendableResult<MeritSavingsGhoIncentive | null> {
+  return useSuspendableQuery({
+    document: SavingsGhoIncentiveQuery,
+    variables: {
+      chainId,
     },
     suspense,
   });
