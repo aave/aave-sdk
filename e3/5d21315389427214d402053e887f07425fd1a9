@@ -1,0 +1,22 @@
+.changeset/jolly-geese-call.md
+  s_46fe900cb5779b::t_468441c9f9b060 11
+packages/graphql/src/fragments/reserve.ts
+  s_46fe900cb5779b::t_c6b422a7ccf79c 334
+  s_46fe900cb5779b::t_400b6b6ce8109d 376
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "e35d21315389427214d402053e887f07425fd1a9",
+  "prompts": {},
+  "sessions": {
+    "s_46fe900cb5779b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "10de755b-888a-48d4-aa9e-61ff40b9df9a",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
