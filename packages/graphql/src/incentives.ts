@@ -100,6 +100,3 @@ export const SavingsGhoIncentiveQuery = graphql(
   }`,
   [MeritSavingsGhoIncentiveFragment],
 );
-export type SavingsGhoIncentiveRequest = RequestOf<
-  typeof SavingsGhoIncentiveQuery
->;
