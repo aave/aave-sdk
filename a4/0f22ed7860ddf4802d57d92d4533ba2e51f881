@@ -1,0 +1,14 @@
+packages/graphql/schema.graphql
+  h_be8c3c572e9983 1387,1405,1441,1446,1458
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a40f22ed7860ddf4802d57d92d4533ba2e51f881",
+  "prompts": {},
+  "humans": {
+    "h_be8c3c572e9983": {
+      "author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
