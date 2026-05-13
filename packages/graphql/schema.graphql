@@ -1384,7 +1384,7 @@ type SghoVault {
   """Total sGHO shares outstanding"""
   totalSupply: DecimalValue!
 
-  """Maximum GHO that can be deposited across all users"""
+  """Maximum GHO that can be deposited"""
   supplyCap: TokenAmount!
 
   """Target yield APR in basis points (e.g. 500 = 5%)"""
@@ -1402,7 +1402,7 @@ type SghoVault {
   lastUpdate: Int!
 
   """
-  Whether the vault is currently paused (deposits, withdrawals, and transfers are blocked)
+  Whether the vault is currently paused (deposits and withdrawals are blocked)
   """
   paused: Boolean!
 
@@ -1431,19 +1431,19 @@ input SghoVaultDepositRequest {
   sharesRecipient: EvmAddress
 
   """
-  The chain id. sGHO vault is only available on Ethereum mainnet (use forked_ethereum for testing).
+  The chain id
   """
   chainId: ChainId!
 }
 
 input SghoVaultPreviewRequest {
   """
-  The amount in human-readable form (e.g. 100.0 for 100 GHO or 100 sGHO shares)
+  The amount in human-readable form
   """
   amount: BigDecimal!
 
   """
-  Chain ID — sGHO vault is only available on Ethereum mainnet (use forked_ethereum for testing)
+  The chain id
   """
   chainId: ChainId!
 }
@@ -1455,7 +1455,7 @@ input SghoVaultRequest {
   user: EvmAddress
 
   """
-  Chain ID — sGHO vault is only available on Ethereum mainnet (use forked_ethereum for testing)
+  The chain id
   """
   chainId: ChainId!
 }
@@ -1486,7 +1486,7 @@ input SghoVaultWithdrawRequest {
   recipient: EvmAddress
 
   """
-  The chain id. sGHO vault is only available on Ethereum mainnet (use forked_ethereum for testing).
+  The chain id
   """
   chainId: ChainId!
 }
