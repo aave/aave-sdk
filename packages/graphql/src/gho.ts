@@ -1,5 +1,6 @@
-import { TokenAmountFragment } from './fragments/common';
+import { DecimalValueFragment, TokenAmountFragment } from './fragments/common';
 import { ExecutionPlanFragment } from './fragments/transactions';
+import { SghoVaultFragment } from './fragments/vaults';
 import { graphql, type RequestOf } from './graphql';
 
 export const SavingsGhoBalanceQuery = graphql(
@@ -33,3 +34,57 @@ export const SavingsGhoDepositQuery = graphql(
   [ExecutionPlanFragment],
 );
 export type SavingsGhoDepositRequest = RequestOf<typeof SavingsGhoDepositQuery>;
+
+export const SghoVaultDepositQuery = graphql(
+  `query SghoVaultDeposit($request: SghoVaultDepositRequest!) {
+    value: sghoVaultDeposit(request: $request) {
+      ...ExecutionPlan
+    }
+  }`,
+  [ExecutionPlanFragment],
+);
+export type SghoVaultDepositRequest = RequestOf<typeof SghoVaultDepositQuery>;
+
+export const SghoVaultWithdrawQuery = graphql(
+  `query SghoVaultWithdraw($request: SghoVaultWithdrawRequest!) {
+    value: sghoVaultWithdraw(request: $request) {
+      ...ExecutionPlan
+    }
+  }`,
+  [ExecutionPlanFragment],
+);
+export type SghoVaultWithdrawRequest = RequestOf<typeof SghoVaultWithdrawQuery>;
+
+export const SghoVaultQuery = graphql(
+  `query SghoVault($request: SghoVaultRequest!) {
+    value: sghoVault(request: $request) {
+      ...SghoVault
+    }
+  }`,
+  [SghoVaultFragment],
+);
+export type SghoVaultRequest = RequestOf<typeof SghoVaultQuery>;
+
+export const SghoVaultPreviewDepositQuery = graphql(
+  `query SghoVaultPreviewDeposit($request: SghoVaultPreviewRequest!) {
+    value: sghoVaultPreviewDeposit(request: $request) {
+      ...DecimalValue
+    }
+  }`,
+  [DecimalValueFragment],
+);
+export type SghoVaultPreviewDepositRequest = RequestOf<
+  typeof SghoVaultPreviewDepositQuery
+>;
+
+export const SghoVaultPreviewRedeemQuery = graphql(
+  `query SghoVaultPreviewRedeem($request: SghoVaultPreviewRequest!) {
+    value: sghoVaultPreviewRedeem(request: $request) {
+      ...DecimalValue
+    }
+  }`,
+  [DecimalValueFragment],
+);
+export type SghoVaultPreviewRedeemRequest = RequestOf<
+  typeof SghoVaultPreviewRedeemQuery
+>;
