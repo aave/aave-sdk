@@ -17,17 +17,24 @@
 
 Snapshot releases publish packages for testing without updating the real versions. Run locally:
 
-```bash
+Before creating a snapshot, make sure your working tree is clean:
+
+git status --short
+
+If there are uncommitted changes, commit or stash them first.
+
 pnpm changeset version --snapshot preview
+pnpm build
 pnpm changeset publish --tag preview --no-git-checks
-```
 
 Replace `preview` with any dist-tag you want (e.g. `canary`, `next`). Published versions follow the format `0.0.0-<tag>-<timestamp>`.
 
+After publishing, restore the snapshot version changes:
+
+git restore .
+
 **To install a snapshot:**
-```bash
 pnpm add @aave/client@preview           # latest under that tag
 pnpm add @aave/client@0.0.0-preview-20260427120000  # specific version
-```
 
 Do not commit the version bump that `changeset version --snapshot` produces.
