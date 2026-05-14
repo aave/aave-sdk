@@ -1,0 +1,32 @@
+packages/graphql/schema.graphql
+  s_01b91c5c309195::t_2e5ff859494226 261,985-988,1424,1429,1432,1436,1444-1446,1456-1460,1462,1464-1466
+packages/client/src/actions/gho.ts
+  s_01b91c5c309195::t_2e5ff859494226 19-20,157,160,174,177,179,181
+packages/react/src/gho.ts
+  s_01b91c5c309195::t_2e5ff859494226 6,18,374,377,380-381,385,400,413-414,420-421
+packages/graphql/src/gho.ts
+  s_01b91c5c309195::t_2e5ff859494226 48-50,56-58
+packages/graphql/src/graphql-env.d.ts
+  s_01b91c5c309195::t_2e5ff859494226 77,97,101-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "547765f964832ae111572658e90902479839ca3e",
+  "prompts": {},
+  "humans": {
+    "h_be8c3c572e9983": {
+      "author": "Mark Grothe <grothem@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_01b91c5c309195": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5b9d25cf-c87a-4ff7-af61-945261b9647e",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
