@@ -16,9 +16,9 @@ import {
   SghoVaultPreviewRedeemQuery,
   type SghoVaultPreviewRedeemRequest,
   SghoVaultQuery,
+  SghoVaultRedeemSharesQuery,
+  type SghoVaultRedeemSharesRequest,
   type SghoVaultRequest,
-  SghoVaultWithdrawQuery,
-  type SghoVaultWithdrawRequest,
   type TokenAmount,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
@@ -154,10 +154,10 @@ export function sghoVaultDeposit(
 }
 
 /**
- * Creates a transaction to withdraw GHO from the sGHO ERC-4626 vault.
+ * Creates a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
  *
  * ```ts
- * const result = await sghoVaultWithdraw(client, {
+ * const result = await sghoVaultRedeemShares(client, {
  *   amount: { maxRedeem: true },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
@@ -171,14 +171,14 @@ export function sghoVaultDeposit(
  * ```
  *
  * @param client - Aave client.
- * @param request - The sGHO vault withdraw request parameters.
+ * @param request - The sGHO vault redeem shares request parameters.
  * @returns The transaction data, approval requirements, or insufficient balance error.
  */
-export function sghoVaultWithdraw(
+export function sghoVaultRedeemShares(
   client: AaveClient,
-  request: SghoVaultWithdrawRequest,
+  request: SghoVaultRedeemSharesRequest,
 ): ResultAsync<ExecutionPlan, UnexpectedError> {
-  return client.query(SghoVaultWithdrawQuery, { request });
+  return client.query(SghoVaultRedeemSharesQuery, { request });
 }
 
 /**

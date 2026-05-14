@@ -45,15 +45,17 @@ export const SghoVaultDepositQuery = graphql(
 );
 export type SghoVaultDepositRequest = RequestOf<typeof SghoVaultDepositQuery>;
 
-export const SghoVaultWithdrawQuery = graphql(
-  `query SghoVaultWithdraw($request: SghoVaultWithdrawRequest!) {
-    value: sghoVaultWithdraw(request: $request) {
+export const SghoVaultRedeemSharesQuery = graphql(
+  `query SghoVaultRedeemShares($request: SghoVaultRedeemSharesRequest!) {
+    value: sghoVaultRedeemShares(request: $request) {
       ...ExecutionPlan
     }
   }`,
   [ExecutionPlanFragment],
 );
-export type SghoVaultWithdrawRequest = RequestOf<typeof SghoVaultWithdrawQuery>;
+export type SghoVaultRedeemSharesRequest = RequestOf<
+  typeof SghoVaultRedeemSharesQuery
+>;
 
 export const SghoVaultQuery = graphql(
   `query SghoVault($request: SghoVaultRequest!) {

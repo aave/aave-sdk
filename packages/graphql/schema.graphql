@@ -258,7 +258,7 @@ type EmodeMarketCategory {
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: PercentValue!
 
-  """Whether this eMode category is isolated in v3.7+"""
+  """Whether this eMode category is isolated in Aave v3.7+"""
   isolated: Boolean!
 
   """The list of reserves which will tailor for this eMode"""
@@ -982,8 +982,10 @@ type Query {
   """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
   sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
 
-  """Build a transaction to withdraw GHO from the sGHO ERC-4626 vault."""
-  sghoVaultWithdraw(request: SghoVaultWithdrawRequest!): ExecutionPlan!
+  """
+  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
+  """
+  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
 
   """
   Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
@@ -1390,17 +1392,6 @@ type SghoVault {
   """Target yield APR in basis points (e.g. 500 = 5%)"""
   targetRate: PercentValue!
 
-  """Yield rate per second (ray, 27 decimals)"""
-  ratePerSecond: DecimalValue!
-
-  """
-  Current yield accumulator — starts at 1e27 and grows as yield accrues (ray, 27 decimals)
-  """
-  yieldIndex: DecimalValue!
-
-  """Unix timestamp of the last yield index update"""
-  lastUpdate: Int!
-
   """
   Whether the vault is currently paused (deposits and withdrawals are blocked)
   """
@@ -1430,52 +1421,29 @@ input SghoVaultDepositRequest {
   """The address to receive sGHO shares — defaults to `depositor`."""
   sharesRecipient: EvmAddress
 
-  """
-  The chain id
-  """
+  """The chain id"""
   chainId: ChainId!
 }
 
 input SghoVaultPreviewRequest {
-  """
-  The amount in human-readable form
-  """
+  """The amount in human-readable form"""
   amount: BigDecimal!
 
-  """
-  The chain id
-  """
+  """The chain id"""
   chainId: ChainId!
 }
 
-input SghoVaultRequest {
-  """
-  Optional user address to include position data (shares balance, max deposit/withdraw)
-  """
-  user: EvmAddress
-
-  """
-  The chain id
-  """
-  chainId: ChainId!
-}
-
-input SghoVaultWithdrawAmount @oneOf {
+input SghoVaultRedeemSharesAmount @oneOf {
   """Redeem all sGHO shares for GHO."""
   maxRedeem: AlwaysTrue
 
   """Redeem an exact number of sGHO shares for GHO."""
   shares: BigDecimal
-
-  """Withdraw an exact amount of GHO, burning the required shares."""
-  assets: BigDecimal
 }
 
-input SghoVaultWithdrawRequest {
-  """
-  The withdrawal amount — redeem all shares, an exact share count, or an exact GHO asset amount.
-  """
-  amount: SghoVaultWithdrawAmount!
+input SghoVaultRedeemSharesRequest {
+  """The redeem amount — redeem all shares or an exact share count."""
+  amount: SghoVaultRedeemSharesAmount!
 
   """
   The address whose sGHO shares will be burned (normally the caller's own wallet).
@@ -1485,9 +1453,17 @@ input SghoVaultWithdrawRequest {
   """The address to receive GHO — defaults to `shares_owner`."""
   recipient: EvmAddress
 
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input SghoVaultRequest {
   """
-  The chain id
+  Optional user address to include position data (shares balance, max deposit/withdraw)
   """
+  user: EvmAddress
+
+  """The chain id"""
   chainId: ChainId!
 }
 

@@ -265,13 +265,6 @@ export const SghoVaultFragment = graphql(
     targetRate {
       ...PercentValue
     }
-    ratePerSecond {
-      ...DecimalValue
-    }
-    yieldIndex {
-      ...DecimalValue
-    }
-    lastUpdate
     paused
     user {
       ...SghoUserPosition

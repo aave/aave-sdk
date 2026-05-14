@@ -3,7 +3,7 @@ import {
   savingsGhoDeposit,
   savingsGhoWithdraw,
   sghoVaultDeposit,
-  sghoVaultWithdraw,
+  sghoVaultRedeemShares,
 } from '@aave/client/actions';
 import type {
   DecimalValue,
@@ -15,8 +15,8 @@ import type {
   SghoVaultDepositRequest,
   SghoVaultPreviewDepositRequest,
   SghoVaultPreviewRedeemRequest,
+  SghoVaultRedeemSharesRequest,
   SghoVaultRequest,
-  SghoVaultWithdrawRequest,
   TokenAmount,
 } from '@aave/graphql';
 import {
@@ -371,18 +371,18 @@ export function useSghoVaultDeposit(): UseAsyncTask<
 }
 
 /**
- * A hook that provides a way to withdraw GHO from the sGHO ERC-4626 vault.
+ * A hook that provides a way to redeem sGHO shares for GHO from the ERC-4626 vault.
  *
  * ```ts
- * const [withdraw, withdrawing] = useSghoVaultWithdraw();
+ * const [redeemShares, redeeming] = useSghoVaultRedeemShares();
  * const [sendTransaction, sending] = useSendTransaction(wallet);
  *
- * const loading = withdrawing.loading && sending.loading;
- * const error = withdrawing.error || sending.error;
+ * const loading = redeeming.loading && sending.loading;
+ * const error = redeeming.error || sending.error;
  *
  * // …
  *
- * const result = await withdraw({
+ * const result = await redeemShares({
  *   amount: { maxRedeem: true },
  *   sharesOwner: evmAddress('0x9abc…'),
  *   chainId: chainId(1),
@@ -397,7 +397,7 @@ export function useSghoVaultDeposit(): UseAsyncTask<
  *
  *     case 'InsufficientBalanceError':
  *       return errAsync(
- *         new Error(`Insufficient balance to withdraw: ${plan.required.value} is the maximum withdrawal allowed.`)
+ *         new Error(`Insufficient balance to redeem: ${plan.required.value} is the maximum redemption allowed.`)
  *       );
  *   }
  * });
@@ -410,14 +410,14 @@ export function useSghoVaultDeposit(): UseAsyncTask<
  * console.log('Transaction sent with hash:', result.value);
  * ```
  */
-export function useSghoVaultWithdraw(): UseAsyncTask<
-  SghoVaultWithdrawRequest,
+export function useSghoVaultRedeemShares(): UseAsyncTask<
+  SghoVaultRedeemSharesRequest,
   ExecutionPlan,
   UnexpectedError
 > {
   const client = useAaveClient();
 
-  return useAsyncTask((request: SghoVaultWithdrawRequest) =>
-    sghoVaultWithdraw(client, request),
+  return useAsyncTask((request: SghoVaultRedeemSharesRequest) =>
+    sghoVaultRedeemShares(client, request),
   );
 }
