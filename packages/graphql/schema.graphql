@@ -258,7 +258,7 @@ type EmodeMarketCategory {
   """The liquidation penalty applied in efficiency mode"""
   liquidationPenalty: PercentValue!
 
-  """Whether this eMode category is isolated in v3.7+"""
+  """Whether this eMode category is isolated in Aave v3.7+"""
   isolated: Boolean!
 
   """The list of reserves which will tailor for this eMode"""
@@ -978,6 +978,30 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+
+  """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
+  sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
+
+  """
+  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
+  """
+  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
+
+  """
+  Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
+  optionally the connected user's position.
+  """
+  sghoVault(request: SghoVaultRequest!): SghoVault!
+
+  """
+  Returns the number of sGHO shares that would be minted for a given GHO deposit amount.
+  """
+  sghoVaultPreviewDeposit(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """
+  Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
+  """
+  sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
 }
 
 input RepayAmountInput @oneOf {
@@ -1337,6 +1361,113 @@ input SayingsGhoDepositAmountInput {
   The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
   """
   permitSig: ERC712Signature
+}
+
+type SghoUserPosition {
+  """The user's sGHO shares balance"""
+  shares: TokenAmount!
+
+  """GHO value of the shares at the current yield index (convertToAssets)"""
+  balance: TokenAmount!
+
+  """
+  Maximum GHO the user can deposit: min(wallet GHO balance, remaining supply cap); 0 when paused
+  """
+  maxDeposit: TokenAmount!
+
+  """Maximum GHO that can be withdrawn"""
+  maxWithdraw: TokenAmount!
+
+  """User's GHO wallet balance (the underlying token they can deposit)"""
+  underlyingBalance: TokenAmount!
+}
+
+type SghoVault {
+  """Total GHO locked in the vault"""
+  totalAssets: TokenAmount!
+
+  """Total sGHO shares outstanding"""
+  totalSupply: DecimalValue!
+
+  """Maximum GHO that can be deposited"""
+  supplyCap: TokenAmount!
+
+  """Target yield APR in basis points (e.g. 500 = 5%)"""
+  targetRate: PercentValue!
+
+  """
+  Whether the vault is currently paused (deposits and withdrawals are blocked)
+  """
+  paused: Boolean!
+
+  """User position — present only when `user` is provided in the request"""
+  user: SghoUserPosition
+}
+
+input SghoVaultDepositAmountInput {
+  """The amount of GHO to deposit."""
+  value: BigDecimal!
+
+  """
+  Optional ERC20 permit signature to avoid a separate approval transaction.
+  """
+  permitSig: ERC712Signature
+}
+
+input SghoVaultDepositRequest {
+  """The amount of GHO to deposit."""
+  amount: SghoVaultDepositAmountInput!
+
+  """The user depositing GHO."""
+  depositor: EvmAddress!
+
+  """The address to receive sGHO shares — defaults to `depositor`."""
+  sharesRecipient: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input SghoVaultPreviewRequest {
+  """The amount in human-readable form"""
+  amount: BigDecimal!
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input SghoVaultRedeemSharesAmount @oneOf {
+  """Redeem all sGHO shares for GHO."""
+  maxRedeem: AlwaysTrue
+
+  """Redeem an exact number of sGHO shares for GHO."""
+  shares: BigDecimal
+}
+
+input SghoVaultRedeemSharesRequest {
+  """The redeem amount — redeem all shares or an exact share count."""
+  amount: SghoVaultRedeemSharesAmount!
+
+  """
+  The address whose sGHO shares will be burned (normally the caller's own wallet).
+  """
+  sharesOwner: EvmAddress!
+
+  """The address to receive GHO — defaults to `shares_owner`."""
+  recipient: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
+}
+
+input SghoVaultRequest {
+  """
+  Optional user address to include position data (shares balance, max deposit/withdraw)
+  """
+  user: EvmAddress
+
+  """The chain id"""
+  chainId: ChainId!
 }
 
 scalar Signature

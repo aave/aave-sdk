@@ -1,6 +1,7 @@
 import type { FragmentOf } from 'gql.tada';
 import { type FragmentDocumentFor, graphql } from '../graphql';
 import {
+  DecimalValueFragment,
   PaginatedResultInfoFragment,
   PercentValueFragment,
   TokenAmountFragment,
@@ -228,3 +229,55 @@ export const VaultUserActivityResultFragment = graphql(
 export type VaultUserActivityResult = FragmentOf<
   typeof VaultUserActivityResultFragment
 >;
+
+export const SghoUserPositionFragment = graphql(
+  `fragment SghoUserPosition on SghoUserPosition {
+    __typename
+    shares {
+      ...TokenAmount
+    }
+    balance {
+      ...TokenAmount
+    }
+    maxDeposit {
+      ...TokenAmount
+    }
+    maxWithdraw {
+      ...TokenAmount
+    }
+    underlyingBalance {
+      ...TokenAmount
+    }
+  }`,
+  [TokenAmountFragment],
+);
+export type SghoUserPosition = FragmentOf<typeof SghoUserPositionFragment>;
+
+export const SghoVaultFragment = graphql(
+  `fragment SghoVault on SghoVault {
+    __typename
+    totalAssets {
+      ...TokenAmount
+    }
+    totalSupply {
+      ...DecimalValue
+    }
+    supplyCap {
+      ...TokenAmount
+    }
+    targetRate {
+      ...PercentValue
+    }
+    paused
+    user {
+      ...SghoUserPosition
+    }
+  }`,
+  [
+    TokenAmountFragment,
+    DecimalValueFragment,
+    PercentValueFragment,
+    SghoUserPositionFragment,
+  ],
+);
+export type SghoVault = FragmentOf<typeof SghoVaultFragment>;

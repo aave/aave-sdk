@@ -31,3 +31,22 @@ pnpm add @aave/client@0.0.0-preview-20260427120000  # specific version
 ```
 
 Do not commit the version bump that `changeset version --snapshot` produces.
+
+## Commits & Changesets
+
+**Commits:** conventional format (`fix:`, `feat:`, `chore:`), no `Co-Authored-By` trailers.
+
+**Changesets:** Create manually in `.changeset/` (e.g., `adjective-noun-verb.md`):
+```
+---
+"@aave/graphql": patch
+"@aave/client": patch
+"@aave/react": patch
+---
+
+**fix:** description using `backticks` for code references
+```
+
+- `patch` = bug fix, `minor` = feature, `major` = breaking change
+- Always include `@aave/client` and `@aave/react` when changing their dependencies (`@aave/graphql`, `@aave/types`, `@aave/core`)
+- One-line description only, bold type prefix (`**fix:**`)
