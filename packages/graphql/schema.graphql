@@ -1377,6 +1377,9 @@ type SghoUserPosition {
 
   """Maximum GHO that can be withdrawn"""
   maxWithdraw: TokenAmount!
+
+  """User's GHO wallet balance (the underlying token they can deposit)"""
+  underlyingBalance: TokenAmount!
 }
 
 type SghoVault {

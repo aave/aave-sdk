@@ -245,6 +245,9 @@ export const SghoUserPositionFragment = graphql(
     maxWithdraw {
       ...TokenAmount
     }
+    underlyingBalance {
+      ...TokenAmount
+    }
   }`,
   [TokenAmountFragment],
 );
