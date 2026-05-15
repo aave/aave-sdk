@@ -1,0 +1,23 @@
+packages/graphql/schema.graphql
+  s_ebe9530dbe8fbf::t_3cb1260f965d27 1380-1382
+packages/graphql/src/fragments/vaults.ts
+  s_ebe9530dbe8fbf::t_1a173bcd4b5525 248-250
+packages/graphql/src/graphql-env.d.ts
+  s_ebe9530dbe8fbf::t_55ff0a7f580e99 96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "5cfe0f6987ab5de80229220f6e4238dafa4d9af2",
+  "prompts": {},
+  "sessions": {
+    "s_ebe9530dbe8fbf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1e4cbb3d-e07c-4934-a368-c4f7fc5a38b4",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
