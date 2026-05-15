@@ -1,5 +1,20 @@
 # @aave/react
 
+## 0.9.0
+
+### Minor Changes
+
+- dd16c47: **feat:** add sGHO (staked GHO) vault support with GraphQL fragments, client actions, and React hooks
+
+### Patch Changes
+
+- e3b8087: **fix:** polynomial regular expression used on uncontrolled data
+- Updated dependencies [dd16c47]
+- Updated dependencies [a9ab96f]
+- Updated dependencies [e3b8087]
+  - @aave/graphql@0.12.0
+  - @aave/client@0.10.0
+
 ## 0.8.2
 
 ### Patch Changes

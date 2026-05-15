@@ -1,5 +1,15 @@
 # @aave/graphql
 
+## 0.12.0
+
+### Minor Changes
+
+- dd16c47: **feat:** add sGHO (staked GHO) vault support with GraphQL fragments, client actions, and React hooks
+
+### Patch Changes
+
+- a9ab96f: **fix:** update schema for v3.7 (backwards compatible with v3.6)
+
 ## 0.11.0
 
 ### Minor Changes
