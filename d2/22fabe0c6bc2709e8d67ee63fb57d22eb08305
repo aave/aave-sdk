@@ -1,0 +1,19 @@
+packages/client/package.json
+  s_c21f81d61daeb0::t_55809c2a460e92 89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "d222fabe0c6bc2709e8d67ee63fb57d22eb08305",
+  "prompts": {},
+  "sessions": {
+    "s_c21f81d61daeb0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "792e0768-f5d1-44f4-bd47-4c35b387f968",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
