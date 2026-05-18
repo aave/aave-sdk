@@ -1,0 +1,19 @@
+.claude/skills/publish/SKILL.md
+  s_739b5fba85a9bf::t_00ce5b80d88528 12,27,33-34,36,45,49-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "0cc16df8e8ce12d2c54e13d61accae79d0a0991c",
+  "prompts": {},
+  "sessions": {
+    "s_739b5fba85a9bf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8932ddfc-a859-4c84-b940-50e966e00e2a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
