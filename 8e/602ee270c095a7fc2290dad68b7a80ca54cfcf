@@ -1,0 +1,25 @@
+packages/client/package.json
+  s_739b5fba85a9bf::t_7b2581a74611c6 3
+packages/react/package.json
+  s_739b5fba85a9bf::t_7b2581a74611c6 3
+packages/client/CHANGELOG.md
+  s_739b5fba85a9bf::t_7b2581a74611c6 3-8
+packages/react/CHANGELOG.md
+  s_739b5fba85a9bf::t_7b2581a74611c6 3-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "8e602ee270c095a7fc2290dad68b7a80ca54cfcf",
+  "prompts": {},
+  "sessions": {
+    "s_739b5fba85a9bf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8932ddfc-a859-4c84-b940-50e966e00e2a",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
