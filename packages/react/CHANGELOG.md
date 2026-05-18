@@ -1,5 +1,12 @@
 # @aave/react
 
+## 0.9.1
+
+### Patch Changes
+
+- Updated dependencies [4a60cfa]
+  - @aave/client@0.11.0
+
 ## 0.9.0
 
 ### Minor Changes

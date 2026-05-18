@@ -1,5 +1,11 @@
 # @aave/client
 
+## 0.11.0
+
+### Minor Changes
+
+- 4a60cfa: Move `@privy-io/server-auth` from dependencies to peerDependencies
+
 ## 0.10.0
 
 ### Minor Changes

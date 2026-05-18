@@ -1,6 +1,6 @@
 {
   "name": "@aave/client",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "The official JavaScript client for the Aave API",
   "repository": {
     "directory": "packages/client",
