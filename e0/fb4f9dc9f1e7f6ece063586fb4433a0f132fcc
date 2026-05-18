@@ -1,0 +1,19 @@
+.changeset/privy-peer-dep.md
+  s_ed55447df9c49b::t_305bc164878332 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "e0fb4f9dc9f1e7f6ece063586fb4433a0f132fcc",
+  "prompts": {},
+  "sessions": {
+    "s_ed55447df9c49b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d3811f69-bfd5-4a50-9831-829d81a2534c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
