@@ -9,6 +9,7 @@ import type {
   DateTime,
   EvmAddress,
   ID,
+  RewardId,
   Signature,
   TxHash,
   TypedSelectionSet,
@@ -52,6 +53,7 @@ export const graphql = initGraphQLTada<{
     OperationType: OperationType;
     OrderDirection: OrderDirection;
     PageSize: PageSize;
+    RewardId: RewardId;
     Signature: Signature;
     String: string;
     TxHash: TxHash;

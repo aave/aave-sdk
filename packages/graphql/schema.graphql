@@ -109,6 +109,23 @@ input BorrowErc20AmountInput {
   value: BigDecimal!
 }
 
+type BorrowPointsIncentive {
+  id: RewardId!
+  program: PointsProgram!
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime
+  multiplier: Float!
+  criteria: [IncentiveCriteria!]
+  userEligible: Boolean!
+  kind: PointsProgramKind!
+  dailyPoints: Float
+  pointsPerThousandUsd: Float
+  description: String
+  customMessage: String
+  customForumLink: String
+}
+
 input BorrowRequest {
   """The market pool address"""
   market: EvmAddress!
@@ -149,6 +166,11 @@ enum ChainsFilter {
 }
 
 type ClaimableMeritReward {
+  currency: Currency!
+  amount: TokenAmount!
+}
+
+type ClaimableReward {
   currency: Currency!
   amount: TokenAmount!
 }
@@ -385,6 +407,16 @@ type HealthFactorPreviewResponse {
   The user health factor after - if null, they don't have one because they are not borrowing
   """
   after: BigDecimal
+}
+
+"""
+Display metadata for a single eligibility rule on an owned Merkl incentive.
+`userPassed` is false when no user context was supplied.
+"""
+type IncentiveCriteria {
+  id: ID!
+  text: String!
+  userPassed: Boolean!
 }
 
 """
@@ -637,6 +669,12 @@ type MeritBorrowAndSupplyIncentiveCondition {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
+  selfApr: PercentValue
 }
 
 type MeritBorrowIncentive {
@@ -645,6 +683,27 @@ type MeritBorrowIncentive {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
+  selfApr: PercentValue
+}
+
+type MeritSavingsGhoIncentive {
+  """
+  APR earned for depositing GHO into Savings GHO via the AAVE Merit program
+  """
+  apr: PercentValue!
+
+  """Where you can go and claim the incentives"""
+  claimLink: URL!
+  actionKey: String
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+  customMessage: String
+  customForumLink: String
 }
 
 type MeritSupplyIncentive {
@@ -653,6 +712,101 @@ type MeritSupplyIncentive {
 
   """Where you can go and claim the incentives"""
   claimLink: URL!
+
+  """
+  aavechan/Merit action slug (e.g. "ethereum-sgho"). Admin-set through
+  the Slack bot; used as join key between the DB row and the live
+  aavechan APR cache.
+  """
+  actionKey: String
+
+  """
+  Reward token paid out by the campaign (often an aToken like
+  aEthUSDC). Distinct from `claim_link`, which is just the landing page.
+  """
+  rewardTokenAddress: String
+  rewardTokenSymbol: String
+
+  """Anti-loop eligibility warning or other tooltip copy."""
+  customMessage: String
+
+  """Governance forum link with full campaign details."""
+  customForumLink: String
+
+  """
+  Extra APR when a parallel "self" campaign is running for this action
+  (sGHO / Safety Module lock). Populated from the `self-{action_key}`
+  row in the aavechan response. Null when disabled.
+  """
+  selfApr: PercentValue
+}
+
+"""Borrow-side incentive funded by an Aave-owned Merkl campaign."""
+type MerklBorrowIncentive {
+  id: RewardId!
+  startDate: DateTime!
+  endDate: DateTime!
+
+  """
+  Borrow APR discount sourced live from Merkl. The user effectively
+  pays `borrow_apr - borrow_apr_discount`. Naming aligned with
+  `AaveBorrowIncentive.borrow_apr_discount` and
+  `MeritBorrowIncentive.borrow_apr_discount`.
+  """
+  borrowAprDiscount: PercentValue!
+  payoutToken: Currency!
+  criteria: [IncentiveCriteria!]!
+  userEligible: Boolean!
+  description: String
+  customMessage: String
+  customForumLink: String
+  customClaimMessage: String
+}
+
+"""Supply-side incentive funded by an Aave-owned Merkl campaign."""
+type MerklSupplyIncentive {
+  id: RewardId!
+  startDate: DateTime!
+  endDate: DateTime!
+
+  """
+  Extra APR for suppliers in this reserve, sourced live from Merkl.
+  The interface converts APR → APY for display, matching how it
+  renders `AaveSupplyIncentive.extra_supply_apr` and
+  `MeritSupplyIncentive.extra_supply_apr`.
+  """
+  extraSupplyApr: PercentValue!
+
+  """The token the campaign pays out in."""
+  payoutToken: Currency!
+  criteria: [IncentiveCriteria!]!
+
+  """
+  Whether the user (if passed to `incentives(user:)`) meets the required
+  criteria. False when no user is provided and rules exist.
+  """
+  userEligible: Boolean!
+
+  """
+  Short tooltip copy for the campaign. Seeded from admin input or the
+  aavechan override table for legacy third-party campaigns.
+  """
+  description: String
+
+  """
+  Eligibility conditions tooltip copy (anti-loop warnings, whitelist
+  requirements, etc.).
+  """
+  customMessage: String
+
+  """Governance forum link with full campaign details."""
+  customForumLink: String
+
+  """
+  Merkl-specific call-to-action copy shown next to the claim button
+  (e.g. "Rewards will be claimable starting in early August.").
+  """
+  customClaimMessage: String
 }
 
 type MessageData {
@@ -780,6 +934,33 @@ type PermitTypedDataResponse {
   primaryType: String!
   domain: DomainData!
   message: MessageData!
+}
+
+type PointsProgram {
+  id: RewardId!
+  name: String!
+  externalUrl: String
+  iconUrl: String
+}
+
+"""
+Kind of POINTS program. Discriminates between Merkl-backed campaigns (which
+expose live `daily_points` / `points_per_thousand_usd`) and loyalty
+multiplier programs (which only carry a fixed multiplier). Lets clients
+branch on shape without inspecting whether `daily_points` is null.
+"""
+enum PointsProgramKind {
+  """
+  Merkl-backed campaign. `daily_points` and `points_per_thousand_usd`
+  are populated when the live feed has data.
+  """
+  CAMPAIGN
+
+  """
+  Loyalty multiplier program (Ethena, Ether.fi, etc.). Fixed multiplier,
+  no daily points.
+  """
+  LOYALTY
 }
 
 input PreviewAction @oneOf {
@@ -963,9 +1144,19 @@ type Query {
   forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
 
   """
-  The user merits reward information and transaction if you wish to claim
+  Legacy alias — returns the same data as `userRewards` but without the
+  `rewardIds` filter. Kept for backwards compatibility with existing
+  clients; new clients should use `userRewards`.
   """
-  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards
+  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards @deprecated(reason: "Use `userRewards` instead. This alias will be removed in a future release.")
+
+  """
+  The user's Merkl-claimable rewards on a chain, plus the claim
+  transaction. Canonical replacement for `userMeritRewards` — same
+  underlying data source, with an added `rewardIds` filter for
+  program-specific claims.
+  """
+  userRewards(request: UserRewardsRequest!): UserRewards
 
   """
   Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
@@ -978,6 +1169,12 @@ type Query {
 
   """Withdraw sGHO (savings GHO) back to GHO"""
   savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+
+  """
+  Merit APR incentive for depositing GHO into Savings GHO.
+  Returns null when no active savings GHO incentive campaign is running.
+  """
+  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
 
   """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
   sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
@@ -1117,9 +1314,15 @@ type Reserve {
   permitSupported: Boolean!
 
   """
-  This exposes the extra incentives you can earn from third parties (Merit) or from
-  incentives set by governance through the RewardsController.
-  Note Aave Labs does not guarantee third party program and accepts no liability to those
+  Extra incentives for this reserve — covers three sources:
+  
+  - Legacy Merit program (ACI-owned, on-chain RewardsController).
+  - Aave native incentives (governance-owned, on-chain RewardsController).
+  - Aave-owned Merkl reward campaigns (managed via the `/rewards/*` Slack
+  bot; linked to Merkl off-chain).
+  
+  When the surrounding `Reserve` query carries a user, eligibility for
+  the owned Merkl variants is evaluated against that user's V3 positions.
   """
   incentives: [ReserveIncentive!]!
 
@@ -1193,7 +1396,7 @@ enum ReserveBorrowingState {
   USER_EMODE_DISABLED_BORROW
 }
 
-union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive
+union ReserveIncentive = MeritSupplyIncentive | MeritBorrowIncentive | MeritBorrowAndSupplyIncentiveCondition | AaveSupplyIncentive | AaveBorrowIncentive | MerklSupplyIncentive | MerklBorrowIncentive | SupplyPointsIncentive | BorrowPointsIncentive
 
 type ReserveInfo {
   """The market information the reserve is under"""
@@ -1304,6 +1507,8 @@ type ReserveUserState {
   """
   isInIsolationMode: Boolean! @deprecated(reason: "Deprecated in v3.7+: use the selected eMode category's `isolated` flag instead")
 }
+
+scalar RewardId
 
 input SavingsGhoBalanceRequest {
   """The user to query the savings GHO balance"""
@@ -1484,6 +1689,42 @@ input SupplyAPYHistoryRequest {
 
   """The chain id"""
   chainId: ChainId!
+}
+
+type SupplyPointsIncentive {
+  id: RewardId!
+  program: PointsProgram!
+  name: String!
+  startDate: DateTime!
+  endDate: DateTime
+  multiplier: Float!
+  criteria: [IncentiveCriteria!]
+  userEligible: Boolean!
+
+  """
+  `Campaign` for Merkl-backed programs; `Loyalty` for fixed-multiplier
+  partner programs (Ethena, Ether.fi). Clients gate UI on this rather
+  than checking whether `daily_points` is null.
+  """
+  kind: PointsProgramKind!
+
+  """
+  Daily points emitted across the entire reserve, surfaced from the
+  Merkl campaign's `rewardsRecord.breakdowns[].value`. Used by the V3
+  interface to render "X points / $1K / day" next to the reserve.
+  Always null for `kind = Loyalty`.
+  """
+  dailyPoints: Float
+
+  """
+  Daily points normalized per $1K of TVL: `daily_points / tvl * 1000`.
+  Computed server-side so the interface does not have to fetch TVL.
+  Always null for `kind = Loyalty`.
+  """
+  pointsPerThousandUsd: Float
+  description: String
+  customMessage: String
+  customForumLink: String
 }
 
 input SupplyRequest {
@@ -1693,6 +1934,36 @@ type UserRepayTransaction {
 
   """Timestamp of the transaction."""
   timestamp: DateTime!
+}
+
+"""
+Canonical shape for a user's Merkl-claimable rewards on a single chain,
+together with the transaction to send to the Merkl distributor. Same shape
+as `UserMeritRewards` — that type stays around for the deprecated alias.
+"""
+type UserRewards {
+  chain: ChainId!
+  claimable: [ClaimableReward!]!
+  transaction: TransactionRequest!
+}
+
+input UserRewardsFilter {
+  """If set, only these tokens' rewards are included in the claim."""
+  tokens: [EvmAddress!]
+
+  """
+  If set, the claim is scoped to tokens where at least one of these
+  Aave-owned reward program IDs has contributed on Merkl. When absent,
+  the claim covers all Merkl-claimable rewards for the user on this chain
+  regardless of source (legacy Merit, Aave-owned, third-party).
+  """
+  rewardIds: [RewardId!]
+}
+
+input UserRewardsRequest {
+  user: EvmAddress!
+  chainId: ChainId!
+  filter: UserRewardsFilter
 }
 
 input UserSetEmodeRequest {
