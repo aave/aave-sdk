@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "82f35beb30b230fb4b8097824b55eaaa43ff8ced",
+  "prompts": {},
+  "humans": {
+    "h_075bcc15b434db": {
+      "author": "Mark Grothe"
+    }
+  }
+}
