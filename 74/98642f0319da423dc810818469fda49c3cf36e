@@ -1,0 +1,21 @@
+packages/graphql/src/fragments/reserve.ts
+  s_a47c40eb4bf494::t_98bc614eff6ff1 217-279,285-289
+.changeset/incentives-kind-sync.md
+  s_a47c40eb4bf494::t_cf8c587a8b6ac4 1-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "7498642f0319da423dc810818469fda49c3cf36e",
+  "prompts": {},
+  "sessions": {
+    "s_a47c40eb4bf494": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1f2d8774-daac-4930-9dc6-f20b4222a1a3",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
