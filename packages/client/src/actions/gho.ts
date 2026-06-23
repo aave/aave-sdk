@@ -19,6 +19,8 @@ import {
   SghoVaultRedeemSharesQuery,
   type SghoVaultRedeemSharesRequest,
   type SghoVaultRequest,
+  StkGhoMigrateQuery,
+  type StkGhoMigrateRequest,
   type TokenAmount,
 } from '@aave/graphql';
 import type { ResultAsync } from '@aave/types';
@@ -179,6 +181,33 @@ export function sghoVaultRedeemShares(
   request: SghoVaultRedeemSharesRequest,
 ): ResultAsync<ExecutionPlan, UnexpectedError> {
   return client.query(SghoVaultRedeemSharesQuery, { request });
+}
+
+/**
+ * Creates a transaction to migrate the caller's full stkGHO position into the sGHO ERC-4626 vault.
+ *
+ * ```ts
+ * const result = await stkGhoMigrate(client, {
+ *   user: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
+ * }).andThen(sendWith(wallet))
+ *
+ * if (result.isErr()) {
+ *   return;
+ * }
+ *
+ * // result.value: TxHash
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - The stkGHO migration request parameters.
+ * @returns The transaction request data to migrate stkGHO to sGHO.
+ */
+export function stkGhoMigrate(
+  client: AaveClient,
+  request: StkGhoMigrateRequest,
+): ResultAsync<ExecutionPlan, UnexpectedError> {
+  return client.query(StkGhoMigrateQuery, { request });
 }
 
 /**
