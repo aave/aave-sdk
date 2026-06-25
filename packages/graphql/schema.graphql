@@ -1199,6 +1199,11 @@ type Query {
   Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
   """
   sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """
+  Build a transaction to migrate the user's full stkGHO position into the sGHO ERC-4626 vault.
+  """
+  stkGhoMigrate(request: StkGhoMigrateRequest!): ExecutionPlan!
 }
 
 input RepayAmountInput @oneOf {
@@ -1676,6 +1681,14 @@ input SghoVaultRequest {
 }
 
 scalar Signature
+
+input StkGhoMigrateRequest {
+  """The user migrating their full stkGHO position to sGHO."""
+  user: EvmAddress!
+
+  """The chain id."""
+  chainId: ChainId!
+}
 
 input SupplyAPYHistoryRequest {
   """The market pool address"""

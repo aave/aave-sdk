@@ -4,6 +4,7 @@ import {
   savingsGhoWithdraw,
   sghoVaultDeposit,
   sghoVaultRedeemShares,
+  stkGhoMigrate,
 } from '@aave/client/actions';
 import type {
   DecimalValue,
@@ -17,6 +18,7 @@ import type {
   SghoVaultPreviewRedeemRequest,
   SghoVaultRedeemSharesRequest,
   SghoVaultRequest,
+  StkGhoMigrateRequest,
   TokenAmount,
 } from '@aave/graphql';
 import {
@@ -419,5 +421,44 @@ export function useSghoVaultRedeemShares(): UseAsyncTask<
 
   return useAsyncTask((request: SghoVaultRedeemSharesRequest) =>
     sghoVaultRedeemShares(client, request),
+  );
+}
+
+/**
+ * A hook that provides a way to migrate the caller's full stkGHO position into the sGHO ERC-4626 vault.
+ *
+ * ```ts
+ * const [migrate, migrating] = useStkGhoMigrate();
+ * const [sendTransaction, sending] = useSendTransaction(wallet);
+ *
+ * const result = await migrate({
+ *   user: evmAddress('0x9abc…'),
+ *   chainId: chainId(1),
+ * }).andThen((plan) => {
+ *   switch (plan.__typename) {
+ *     case 'TransactionRequest':
+ *       return sendTransaction(plan);
+ *
+ *     case 'ApprovalRequired':
+ *       return sendTransaction(plan.approval)
+ *         .andThen(() => sendTransaction(plan.originalTransaction));
+ *
+ *     case 'InsufficientBalanceError':
+ *       return errAsync(
+ *         new Error(`Insufficient stkGHO balance: ${plan.required.value} required.`)
+ *       );
+ *   }
+ * });
+ * ```
+ */
+export function useStkGhoMigrate(): UseAsyncTask<
+  StkGhoMigrateRequest,
+  ExecutionPlan,
+  UnexpectedError
+> {
+  const client = useAaveClient();
+
+  return useAsyncTask((request: StkGhoMigrateRequest) =>
+    stkGhoMigrate(client, request),
   );
 }
