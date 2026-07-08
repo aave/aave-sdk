@@ -9,12 +9,13 @@ Publishes `@aave` packages to npm using changesets.
 
 ## Checklist
 
-**You MUST use TaskCreate to create a task for EACH step below. Mark each complete only after verification.**
+**You MUST track EACH step below as a to-do item using whatever task/todo tool your runtime provides (e.g. `TaskCreate`). Mark each complete only after verification.**
 
 ### Pre-flight
 
 - [ ] Verify on `main` branch and up-to-date: `git checkout main && git pull`
 - [ ] Verify working directory is clean: `git status` shows no uncommitted changes
+- [ ] Verify Node version satisfies the repo's `.nvmrc` / `engines` (run `node --version`; if you use a version manager, `nvm use` / `fnm use`)
 - [ ] Run `corepack enable` to ensure correct pnpm version
 - [ ] Run `pnpm install` to update dependencies
 - [ ] Run `pnpm build` to build all packages
@@ -46,6 +47,7 @@ Publishes `@aave` packages to npm using changesets.
 
 ## Common Mistakes
 
-1. **Forgetting `--follow-tags`** — Git tags not pushed, npm versions unlinked from git history
-2. **Committing after `git push --follow-tags`** — Version bump commit must be pushed before tags, not after
-3. **Assuming direct push to main works** — Branch protection requires a PR; tags still push fine
+1. **Wrong Node version** — Node not matching `.nvmrc` (22.x) can cause install/build failures
+2. **Forgetting `--follow-tags`** — Git tags not pushed, npm versions unlinked from git history
+3. **Committing after `git push --follow-tags`** — Version bump commit must be pushed before tags, not after
+4. **Assuming direct push to main works** — Branch protection requires a PR; tags still push fine
