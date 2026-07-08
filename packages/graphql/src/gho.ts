@@ -57,6 +57,16 @@ export type SghoVaultRedeemSharesRequest = RequestOf<
   typeof SghoVaultRedeemSharesQuery
 >;
 
+export const StkGhoMigrateQuery = graphql(
+  `query StkGhoMigrate($request: StkGhoMigrateRequest!) {
+    value: stkGhoMigrate(request: $request) {
+      ...ExecutionPlan
+    }
+  }`,
+  [ExecutionPlanFragment],
+);
+export type StkGhoMigrateRequest = RequestOf<typeof StkGhoMigrateQuery>;
+
 export const SghoVaultQuery = graphql(
   `query SghoVault($request: SghoVaultRequest!) {
     value: sghoVault(request: $request) {
