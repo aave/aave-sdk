@@ -183,6 +183,11 @@ export function useRepay(): UseAsyncTask<
 
 /**
  * A hook that provides a way to withdraw supplied assets from an Aave market.
+ * Before calling this hook, check the user's supply position with
+ * `useUserSupplies` and only submit a withdrawal for a reserve the user has
+ * supplied. Execution-plan validation errors such as `InsufficientBalanceError`
+ * are returned through the result, while violated preconditions can throw
+ * invariant errors.
  *
  * ```ts
  * const [withdraw, withdrawing] = useWithdraw();
