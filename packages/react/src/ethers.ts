@@ -76,7 +76,7 @@ export type SendTransactionError =
  *         value: '42.42',
  *       }
  *     },
- *     supplier: evmAddress(await signer.getAddress()),
+ *     sender: evmAddress(await signer.getAddress()),
  *   })
  *     .andThen((plan) => {
  *       switch (plan.__typename) {

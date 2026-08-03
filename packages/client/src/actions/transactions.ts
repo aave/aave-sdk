@@ -51,7 +51,7 @@ import type { AaveClient } from '../AaveClient';
  *       value: '1000',
  *     },
  *   },
- *   borrower: evmAddress('0x9abc…'),
+ *   sender: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
@@ -86,7 +86,7 @@ export function borrow(
  *       value: '1000',
  *     },
  *   },
- *   supplier: evmAddress('0x9abc…'),
+ *   sender: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
@@ -123,7 +123,7 @@ export function supply(
  *       },
  *     },
  *   },
- *   borrower: evmAddress('0x9abc…'),
+ *   sender: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
@@ -158,7 +158,7 @@ export function repay(
  *       value: { exact: '750' },
  *     },
  *   },
- *   supplier: evmAddress('0x9abc…'),
+ *   sender: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *

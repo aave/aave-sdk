@@ -33,7 +33,7 @@ const result = await supply(client, {
       value: '1000'
     }
   },
-  supplier: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+  sender: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
   chainId: chainId(1),
 })
   .andThen(sendWith(wallet))

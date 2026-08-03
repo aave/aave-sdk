@@ -89,7 +89,7 @@ export type SendTransactionError =
  *         value: '42.42',
  *       }
  *     },
- *     supplier: evmAddress(account!.address),
+ *     sender: evmAddress(account!.address),
  *   })
  *     .andThen((plan) => {
  *       switch (plan.__typename) {
