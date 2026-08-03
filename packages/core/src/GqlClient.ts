@@ -338,7 +338,6 @@ export class GqlClient {
   ): ResultAsync<OperationResult<TData, TVariables>, UnexpectedError> {
     return ResultAsync.fromPromise(source.toPromise(), (err: unknown) => {
       this.logger.error(err);
-      console.log(err);
       return UnexpectedError.from(err);
     }).andThen((result) => {
       if (result.error?.networkError) {
