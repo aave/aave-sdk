@@ -33,9 +33,23 @@ const result = await supply(client, {
       value: '1000'
     }
   },
-  supplier: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
+  sender: evmAddress('0x742d35cc6e5c4ce3b69a2a8c7c8e5f7e9a0b1234'),
   chainId: chainId(1),
 })
   .andThen(sendWith(wallet))
   .andThen(client.waitForTransaction);
 ```
+
+## Error handling
+
+Actions return `ResultAsync` values for errors that are part of the normal
+operation flow. For transaction actions, modeled validation outcomes such as
+`InsufficientBalanceError` are returned as execution plans and can be handled
+before signing or sending a transaction.
+
+Some thrown errors represent violated SDK invariants instead. For example, a
+withdrawal request assumes the sender already has a supply position for the
+selected market and reserve. Check user position data with `userSupplies`
+before calling `withdraw`, then only submit withdrawals for reserves that appear
+in the sender's supply positions. Use thrown errors only as a defensive safety
+net rather than relying on their message text for application logic.

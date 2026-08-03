@@ -148,6 +148,12 @@ export function repay(
 
 /**
  * Creates a transaction to withdraw from a market.
+ * The request assumes the sender already has a supply position for the selected
+ * market and reserve. Query `userSupplies` before calling `withdraw`, and only
+ * submit withdrawals for reserves present in the sender's supply positions.
+ * Modeled execution-plan validation errors such as `InsufficientBalanceError`
+ * are returned through the result; violated preconditions can throw invariant
+ * errors.
  *
  * ```ts
  * const result = await withdraw(client, {
@@ -158,7 +164,7 @@ export function repay(
  *       value: { exact: '750' },
  *     },
  *   },
- *   supplier: evmAddress('0x9abc…'),
+ *   sender: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
