@@ -5,11 +5,57 @@ The official SDK for Aave V3 👻.
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
+- [Usage](#usage)
 - [Development Workflow](#development-workflow)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
+
+This repository publishes the Aave V3 SDK as the `0.x` releases of `@aave/client` and `@aave/react`. The `latest` tag of both packages now points to the AaveKit SDK for Aave V4, so pin the major version:
+
+```bash
+npm install @aave/client@0
+# or, for React apps
+npm install @aave/react@0
+```
+
+Install `viem@2` too if you want to send transactions with the `@aave/client/viem` helpers.
+
+## Usage
+
+Fetch the Aave V3 markets on Base and print supply and borrow APYs. This is a Node ESM script (it uses top-level `await`), so save it as `.mts` or set `"type": "module"`:
+
+```ts
+import { AaveClient, chainId } from '@aave/client';
+import { markets } from '@aave/client/actions';
+
+const client = AaveClient.create();
+
+const result = await markets(client, {
+  chainIds: [chainId(8453)], // Base
+});
+
+if (result.isErr()) {
+  console.error(result.error);
+  process.exit(1);
+}
+
+for (const market of result.value) {
+  console.log(`${market.name} (${market.address})`);
+
+  for (const reserve of market.supplyReserves) {
+    console.log(`  supply ${reserve.underlyingToken.symbol}: ${reserve.supplyInfo.apy.formatted}%`);
+  }
+
+  for (const reserve of market.borrowReserves) {
+    if (!reserve.borrowInfo) continue; // not borrowable
+    console.log(`  borrow ${reserve.underlyingToken.symbol}: ${reserve.borrowInfo.apy.formatted}%`);
+  }
+}
+```
+
+See [`@aave/client`](./packages/client/README.md) and [`@aave/react`](./packages/react/README.md) for more.
 
 ## Development Workflow
 
