@@ -1,3 +1,8 @@
+schema {
+  query: V3Query
+  mutation: V3Mutation
+}
+
 type APYSample {
   """The avg rate"""
   avgRate: PercentValue!
@@ -26,6 +31,11 @@ input AmountInput @oneOf {
 
   """The erc20 amount input"""
   erc20: Erc20AmountInput
+}
+
+"""The amount is too small to trade once the swap's fees are taken."""
+type AmountTooSmallError {
+  reason: String!
 }
 
 """
@@ -145,6 +155,24 @@ input BorrowRequest {
 
   """The chain id"""
   chainId: ChainId!
+
+  """
+  The integrator's referral code, emitted on the Pool's `Borrow` event. Omitted means no
+  referral (`0`).
+  """
+  referralCode: Int
+}
+
+input CancelOrderBySignatureInput {
+  id: OrderId!
+  signature: Signature!
+}
+
+union CancelOrderExecutionPlan = TransactionRequest | OrderCancelledResult
+
+input CancelOrderRequest @oneOf {
+  bySignature: CancelOrderBySignatureInput
+  byTransaction: OrderId
 }
 
 type Chain {
@@ -256,6 +284,14 @@ type DomainData {
   verifyingContract: EvmAddress!
 }
 
+input ERC20PermitSignature {
+  """The permit signature"""
+  value: Signature!
+
+  """The permit deadline"""
+  deadline: Int!
+}
+
 input ERC712Signature {
   """The signature for the erc721"""
   value: Signature!
@@ -344,6 +380,14 @@ input Erc20AmountInput {
   permitSig: ERC712Signature
 }
 
+type Erc20Approval {
+  """Transaction request for the approval"""
+  byTransaction: TransactionRequest!
+
+  """Typed data for the permit signature, when the token supports one"""
+  bySignature: PermitTypedDataResponse
+}
+
 scalar EvmAddress
 
 """
@@ -428,6 +472,28 @@ type InsufficientBalanceError {
 
   """The amount available in the wallet"""
   available: DecimalValue!
+}
+
+type InsufficientLiquidityError {
+  reason: String!
+}
+
+"""A scalar that can represent any JSON value."""
+scalar JSON
+
+input LimitOrderTokenSwapQuoteInput {
+  """The market's pool address"""
+  market: EvmAddress!
+  chainId: ChainId!
+  sell: SwapTokenInput!
+  buy: SwapTokenInput!
+  user: EvmAddress!
+  receiver: EvmAddress
+  kind: TokenSwapKind! = SELL
+  previousQuoteId: SwapQuoteId
+
+  """Optional deadline as DateTime. If not provided, uses default expiry."""
+  deadline: DateTime
 }
 
 input LiquidateRequest {
@@ -526,6 +592,30 @@ input MarketInput {
 
   """The chain id the market is deployed on"""
   chainId: ChainId!
+}
+
+input MarketOrderTokenSwapFromQuoteInput {
+  """The market's pool address the quote was made on"""
+  market: EvmAddress!
+  quoteId: SwapQuoteId!
+}
+
+input MarketOrderTokenSwapQuoteInput {
+  """The market's pool address"""
+  market: EvmAddress!
+
+  """
+  Quote accuracy level - FAST for faster response, ACCURATE for verified pricing (default)
+  """
+  accuracy: QuoteAccuracy! = ACCURATE
+  chainId: ChainId!
+  buy: TokenInput!
+  sell: TokenInput!
+  amount: BigDecimal!
+  kind: TokenSwapKind!
+  user: EvmAddress!
+  receiver: EvmAddress
+  selectedSlippage: BigDecimal
 }
 
 input MarketRequest {
@@ -713,16 +803,12 @@ type MeritSupplyIncentive {
   """Where you can go and claim the incentives"""
   claimLink: URL!
 
-  """
-  aavechan/Merit action slug (e.g. "ethereum-sgho"). Admin-set through
-  the Slack bot; used as join key between the DB row and the live
-  aavechan APR cache.
-  """
+  """aavechan/Merit action slug (e.g. "ethereum-sgho")."""
   actionKey: String
 
   """
   Reward token paid out by the campaign (often an aToken like
-  aEthUSDC). Distinct from `claim_link`, which is just the landing page.
+  aEthUSDC). Distinct from `claimLink`, which is just the landing page.
   """
   rewardTokenAddress: String
   rewardTokenSymbol: String
@@ -735,8 +821,7 @@ type MeritSupplyIncentive {
 
   """
   Extra APR when a parallel "self" campaign is running for this action
-  (sGHO / Safety Module lock). Populated from the `self-{action_key}`
-  row in the aavechan response. Null when disabled.
+  (sGHO / Safety Module lock). Null when disabled.
   """
   selfApr: PercentValue
 }
@@ -749,9 +834,7 @@ type MerklBorrowIncentive {
 
   """
   Borrow APR discount sourced live from Merkl. The user effectively
-  pays `borrow_apr - borrow_apr_discount`. Naming aligned with
-  `AaveBorrowIncentive.borrow_apr_discount` and
-  `MeritBorrowIncentive.borrow_apr_discount`.
+  pays the borrow APR minus `borrowAprDiscount`.
   """
   borrowAprDiscount: PercentValue!
   payoutToken: Currency!
@@ -772,8 +855,8 @@ type MerklSupplyIncentive {
   """
   Extra APR for suppliers in this reserve, sourced live from Merkl.
   The interface converts APR → APY for display, matching how it
-  renders `AaveSupplyIncentive.extra_supply_apr` and
-  `MeritSupplyIncentive.extra_supply_apr`.
+  renders `AaveSupplyIncentive.extraSupplyApr` and
+  `MeritSupplyIncentive.extraSupplyApr`.
   """
   extraSupplyApr: PercentValue!
 
@@ -782,15 +865,12 @@ type MerklSupplyIncentive {
   criteria: [IncentiveCriteria!]!
 
   """
-  Whether the user (if passed to `incentives(user:)`) meets the required
+  Whether the user meets the required
   criteria. False when no user is provided and rules exist.
   """
   userEligible: Boolean!
 
-  """
-  Short tooltip copy for the campaign. Seeded from admin input or the
-  aavechan override table for legacy third-party campaigns.
-  """
+  """Short tooltip copy for the campaign."""
   description: String
 
   """
@@ -815,6 +895,623 @@ type MessageData {
   value: BigInt!
   nonce: BigInt!
   deadline: Int!
+}
+
+input MigrateBorrowPositionInput {
+  """
+  How much of the position moves, as a percentage above 0 and up to 100, with at most two
+  decimals. Every collateral and every debt moves at this same percentage
+  """
+  percentage: BigDecimal!
+}
+
+input MigrateEarnPositionInput {
+  """The underlying token of the supply"""
+  currency: EvmAddress!
+
+  """
+  How much moves, in whole tokens: above zero and at most the supply's balance
+  """
+  amount: BigDecimal!
+
+  """Whether the supply is enabled as collateral on the spoke"""
+  useAsCollateral: Boolean!
+}
+
+input MigratePositionRequest {
+  """
+  The user address whose position moves, which is also who signs and sends
+  """
+  user: EvmAddress!
+
+  """The V3 market the position is in"""
+  market: MarketInput!
+
+  """The V4 spoke the position moves to"""
+  spoke: EvmAddress!
+  position: MigratePositionSelection!
+
+  """
+  Omitted on the first call. On the next ones, the plan and what was signed so far
+  """
+  signed: MigrationSignedPlanInput
+}
+
+"""Which of the user's positions in the market moves, and how much of it"""
+input MigratePositionSelection @oneOf {
+  """The market's borrow position: its collaterals and its debts"""
+  borrow: MigrateBorrowPositionInput
+
+  """One supply that backs no debt"""
+  earn: MigrateEarnPositionInput
+}
+
+type MigrationAmountVariation {
+  """The amount before the move"""
+  current: DecimalValue!
+
+  """The amount after the move"""
+  after: DecimalValue!
+}
+
+type MigrationBooleanVariation {
+  """The flag before the move"""
+  current: Boolean!
+
+  """The flag after the move"""
+  after: Boolean!
+}
+
+input MigrationBorrowPreviewRequest {
+  """The user address whose borrow position would move"""
+  user: EvmAddress!
+
+  """The V3 market the position is in"""
+  market: MarketInput!
+
+  """The V4 spoke the position would move to"""
+  spoke: EvmAddress!
+
+  """
+  How much of the position moves, as a percentage above 0 and up to 100, with at most two
+  decimals. Every collateral and every debt moves at this same percentage
+  """
+  percentage: BigDecimal!
+}
+
+enum MigrationCriterion {
+  """
+  The spoke lists every asset of the position, in the role the position holds it
+  """
+  ASSET_SUPPORTED
+
+  """Every asset of the position is allowed to migrate"""
+  ASSET_ALLOWED
+
+  """The spoke's supply and borrow caps have room for the position"""
+  LIQUIDITY_CAP
+
+  """Moving the position leaves the hub's rates within bounds"""
+  RATE_IMPACT
+
+  """
+  The position earns more once moved, and for a borrow position borrows for less
+  """
+  NET_APY
+}
+
+type MigrationCriterionResult {
+  """The criterion judged"""
+  criterion: MigrationCriterion!
+
+  """Whether the position meets it on this spoke"""
+  met: Boolean!
+
+  """
+  The underlying assets that fail it. Empty when it is met, or when the position fails as
+  a whole
+  """
+  assets: [EvmAddress!]!
+}
+
+type MigrationDebt {
+  """The currency borrowed"""
+  currency: Currency!
+
+  """The debt that would move"""
+  amount: TokenAmount!
+}
+
+input MigrationEarnPreviewRequest {
+  """The user address whose supply would move"""
+  user: EvmAddress!
+
+  """The V3 market the supply is in"""
+  market: MarketInput!
+
+  """The underlying token of the supply"""
+  currency: EvmAddress!
+
+  """The V4 spoke the supply would move to"""
+  spoke: EvmAddress!
+
+  """
+  How much moves, in whole tokens: above zero and at most the supply's balance
+  """
+  amount: BigDecimal!
+
+  """Whether the supply is enabled as collateral on the spoke"""
+  useAsCollateral: Boolean!
+}
+
+"""
+What the user does next to migrate. Call `migratePosition` again after each signing step,
+until it answers the transaction to send
+"""
+union MigrationExecutionPlan = MigrationSignaturesRequired | MigrationSafeSignatureRequired | TransactionRequest
+
+type MigrationExternalCurator {
+  """The curator's name"""
+  name: String!
+
+  """The curator's icon"""
+  icon: String!
+}
+
+type MigrationHealthFactorVariation {
+  """The health factor before the move. Null when the spoke carries no debt"""
+  current: BigDecimal
+
+  """The health factor after the move. Null when the spoke carries no debt"""
+  after: BigDecimal
+}
+
+type MigrationHub {
+  """The hub address"""
+  address: EvmAddress!
+
+  """The human-friendly name for the hub"""
+  name: String!
+
+  """The party curating the hub, if any"""
+  externalCurator: MigrationExternalCurator
+}
+
+"""The part of the position that would leave V3."""
+type MigrationMoving {
+  """The supplies moving"""
+  supplies: [MigrationSupply!]!
+
+  """The debts moving. Empty for an earn position"""
+  debts: [MigrationDebt!]!
+
+  """
+  What the moving supplies are worth in USD. Null when one of the assets has no price or
+  rate
+  """
+  suppliedUsd: BigDecimal
+
+  """What the moving debts are worth in USD. Null as `suppliedUsd` is"""
+  borrowedUsd: BigDecimal
+
+  """
+  The moving supplies less the moving debts, in USD. Null as `suppliedUsd` is
+  """
+  netBalanceUsd: BigDecimal
+}
+
+input MigrationOpportunitiesRequest {
+  """The V3 markets to look for positions in"""
+  markets: [MarketInput!]!
+
+  """The user address whose positions could migrate"""
+  user: EvmAddress!
+}
+
+"""
+One V3 position that moves as a whole, with the V4 spokes it could move to.
+"""
+type MigrationOpportunity {
+  """Whether the position earns only or borrows"""
+  kind: MigrationPositionKind!
+
+  """The V3 market the position is in"""
+  market: MarketInfo!
+
+  """The supplies that would move"""
+  supplies: [MigrationSupply!]!
+
+  """The debts that would move. Empty for an earn position"""
+  debts: [MigrationDebt!]!
+
+  """
+  What the supplies are worth in USD. Null when one of the position's assets has no price
+  or rate
+  """
+  suppliedUsd: BigDecimal
+
+  """What the debts are worth in USD. Null as `suppliedUsd` is"""
+  borrowedUsd: BigDecimal
+
+  """
+  The supplies less the debts, in USD, and zero when the position owes more than it holds.
+  Null as `suppliedUsd` is
+  """
+  netBalanceUsd: BigDecimal
+
+  """
+  The position's net APY on V3 today: pool rates, the assets' own yield and rewards. Null
+  as `suppliedUsd` is
+  """
+  apy: PercentValue
+
+  """
+  What the position's debt costs on V3 today, net of rewards. Null for an earn position,
+  or as `suppliedUsd` is
+  """
+  borrowApy: PercentValue
+
+  """
+  What the position earns on V3 over a year at today's rates, in USD. Null as
+  `suppliedUsd` is
+  """
+  yearlyEarningsUsd: BigDecimal
+
+  """
+  The health factor of the position's V3 market today. Null for an earn position
+  """
+  healthFactor: BigDecimal
+
+  """
+  Every V4 spoke on the position's chain: eligible ones first, then the cheapest to borrow
+  on for a borrow position and the highest earning for an earn one
+  """
+  targets: [MigrationTarget!]!
+
+  """
+  The eligible spoke to show for the position by default. Null when no spoke is eligible
+  """
+  bestTarget: MigrationTarget
+}
+
+type MigrationPercentVariation {
+  """The rate before the move"""
+  current: PercentValue!
+
+  """The rate after the move"""
+  after: PercentValue!
+}
+
+enum MigrationPositionKind {
+  """A supply that backs no debt"""
+  EARN
+
+  """A market's collateral and the debt it backs, which move together"""
+  BORROW
+}
+
+"""
+One position moved, in whole or in part, to one V4 spoke. Whether the position may migrate
+there is `migrationOpportunities`' to say, on the full position.
+"""
+type MigrationPreview {
+  """What would leave V3"""
+  moving: MigrationMoving!
+
+  """The position on V3 before the move and after it"""
+  source: MigrationSourceVariation!
+
+  """The spoke on V4 before the move and after it"""
+  target: MigrationTargetPreview!
+}
+
+enum MigrationPreviewStatus {
+  """The spoke takes the move as it stands"""
+  PREVIEWED
+
+  """The spoke would refuse the move as it stands"""
+  BLOCKED
+
+  """
+  The spoke lists no reserve for one of the assets, or nothing is left to move
+  """
+  UNSUPPORTED
+}
+
+"""
+The second step: the transaction of the Safe the migration runs in, for the user to sign
+"""
+type MigrationSafeSignatureRequired {
+  typedData: MigrationTypedData!
+}
+
+enum MigrationSignaturePurpose {
+  """Lets the migration move the user's aTokens out of V3"""
+  A_TOKEN_PERMIT
+
+  """Approves V4's position managers on the spoke, once per spoke"""
+  POSITION_MANAGERS
+
+  """Lets the migration enable the moved supplies as collateral on V4"""
+  COLLATERAL_PERMISSION
+
+  """Lets the migration borrow on V4 what it repaid on V3"""
+  BORROW_PERMIT
+}
+
+type MigrationSignatureRequest {
+  purpose: MigrationSignaturePurpose!
+
+  """
+  The aToken an `A_TOKEN_PERMIT` is for, or the borrowed token a `BORROW_PERMIT` is for.
+  Null for the other two
+  """
+  token: EvmAddress
+  typedData: MigrationTypedData!
+}
+
+"""The first step: documents for the user to sign"""
+type MigrationSignaturesRequired {
+  """Opaque. Send it back unchanged on the next calls, with the signatures"""
+  plan: String!
+
+  """The documents to sign, in the order their signatures are sent back"""
+  signatures: [MigrationSignatureRequest!]!
+}
+
+"""What the user has signed since the plan was issued"""
+input MigrationSignedPlanInput {
+  """The plan as `MigrationSignaturesRequired` returned it, unchanged"""
+  plan: String!
+
+  """
+  One signature per document that was asked for, in the order they were listed
+  """
+  signatures: [Signature!]!
+
+  """
+  The signature over the Safe transaction, once `MigrationSafeSignatureRequired` has
+  returned it
+  """
+  safeSignature: Signature
+}
+
+"""The position on V3 at one moment of the move."""
+type MigrationSourceSide {
+  """The supplies held"""
+  supplies: [MigrationSupply!]!
+
+  """The debts owed. Empty for an earn position"""
+  debts: [MigrationDebt!]!
+
+  """
+  What the supplies are worth in USD. Null when one of the assets has no price or rate
+  """
+  suppliedUsd: BigDecimal
+
+  """What the debts are worth in USD. Null as `suppliedUsd` is"""
+  borrowedUsd: BigDecimal
+
+  """The supplies less the debts, in USD. Null as `suppliedUsd` is"""
+  netBalanceUsd: BigDecimal
+
+  """
+  The position's net APY: pool rates, the assets' own yield and rewards. Null as
+  `suppliedUsd` is
+  """
+  apy: PercentValue
+
+  """
+  What the position's debt costs, net of rewards. Null for an earn position, or as
+  `suppliedUsd` is
+  """
+  borrowApy: PercentValue
+
+  """
+  What the position earns over a year at today's rates, in USD. Null as `suppliedUsd` is
+  """
+  yearlyEarningsUsd: BigDecimal
+
+  """
+  The health factor of the V3 market. Null when the market carries no debt
+  """
+  healthFactor: BigDecimal
+
+  """
+  What the V3 market still lets the user borrow, in the market's base currency. Null for
+  an earn position
+  """
+  availableBorrowsBase: BigDecimal
+
+  """
+  The V3 market's collateral weighted by its liquidation threshold, in the market's base
+  currency: divided by the debt, it is the health factor. Null for an earn position
+  """
+  netCollateralBase: BigDecimal
+}
+
+type MigrationSourceVariation {
+  """The whole position before the move"""
+  current: MigrationSourceSide!
+
+  """What the move leaves on V3"""
+  after: MigrationSourceSide!
+}
+
+type MigrationSpoke {
+  """The spoke address"""
+  address: EvmAddress!
+
+  """The human-friendly name for the spoke"""
+  name: String!
+}
+
+type MigrationSupply {
+  """The currency supplied"""
+  currency: Currency!
+
+  """The balance that would move"""
+  amount: TokenAmount!
+
+  """Whether the supply backs the position's debt"""
+  isCollateral: Boolean!
+}
+
+"""
+A V4 spoke a position could move to, and what moving all of it there would change.
+"""
+type MigrationTarget {
+  """The spoke the position would move to"""
+  spoke: MigrationSpoke!
+
+  """Whether the position meets every criterion on this spoke"""
+  eligible: Boolean!
+
+  """
+  Each criterion judged. The net APY criterion is absent when another one already failed
+  """
+  criteria: [MigrationCriterionResult!]!
+
+  """
+  The net APY of the moved position on the spoke: pool rates, the assets' own yield and
+  rewards. Null when the move could not be previewed
+  """
+  apy: PercentValue
+
+  """
+  What the moved debt costs on the spoke, net of rewards. Null for an earn position, or
+  when the move could not be previewed
+  """
+  borrowApy: PercentValue
+
+  """
+  What the moved position earns on the spoke over a year at today's rates, in USD. Null
+  when the move could not be previewed
+  """
+  yearlyEarningsUsd: BigDecimal
+
+  """
+  The health factor on the spoke once the position has moved. Null for an earn position,
+  when the move could not be previewed, or when the spoke carries no debt
+  """
+  healthFactor: BigDecimal
+}
+
+"""One asset the user holds on the spoke, before the move or after it."""
+type MigrationTargetLeg {
+  """The underlying currency"""
+  currency: Currency!
+
+  """The hub the asset is supplied to or borrowed from"""
+  hub: EvmAddress!
+
+  """The amount supplied"""
+  supplied: MigrationAmountVariation!
+
+  """
+  What the supply is worth in USD. Null when the move is a supply that is not collateral,
+  whose worth is `netBalanceUsd`
+  """
+  suppliedUsd: MigrationUsdVariation
+
+  """The amount borrowed"""
+  borrowed: MigrationAmountVariation!
+
+  """What the debt is worth in USD. Null as `suppliedUsd` is"""
+  borrowedUsd: MigrationUsdVariation
+
+  """Whether the supply is enabled as collateral"""
+  isCollateral: MigrationBooleanVariation!
+}
+
+"""
+The V4 spoke before the move and after it. A supply moved without being enabled as
+collateral reports the user's whole supply of that asset across spokes, and no risk figure.
+"""
+type MigrationTargetPreview {
+  """The spoke the position would move to"""
+  spoke: MigrationSpoke!
+
+  """
+  Whether the spoke takes the move. Every figure below is null unless it is `PREVIEWED`
+  """
+  status: MigrationPreviewStatus!
+
+  """
+  Collateral less debt on the spoke, in USD; the supply's worth when it is not collateral
+  """
+  netBalanceUsd: MigrationUsdVariation
+
+  """
+  The net APY on that balance: pool rates, the assets' own yield and rewards
+  """
+  apy: MigrationPercentVariation
+
+  """A year at `apy` on `netBalanceUsd`, in USD"""
+  yearlyEarningsUsd: MigrationUsdVariation
+
+  """
+  The collateral on the spoke, in USD. Null for a supply that is not collateral
+  """
+  collateralUsd: MigrationUsdVariation
+
+  """
+  The collateral on the spoke weighted by its collateral factors, in USD: divided by the
+  debt, it is the health factor. Null as `collateralUsd` is
+  """
+  netCollateralUsd: MigrationUsdVariation
+
+  """The debt on the spoke, in USD. Null as `collateralUsd` is"""
+  debtUsd: MigrationUsdVariation
+
+  """
+  What the debt on the spoke costs, net of rewards. Null as `collateralUsd` is
+  """
+  borrowApy: MigrationPercentVariation
+
+  """
+  What the spoke still lets the user borrow, in USD. Null as `collateralUsd` is
+  """
+  borrowingPowerUsd: MigrationUsdVariation
+
+  """The health factor on the spoke. Null as `collateralUsd` is"""
+  healthFactor: MigrationHealthFactorVariation
+
+  """
+  Every asset the user holds on the spoke on either side. One entry, summed across spokes,
+  for a supply that is not collateral
+  """
+  legs: [MigrationTargetLeg!]!
+
+  """The hubs the moved assets land on through the spoke"""
+  hubs: [MigrationHub!]!
+}
+
+"""An EIP-712 document for the wallet to sign as it is"""
+type MigrationTypedData {
+  """Every struct type the document uses, `EIP712Domain` included"""
+  types: JSON!
+  primaryType: String!
+  domain: MigrationTypedDataDomain!
+  message: JSON!
+}
+
+"""
+The EIP-712 domain a document is signed under. A Safe's carries neither name nor version
+"""
+type MigrationTypedDataDomain {
+  name: String
+  version: String
+  chainId: ChainId!
+  verifyingContract: EvmAddress!
+}
+
+type MigrationUsdVariation {
+  """The value before the move, in USD"""
+  current: BigDecimal!
+
+  """The value after the move, in USD"""
+  after: BigDecimal!
 }
 
 type NativeCurrency {
@@ -856,14 +1553,104 @@ enum OperationType {
   LIQUIDATION
 }
 
+type OrderCancelled {
+  orderId: OrderId!
+  createdAt: DateTime!
+  cancelledAt: DateTime
+  explorerUrl: String!
+  operation: OrderOperation!
+}
+
+type OrderCancelledResult {
+  orderId: OrderId!
+}
+
 enum OrderDirection {
   ASC
   DESC
 }
 
+union OrderExecutionPlan = OrderTransactionRequest | OrderReceipt | InsufficientBalanceError
+
+type OrderExpired {
+  orderId: OrderId!
+  createdAt: DateTime!
+  expiredAt: DateTime!
+  explorerUrl: String!
+  operation: OrderOperation!
+}
+
+type OrderFulfilled {
+  orderId: OrderId!
+  createdAt: DateTime!
+  fulfilledAt: DateTime!
+  txHash: String!
+  explorerUrl: String!
+  operation: OrderOperation!
+}
+
+scalar OrderId
+
+type OrderOpen {
+  orderId: OrderId!
+  createdAt: DateTime!
+  deadline: DateTime!
+  explorerUrl: String!
+  operation: OrderOperation!
+}
+
+union OrderOperation = TokenSwap
+
+type OrderPendingSignature {
+  orderId: OrderId!
+  createdAt: DateTime!
+  deadline: DateTime!
+  explorerUrl: String!
+  operation: OrderOperation!
+}
+
+scalar OrderQuoteId
+
+type OrderReceipt {
+  orderId: OrderId!
+}
+
+union OrderStatus = OrderOpen | OrderPendingSignature | OrderFulfilled | OrderCancelled | OrderExpired
+
+"""Filter for [`pending_orders`]; mirrors the legacy `SwapStatusFilter`."""
+enum OrderStatusFilter {
+  OPEN
+  PENDING_SIGNATURE
+  FULFILLED
+  CANCELLED
+  EXPIRED
+}
+
+input OrderStatusRequest {
+  id: OrderId!
+}
+
+type OrderTransactionRequest {
+  transaction: TransactionRequest!
+  orderReceipt: OrderReceipt!
+}
+
+"""EIP-712 typed data to sign; mirrors the legacy `SwapTypedData`."""
+type OrderTypedData {
+  types: JSON!
+  primaryType: String!
+  domain: DomainData!
+  message: JSON!
+}
+
 enum PageSize {
   TEN
   FIFTY
+}
+
+type PaginatedOrdersResult {
+  items: [OrderStatus!]!
+  pageInfo: PaginatedResultInfo!
 }
 
 type PaginatedResultInfo {
@@ -891,6 +1678,15 @@ type PaginatedVaultUserTransactionHistoryResult {
 type PaginatedVaultsResult {
   items: [Vault!]!
   pageInfo: PaginatedResultInfo!
+}
+
+input PendingOrdersRequest {
+  chainId: ChainId @deprecated(reason: "Use chainIds instead.")
+  chainIds: [ChainId!]
+  user: EvmAddress!
+  filterBy: [OrderStatusFilter!]
+  pageSize: PageSize! = FIFTY
+  cursor: Cursor
 }
 
 type PercentValue {
@@ -945,13 +1741,13 @@ type PointsProgram {
 
 """
 Kind of POINTS program. Discriminates between Merkl-backed campaigns (which
-expose live `daily_points` / `points_per_thousand_usd`) and loyalty
+expose live `dailyPoints` / `pointsPerThousandUsd`) and loyalty
 multiplier programs (which only carry a fixed multiplier). Lets clients
-branch on shape without inspecting whether `daily_points` is null.
+branch on shape without inspecting whether `dailyPoints` is null.
 """
 enum PointsProgramKind {
   """
-  Merkl-backed campaign. `daily_points` and `points_per_thousand_usd`
+  Merkl-backed campaign. `dailyPoints` and `pointsPerThousandUsd`
   are populated when the live feed has data.
   """
   CAMPAIGN
@@ -963,6 +1759,26 @@ enum PointsProgramKind {
   LOYALTY
 }
 
+input PrepareCancelOrderRequest {
+  id: OrderId!
+}
+
+type PrepareCancelOrderResult {
+  data: OrderTypedData!
+}
+
+input PrepareOrderRequest {
+  quoteId: OrderQuoteId!
+  permitSig: ERC20PermitSignature
+}
+
+union PrepareOrderResult = PreparedOrder | InsufficientBalanceError
+
+type PreparedOrder {
+  newQuoteId: OrderQuoteId!
+  data: OrderTypedData!
+}
+
 input PreviewAction @oneOf {
   supply: SupplyRequest
   borrow: BorrowRequest
@@ -970,240 +1786,13 @@ input PreviewAction @oneOf {
   withdraw: WithdrawRequest
 }
 
-type Query {
-  """Get if the API is healthy"""
-  health: Boolean!
+"""Quote accuracy level for swap quotes"""
+enum QuoteAccuracy {
+  """Fast price quality - faster response, potentially less accurate price"""
+  FAST
 
-  """Chains the protocol supports"""
-  chains(filter: ChainsFilter! = ALL): [Chain!]!
-
-  """
-  Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
-  """
-  vaultDeposit(request: VaultDepositRequest!): ExecutionPlan!
-
-  """
-  Redeems shares (vault shares) for the underlying assets or a tokens, which are sent to the receiver. The shares are burned from the owner.
-  """
-  vaultRedeemShares(request: VaultRedeemSharesRequest!): TransactionRequest!
-
-  """Get a vault"""
-  vault(request: VaultRequest!): Vault
-
-  """Get vaults"""
-  vaults(request: VaultsRequest!): PaginatedVaultsResult!
-
-  """User vaults they have shares in"""
-  userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
-
-  """Deploy a vault and earn fees from the yield"""
-  vaultDeploy(request: VaultDeployRequest!): ExecutionPlan!
-
-  """
-  Update a vault's fee. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultSetFee(request: VaultSetFeeRequest!): TransactionRequest!
-
-  """
-  Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
-
-  """User vault transaction history"""
-  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
-
-  """
-  Vault user activity for a given vault and user, within a specified time window.
-  """
-  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
-
-  """
-  Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
-  """
-  vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
-
-  """
-  Mints an exact amount of shares (vault shares) to the receiver by depositing the calculated amount of underlying or aTokens assets.
-  """
-  vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
-
-  """
-  This will return you the amount of shares that would be minted to the receiver
-  """
-  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the amount of assets that would be deposited by the caller
-  """
-  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the number of shares burnt based on the amount of assets you want to withdraw
-  """
-  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the amount of assets that would be withdrawn by the receiver.
-  """
-  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  Update a vault owner. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
-
-  """
-  Deploy a new recipients configuration contract for fee distribution.
-  You MUST be the owner of the vault to send this tx request.
-  """
-  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
-
-  """
-  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
-
-  """Get a vault recipients configuration"""
-  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
-
-  """Lists all the markets"""
-  markets(request: MarketsRequest!): [Market!]!
-
-  """Get a market"""
-  market(request: MarketRequest!): Market
-
-  """Create the transaction to borrow from a market"""
-  borrow(request: BorrowRequest!): ExecutionPlan!
-
-  """Approve a credit borrow delegator to be able to borrow on your behalf"""
-  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
-
-  """
-  Gets the amount delegated to the credit delegatee that can borrow on your behalf
-  """
-  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
-
-  """Create the transaction to supply to a market"""
-  supply(request: SupplyRequest!): ExecutionPlan!
-
-  """Create the transaction to repay to a market"""
-  repay(request: RepayRequest!): ExecutionPlan!
-
-  """Create the transaction to withdraw from a market"""
-  withdraw(request: WithdrawRequest!): ExecutionPlan!
-
-  """Create the transaction to toggle eMode for a market"""
-  userSetEmode(request: UserSetEmodeRequest!): TransactionRequest!
-
-  """Enable/disable a specific supplied asset as collateral"""
-  collateralToggle(request: CollateralToggleRequest!): TransactionRequest!
-
-  """
-  liquidate a non-healthy position collateral-wise, with Health Factor below 1
-  """
-  liquidate(request: LiquidateRequest!): TransactionRequest!
-
-  """Returns the user account market data across all the reserves."""
-  userMarketState(request: UserMarketStateRequest!): MarketUserState!
-
-  """The usd exchange rates for different tokens on a given market"""
-  usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
-
-  """Get all the user borrows positions"""
-  userBorrows(request: UserBorrowsRequest!): [MarketUserReserveBorrowPosition!]!
-
-  """Get all the user supplies positions"""
-  userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
-
-  """Get the borrow APY history"""
-  borrowAPYHistory(request: BorrowAPYHistoryRequest!): [APYSample!]!
-
-  """Get the supply APY history"""
-  supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
-
-  """Generate EIP-712 typed data for EIP-2612 permit signature"""
-  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
-
-  """Get the reserve for on a market"""
-  reserve(request: ReserveRequest!): Reserve
-
-  """The user's market transaction history"""
-  userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
-
-  """
-  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
-  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
-  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
-  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
-  cater for the race condition.
-  """
-  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
-  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
-
-  """Top up a balance for a user or yourself on the fork"""
-  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
-
-  """
-  Legacy alias — returns the same data as `userRewards` but without the
-  `rewardIds` filter. Kept for backwards compatibility with existing
-  clients; new clients should use `userRewards`.
-  """
-  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards @deprecated(reason: "Use `userRewards` instead. This alias will be removed in a future release.")
-
-  """
-  The user's Merkl-claimable rewards on a chain, plus the claim
-  transaction. Canonical replacement for `userMeritRewards` — same
-  underlying data source, with an added `rewardIds` filter for
-  program-specific claims.
-  """
-  userRewards(request: UserRewardsRequest!): UserRewards
-
-  """
-  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
-  this can be claimed using `userMeritRewards`
-  """
-  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
-
-  """Deposit into savings GHO"""
-  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
-
-  """Withdraw sGHO (savings GHO) back to GHO"""
-  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
-
-  """
-  Merit APR incentive for depositing GHO into Savings GHO.
-  Returns null when no active savings GHO incentive campaign is running.
-  """
-  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
-
-  """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
-  sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
-
-  """
-  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
-  """
-  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
-
-  """
-  Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
-  optionally the connected user's position.
-  """
-  sghoVault(request: SghoVaultRequest!): SghoVault!
-
-  """
-  Returns the number of sGHO shares that would be minted for a given GHO deposit amount.
-  """
-  sghoVaultPreviewDeposit(request: SghoVaultPreviewRequest!): DecimalValue!
-
-  """
-  Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
-  """
-  sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
-
-  """
-  Build a transaction to migrate the user's full stkGHO position into the sGHO ERC-4626 vault.
-  """
-  stkGhoMigrate(request: StkGhoMigrateRequest!): ExecutionPlan!
+  """Verified price quality - more accurate price (default)"""
+  ACCURATE
 }
 
 input RepayAmountInput @oneOf {
@@ -1273,8 +1862,8 @@ type Reserve {
   vToken: Currency!
 
   """
-  If the reserve accepts native currency, for example, if you're on a reserve with asset WETH, it can
-  also accept ETH
+  If the reserve accepts native currency, for example, if you're on a reserve with asset
+  WETH, it can also accept ETH
   """
   acceptsNative: NativeCurrency
 
@@ -1321,10 +1910,9 @@ type Reserve {
   """
   Extra incentives for this reserve — covers three sources:
   
-  - Legacy Merit program (ACI-owned, on-chain RewardsController).
+  - Legacy Merit program (on-chain RewardsController).
   - Aave native incentives (governance-owned, on-chain RewardsController).
-  - Aave-owned Merkl reward campaigns (managed via the `/rewards/*` Slack
-  bot; linked to Merkl off-chain).
+  - Aave-owned Merkl reward campaigns.
   
   When the surrounding `Reserve` query carries a user, eligibility for
   the owned Merkl variants is evaluated against that user's V3 positions.
@@ -1373,8 +1961,9 @@ type ReserveBorrowInfo {
   variableRateSlope2: PercentValue!
 
   """
-  The optimal usage rate - the utilization rate at which the variable rate curve transitions
-  from slope1 to slope2. This represents the target utilization rate for the reserve
+  The optimal usage rate - the utilization rate at which the variable rate curve
+  transitions from slope1 to slope2. This represents the target utilization rate for the
+  reserve
   """
   optimalUsageRate: PercentValue!
 
@@ -1690,6 +2279,21 @@ input StkGhoMigrateRequest {
   chainId: ChainId!
 }
 
+input SubmitOrderBySignatureInput {
+  quoteId: OrderQuoteId!
+  signature: Signature!
+}
+
+input SubmitOrderByTransactionInput {
+  quoteId: OrderQuoteId!
+  permitSig: Signature
+}
+
+input SubmitOrderRequest @oneOf {
+  bySignature: SubmitOrderBySignatureInput
+  byTransaction: SubmitOrderByTransactionInput
+}
+
 input SupplyAPYHistoryRequest {
   """The market pool address"""
   market: EvmAddress!
@@ -1715,24 +2319,22 @@ type SupplyPointsIncentive {
   userEligible: Boolean!
 
   """
-  `Campaign` for Merkl-backed programs; `Loyalty` for fixed-multiplier
+  `CAMPAIGN` for Merkl-backed programs; `LOYALTY` for fixed-multiplier
   partner programs (Ethena, Ether.fi). Clients gate UI on this rather
-  than checking whether `daily_points` is null.
+  than checking whether `dailyPoints` is null.
   """
   kind: PointsProgramKind!
 
   """
-  Daily points emitted across the entire reserve, surfaced from the
-  Merkl campaign's `rewardsRecord.breakdowns[].value`. Used by the V3
-  interface to render "X points / $1K / day" next to the reserve.
-  Always null for `kind = Loyalty`.
+  Daily points emitted across the entire reserve.
+  Always null for `kind = LOYALTY`.
   """
   dailyPoints: Float
 
   """
-  Daily points normalized per $1K of TVL: `daily_points / tvl * 1000`.
+  Daily points normalized per $1K of TVL: `dailyPoints / tvl * 1000`.
   Computed server-side so the interface does not have to fetch TVL.
-  Always null for `kind = Loyalty`.
+  Always null for `kind = LOYALTY`.
   """
   pointsPerThousandUsd: Float
   description: String
@@ -1759,6 +2361,93 @@ input SupplyRequest {
 
   """The chain id"""
   chainId: ChainId!
+
+  """
+  The integrator's referral code, emitted on the Pool's `Supply` event. Omitted means no
+  referral (`0`).
+  """
+  referralCode: Int
+}
+
+type SwapByIntent {
+  quote: SwapQuote!
+}
+
+type SwapByIntentWithApprovalRequired {
+  quote: SwapQuote!
+
+  """
+  All required approvals (may contain reset + actual for USDT on mainnet)
+  """
+  approvals: [Erc20Approval!]!
+}
+
+type SwapByTransaction {
+  quote: SwapQuote!
+}
+
+type SwapByTransactionWithApprovalRequired {
+  quote: SwapQuote!
+
+  """
+  All required approvals (may contain reset + actual for USDT on mainnet)
+  """
+  approvals: [Erc20Approval!]!
+}
+
+union SwapCurrency = Currency | NativeCurrency
+
+input SwapErc20Input {
+  address: EvmAddress!
+  value: BigDecimal!
+}
+
+"""Order class indicating market or limit order type."""
+enum SwapOrderClass {
+  MARKET
+  LIMIT
+}
+
+type SwapQuote {
+  accuracy: QuoteAccuracy!
+  quoteId: SwapQuoteId!
+  suggestedSlippage: PercentValue!
+  selectedSlippage: PercentValue
+  sell: TokenAmount!
+  buy: TokenAmount!
+  costs: SwapQuoteCosts!
+
+  """Final buy amount after all fees and slippage"""
+  finalBuy: TokenAmount!
+
+  """Final sell amount after all fees and slippage"""
+  finalSell: TokenAmount!
+
+  """
+  Same value as `quoteId`, typed as the canonical `OrderQuoteId` for the Order lifecycle verbs.
+  """
+  orderQuoteId: OrderQuoteId!
+}
+
+type SwapQuoteCosts {
+  """Network and provider costs"""
+  networkCosts: TokenAmount!
+
+  """Aave partner fee amount"""
+  partnerFee: TokenAmount!
+
+  """Protocol fee"""
+  flashloanFee: TokenAmount
+
+  """Custom Swap Provider fee"""
+  providerFee: TokenAmount!
+}
+
+scalar SwapQuoteId
+
+input SwapTokenInput @oneOf {
+  native: BigDecimal
+  erc20: SwapErc20Input
 }
 
 enum TimeWindow {
@@ -1770,14 +2459,50 @@ enum TimeWindow {
 }
 
 type TokenAmount {
-  usdPerToken: BigDecimal!
-
   """The amount"""
   amount: DecimalValue!
 
   """The usd full amount"""
   usd: BigDecimal!
+  usdPerToken: BigDecimal!
 }
+
+input TokenInput @oneOf {
+  """Native token"""
+  native: AlwaysTrue
+
+  """The erc20 address"""
+  erc20: EvmAddress
+}
+
+"""
+The amounts carry no USD price: an order names no market whose oracle would price them.
+"""
+type TokenSwap {
+  sell: TokenAmount!
+  buy: TokenAmount!
+  kind: TokenSwapKind!
+  orderClass: SwapOrderClass!
+
+  """The token sold"""
+  sellCurrency: SwapCurrency!
+
+  """The token bought"""
+  buyCurrency: SwapCurrency!
+}
+
+enum TokenSwapKind {
+  BUY
+  SELL
+}
+
+input TokenSwapQuoteRequest @oneOf {
+  market: MarketOrderTokenSwapQuoteInput
+  limit: LimitOrderTokenSwapQuoteInput
+  fromQuote: MarketOrderTokenSwapFromQuoteInput
+}
+
+union TokenSwapQuoteResult = SwapByIntent | SwapByIntentWithApprovalRequired | SwapByTransaction | SwapByTransactionWithApprovalRequired | InsufficientLiquidityError | AmountTooSmallError
 
 """
 Represents a transaction that must be executed, such as a direct supply, borrow, etc.
@@ -2171,6 +2896,284 @@ type UserWithdrawTransaction {
   timestamp: DateTime!
 }
 
+type V3Mutation {
+  submitOrder(request: SubmitOrderRequest!): OrderExecutionPlan!
+  cancelOrder(request: CancelOrderRequest!): CancelOrderExecutionPlan!
+}
+
+type V3Query {
+  """The user's market transaction history"""
+  userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
+
+  """Chains the protocol supports"""
+  chains(filter: ChainsFilter! = ALL): [Chain!]!
+
+  """
+  Gets the amount delegated to the credit delegatee that can borrow on your behalf
+  """
+  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
+
+  """The usd exchange rates for different tokens on a given market"""
+  usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
+
+  """Top up a balance for a user or yourself on the fork"""
+  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
+
+  """Get if the API is healthy"""
+  health: Boolean!
+  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
+
+  """Get the supply APY history"""
+  supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
+
+  """Get the borrow APY history"""
+  borrowAPYHistory(request: BorrowAPYHistoryRequest!): [APYSample!]!
+
+  """Get a market"""
+  market(request: MarketRequest!): Market
+
+  """Lists all the markets"""
+  markets(request: MarketsRequest!): [Market!]!
+
+  """
+  Create the transaction that migrates a V3 position to a V4 spoke. It takes two rounds of
+  signatures first: call it, sign what it returns, and call it again with `signed`, until it
+  answers the transaction to send
+  """
+  migratePosition(request: MigratePositionRequest!): MigrationExecutionPlan!
+
+  """
+  Get the user's V3 positions that could migrate to V4, each with the spokes it could move
+  to and what moving all of it would change
+  """
+  migrationOpportunities(request: MigrationOpportunitiesRequest!): [MigrationOpportunity!]!
+
+  """
+  Preview moving a percentage of a V3 borrow position to a V4 spoke: every collateral and
+  debt at that percentage, with V3 and V4 before and after
+  """
+  migrationBorrowPreview(request: MigrationBorrowPreviewRequest!): MigrationPreview!
+
+  """
+  Preview moving an amount of a V3 supply that backs no debt to a V4 spoke, with V3 and V4
+  before and after
+  """
+  migrationEarnPreview(request: MigrationEarnPreviewRequest!): MigrationPreview!
+
+  """Prepare typed data to sign for a token swap order."""
+  prepareOrder(request: PrepareOrderRequest!): PrepareOrderResult!
+  orderStatus(request: OrderStatusRequest!): OrderStatus
+
+  """A user's wallet token swap orders, newest first."""
+  pendingOrders(request: PendingOrdersRequest!): PaginatedOrdersResult!
+  prepareCancelOrder(request: PrepareCancelOrderRequest!): PrepareCancelOrderResult!
+
+  """Quote a wallet token swap on a market."""
+  tokenSwapQuote(request: TokenSwapQuoteRequest!): TokenSwapQuoteResult!
+
+  """Get the reserve for on a market"""
+  reserve(request: ReserveRequest!): Reserve
+
+  """
+  Merit APR incentive for depositing GHO into Savings GHO.
+  Returns null when no active savings GHO incentive campaign is running.
+  """
+  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
+
+  """
+  The user's Merkl-claimable rewards on a chain, plus the claim
+  transaction. Canonical replacement for `userMeritRewards` — same
+  underlying data source, with an added `rewardIds` filter for
+  program-specific claims.
+  """
+  userRewards(request: UserRewardsRequest!): UserRewards
+
+  """
+  Legacy alias — returns the same data as `userRewards` but without the
+  `rewardIds` filter. Kept for backwards compatibility with existing
+  clients; new clients should use `userRewards`.
+  """
+  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards @deprecated(reason: "Use `userRewards` instead. This alias will be removed in a future release.")
+
+  """
+  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
+  this can be claimed using `userMeritRewards`
+  """
+  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
+
+  """
+  Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
+  optionally the connected user's position.
+  """
+  sghoVault(request: SghoVaultRequest!): SghoVault!
+
+  """
+  Returns the number of sGHO shares that would be minted for a given GHO deposit amount.
+  """
+  sghoVaultPreviewDeposit(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """
+  Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
+  """
+  sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """Create the transaction to supply to a market"""
+  supply(request: SupplyRequest!): ExecutionPlan!
+
+  """Create the transaction to borrow from a market"""
+  borrow(request: BorrowRequest!): ExecutionPlan!
+
+  """Create the transaction to repay to a market"""
+  repay(request: RepayRequest!): ExecutionPlan!
+
+  """Create the transaction to withdraw from a market"""
+  withdraw(request: WithdrawRequest!): ExecutionPlan!
+
+  """Create the transaction to toggle eMode for a market"""
+  userSetEmode(request: UserSetEmodeRequest!): TransactionRequest!
+
+  """Enable/disable a specific supplied asset as collateral"""
+  collateralToggle(request: CollateralToggleRequest!): TransactionRequest!
+
+  """
+  liquidate a non-healthy position collateral-wise, with Health Factor below 1
+  """
+  liquidate(request: LiquidateRequest!): TransactionRequest!
+
+  """Approve a credit borrow delegator to be able to borrow on your behalf"""
+  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
+
+  """Deposit into savings GHO"""
+  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
+
+  """Withdraw sGHO (savings GHO) back to GHO"""
+  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+
+  """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
+  sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
+
+  """
+  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
+  """
+  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
+
+  """
+  Build a transaction to migrate the user's full stkGHO position into the sGHO ERC-4626 vault.
+  """
+  stkGhoMigrate(request: StkGhoMigrateRequest!): ExecutionPlan!
+
+  """Generate EIP-712 typed data for EIP-2612 permit signature"""
+  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
+
+  """
+  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
+  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
+  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
+  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
+  cater for the race condition.
+  """
+  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
+
+  """Get a vault"""
+  vault(request: VaultRequest!): Vault
+
+  """Get vaults"""
+  vaults(request: VaultsRequest!): PaginatedVaultsResult!
+
+  """User vaults they have shares in"""
+  userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
+
+  """User vault transaction history"""
+  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
+
+  """
+  Vault user activity for a given vault and user, within a specified time window.
+  """
+  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
+
+  """Get a vault recipients configuration"""
+  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
+
+  """
+  This will return you the amount of shares that would be minted to the receiver
+  """
+  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be deposited by the caller
+  """
+  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the number of shares burnt based on the amount of assets you want to
+  withdraw
+  """
+  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be withdrawn by the receiver.
+  """
+  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
+  """
+  vaultDeposit(request: VaultDepositRequest!): ExecutionPlan!
+
+  """
+  Mints an exact amount of shares (vault shares) to the receiver by depositing the calculated amount of underlying or aTokens assets.
+  """
+  vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
+
+  """
+  Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
+  """
+  vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
+
+  """
+  Redeems shares (vault shares) for the underlying assets or a tokens, which are sent to the receiver. The shares are burned from the owner.
+  """
+  vaultRedeemShares(request: VaultRedeemSharesRequest!): TransactionRequest!
+
+  """Deploy a vault and earn fees from the yield"""
+  vaultDeploy(request: VaultDeployRequest!): ExecutionPlan!
+
+  """
+  Update a vault's fee. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultSetFee(request: VaultSetFeeRequest!): TransactionRequest!
+
+  """
+  Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
+
+  """
+  Update a vault owner. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
+
+  """
+  Deploy a new recipients configuration contract for fee distribution.
+  You MUST be the owner of the vault to send this tx request.
+  """
+  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
+
+  """
+  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
+
+  """Get all the user borrows positions"""
+  userBorrows(request: UserBorrowsRequest!): [MarketUserReserveBorrowPosition!]!
+
+  """Returns the user account market data across all the reserves."""
+  userMarketState(request: UserMarketStateRequest!): MarketUserState!
+
+  """Get all the user supplies positions"""
+  userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
+}
+
 type Vault {
   """The vault address"""
   address: EvmAddress!
@@ -2191,7 +3194,8 @@ type Vault {
   totalFeeRevenue: TokenAmount!
 
   """
-  The last recorded balance of the vault's AToken. This value is updated when yield is accrued.
+  The last recorded balance of the vault's AToken. This value is updated when yield is
+  accrued.
   """
   balance: TokenAmount!
 
@@ -2212,7 +3216,8 @@ type Vault {
 
   """
   The recipient configuration for distributing the vault fees.
-  Returns None if the vault doesn't have any recipients configured (in which case the owner is the sole fee recipient)
+  Returns None if the vault doesn't have any recipients configured (in which case the owner
+  is the sole fee recipient)
   """
   recipients: VaultFeesRecipientsConfiguration
 }
@@ -2279,7 +3284,8 @@ input VaultDepositAmountInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The depositor's EIP-712 signature over the vault's nonce, which lets another wallet send
+  the deposit. The vault still needs an allowance for the assets.
   """
   permitSig: ERC712Signature
 }
@@ -2331,7 +3337,7 @@ type VaultFeesRecipientsConfiguration {
 }
 
 input VaultInput {
-  """The address of the fault"""
+  """The address of the vault"""
   address: EvmAddress!
 
   """The chain id the vault is on"""
@@ -2342,11 +3348,12 @@ input VaultMintShareInput {
   """The amount of vault shares"""
   amount: BigDecimal!
 
-  """Whether the amount should be received as aToken."""
+  """Whether to pay for the shares in aTokens rather than the underlying."""
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The minter's EIP-712 signature over the vault's nonce, which lets another wallet send the
+  mint. The vault still needs an allowance for the assets.
   """
   permitSig: ERC712Signature
 }
@@ -2413,7 +3420,8 @@ input VaultRedeemShareInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The shares owner's EIP-712 signature over the vault's nonce, which lets another wallet
+  send the redemption.
   """
   permitSig: ERC712Signature
 }
@@ -2452,7 +3460,8 @@ input VaultRequest {
   chainId: ChainId!
 
   """
-  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and
+  other user features
   """
   user: EvmAddress
 }
@@ -2462,7 +3471,8 @@ input VaultRequestBy @oneOf {
   address: EvmAddress
 
   """
-  You can use this if you deployed a vault and want to get the vault information using the tx hash after the receipt is given
+  You can use this if you deployed a vault and want to get the vault information using the
+  tx hash after the receipt is given
   """
   txHash: TxHash
 }
@@ -2556,7 +3566,7 @@ enum VaultUserHistoryAction {
 }
 
 input VaultUserTransactionHistoryOrderBy @oneOf {
-  """Order by shares"""
+  """Order by the date of the transaction"""
   date: OrderDirection
 }
 
@@ -2602,7 +3612,8 @@ input VaultWithdrawAmountInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The shares owner's EIP-712 signature over the vault's nonce, which lets another wallet
+  send the withdrawal.
   """
   permitSig: ERC712Signature
 }
@@ -2654,7 +3665,8 @@ input VaultsRequest {
   criteria: VaultsRequestFilterCriteria!
 
   """
-  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and
+  other user features
   """
   user: EvmAddress
 
