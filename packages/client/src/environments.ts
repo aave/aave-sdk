@@ -15,7 +15,7 @@ export const production: EnvironmentConfig = {
  */
 export const staging: EnvironmentConfig = {
   name: 'staging',
-  backend: 'https://api.v3.staging.aave.com/graphql',
+  backend: 'https://api.origin.staging.aave.com/v3/graphql',
   indexingTimeout: 60_000,
   pollingInterval: 100,
 };
