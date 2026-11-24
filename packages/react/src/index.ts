@@ -5,6 +5,7 @@ export { useAaveClient } from './context';
 export * from './gho';
 export * from './incentives';
 export * from './markets';
+export * from './migrations';
 export * from './misc';
 export * from './reserves';
 export * from './transactions';

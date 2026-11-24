@@ -22,6 +22,10 @@ import {
 } from 'gql.tada';
 import type {
   ChainsFilter,
+  MigrationCriterion,
+  MigrationPositionKind,
+  MigrationPreviewStatus,
+  MigrationSignaturePurpose,
   OperationType,
   OrderDirection,
   PageSize,
@@ -50,6 +54,11 @@ export const graphql = initGraphQLTada<{
     Float: number;
     ID: ID;
     Int: number;
+    JSON: unknown;
+    MigrationCriterion: MigrationCriterion;
+    MigrationPositionKind: MigrationPositionKind;
+    MigrationPreviewStatus: MigrationPreviewStatus;
+    MigrationSignaturePurpose: MigrationSignaturePurpose;
     OperationType: OperationType;
     OrderDirection: OrderDirection;
     PageSize: PageSize;

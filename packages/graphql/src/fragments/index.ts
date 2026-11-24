@@ -2,6 +2,7 @@ export * from './chain';
 export * from './common';
 export * from './incentives';
 export * from './market';
+export * from './migrations';
 export * from './positions';
 export * from './rates';
 export * from './reserve';

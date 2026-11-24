@@ -73,3 +73,83 @@ export enum VaultUserActivityTimeWindow {
   LastYear = 'LAST_YEAR',
   Max = 'MAX',
 }
+
+/**
+ * The kind of V3 position that can migrate to V4.
+ */
+export enum MigrationPositionKind {
+  /**
+   * A supply that backs no debt
+   */
+  Earn = 'EARN',
+  /**
+   * A market's collateral and the debt it backs, which move together
+   */
+  Borrow = 'BORROW',
+}
+
+/**
+ * A criterion a V3 position is judged against on a V4 spoke.
+ */
+export enum MigrationCriterion {
+  /**
+   * The spoke lists every asset of the position, in the role the position holds it
+   */
+  AssetSupported = 'ASSET_SUPPORTED',
+  /**
+   * Every asset of the position is allowed to migrate
+   */
+  AssetAllowed = 'ASSET_ALLOWED',
+  /**
+   * The spoke's supply and borrow caps have room for the position
+   */
+  LiquidityCap = 'LIQUIDITY_CAP',
+  /**
+   * Moving the position leaves the hub's rates within bounds
+   */
+  RateImpact = 'RATE_IMPACT',
+  /**
+   * The position earns more once moved, and for a borrow position borrows for less
+   */
+  NetApy = 'NET_APY',
+}
+
+/**
+ * Whether a V4 spoke takes a previewed migration.
+ */
+export enum MigrationPreviewStatus {
+  /**
+   * The spoke takes the move as it stands
+   */
+  Previewed = 'PREVIEWED',
+  /**
+   * The spoke would refuse the move as it stands
+   */
+  Blocked = 'BLOCKED',
+  /**
+   * The spoke lists no reserve for one of the assets, or nothing is left to move
+   */
+  Unsupported = 'UNSUPPORTED',
+}
+
+/**
+ * What a signature requested during a migration is for.
+ */
+export enum MigrationSignaturePurpose {
+  /**
+   * Lets the migration move the user's aTokens out of V3
+   */
+  ATokenPermit = 'A_TOKEN_PERMIT',
+  /**
+   * Approves V4's position managers on the spoke, once per spoke
+   */
+  PositionManagers = 'POSITION_MANAGERS',
+  /**
+   * Lets the migration enable the moved supplies as collateral on V4
+   */
+  CollateralPermission = 'COLLATERAL_PERMISSION',
+  /**
+   * Lets the migration borrow on V4 what it repaid on V3
+   */
+  BorrowPermit = 'BORROW_PERMIT',
+}

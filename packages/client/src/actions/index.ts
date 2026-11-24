@@ -1,6 +1,7 @@
 export * from './gho';
 export * from './incentives';
 export * from './markets';
+export * from './migrations';
 export * from './misc';
 export * from './permits';
 export * from './reserve';
