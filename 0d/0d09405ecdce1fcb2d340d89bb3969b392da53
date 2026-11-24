@@ -1,0 +1,39 @@
+packages/graphql/src/index.ts
+  s_36fe408f2b1273::t_3ed97318195291 8
+packages/graphql/src/fragments/migrations.ts
+  s_36fe408f2b1273::t_e54bfbd9095b4c 1-527
+packages/graphql/src/migrations.ts
+  s_36fe408f2b1273::t_a86a86de7d9701 1-65
+packages/client/src/actions/migrations.ts
+  s_36fe408f2b1273::t_9a2f83ca7ccc9f 1-146
+packages/graphql/src/fragments/index.ts
+  s_36fe408f2b1273::t_3ed97318195291 5
+packages/graphql/src/graphql.ts
+  s_36fe408f2b1273::t_3ed97318195291 25-28,57-61
+packages/react/src/migrations.ts
+  s_36fe408f2b1273::t_2495090197db07 1-234
+packages/graphql/src/enums.ts
+  s_36fe408f2b1273::t_3ed97318195291 76-155
+.changeset/position-migration-queries.md
+  s_36fe408f2b1273::t_fde9a2f85e12cc 1-7
+packages/client/src/actions/index.ts
+  s_36fe408f2b1273::t_4e78bbd759ccfb 4
+packages/react/src/index.ts
+  s_36fe408f2b1273::t_527ae400446c3f 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d0d09405ecdce1fcb2d340d89bb3969b392da53",
+  "prompts": {},
+  "sessions": {
+    "s_36fe408f2b1273": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e0eff099-3798-439e-a9c3-93a9b5db1e0f",
+        "model": "claude-fable-5-2"
+      },
+      "human_author": "Joaquin Battilana <battilanajn@gmail.com>"
+    }
+  }
+}
