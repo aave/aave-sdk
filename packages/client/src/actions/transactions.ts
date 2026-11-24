@@ -53,6 +53,7 @@ import type { AaveClient } from '../AaveClient';
  *   },
  *   borrower: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
+ *   referralCode: 0, // optional: integrator referral code
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
@@ -88,6 +89,7 @@ export function borrow(
  *   },
  *   supplier: evmAddress('0x9abc…'),
  *   chainId: market.chain.chainId,
+ *   referralCode: 0, // optional: integrator referral code
  * }).andThen(sendWith(wallet)).andThen(client.waitForTransaction);
  *
  * if (result.isErr()) {
