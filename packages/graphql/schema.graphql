@@ -1,3 +1,7 @@
+schema {
+  query: V3Query
+}
+
 type APYSample {
   """The avg rate"""
   avgRate: PercentValue!
@@ -145,6 +149,12 @@ input BorrowRequest {
 
   """The chain id"""
   chainId: ChainId!
+
+  """
+  The integrator's referral code, emitted on the Pool's `Borrow` event. Omitted means no
+  referral (`0`).
+  """
+  referralCode: Int
 }
 
 type Chain {
@@ -713,16 +723,12 @@ type MeritSupplyIncentive {
   """Where you can go and claim the incentives"""
   claimLink: URL!
 
-  """
-  aavechan/Merit action slug (e.g. "ethereum-sgho"). Admin-set through
-  the Slack bot; used as join key between the DB row and the live
-  aavechan APR cache.
-  """
+  """aavechan/Merit action slug (e.g. "ethereum-sgho")."""
   actionKey: String
 
   """
   Reward token paid out by the campaign (often an aToken like
-  aEthUSDC). Distinct from `claim_link`, which is just the landing page.
+  aEthUSDC). Distinct from `claimLink`, which is just the landing page.
   """
   rewardTokenAddress: String
   rewardTokenSymbol: String
@@ -735,8 +741,7 @@ type MeritSupplyIncentive {
 
   """
   Extra APR when a parallel "self" campaign is running for this action
-  (sGHO / Safety Module lock). Populated from the `self-{action_key}`
-  row in the aavechan response. Null when disabled.
+  (sGHO / Safety Module lock). Null when disabled.
   """
   selfApr: PercentValue
 }
@@ -749,9 +754,7 @@ type MerklBorrowIncentive {
 
   """
   Borrow APR discount sourced live from Merkl. The user effectively
-  pays `borrow_apr - borrow_apr_discount`. Naming aligned with
-  `AaveBorrowIncentive.borrow_apr_discount` and
-  `MeritBorrowIncentive.borrow_apr_discount`.
+  pays the borrow APR minus `borrowAprDiscount`.
   """
   borrowAprDiscount: PercentValue!
   payoutToken: Currency!
@@ -772,8 +775,8 @@ type MerklSupplyIncentive {
   """
   Extra APR for suppliers in this reserve, sourced live from Merkl.
   The interface converts APR → APY for display, matching how it
-  renders `AaveSupplyIncentive.extra_supply_apr` and
-  `MeritSupplyIncentive.extra_supply_apr`.
+  renders `AaveSupplyIncentive.extraSupplyApr` and
+  `MeritSupplyIncentive.extraSupplyApr`.
   """
   extraSupplyApr: PercentValue!
 
@@ -782,15 +785,12 @@ type MerklSupplyIncentive {
   criteria: [IncentiveCriteria!]!
 
   """
-  Whether the user (if passed to `incentives(user:)`) meets the required
+  Whether the user meets the required
   criteria. False when no user is provided and rules exist.
   """
   userEligible: Boolean!
 
-  """
-  Short tooltip copy for the campaign. Seeded from admin input or the
-  aavechan override table for legacy third-party campaigns.
-  """
+  """Short tooltip copy for the campaign."""
   description: String
 
   """
@@ -945,13 +945,13 @@ type PointsProgram {
 
 """
 Kind of POINTS program. Discriminates between Merkl-backed campaigns (which
-expose live `daily_points` / `points_per_thousand_usd`) and loyalty
+expose live `dailyPoints` / `pointsPerThousandUsd`) and loyalty
 multiplier programs (which only carry a fixed multiplier). Lets clients
-branch on shape without inspecting whether `daily_points` is null.
+branch on shape without inspecting whether `dailyPoints` is null.
 """
 enum PointsProgramKind {
   """
-  Merkl-backed campaign. `daily_points` and `points_per_thousand_usd`
+  Merkl-backed campaign. `dailyPoints` and `pointsPerThousandUsd`
   are populated when the live feed has data.
   """
   CAMPAIGN
@@ -968,242 +968,6 @@ input PreviewAction @oneOf {
   borrow: BorrowRequest
   repay: RepayRequest
   withdraw: WithdrawRequest
-}
-
-type Query {
-  """Get if the API is healthy"""
-  health: Boolean!
-
-  """Chains the protocol supports"""
-  chains(filter: ChainsFilter! = ALL): [Chain!]!
-
-  """
-  Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
-  """
-  vaultDeposit(request: VaultDepositRequest!): ExecutionPlan!
-
-  """
-  Redeems shares (vault shares) for the underlying assets or a tokens, which are sent to the receiver. The shares are burned from the owner.
-  """
-  vaultRedeemShares(request: VaultRedeemSharesRequest!): TransactionRequest!
-
-  """Get a vault"""
-  vault(request: VaultRequest!): Vault
-
-  """Get vaults"""
-  vaults(request: VaultsRequest!): PaginatedVaultsResult!
-
-  """User vaults they have shares in"""
-  userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
-
-  """Deploy a vault and earn fees from the yield"""
-  vaultDeploy(request: VaultDeployRequest!): ExecutionPlan!
-
-  """
-  Update a vault's fee. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultSetFee(request: VaultSetFeeRequest!): TransactionRequest!
-
-  """
-  Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
-
-  """User vault transaction history"""
-  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
-
-  """
-  Vault user activity for a given vault and user, within a specified time window.
-  """
-  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
-
-  """
-  Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
-  """
-  vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
-
-  """
-  Mints an exact amount of shares (vault shares) to the receiver by depositing the calculated amount of underlying or aTokens assets.
-  """
-  vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
-
-  """
-  This will return you the amount of shares that would be minted to the receiver
-  """
-  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the amount of assets that would be deposited by the caller
-  """
-  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the number of shares burnt based on the amount of assets you want to withdraw
-  """
-  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  This will return you the amount of assets that would be withdrawn by the receiver.
-  """
-  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
-
-  """
-  Update a vault owner. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
-
-  """
-  Deploy a new recipients configuration contract for fee distribution.
-  You MUST be the owner of the vault to send this tx request.
-  """
-  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
-
-  """
-  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
-  """
-  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
-
-  """Get a vault recipients configuration"""
-  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
-
-  """Lists all the markets"""
-  markets(request: MarketsRequest!): [Market!]!
-
-  """Get a market"""
-  market(request: MarketRequest!): Market
-
-  """Create the transaction to borrow from a market"""
-  borrow(request: BorrowRequest!): ExecutionPlan!
-
-  """Approve a credit borrow delegator to be able to borrow on your behalf"""
-  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
-
-  """
-  Gets the amount delegated to the credit delegatee that can borrow on your behalf
-  """
-  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
-
-  """Create the transaction to supply to a market"""
-  supply(request: SupplyRequest!): ExecutionPlan!
-
-  """Create the transaction to repay to a market"""
-  repay(request: RepayRequest!): ExecutionPlan!
-
-  """Create the transaction to withdraw from a market"""
-  withdraw(request: WithdrawRequest!): ExecutionPlan!
-
-  """Create the transaction to toggle eMode for a market"""
-  userSetEmode(request: UserSetEmodeRequest!): TransactionRequest!
-
-  """Enable/disable a specific supplied asset as collateral"""
-  collateralToggle(request: CollateralToggleRequest!): TransactionRequest!
-
-  """
-  liquidate a non-healthy position collateral-wise, with Health Factor below 1
-  """
-  liquidate(request: LiquidateRequest!): TransactionRequest!
-
-  """Returns the user account market data across all the reserves."""
-  userMarketState(request: UserMarketStateRequest!): MarketUserState!
-
-  """The usd exchange rates for different tokens on a given market"""
-  usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
-
-  """Get all the user borrows positions"""
-  userBorrows(request: UserBorrowsRequest!): [MarketUserReserveBorrowPosition!]!
-
-  """Get all the user supplies positions"""
-  userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
-
-  """Get the borrow APY history"""
-  borrowAPYHistory(request: BorrowAPYHistoryRequest!): [APYSample!]!
-
-  """Get the supply APY history"""
-  supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
-
-  """Generate EIP-712 typed data for EIP-2612 permit signature"""
-  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
-
-  """Get the reserve for on a market"""
-  reserve(request: ReserveRequest!): Reserve
-
-  """The user's market transaction history"""
-  userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
-
-  """
-  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
-  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
-  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
-  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
-  cater for the race condition.
-  """
-  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
-  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
-
-  """Top up a balance for a user or yourself on the fork"""
-  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
-
-  """
-  Legacy alias — returns the same data as `userRewards` but without the
-  `rewardIds` filter. Kept for backwards compatibility with existing
-  clients; new clients should use `userRewards`.
-  """
-  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards @deprecated(reason: "Use `userRewards` instead. This alias will be removed in a future release.")
-
-  """
-  The user's Merkl-claimable rewards on a chain, plus the claim
-  transaction. Canonical replacement for `userMeritRewards` — same
-  underlying data source, with an added `rewardIds` filter for
-  program-specific claims.
-  """
-  userRewards(request: UserRewardsRequest!): UserRewards
-
-  """
-  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
-  this can be claimed using `userMeritRewards`
-  """
-  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
-
-  """Deposit into savings GHO"""
-  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
-
-  """Withdraw sGHO (savings GHO) back to GHO"""
-  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
-
-  """
-  Merit APR incentive for depositing GHO into Savings GHO.
-  Returns null when no active savings GHO incentive campaign is running.
-  """
-  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
-
-  """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
-  sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
-
-  """
-  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
-  """
-  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
-
-  """
-  Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
-  optionally the connected user's position.
-  """
-  sghoVault(request: SghoVaultRequest!): SghoVault!
-
-  """
-  Returns the number of sGHO shares that would be minted for a given GHO deposit amount.
-  """
-  sghoVaultPreviewDeposit(request: SghoVaultPreviewRequest!): DecimalValue!
-
-  """
-  Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
-  """
-  sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
-
-  """
-  Build a transaction to migrate the user's full stkGHO position into the sGHO ERC-4626 vault.
-  """
-  stkGhoMigrate(request: StkGhoMigrateRequest!): ExecutionPlan!
 }
 
 input RepayAmountInput @oneOf {
@@ -1273,8 +1037,8 @@ type Reserve {
   vToken: Currency!
 
   """
-  If the reserve accepts native currency, for example, if you're on a reserve with asset WETH, it can
-  also accept ETH
+  If the reserve accepts native currency, for example, if you're on a reserve with asset
+  WETH, it can also accept ETH
   """
   acceptsNative: NativeCurrency
 
@@ -1321,10 +1085,9 @@ type Reserve {
   """
   Extra incentives for this reserve — covers three sources:
   
-  - Legacy Merit program (ACI-owned, on-chain RewardsController).
+  - Legacy Merit program (on-chain RewardsController).
   - Aave native incentives (governance-owned, on-chain RewardsController).
-  - Aave-owned Merkl reward campaigns (managed via the `/rewards/*` Slack
-  bot; linked to Merkl off-chain).
+  - Aave-owned Merkl reward campaigns.
   
   When the surrounding `Reserve` query carries a user, eligibility for
   the owned Merkl variants is evaluated against that user's V3 positions.
@@ -1373,8 +1136,9 @@ type ReserveBorrowInfo {
   variableRateSlope2: PercentValue!
 
   """
-  The optimal usage rate - the utilization rate at which the variable rate curve transitions
-  from slope1 to slope2. This represents the target utilization rate for the reserve
+  The optimal usage rate - the utilization rate at which the variable rate curve
+  transitions from slope1 to slope2. This represents the target utilization rate for the
+  reserve
   """
   optimalUsageRate: PercentValue!
 
@@ -1715,24 +1479,22 @@ type SupplyPointsIncentive {
   userEligible: Boolean!
 
   """
-  `Campaign` for Merkl-backed programs; `Loyalty` for fixed-multiplier
+  `CAMPAIGN` for Merkl-backed programs; `LOYALTY` for fixed-multiplier
   partner programs (Ethena, Ether.fi). Clients gate UI on this rather
-  than checking whether `daily_points` is null.
+  than checking whether `dailyPoints` is null.
   """
   kind: PointsProgramKind!
 
   """
-  Daily points emitted across the entire reserve, surfaced from the
-  Merkl campaign's `rewardsRecord.breakdowns[].value`. Used by the V3
-  interface to render "X points / $1K / day" next to the reserve.
-  Always null for `kind = Loyalty`.
+  Daily points emitted across the entire reserve.
+  Always null for `kind = LOYALTY`.
   """
   dailyPoints: Float
 
   """
-  Daily points normalized per $1K of TVL: `daily_points / tvl * 1000`.
+  Daily points normalized per $1K of TVL: `dailyPoints / tvl * 1000`.
   Computed server-side so the interface does not have to fetch TVL.
-  Always null for `kind = Loyalty`.
+  Always null for `kind = LOYALTY`.
   """
   pointsPerThousandUsd: Float
   description: String
@@ -1759,6 +1521,12 @@ input SupplyRequest {
 
   """The chain id"""
   chainId: ChainId!
+
+  """
+  The integrator's referral code, emitted on the Pool's `Supply` event. Omitted means no
+  referral (`0`).
+  """
+  referralCode: Int
 }
 
 enum TimeWindow {
@@ -1770,13 +1538,12 @@ enum TimeWindow {
 }
 
 type TokenAmount {
-  usdPerToken: BigDecimal!
-
   """The amount"""
   amount: DecimalValue!
 
   """The usd full amount"""
   usd: BigDecimal!
+  usdPerToken: BigDecimal!
 }
 
 """
@@ -2171,6 +1938,243 @@ type UserWithdrawTransaction {
   timestamp: DateTime!
 }
 
+type V3Query {
+  """The user's market transaction history"""
+  userTransactionHistory(request: UserTransactionHistoryRequest!): PaginatedUserTransactionHistoryResult!
+
+  """Chains the protocol supports"""
+  chains(filter: ChainsFilter! = ALL): [Chain!]!
+
+  """
+  Gets the amount delegated to the credit delegatee that can borrow on your behalf
+  """
+  creditDelegateeAllowance(request: CreditDelegateeAmountRequest!): TokenAmount!
+
+  """The usd exchange rates for different tokens on a given market"""
+  usdExchangeRates(request: UsdExchangeRatesRequest!): [UsdExchangeRate!]!
+
+  """Top up a balance for a user or yourself on the fork"""
+  forkTopUp(request: ForkTopUpRequest!): ForkTopUpResponse!
+
+  """Get if the API is healthy"""
+  health: Boolean!
+  healthFactorPreview(request: HealthFactorPreviewRequest!): HealthFactorPreviewResponse!
+
+  """Get the supply APY history"""
+  supplyAPYHistory(request: SupplyAPYHistoryRequest!): [APYSample!]!
+
+  """Get the borrow APY history"""
+  borrowAPYHistory(request: BorrowAPYHistoryRequest!): [APYSample!]!
+
+  """Get a market"""
+  market(request: MarketRequest!): Market
+
+  """Lists all the markets"""
+  markets(request: MarketsRequest!): [Market!]!
+
+  """Get the reserve for on a market"""
+  reserve(request: ReserveRequest!): Reserve
+
+  """
+  Merit APR incentive for depositing GHO into Savings GHO.
+  Returns null when no active savings GHO incentive campaign is running.
+  """
+  savingsGhoIncentive(chainId: ChainId): MeritSavingsGhoIncentive
+
+  """
+  The user's Merkl-claimable rewards on a chain, plus the claim
+  transaction. Canonical replacement for `userMeritRewards` — same
+  underlying data source, with an added `rewardIds` filter for
+  program-specific claims.
+  """
+  userRewards(request: UserRewardsRequest!): UserRewards
+
+  """
+  Legacy alias — returns the same data as `userRewards` but without the
+  `rewardIds` filter. Kept for backwards compatibility with existing
+  clients; new clients should use `userRewards`.
+  """
+  userMeritRewards(request: UserMeritRewardsRequest!): UserMeritRewards @deprecated(reason: "Use `userRewards` instead. This alias will be removed in a future release.")
+
+  """
+  Users saving GHO balance - note rewards are not paid out live onchain they paid out with the merit schema,
+  this can be claimed using `userMeritRewards`
+  """
+  savingsGhoBalance(request: SavingsGhoBalanceRequest!): TokenAmount!
+
+  """
+  Returns the current state of the sGHO ERC-4626 vault, including rates, totals, and
+  optionally the connected user's position.
+  """
+  sghoVault(request: SghoVaultRequest!): SghoVault!
+
+  """
+  Returns the number of sGHO shares that would be minted for a given GHO deposit amount.
+  """
+  sghoVaultPreviewDeposit(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """
+  Returns the amount of GHO that would be received for redeeming a given number of sGHO shares.
+  """
+  sghoVaultPreviewRedeem(request: SghoVaultPreviewRequest!): DecimalValue!
+
+  """Create the transaction to supply to a market"""
+  supply(request: SupplyRequest!): ExecutionPlan!
+
+  """Create the transaction to borrow from a market"""
+  borrow(request: BorrowRequest!): ExecutionPlan!
+
+  """Create the transaction to repay to a market"""
+  repay(request: RepayRequest!): ExecutionPlan!
+
+  """Create the transaction to withdraw from a market"""
+  withdraw(request: WithdrawRequest!): ExecutionPlan!
+
+  """Create the transaction to toggle eMode for a market"""
+  userSetEmode(request: UserSetEmodeRequest!): TransactionRequest!
+
+  """Enable/disable a specific supplied asset as collateral"""
+  collateralToggle(request: CollateralToggleRequest!): TransactionRequest!
+
+  """
+  liquidate a non-healthy position collateral-wise, with Health Factor below 1
+  """
+  liquidate(request: LiquidateRequest!): TransactionRequest!
+
+  """Approve a credit borrow delegator to be able to borrow on your behalf"""
+  approveBorrowCreditDelegation(request: ApproveBorrowCreditDelegatorRequest!): TransactionRequest!
+
+  """Deposit into savings GHO"""
+  savingsGhoDeposit(request: SavingsGhoDepositRequest!): ExecutionPlan!
+
+  """Withdraw sGHO (savings GHO) back to GHO"""
+  savingsGhoWithdraw(request: SavingsGhoWithdrawRequest!): ExecutionPlan!
+
+  """Build a transaction to deposit GHO into the sGHO ERC-4626 vault."""
+  sghoVaultDeposit(request: SghoVaultDepositRequest!): ExecutionPlan!
+
+  """
+  Build a transaction to redeem sGHO shares for GHO from the ERC-4626 vault.
+  """
+  sghoVaultRedeemShares(request: SghoVaultRedeemSharesRequest!): ExecutionPlan!
+
+  """
+  Build a transaction to migrate the user's full stkGHO position into the sGHO ERC-4626 vault.
+  """
+  stkGhoMigrate(request: StkGhoMigrateRequest!): ExecutionPlan!
+
+  """Generate EIP-712 typed data for EIP-2612 permit signature"""
+  permitTypedData(request: PermitRequest!): PermitTypedDataResponse!
+
+  """
+  This lets you know the API has processed the known transaction hash, as the API uses caching to make things as fast
+  as possible, it has an invalidation task, so sometimes if the receipt is complete, we may still (rarely) serve
+  old data for 100-200ms longer, it's best to query after you got the receipt to be told that it is ready to go.
+  Note the invalidation is very quick, and most of the time it's present even before your receipt is returned this is to
+  cater for the race condition.
+  """
+  hasProcessedKnownTransaction(request: HasProcessedKnownTransactionRequest!): Boolean!
+
+  """Get a vault"""
+  vault(request: VaultRequest!): Vault
+
+  """Get vaults"""
+  vaults(request: VaultsRequest!): PaginatedVaultsResult!
+
+  """User vaults they have shares in"""
+  userVaults(request: UserVaultsRequest!): PaginatedVaultsResult!
+
+  """User vault transaction history"""
+  vaultUserTransactionHistory(request: VaultUserTransactionHistoryRequest!): PaginatedVaultUserTransactionHistoryResult!
+
+  """
+  Vault user activity for a given vault and user, within a specified time window.
+  """
+  vaultUserActivity(request: VaultUserActivityRequest!): VaultUserActivityResult!
+
+  """Get a vault recipients configuration"""
+  vaultRecipientConfiguration(request: VaultRecipientConfigurationRequest!): VaultFeesRecipientsConfiguration
+
+  """
+  This will return you the amount of shares that would be minted to the receiver
+  """
+  vaultPreviewDeposit(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be deposited by the caller
+  """
+  vaultPreviewMint(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the number of shares burnt based on the amount of assets you want to
+  withdraw
+  """
+  vaultPreviewWithdraw(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  This will return you the amount of assets that would be withdrawn by the receiver.
+  """
+  vaultPreviewRedeem(request: VaultOperationPreviewRequest!): TokenAmount!
+
+  """
+  Deposits assets (underlying tokens or its related aTokens) into the vault and mints a corresponding amount of vault shares to the receiver.
+  """
+  vaultDeposit(request: VaultDepositRequest!): ExecutionPlan!
+
+  """
+  Mints an exact amount of shares (vault shares) to the receiver by depositing the calculated amount of underlying or aTokens assets.
+  """
+  vaultMintShares(request: VaultMintSharesRequest!): ExecutionPlan!
+
+  """
+  Withdraws assets (underlying tokens or its related aTokens) from the vault and sends them to the receiver. The corresponding vault shares are burned from the owner.
+  """
+  vaultWithdraw(request: VaultWithdrawRequest!): TransactionRequest!
+
+  """
+  Redeems shares (vault shares) for the underlying assets or a tokens, which are sent to the receiver. The shares are burned from the owner.
+  """
+  vaultRedeemShares(request: VaultRedeemSharesRequest!): TransactionRequest!
+
+  """Deploy a vault and earn fees from the yield"""
+  vaultDeploy(request: VaultDeployRequest!): ExecutionPlan!
+
+  """
+  Update a vault's fee. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultSetFee(request: VaultSetFeeRequest!): TransactionRequest!
+
+  """
+  Withdraws accumulated fees from the specified vault. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultWithdrawFees(request: VaultWithdrawFeesRequest!): TransactionRequest!
+
+  """
+  Update a vault owner. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultTransferOwnership(request: VaultTransferOwnershipRequest!): TransactionRequest!
+
+  """
+  Deploy a new recipients configuration contract for fee distribution.
+  You MUST be the owner of the vault to send this tx request.
+  """
+  vaultCreateRecipientsConfiguration(request: VaultCreateRecipientsConfigurationRequest!): TransactionRequest!
+
+  """
+  Set the recipients configuration for the vault. You MUST be the owner of the vault to send this tx request.
+  """
+  vaultSetRecipientsConfiguration(request: VaultSetRecipientsConfigurationRequest!): TransactionRequest!
+
+  """Get all the user borrows positions"""
+  userBorrows(request: UserBorrowsRequest!): [MarketUserReserveBorrowPosition!]!
+
+  """Returns the user account market data across all the reserves."""
+  userMarketState(request: UserMarketStateRequest!): MarketUserState!
+
+  """Get all the user supplies positions"""
+  userSupplies(request: UserSuppliesRequest!): [MarketUserReserveSupplyPosition!]!
+}
+
 type Vault {
   """The vault address"""
   address: EvmAddress!
@@ -2191,7 +2195,8 @@ type Vault {
   totalFeeRevenue: TokenAmount!
 
   """
-  The last recorded balance of the vault's AToken. This value is updated when yield is accrued.
+  The last recorded balance of the vault's AToken. This value is updated when yield is
+  accrued.
   """
   balance: TokenAmount!
 
@@ -2212,7 +2217,8 @@ type Vault {
 
   """
   The recipient configuration for distributing the vault fees.
-  Returns None if the vault doesn't have any recipients configured (in which case the owner is the sole fee recipient)
+  Returns None if the vault doesn't have any recipients configured (in which case the owner
+  is the sole fee recipient)
   """
   recipients: VaultFeesRecipientsConfiguration
 }
@@ -2279,7 +2285,8 @@ input VaultDepositAmountInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The depositor's EIP-712 signature over the vault's nonce, which lets another wallet send
+  the deposit. The vault still needs an allowance for the assets.
   """
   permitSig: ERC712Signature
 }
@@ -2331,7 +2338,7 @@ type VaultFeesRecipientsConfiguration {
 }
 
 input VaultInput {
-  """The address of the fault"""
+  """The address of the vault"""
   address: EvmAddress!
 
   """The chain id the vault is on"""
@@ -2342,11 +2349,12 @@ input VaultMintShareInput {
   """The amount of vault shares"""
   amount: BigDecimal!
 
-  """Whether the amount should be received as aToken."""
+  """Whether to pay for the shares in aTokens rather than the underlying."""
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The minter's EIP-712 signature over the vault's nonce, which lets another wallet send the
+  mint. The vault still needs an allowance for the assets.
   """
   permitSig: ERC712Signature
 }
@@ -2413,7 +2421,8 @@ input VaultRedeemShareInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The shares owner's EIP-712 signature over the vault's nonce, which lets another wallet
+  send the redemption.
   """
   permitSig: ERC712Signature
 }
@@ -2452,7 +2461,8 @@ input VaultRequest {
   chainId: ChainId!
 
   """
-  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and
+  other user features
   """
   user: EvmAddress
 }
@@ -2462,7 +2472,8 @@ input VaultRequestBy @oneOf {
   address: EvmAddress
 
   """
-  You can use this if you deployed a vault and want to get the vault information using the tx hash after the receipt is given
+  You can use this if you deployed a vault and want to get the vault information using the
+  tx hash after the receipt is given
   """
   txHash: TxHash
 }
@@ -2556,7 +2567,7 @@ enum VaultUserHistoryAction {
 }
 
 input VaultUserTransactionHistoryOrderBy @oneOf {
-  """Order by shares"""
+  """Order by the date of the transaction"""
   date: OrderDirection
 }
 
@@ -2602,7 +2613,8 @@ input VaultWithdrawAmountInput {
   asAToken: Boolean! = false
 
   """
-  The signed ERC20 permit message to operate on the relevant token without need for an ERC20 Approval transaction.
+  The shares owner's EIP-712 signature over the vault's nonce, which lets another wallet
+  send the withdrawal.
   """
   permitSig: ERC712Signature
 }
@@ -2654,7 +2666,8 @@ input VaultsRequest {
   criteria: VaultsRequestFilterCriteria!
 
   """
-  The user viewing it (can be connected wallet) - this caters for stuff like userShares and other user features
+  The user viewing it (can be connected wallet) - this caters for stuff like userShares and
+  other user features
   """
   user: EvmAddress
 
@@ -2730,3 +2743,4 @@ input WithdrawRequest {
   """The chain id"""
   chainId: ChainId!
 }
+
