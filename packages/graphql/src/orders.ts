@@ -1,5 +1,6 @@
 import {
   CancelOrderExecutionPlanFragment,
+  LeverageQuoteResultFragment,
   OrderExecutionPlanFragment,
   OrderStatusFragment,
   PaginatedOrdersResultFragment,
@@ -7,6 +8,29 @@ import {
   PrepareOrderResultFragment,
 } from './fragments';
 import { graphql, type RequestOf } from './graphql';
+
+/**
+ * @internal
+ */
+export const LeverageQuoteQuery = graphql(
+  `query LeverageQuote($request: LeverageQuoteRequest!) {
+    value: leverageQuote(request: $request) {
+      ...LeverageQuoteResult
+    }
+  }`,
+  [LeverageQuoteResultFragment],
+);
+export type LeverageQuoteRequest = RequestOf<typeof LeverageQuoteQuery>;
+
+export type MarketLeverageQuoteInput = ReturnType<
+  typeof graphql.scalar<'MarketLeverageQuoteInput'>
+>;
+export type LimitLeverageQuoteInput = ReturnType<
+  typeof graphql.scalar<'LimitLeverageQuoteInput'>
+>;
+export type FromQuoteLeverageQuoteInput = ReturnType<
+  typeof graphql.scalar<'FromQuoteLeverageQuoteInput'>
+>;
 
 /**
  * @internal

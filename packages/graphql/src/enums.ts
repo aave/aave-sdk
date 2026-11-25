@@ -105,6 +105,14 @@ export enum SwapOrderClass {
 }
 
 /**
+ * Whether a leverage order is a market or a limit order.
+ */
+export enum OrderClass {
+  Market = 'MARKET',
+  Limit = 'LIMIT',
+}
+
+/**
  * Which supply a supply swap holds exact: the one sold, or the one supplied instead.
  */
 export enum SupplySwapKind {

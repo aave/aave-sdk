@@ -8,6 +8,9 @@ import {
   type CancelOrderRequest,
   type InsufficientBalanceError,
   type InsufficientLiquidityError,
+  type LeverageApprovalsRequired,
+  LeverageQuoteQuery,
+  type LeverageQuoteRequest,
   type OrderReceipt,
   type OrderStatus,
   OrderStatusQuery,
@@ -247,6 +250,43 @@ export function repayWithSupplyQuote(
   return client
     .query(RepayWithSupplyQuoteQuery, { request })
     .andThen(positionSwapQuote);
+}
+
+/**
+ * Fetches a leverage quote for opening or increasing a leveraged position.
+ *
+ * ```ts
+ * const result = await leverageQuote(client, {
+ *   market: {
+ *     debtReserve: reserveId({ chainId, market, underlyingToken: usdc }),
+ *     collateralReserve: reserveId({ chainId, market, underlyingToken: weth }),
+ *     multiplier: bigDecimal('2.5'),
+ *     user: evmAddress('0x742d35cc…'),
+ *   },
+ * });
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - A `market`, `limit` or `fromQuote` quote request.
+ * @returns The leverage quote with approvals and the multiplier range it allows.
+ */
+export function leverageQuote(
+  client: AaveClient,
+  request: LeverageQuoteRequest,
+): ResultAsync<LeverageApprovalsRequired, SwapQuoteError | UnexpectedError> {
+  return client.query(LeverageQuoteQuery, { request }).andThen((result) => {
+    switch (result.__typename) {
+      case 'LeverageApprovalsRequired':
+        return okAsync(result);
+
+      case 'InsufficientLiquidityError':
+      case 'AmountTooSmallError':
+        return ValidationError.fromGqlNode(result).asResultAsync();
+
+      default:
+        return unsupported(result);
+    }
+  });
 }
 
 /**
