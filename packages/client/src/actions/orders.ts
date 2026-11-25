@@ -1,4 +1,10 @@
-import { UnexpectedError, ValidationError } from '@aave/core';
+import {
+  DEFAULT_SWAP_STATUS_INTERVAL,
+  delay,
+  TimeoutError,
+  UnexpectedError,
+  ValidationError,
+} from '@aave/core';
 import {
   type AmountTooSmallError,
   BorrowSwapQuoteQuery,
@@ -11,6 +17,9 @@ import {
   type LeverageApprovalsRequired,
   LeverageQuoteQuery,
   type LeverageQuoteRequest,
+  type OrderCancelled,
+  type OrderExpired,
+  type OrderFulfilled,
   type OrderReceipt,
   type OrderStatus,
   OrderStatusQuery,
@@ -45,7 +54,7 @@ import {
   WithdrawSwapQuoteQuery,
   type WithdrawSwapQuoteRequest,
 } from '@aave/graphql';
-import { okAsync, type ResultAsync, type TypedSelectionSet } from '@aave/types';
+import { okAsync, ResultAsync, type TypedSelectionSet } from '@aave/types';
 import type { AaveClient } from '../AaveClient';
 
 /**
@@ -410,6 +419,68 @@ export function orderStatus(
   request: OrderStatusRequest,
 ): ResultAsync<OrderStatus | null, UnexpectedError> {
   return client.query(OrderStatusQuery, { request });
+}
+
+/**
+ * An order in a final state.
+ */
+export type OrderOutcome = OrderFulfilled | OrderCancelled | OrderExpired;
+
+/**
+ * Polls an order's status until it is fulfilled, cancelled or expired.
+ *
+ * ```ts
+ * const result = await submitOrder(client, request).andThen(
+ *   waitForOrderOutcome(client),
+ * );
+ * ```
+ *
+ * @param client - Aave client.
+ * @returns A function from the order receipt to the order's final status.
+ */
+export function waitForOrderOutcome(
+  client: AaveClient,
+): (
+  receipt: OrderReceipt,
+) => ResultAsync<OrderOutcome, TimeoutError | UnexpectedError> {
+  const { indexingTimeout, swapStatusInterval } = client.context.environment;
+
+  return (receipt: OrderReceipt) => {
+    const poll = async (): Promise<OrderOutcome> => {
+      const startedAt = Date.now();
+
+      while (Date.now() - startedAt < indexingTimeout) {
+        const status = await orderStatus(client, {
+          id: receipt.orderId,
+        }).match(
+          (ok) => ok,
+          (err) => {
+            throw err;
+          },
+        );
+
+        switch (status?.__typename) {
+          case 'OrderFulfilled':
+          case 'OrderCancelled':
+          case 'OrderExpired':
+            return status;
+
+          default:
+            await delay(swapStatusInterval ?? DEFAULT_SWAP_STATUS_INTERVAL);
+        }
+      }
+
+      throw TimeoutError.from(
+        `Timeout waiting for order ${receipt.orderId} to reach a final state.`,
+      );
+    };
+
+    return ResultAsync.fromPromise(poll(), (error) =>
+      error instanceof TimeoutError || error instanceof UnexpectedError
+        ? error
+        : UnexpectedError.from(error),
+    );
+  };
 }
 
 /**
