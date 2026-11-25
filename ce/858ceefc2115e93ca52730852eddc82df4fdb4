@@ -1,0 +1,33 @@
+packages/react/src/order/helpers.ts
+  s_7dc6c1464bb543::t_76c164430815f8 15,83-85,93-94,97,108,117
+packages/react/src/order/usePositionSwapOrder.ts
+  s_7dc6c1464bb543::t_76c164430815f8 41-47
+packages/react/src/order/useTokenSwapOrder.ts
+  s_7dc6c1464bb543::t_76c164430815f8 25-28
+packages/react/src/order/index.ts
+  s_7dc6c1464bb543::t_76c164430815f8 8
+packages/react/src/order/orders.test.ts
+  s_7dc6c1464bb543::t_76c164430815f8 4,36,39,163,166,433-508
+packages/react/src/order/useSwapQuotes.ts
+  s_7dc6c1464bb543::t_76c164430815f8 1-10,14-17,26,33,39,41,45-52,216-336
+packages/react/src/order/useLeverage.ts
+  s_7dc6c1464bb543::t_76c164430815f8 1-72
+.changeset/brisk-quotes-act.md
+  s_7dc6c1464bb543::t_0cc78556fb52cc 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce858ceefc2115e93ca52730852eddc82df4fdb4",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
