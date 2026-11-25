@@ -12,6 +12,7 @@ import { prepareOrder, submitOrder } from '@aave/client/actions';
 import type {
   Erc20Approval,
   InsufficientBalanceError,
+  OrderApproval,
   OrderReceipt,
   OrderTransactionRequest,
   OrderTypedData,
@@ -79,7 +80,9 @@ type Approvals = Pick<
 /**
  * Runs a quote's approvals in order, keeping the signatures `prepareOrder` takes.
  */
-export function approve<TApproval extends Erc20Approval | PositionSwapApproval>(
+export function approve<
+  TApproval extends Erc20Approval | PositionSwapApproval | OrderApproval,
+>(
   approvals: ReadonlyArray<TApproval>,
   handler: OrderHandler<TApproval>,
 ): ResultAsync<Approvals, OrderHandlerError> {
@@ -87,9 +90,11 @@ export function approve<TApproval extends Erc20Approval | PositionSwapApproval>(
     (previous, approval) =>
       previous.andThen((collected) =>
         handler(approval).andThen((result) => {
-          const step: Erc20Approval | PositionSwapApproval = approval;
+          const step: Erc20Approval | PositionSwapApproval | OrderApproval =
+            approval;
           switch (step.__typename) {
             case 'Erc20Approval':
+            case 'OrderErc20Approval':
               if (isSignature(result) && step.byPermit) {
                 const permitSig: Approvals['permitSig'] = {
                   value: result,
@@ -100,6 +105,7 @@ export function approve<TApproval extends Erc20Approval | PositionSwapApproval>(
               return transactionFrom(result).map(() => collected);
 
             case 'PositionSwapAdapterContractApproval':
+            case 'OrderAdapterApproval':
               return trySignatureFrom(result).map(
                 (adapterContractSignature) => ({
                   ...collected,
@@ -108,6 +114,7 @@ export function approve<TApproval extends Erc20Approval | PositionSwapApproval>(
               );
 
             case 'PositionSwapAdapterTransactionApproval':
+            case 'OrderAdapterTransactionApproval':
               return transactionFrom(result).map(() => collected);
           }
         }),

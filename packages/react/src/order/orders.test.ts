@@ -1,6 +1,7 @@
 import type { TransactionExecutionResult } from '@aave/client';
 import {
   CancelOrderMutation,
+  LeverageQuoteQuery,
   OrderStatusQuery,
   PrepareCancelOrderQuery,
   PrepareOrderQuery,
@@ -32,8 +33,10 @@ import {
 import { renderHookWithinContext } from '../test-utils';
 import type { OrderHandlerResult } from './helpers';
 import { useCancelOrder } from './useCancelOrder';
+import { useLeverage } from './useLeverage';
 import { useOrderStatus } from './useOrderStatus';
 import { useSupplySwapOrder } from './usePositionSwapOrder';
+import { useSupplySwapQuoteAction } from './useSwapQuotes';
 import { useTokenSwapOrder } from './useTokenSwapOrder';
 
 const user = evmAddress('0x000000000000000000000000000000000000dEaD');
@@ -157,8 +160,10 @@ const handler = vi.fn(
     switch (plan.__typename) {
       case 'OrderTypedData':
       case 'PositionSwapAdapterContractApproval':
+      case 'OrderAdapterApproval':
         return okAsync(signature);
       case 'Erc20Approval':
+      case 'OrderErc20Approval':
         return 'byPermit' in plan && plan.byPermit
           ? okAsync(signature)
           : okAsync(mined);
@@ -423,6 +428,82 @@ describe('Given the order hooks', () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(countOf(OrderStatusQuery)).toBe(3);
+    });
+  });
+
+  describe(`When '${useLeverage.name}' gets a permit and an adapter approval`, () => {
+    it('Then it prepares with both signatures and the quote id', async () => {
+      server.use(
+        respond(LeverageQuoteQuery, {
+          __typename: 'LeverageApprovalsRequired',
+          quote: { ...quote, __typename: 'OrderQuote', quoteId: 'lev-quote' },
+          approvals: [
+            {
+              __typename: 'OrderErc20Approval',
+              byTransaction: transaction,
+              byPermit: permit,
+            },
+            { __typename: 'OrderAdapterApproval', bySignature: typedData },
+          ],
+          minMultiplier: '1',
+          maxSafeMultiplier: '4',
+        }),
+        respond(PrepareOrderQuery, {
+          __typename: 'PreparedOrder',
+          newQuoteId: 'rotated',
+          data: typedData,
+        }),
+        respondMutation(SubmitOrderMutation, receipt),
+      );
+      const { result } = renderHookWithinContext(() => useLeverage(handler));
+
+      const outcome = await act(() =>
+        result.current[0]({
+          market: {
+            debtReserve: 'debt' as never,
+            collateralReserve: 'collateral' as never,
+            user,
+          },
+        }),
+      );
+
+      expect(outcome._unsafeUnwrap()).toMatchObject({ orderId: 'order-1' });
+      expect(requestOf(PrepareOrderQuery)).toEqual({
+        quoteId: 'lev-quote',
+        permitSig: { value: signature, deadline: 42 },
+        adapterContractSignature: signature,
+      });
+    });
+  });
+
+  describe(`When '${useSupplySwapQuoteAction.name}' runs`, () => {
+    it('Then it resolves to the quote alone', async () => {
+      server.use(
+        respond(SupplySwapQuoteQuery, {
+          __typename: 'PositionSwapByIntentApprovalsRequired',
+          quote,
+          approvals: [],
+        }),
+      );
+      const { result } = renderHookWithinContext(() =>
+        useSupplySwapQuoteAction(),
+      );
+
+      const outcome = await act(() =>
+        result.current[0]({
+          market: {
+            sellPosition: 'supply' as never,
+            buyReserve: 'reserve' as never,
+            amount: bigDecimal('1'),
+            user,
+          },
+        }),
+      );
+
+      expect(outcome._unsafeUnwrap()).toMatchObject({
+        __typename: 'SwapQuote',
+        orderQuoteId: 'order-quote',
+      });
     });
   });
 });

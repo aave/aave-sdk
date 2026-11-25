@@ -22,6 +22,10 @@ export type TokenSwapOrderPlan =
   | OrderTypedData
   | OrderTransactionRequest;
 
+export type TokenSwapOrderHandler = OrderHandler<TokenSwapOrderPlan>;
+
+export type UseTokenSwapOrderRequest = TokenSwapQuoteRequest;
+
 /**
  * Quotes a token swap from the wallet and executes it as an order.
  *

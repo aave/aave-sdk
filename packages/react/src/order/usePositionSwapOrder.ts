@@ -38,6 +38,13 @@ export type PositionSwapOrderPlan =
 
 export type PositionSwapOrderError = OrderError | SwapQuoteError;
 
+export type PositionOrderHandler = OrderHandler<PositionSwapOrderPlan>;
+
+export type UseSupplySwapOrderRequest = SupplySwapQuoteRequest;
+export type UseWithdrawSwapOrderRequest = WithdrawSwapQuoteRequest;
+export type UseBorrowSwapOrderRequest = BorrowSwapQuoteRequest;
+export type UseRepayWithSupplyOrderRequest = RepayWithSupplyQuoteRequest;
+
 function usePositionSwapOrder<TRequest>(
   quote: (
     client: AaveClient,

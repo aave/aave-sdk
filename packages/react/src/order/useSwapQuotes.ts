@@ -1,6 +1,20 @@
+import type { UnexpectedError } from '@aave/client';
+import {
+  borrowSwapQuote,
+  leverageQuote,
+  repayWithSupplyQuote,
+  type SwapQuoteError,
+  supplySwapQuote,
+  tokenSwapQuote,
+  withdrawSwapQuote,
+} from '@aave/client/actions';
 import {
   BorrowSwapQuoteQuery,
   type BorrowSwapQuoteRequest,
+  type LeverageApprovalsRequired,
+  LeverageQuoteQuery,
+  type LeverageQuoteRequest,
+  type LeverageQuoteResult,
   type PositionSwapQuoteResult,
   RepayWithSupplyQuoteQuery,
   type RepayWithSupplyQuoteRequest,
@@ -9,21 +23,32 @@ import {
   type SwapCurrency,
   SwappableTokensQuery,
   type SwappableTokensRequest,
+  type SwapQuote,
   TokenSwapQuoteQuery,
   type TokenSwapQuoteRequest,
   type TokenSwapQuoteResult,
   WithdrawSwapQuoteQuery,
   type WithdrawSwapQuoteRequest,
 } from '@aave/graphql';
+import { useAaveClient } from '../context';
 import type {
   ReadResult,
   Suspendable,
   SuspendableResult,
   SuspenseResult,
+  UseAsyncTask,
 } from '../helpers';
-import { useSuspendableQuery } from '../helpers';
+import { useAsyncTask, useSuspendableQuery } from '../helpers';
 
 type SuspenseArg = { suspense?: boolean };
+
+export type UseTokenSwapQuoteArgs = TokenSwapQuoteRequest;
+export type UseSupplySwapQuoteArgs = SupplySwapQuoteRequest;
+export type UseWithdrawSwapQuoteArgs = WithdrawSwapQuoteRequest;
+export type UseBorrowSwapQuoteArgs = BorrowSwapQuoteRequest;
+export type UseRepayWithSupplyQuoteArgs = RepayWithSupplyQuoteRequest;
+export type UseLeverageQuoteArgs = LeverageQuoteRequest;
+export type UseSwappableTokensArgs = SwappableTokensRequest;
 
 /**
  * Fetch a quote to swap one token for another from the wallet.
@@ -187,4 +212,125 @@ export function useSwappableTokens({
     variables: { request },
     suspense,
   });
+}
+
+/**
+ * Fetch a leverage quote, with the multiplier range it allows.
+ *
+ * The result is `LeverageApprovalsRequired` (quote, approvals, `minMultiplier`,
+ * `maxSafeMultiplier`), or `InsufficientLiquidityError` / `AmountTooSmallError`.
+ *
+ * ```tsx
+ * const { data, error, loading } = useLeverageQuote({
+ *   market: { debtReserve, collateralReserve, multiplier, user },
+ * });
+ * ```
+ */
+export function useLeverageQuote(
+  args: LeverageQuoteRequest & Suspendable,
+): SuspenseResult<LeverageQuoteResult>;
+export function useLeverageQuote(
+  args: LeverageQuoteRequest,
+): ReadResult<LeverageQuoteResult>;
+export function useLeverageQuote({
+  suspense = false,
+  ...request
+}: LeverageQuoteRequest & SuspenseArg): SuspendableResult<LeverageQuoteResult> {
+  return useSuspendableQuery({
+    document: LeverageQuoteQuery,
+    variables: { request: request as LeverageQuoteRequest },
+    suspense,
+  });
+}
+
+type QuoteActionError = SwapQuoteError | UnexpectedError;
+
+/**
+ * Fetch a token swap quote on demand, for example when the user stops typing.
+ *
+ * ```tsx
+ * const [getQuote, { loading, data, error }] = useTokenSwapQuoteAction();
+ * const result = await getQuote({ market: { … } });
+ * ```
+ */
+export function useTokenSwapQuoteAction(): UseAsyncTask<
+  TokenSwapQuoteRequest,
+  SwapQuote,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: TokenSwapQuoteRequest) =>
+    tokenSwapQuote(client, request).map((result) => result.quote),
+  );
+}
+
+/**
+ * Fetch a supply swap quote on demand. See {@link useTokenSwapQuoteAction}.
+ */
+export function useSupplySwapQuoteAction(): UseAsyncTask<
+  SupplySwapQuoteRequest,
+  SwapQuote,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: SupplySwapQuoteRequest) =>
+    supplySwapQuote(client, request).map((result) => result.quote),
+  );
+}
+
+/**
+ * Fetch a withdraw swap quote on demand. See {@link useTokenSwapQuoteAction}.
+ */
+export function useWithdrawSwapQuoteAction(): UseAsyncTask<
+  WithdrawSwapQuoteRequest,
+  SwapQuote,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: WithdrawSwapQuoteRequest) =>
+    withdrawSwapQuote(client, request).map((result) => result.quote),
+  );
+}
+
+/**
+ * Fetch a borrow swap quote on demand. See {@link useTokenSwapQuoteAction}.
+ */
+export function useBorrowSwapQuoteAction(): UseAsyncTask<
+  BorrowSwapQuoteRequest,
+  SwapQuote,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: BorrowSwapQuoteRequest) =>
+    borrowSwapQuote(client, request).map((result) => result.quote),
+  );
+}
+
+/**
+ * Fetch a repay-with-supply quote on demand. See {@link useTokenSwapQuoteAction}.
+ */
+export function useRepayWithSupplyQuoteAction(): UseAsyncTask<
+  RepayWithSupplyQuoteRequest,
+  SwapQuote,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: RepayWithSupplyQuoteRequest) =>
+    repayWithSupplyQuote(client, request).map((result) => result.quote),
+  );
+}
+
+/**
+ * Fetch a leverage quote on demand, keeping `minMultiplier` and
+ * `maxSafeMultiplier` to bound a multiplier input.
+ */
+export function useLeverageQuoteAction(): UseAsyncTask<
+  LeverageQuoteRequest,
+  LeverageApprovalsRequired,
+  QuoteActionError
+> {
+  const client = useAaveClient();
+  return useAsyncTask((request: LeverageQuoteRequest) =>
+    leverageQuote(client, request),
+  );
 }
