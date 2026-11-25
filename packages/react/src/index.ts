@@ -6,6 +6,7 @@ export * from './gho';
 export * from './incentives';
 export * from './markets';
 export * from './misc';
+export * from './order';
 export * from './reserves';
 export * from './transactions';
 export * from './user';
