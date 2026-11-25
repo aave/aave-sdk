@@ -1,0 +1,46 @@
+.changeset/steady-orders-poll.md
+  s_7dc6c1464bb543::t_cc1062995bc151 1-5
+packages/react/src/test-utils.tsx
+  s_7dc6c1464bb543::t_cbd9402442018b 30
+packages/react/src/order/useOrderStatus.ts
+  s_7dc6c1464bb543::t_20a515a6bde1e7 1,10-11,20-38,42-43,56-57,73-77,81,83-91,97-98,115-116,135-138,142,144-152
+packages/react/src/order/orders.test.ts
+  s_7dc6c1464bb543::t_cdef48c81c5b0c 334,336,357-375,380
+  s_7dc6c1464bb543::t_de0760f93b5cb1 138-154
+  s_7dc6c1464bb543::t_c46514c5d566ec 398-427
+  s_7dc6c1464bb543::t_ec6b1fde94fed4 4
+  s_7dc6c1464bb543::t_0cf88990952d01 20
+  s_7dc6c1464bb543::t_a54174f8afaffe 35
+packages/react/src/helpers/reads.ts
+  s_7dc6c1464bb543::t_7230c5fc60c308 101,110,112-118,121-123,126,129-130,132-135,142,144
+  s_7dc6c1464bb543::t_a17dc72c399d4a 3-9
+  s_7dc6c1464bb543::t_bd83c05dfd9617 66,68,73-78,81-84
+  s_7dc6c1464bb543::t_9ce5b7df568349 32-35
+  s_7dc6c1464bb543::t_1dc58f23964397 102-109,111,119-120,124-125,127-128,131,136-141,143
+packages/react/src/order/useCancelOrder.ts
+  s_7dc6c1464bb543::t_3c45ac3347bdd4 90
+  s_7dc6c1464bb543::t_6f2698c81022ba 21
+  s_7dc6c1464bb543::t_4f793d6ea66b21 14
+  s_7dc6c1464bb543::t_e329f6f7d9ed2b 122
+  s_7dc6c1464bb543::t_2a1e2cd4dab17e 2-7,25-43,46-47,63,67,72-83,86-89,91-100,103-105,108-116,118-121,123-125
+packages/react/src/order/helpers.ts
+  s_7dc6c1464bb543::t_a79691658c9bc2 151
+  s_7dc6c1464bb543::t_72005adf740120 103-108
+  s_7dc6c1464bb543::t_4e6c03baaa4e61 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ec44ce2128215c60e9ae43976ec76e9416324b5b",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
