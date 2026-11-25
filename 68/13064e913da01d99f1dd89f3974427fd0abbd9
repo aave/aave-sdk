@@ -1,0 +1,25 @@
+packages/react/src/order/helpers.ts
+  s_7dc6c1464bb543::t_0717205a5655ce 64
+packages/react/src/order/useCancelOrder.ts
+  s_7dc6c1464bb543::t_443e0a560d82b8 12-16
+  s_7dc6c1464bb543::t_134e740fe6c7a2 64-66
+  s_7dc6c1464bb543::t_e03d8f168908cd 67-71
+packages/react/src/order/orders.test.ts
+  s_7dc6c1464bb543::t_ff7124cec73c6d 338-356
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6813064e913da01d99f1dd89f3974427fd0abbd9",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
