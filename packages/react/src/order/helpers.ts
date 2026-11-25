@@ -61,7 +61,7 @@ function signatureFrom(
       ).asResultAsync();
 }
 
-function transactionFrom(
+export function transactionFrom(
   result: OrderHandlerResult,
 ): ResultAsync<TransactionExecutionResult, UnexpectedErrorType> {
   return isSignature(result)

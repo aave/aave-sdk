@@ -335,5 +335,24 @@ describe('Given the order hooks', () => {
         'TransactionRequest',
       ]);
     });
+
+    it('Then it fails when the handler signs the cancel transaction instead of sending it', async () => {
+      server.use(
+        respond(PrepareCancelOrderQuery, {
+          __typename: 'PrepareCancelOrderResult',
+          data: typedData,
+        }),
+        respondMutation(CancelOrderMutation, transaction),
+      );
+      const { result } = renderHookWithinContext(() =>
+        useCancelOrder(() => okAsync(signature)),
+      );
+
+      const outcome = await act(() =>
+        result.current[0]({ id: 'order-1' as never }),
+      );
+
+      expect(outcome._unsafeUnwrapErr().name).toBe('UnexpectedError');
+    });
   });
 });

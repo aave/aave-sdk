@@ -9,7 +9,11 @@ import type {
 import { okAsync } from '@aave/types';
 import { useAaveClient } from '../context';
 import { type UseAsyncTask, useAsyncTask } from '../helpers';
-import type { OrderHandler, OrderHandlerError } from './helpers';
+import {
+  type OrderHandler,
+  type OrderHandlerError,
+  transactionFrom,
+} from './helpers';
 
 /**
  * Cancels an order: signs the cancellation, and sends the cancel transaction
@@ -57,12 +61,14 @@ export function useCancelOrder(
               return okAsync(plan);
 
             case 'TransactionRequest':
-              return handler(plan).map(
-                (): OrderCancelledResult => ({
-                  __typename: 'OrderCancelledResult',
-                  orderId: request.id,
-                }),
-              );
+              return handler(plan)
+                .andThen(transactionFrom)
+                .map(
+                  (): OrderCancelledResult => ({
+                    __typename: 'OrderCancelledResult',
+                    orderId: request.id,
+                  }),
+                );
           }
         });
       }),
