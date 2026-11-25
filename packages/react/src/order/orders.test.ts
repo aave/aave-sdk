@@ -147,7 +147,7 @@ function respondStatuses(typenames: string[]) {
     const __typename = typenames[Math.min(calls, typenames.length - 1)];
     calls += 1;
     return HttpResponse.json({
-      data: { value: { __typename, orderId: 'order-1' } },
+      data: { value: { __typename, orderId: 'order-1' } as never },
     });
   });
 }
