@@ -9,6 +9,7 @@ export * from './misc';
 export * from './permits';
 export * from './rates';
 export * from './reserves';
+export * from './swaps';
 export * from './transactions';
 export * from './user';
 export * from './vaults';
