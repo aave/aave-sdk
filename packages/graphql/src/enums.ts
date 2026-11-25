@@ -73,3 +73,76 @@ export enum VaultUserActivityTimeWindow {
   LastYear = 'LAST_YEAR',
   Max = 'MAX',
 }
+
+/**
+ * The quote accuracy level for swap quotes.
+ */
+export enum QuoteAccuracy {
+  /**
+   * Faster response, potentially less accurate price.
+   */
+  Fast = 'FAST',
+  /**
+   * Verified price, potentially slower response.
+   */
+  Accurate = 'ACCURATE',
+}
+
+/**
+ * Which side of a token swap the amount names.
+ */
+export enum TokenSwapKind {
+  Buy = 'BUY',
+  Sell = 'SELL',
+}
+
+/**
+ * Whether an order is a market or a limit order.
+ */
+export enum SwapOrderClass {
+  Market = 'MARKET',
+  Limit = 'LIMIT',
+}
+
+/**
+ * Which supply a supply swap holds exact: the one sold, or the one supplied instead.
+ */
+export enum SupplySwapKind {
+  Current = 'CURRENT',
+  New = 'NEW',
+}
+
+/**
+ * Which leg a withdraw swap holds exact: the supply withdrawn, or the token bought.
+ */
+export enum WithdrawSwapKind {
+  Withdraw = 'WITHDRAW',
+  Buy = 'BUY',
+}
+
+/**
+ * Which debt a borrow swap amount names: the debt repaid, or the new debt.
+ */
+export enum BorrowSwapKind {
+  Current = 'CURRENT',
+  New = 'NEW',
+}
+
+/**
+ * Which leg a repay-with-supply amount names: the debt repaid, or the supply withdrawn.
+ */
+export enum RepayWithSupplyKind {
+  Repay = 'REPAY',
+  Supply = 'SUPPLY',
+}
+
+/**
+ * The order statuses to filter pending orders by.
+ */
+export enum OrderStatusFilter {
+  Open = 'OPEN',
+  PendingSignature = 'PENDING_SIGNATURE',
+  Fulfilled = 'FULFILLED',
+  Cancelled = 'CANCELLED',
+  Expired = 'EXPIRED',
+}

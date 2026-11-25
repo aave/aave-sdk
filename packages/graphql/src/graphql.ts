@@ -9,10 +9,16 @@ import type {
   DateTime,
   EvmAddress,
   ID,
+  OrderId,
+  OrderQuoteId,
+  ReserveId,
   RewardId,
   Signature,
+  SwapQuoteId,
   TxHash,
   TypedSelectionSet,
+  UserBorrowItemId,
+  UserSupplyItemId,
   Void,
 } from '@aave/types';
 import {
@@ -20,14 +26,23 @@ import {
   initGraphQLTada,
   type TadaDocumentNode,
 } from 'gql.tada';
+import type { JsonObject } from 'type-fest';
 import type {
+  BorrowSwapKind,
   ChainsFilter,
   OperationType,
   OrderDirection,
+  OrderStatusFilter,
   PageSize,
+  QuoteAccuracy,
+  RepayWithSupplyKind,
+  SupplySwapKind,
+  SwapOrderClass,
   TimeWindow,
+  TokenSwapKind,
   VaultUserActivityTimeWindow,
   VaultUserHistoryAction,
+  WithdrawSwapKind,
 } from './enums';
 import type { introspection } from './graphql-env';
 
@@ -42,6 +57,7 @@ export const graphql = initGraphQLTada<{
     BigInt: BigIntString;
     BlockchainData: BlockchainData;
     Boolean: boolean;
+    BorrowSwapKind: BorrowSwapKind;
     ChainsFilter: ChainsFilter;
     ChainId: ChainId;
     Cursor: Cursor;
@@ -50,15 +66,29 @@ export const graphql = initGraphQLTada<{
     Float: number;
     ID: ID;
     Int: number;
+    JSON: JsonObject;
     OperationType: OperationType;
     OrderDirection: OrderDirection;
+    OrderId: OrderId;
+    OrderQuoteId: OrderQuoteId;
+    OrderStatusFilter: OrderStatusFilter;
     PageSize: PageSize;
+    QuoteAccuracy: QuoteAccuracy;
+    RepayWithSupplyKind: RepayWithSupplyKind;
+    ReserveId: ReserveId;
     RewardId: RewardId;
     Signature: Signature;
     String: string;
+    SupplySwapKind: SupplySwapKind;
+    SwapOrderClass: SwapOrderClass;
+    SwapQuoteId: SwapQuoteId;
+    TokenSwapKind: TokenSwapKind;
     TxHash: TxHash;
+    UserBorrowItemId: UserBorrowItemId;
+    UserSupplyItemId: UserSupplyItemId;
     Void: Void;
     TimeWindow: TimeWindow;
+    WithdrawSwapKind: WithdrawSwapKind;
     VaultUserHistoryAction: VaultUserHistoryAction;
     VaultUserActivityTimeWindow: VaultUserActivityTimeWindow;
   };

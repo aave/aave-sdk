@@ -5,5 +5,6 @@ export * from './market';
 export * from './positions';
 export * from './rates';
 export * from './reserve';
+export * from './swaps';
 export * from './transactions';
 export * from './vaults';
