@@ -1,0 +1,19 @@
+package.json
+  s_1719a416b2ef29::t_da6704ff2abc9a 72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c176260b2738c61b1f2b96b3c33be909def38872",
+  "prompts": {},
+  "sessions": {
+    "s_1719a416b2ef29": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e21c6-67bb-7ac1-988e-ad6216789b18",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Sam Skynner <skynnes@gmail.com>"
+    }
+  }
+}

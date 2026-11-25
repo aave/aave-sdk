@@ -1,0 +1,26 @@
+AGENTS.md
+  h_be8c3c572e9983 34-52
+.changeset/golden-stake-add.md
+  s_7a0ef45087b98d::t_a3901d00218c28 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "dd16c472b71d644a3a7969bc0863275a9ccfbf14",
+  "prompts": {},
+  "humans": {
+    "h_be8c3c572e9983": {
+      "author": "Mark Grothe <grothem@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_7a0ef45087b98d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "52038a4b-eba8-4b7c-90fa-db365dd6778c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

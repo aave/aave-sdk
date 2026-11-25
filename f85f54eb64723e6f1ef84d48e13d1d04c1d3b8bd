@@ -1,0 +1,28 @@
+.changeset/brave-lions-refer.md
+  s_f5bb0a4b97ab33::t_9e4e71a107ae42 1-7
+packages/graphql/schema.graphql
+  s_f5bb0a4b97ab33::t_919b054dd764c4 2745-2746
+  s_f5bb0a4b97ab33::t_e99e44953009b2 726,731,744,757,778-779,788,948,950,954,1088,1090,1482,1484,1489-1490,1495,1497,1942,1958-1959,1979-1980,1982
+  s_f5bb0a4b97ab33::t_320f56f04dffe9 1-4,152-157,793,1040-1041,1139-1141,1524-1529,1546,1941,1943-1957,1960-1978,1981,1983-2177,2198-2199,2220-2221,2288-2289,2341,2352,2356-2357,2424-2425,2464-2465,2475-2476,2570,2616-2617,2669-2670
+packages/graphql/src/graphql-env.d.ts
+  s_f5bb0a4b97ab33::t_2bf38c5c745ddb 20,119,209
+  s_f5bb0a4b97ab33::t_1711772cdf256b 155
+packages/client/src/actions/transactions.ts
+  s_f5bb0a4b97ab33::t_5fff0f6a61518e 56,92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f85f54eb64723e6f1ef84d48e13d1d04c1d3b8bd",
+  "prompts": {},
+  "sessions": {
+    "s_f5bb0a4b97ab33": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f6191383-12a3-44b9-82e3-c60394b9936b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

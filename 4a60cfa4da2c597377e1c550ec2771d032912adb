@@ -1,0 +1,29 @@
+.changeset/privy-peer-dep.md
+  s_ed55447df9c49b::t_096637072c929c 1-5
+packages/client/package.json
+  s_875d7417c58a06::t_441b3354ef2a4d 82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4a60cfa4da2c597377e1c550ec2771d032912adb",
+  "prompts": {},
+  "sessions": {
+    "s_875d7417c58a06": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e3b2f-7b9d-7e71-8301-4aa5bc847842",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    },
+    "s_ed55447df9c49b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d3811f69-bfd5-4a50-9831-829d81a2534c",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

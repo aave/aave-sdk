@@ -1,0 +1,23 @@
+packages/graphql/src/gho.ts
+  s_98b83c106d0712::t_66c4e3ca1c3bf4 60-69
+packages/react/src/gho.ts
+  s_98b83c106d0712::t_66c4e3ca1c3bf4 7,21,426-462
+packages/client/src/actions/gho.ts
+  s_98b83c106d0712::t_66c4e3ca1c3bf4 22-23,186-210
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "751a0a871fb497fc171db6a39e2f75add507d83f",
+  "prompts": {},
+  "sessions": {
+    "s_98b83c106d0712": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ef3db-b194-7b90-b6a2-5681a854b6bf",
+        "model": "gpt-5.5"
+      },
+      "human_author": "AGMASO <agmguindo@gmail.com>"
+    }
+  }
+}

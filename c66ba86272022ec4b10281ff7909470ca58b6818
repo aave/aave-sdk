@@ -1,0 +1,19 @@
+.claude/skills/snapshot/SKILL.md
+  s_eb31d9b96a3251::t_98a91ae152da1f 29-31,46,51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c66ba86272022ec4b10281ff7909470ca58b6818",
+  "prompts": {},
+  "sessions": {
+    "s_eb31d9b96a3251": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2391c63a-d677-4a31-8d0d-c88fa4adc0bd",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

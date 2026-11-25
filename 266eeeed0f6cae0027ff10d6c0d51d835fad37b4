@@ -1,0 +1,21 @@
+.claude/skills/publish/SKILL.md
+  s_d75831270ae57a::t_d8375042ad170b 18
+  s_d75831270ae57a::t_29f1e58e88d979 50-53
+  s_d75831270ae57a::t_547de9741a78f4 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "266eeeed0f6cae0027ff10d6c0d51d835fad37b4",
+  "prompts": {},
+  "sessions": {
+    "s_d75831270ae57a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b5f0d183-1379-4eac-ad2a-10dc81cdabc5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

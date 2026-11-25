@@ -1,0 +1,37 @@
+packages/core/CHANGELOG.md
+  s_d75831270ae57a::t_d2d9ec25848206 3-9
+packages/types/CHANGELOG.md
+  s_d75831270ae57a::t_d2d9ec25848206 3-13
+packages/graphql/CHANGELOG.md
+  s_d75831270ae57a::t_d2d9ec25848206 3-20
+packages/core/package.json
+  s_d75831270ae57a::t_d2d9ec25848206 3
+packages/react/CHANGELOG.md
+  s_d75831270ae57a::t_d2d9ec25848206 3-23
+packages/react/package.json
+  s_d75831270ae57a::t_d2d9ec25848206 3
+packages/client/package.json
+  s_d75831270ae57a::t_d2d9ec25848206 3
+packages/types/package.json
+  s_d75831270ae57a::t_d2d9ec25848206 3
+packages/graphql/package.json
+  s_d75831270ae57a::t_d2d9ec25848206 3
+packages/client/CHANGELOG.md
+  s_d75831270ae57a::t_d2d9ec25848206 3-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1575b634ecf0a730f52a9d47561027fdaf1d050b",
+  "prompts": {},
+  "sessions": {
+    "s_d75831270ae57a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b5f0d183-1379-4eac-ad2a-10dc81cdabc5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}

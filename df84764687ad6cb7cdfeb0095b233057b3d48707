@@ -1,0 +1,14 @@
+package.json
+  h_be8c3c572e9983 72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "df84764687ad6cb7cdfeb0095b233057b3d48707",
+  "prompts": {},
+  "humans": {
+    "h_be8c3c572e9983": {
+      "author": "Mark Grothe <grothem@gmail.com>"
+    }
+  }
+}
