@@ -1,0 +1,26 @@
+packages/graphql/src/orders.ts
+  s_7dc6c1464bb543::t_f4346941be1c45 1-100
+packages/graphql/src/fragments/index.ts
+  s_7dc6c1464bb543::t_f4346941be1c45 5
+packages/graphql/src/index.ts
+  s_7dc6c1464bb543::t_f4346941be1c45 9
+packages/graphql/src/fragments/orders.ts
+  s_7dc6c1464bb543::t_3a26b7e1a7c361 1-20,27-28,30,32,38,42,44,46,55-56,58,227,237-238,240,242,258,390,412,418-419,421,425,434
+  s_7dc6c1464bb543::t_f4346941be1c45 21-26,29,31,33-37,39-41,43,45,47-54,57,59-226,228-236,239,241,243-257,259-389,391-411,413-417,420,422-424,426-433,435-454
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e52a4df7e2a6e797e432f36909823870b9ef6f14",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
