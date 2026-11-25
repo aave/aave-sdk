@@ -1,13 +1,19 @@
 import type { FragmentOf } from 'gql.tada';
 import { type FragmentDocumentFor, graphql } from '../graphql';
+import { PermitTypedDataResponseFragment } from '../permits';
 import {
   CurrencyFragment,
   type PaginatedResultInfo,
   PaginatedResultInfoFragment,
+  PercentValueFragment,
   TokenAmountFragment,
 } from './common';
 import { ReserveInfoFragment } from './reserve';
 import {
+  type AmountTooSmallError,
+  AmountTooSmallErrorFragment,
+  type InsufficientLiquidityError,
+  InsufficientLiquidityErrorFragment,
   OrderTypedDataFragment,
   SwapCurrencyFragment,
   UnpricedTokenAmountFragment,
@@ -451,4 +457,167 @@ export const CancelOrderExecutionPlanFragment: FragmentDocumentFor<
     }
   }`,
   [TransactionRequestFragment, OrderCancelledResultFragment],
+);
+
+export const OrderQuoteCostsFragment = graphql(
+  `fragment OrderQuoteCosts on OrderQuoteCosts {
+    __typename
+    networkCosts {
+      ...UnpricedTokenAmount
+    }
+    partnerFee {
+      ...UnpricedTokenAmount
+    }
+    flashloanFee {
+      ...UnpricedTokenAmount
+    }
+    providerFee {
+      ...UnpricedTokenAmount
+    }
+  }`,
+  [UnpricedTokenAmountFragment],
+);
+export type OrderQuoteCosts = FragmentOf<typeof OrderQuoteCostsFragment>;
+
+export const OrderQuoteFragment = graphql(
+  `fragment OrderQuote on OrderQuote {
+    __typename
+    accuracy
+    quoteId
+    suggestedSlippage {
+      ...PercentValue
+    }
+    selectedSlippage {
+      ...PercentValue
+    }
+    sell {
+      ...UnpricedTokenAmount
+    }
+    buy {
+      ...UnpricedTokenAmount
+    }
+    costs {
+      ...OrderQuoteCosts
+    }
+    finalSell {
+      ...UnpricedTokenAmount
+    }
+    finalBuy {
+      ...UnpricedTokenAmount
+    }
+    kind
+    class
+  }`,
+  [PercentValueFragment, UnpricedTokenAmountFragment, OrderQuoteCostsFragment],
+);
+export type OrderQuote = FragmentOf<typeof OrderQuoteFragment>;
+
+export const OrderAdapterApprovalFragment = graphql(
+  `fragment OrderAdapterApproval on OrderAdapterApproval {
+    __typename
+    bySignature {
+      ...OrderTypedData
+    }
+  }`,
+  [OrderTypedDataFragment],
+);
+export type OrderAdapterApproval = FragmentOf<
+  typeof OrderAdapterApprovalFragment
+>;
+
+export const OrderAdapterTransactionApprovalFragment = graphql(
+  `fragment OrderAdapterTransactionApproval on OrderAdapterTransactionApproval {
+    __typename
+    byTransaction {
+      ...TransactionRequest
+    }
+  }`,
+  [TransactionRequestFragment],
+);
+export type OrderAdapterTransactionApproval = FragmentOf<
+  typeof OrderAdapterTransactionApprovalFragment
+>;
+
+/**
+ * `bySignature` is aliased to `byPermit`, as in `Erc20Approval`.
+ */
+export const OrderErc20ApprovalFragment = graphql(
+  `fragment OrderErc20Approval on OrderErc20Approval {
+    __typename
+    byTransaction {
+      ...TransactionRequest
+    }
+    byPermit: bySignature {
+      ...PermitTypedDataResponse
+    }
+  }`,
+  [TransactionRequestFragment, PermitTypedDataResponseFragment],
+);
+export type OrderErc20Approval = FragmentOf<typeof OrderErc20ApprovalFragment>;
+
+export const OrderApprovalFragment = graphql(
+  `fragment OrderApproval on OrderApproval {
+    __typename
+    ... on OrderAdapterApproval {
+      ...OrderAdapterApproval
+    }
+    ... on OrderAdapterTransactionApproval {
+      ...OrderAdapterTransactionApproval
+    }
+    ... on OrderErc20Approval {
+      ...OrderErc20Approval
+    }
+  }`,
+  [
+    OrderAdapterApprovalFragment,
+    OrderAdapterTransactionApprovalFragment,
+    OrderErc20ApprovalFragment,
+  ],
+);
+export type OrderApproval = FragmentOf<typeof OrderApprovalFragment>;
+
+export const LeverageApprovalsRequiredFragment = graphql(
+  `fragment LeverageApprovalsRequired on LeverageApprovalsRequired {
+    __typename
+    quote {
+      ...OrderQuote
+    }
+    approvals {
+      ...OrderApproval
+    }
+    minMultiplier
+    maxSafeMultiplier
+  }`,
+  [OrderQuoteFragment, OrderApprovalFragment],
+);
+export type LeverageApprovalsRequired = FragmentOf<
+  typeof LeverageApprovalsRequiredFragment
+>;
+
+export type LeverageQuoteResult =
+  | LeverageApprovalsRequired
+  | InsufficientLiquidityError
+  | AmountTooSmallError;
+
+export const LeverageQuoteResultFragment: FragmentDocumentFor<
+  LeverageQuoteResult,
+  'LeverageQuoteResult'
+> = graphql(
+  `fragment LeverageQuoteResult on LeverageQuoteResult {
+    __typename
+    ... on LeverageApprovalsRequired {
+      ...LeverageApprovalsRequired
+    }
+    ... on InsufficientLiquidityError {
+      ...InsufficientLiquidityError
+    }
+    ... on AmountTooSmallError {
+      ...AmountTooSmallError
+    }
+  }`,
+  [
+    LeverageApprovalsRequiredFragment,
+    InsufficientLiquidityErrorFragment,
+    AmountTooSmallErrorFragment,
+  ],
 );

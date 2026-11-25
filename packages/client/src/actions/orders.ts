@@ -1,4 +1,10 @@
-import { UnexpectedError, ValidationError } from '@aave/core';
+import {
+  DEFAULT_SWAP_STATUS_INTERVAL,
+  delay,
+  TimeoutError,
+  UnexpectedError,
+  ValidationError,
+} from '@aave/core';
 import {
   type AmountTooSmallError,
   BorrowSwapQuoteQuery,
@@ -8,6 +14,12 @@ import {
   type CancelOrderRequest,
   type InsufficientBalanceError,
   type InsufficientLiquidityError,
+  type LeverageApprovalsRequired,
+  LeverageQuoteQuery,
+  type LeverageQuoteRequest,
+  type OrderCancelled,
+  type OrderExpired,
+  type OrderFulfilled,
   type OrderReceipt,
   type OrderStatus,
   OrderStatusQuery,
@@ -42,7 +54,7 @@ import {
   WithdrawSwapQuoteQuery,
   type WithdrawSwapQuoteRequest,
 } from '@aave/graphql';
-import { okAsync, type ResultAsync, type TypedSelectionSet } from '@aave/types';
+import { okAsync, ResultAsync, type TypedSelectionSet } from '@aave/types';
 import type { AaveClient } from '../AaveClient';
 
 /**
@@ -250,6 +262,43 @@ export function repayWithSupplyQuote(
 }
 
 /**
+ * Fetches a leverage quote for opening or increasing a leveraged position.
+ *
+ * ```ts
+ * const result = await leverageQuote(client, {
+ *   market: {
+ *     debtReserve: reserveId({ chainId, market, underlyingToken: usdc }),
+ *     collateralReserve: reserveId({ chainId, market, underlyingToken: weth }),
+ *     multiplier: bigDecimal('2.5'),
+ *     user: evmAddress('0x742d35cc…'),
+ *   },
+ * });
+ * ```
+ *
+ * @param client - Aave client.
+ * @param request - A `market`, `limit` or `fromQuote` quote request.
+ * @returns The leverage quote with approvals and the multiplier range it allows.
+ */
+export function leverageQuote(
+  client: AaveClient,
+  request: LeverageQuoteRequest,
+): ResultAsync<LeverageApprovalsRequired, SwapQuoteError | UnexpectedError> {
+  return client.query(LeverageQuoteQuery, { request }).andThen((result) => {
+    switch (result.__typename) {
+      case 'LeverageApprovalsRequired':
+        return okAsync(result);
+
+      case 'InsufficientLiquidityError':
+      case 'AmountTooSmallError':
+        return ValidationError.fromGqlNode(result).asResultAsync();
+
+      default:
+        return unsupported(result);
+    }
+  });
+}
+
+/**
  * Fetches the tokens a wallet swap may list, native and ERC-20.
  *
  * ```ts
@@ -370,6 +419,68 @@ export function orderStatus(
   request: OrderStatusRequest,
 ): ResultAsync<OrderStatus | null, UnexpectedError> {
   return client.query(OrderStatusQuery, { request });
+}
+
+/**
+ * An order in a final state.
+ */
+export type OrderOutcome = OrderFulfilled | OrderCancelled | OrderExpired;
+
+/**
+ * Polls an order's status until it is fulfilled, cancelled or expired.
+ *
+ * ```ts
+ * const result = await submitOrder(client, request).andThen(
+ *   waitForOrderOutcome(client),
+ * );
+ * ```
+ *
+ * @param client - Aave client.
+ * @returns A function from the order receipt to the order's final status.
+ */
+export function waitForOrderOutcome(
+  client: AaveClient,
+): (
+  receipt: OrderReceipt,
+) => ResultAsync<OrderOutcome, TimeoutError | UnexpectedError> {
+  const { indexingTimeout, swapStatusInterval } = client.context.environment;
+
+  return (receipt: OrderReceipt) => {
+    const poll = async (): Promise<OrderOutcome> => {
+      const startedAt = Date.now();
+
+      while (Date.now() - startedAt < indexingTimeout) {
+        const status = await orderStatus(client, {
+          id: receipt.orderId,
+        }).match(
+          (ok) => ok,
+          (err) => {
+            throw err;
+          },
+        );
+
+        switch (status?.__typename) {
+          case 'OrderFulfilled':
+          case 'OrderCancelled':
+          case 'OrderExpired':
+            return status;
+
+          default:
+            await delay(swapStatusInterval ?? DEFAULT_SWAP_STATUS_INTERVAL);
+        }
+      }
+
+      throw TimeoutError.from(
+        `Timeout waiting for order ${receipt.orderId} to reach a final state.`,
+      );
+    };
+
+    return ResultAsync.fromPromise(poll(), (error) =>
+      error instanceof TimeoutError || error instanceof UnexpectedError
+        ? error
+        : UnexpectedError.from(error),
+    );
+  };
 }
 
 /**

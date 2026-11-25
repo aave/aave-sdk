@@ -31,6 +31,7 @@ import type {
   BorrowSwapKind,
   ChainsFilter,
   OperationType,
+  OrderClass,
   OrderDirection,
   OrderStatusFilter,
   PageSize,
@@ -68,6 +69,7 @@ export const graphql = initGraphQLTada<{
     Int: number;
     JSON: JsonObject;
     OperationType: OperationType;
+    OrderClass: OrderClass;
     OrderDirection: OrderDirection;
     OrderId: OrderId;
     OrderQuoteId: OrderQuoteId;
