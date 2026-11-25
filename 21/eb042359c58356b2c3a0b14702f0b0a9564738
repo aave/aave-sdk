@@ -1,0 +1,24 @@
+packages/client/src/actions/orders.ts
+  s_7dc6c1464bb543::t_65ab5e85b62644 1-44,46-94,111-341,355-433
+  s_7dc6c1464bb543::t_fced1fcbba8d94 45,95-110,342-354
+packages/client/src/actions/index.ts
+  s_7dc6c1464bb543::t_fced1fcbba8d94 5
+.changeset/calm-quotes-wait.md
+  s_7dc6c1464bb543::t_38486f00e825ac 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "21eb042359c58356b2c3a0b14702f0b0a9564738",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
