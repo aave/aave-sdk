@@ -51,7 +51,7 @@ function isSignature(result: OrderHandlerResult): result is Signature {
   return typeof result === 'string';
 }
 
-function signatureFrom(
+export function trySignatureFrom(
   result: OrderHandlerResult,
 ): ResultAsync<Signature, UnexpectedErrorType> {
   return isSignature(result)
@@ -100,10 +100,12 @@ export function approve<TApproval extends Erc20Approval | PositionSwapApproval>(
               return transactionFrom(result).map(() => collected);
 
             case 'PositionSwapAdapterContractApproval':
-              return signatureFrom(result).map((adapterContractSignature) => ({
-                ...collected,
-                adapterContractSignature,
-              }));
+              return trySignatureFrom(result).map(
+                (adapterContractSignature) => ({
+                  ...collected,
+                  adapterContractSignature,
+                }),
+              );
 
             case 'PositionSwapAdapterTransactionApproval':
               return transactionFrom(result).map(() => collected);
@@ -146,7 +148,7 @@ export function signAndSubmit(
 ): ResultAsync<OrderReceipt, OrderError> {
   return prepareOrder(client, request).andThen((order) =>
     handler(order.data)
-      .andThen(signatureFrom)
+      .andThen(trySignatureFrom)
       .andThen((signature) =>
         submit(
           client,

@@ -27,7 +27,7 @@ class TestErrorBoundary extends Component<{ children: ReactNode }> {
 
 function createTestWrapper() {
   const client = AaveClient.create({
-    environment,
+    environment: { ...environment, swapStatusInterval: 10 },
   });
 
   return function TestWrapper({ children }: { children: ReactNode }) {
