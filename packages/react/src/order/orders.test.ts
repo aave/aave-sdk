@@ -1,6 +1,7 @@
 import type { TransactionExecutionResult } from '@aave/client';
 import {
   CancelOrderMutation,
+  OrderStatusQuery,
   PrepareCancelOrderQuery,
   PrepareOrderQuery,
   SubmitOrderMutation,
@@ -16,7 +17,7 @@ import {
   signatureFrom,
   txHash,
 } from '@aave/types';
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import { graphql, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -31,6 +32,7 @@ import {
 import { renderHookWithinContext } from '../test-utils';
 import type { OrderHandlerResult } from './helpers';
 import { useCancelOrder } from './useCancelOrder';
+import { useOrderStatus } from './useOrderStatus';
 import { useSupplySwapOrder } from './usePositionSwapOrder';
 import { useTokenSwapOrder } from './useTokenSwapOrder';
 
@@ -131,6 +133,23 @@ function respondMutation(
 
 function requestOf(document: unknown) {
   return requests.find((r) => r.op === document)?.request;
+}
+
+function countOf(document: unknown) {
+  return requests.filter((r) => r.op === document).length;
+}
+
+// Answers each status poll with the next typename, repeating the last one.
+function respondStatuses(typenames: string[]) {
+  let calls = 0;
+  return graphql.query(OrderStatusQuery, ({ variables }) => {
+    requests.push({ op: OrderStatusQuery, ...variables });
+    const __typename = typenames[Math.min(calls, typenames.length - 1)];
+    calls += 1;
+    return HttpResponse.json({
+      data: { value: { __typename, orderId: 'order-1' } },
+    });
+  });
 }
 
 const handler = vi.fn(
@@ -312,8 +331,9 @@ describe('Given the order hooks', () => {
   });
 
   describe(`When '${useCancelOrder.name}' is answered with a transaction`, () => {
-    it('Then it signs, then sends the cancel transaction', async () => {
+    it('Then it signs, sends the cancel transaction and waits for the order to show cancelled', async () => {
       server.use(
+        respondStatuses(['OrderOpen', 'OrderOpen', 'OrderCancelled']),
         respond(PrepareCancelOrderQuery, {
           __typename: 'PrepareCancelOrderResult',
           data: typedData,
@@ -334,10 +354,30 @@ describe('Given the order hooks', () => {
         'OrderTypedData',
         'TransactionRequest',
       ]);
+      expect(countOf(OrderStatusQuery)).toBe(3);
+    });
+
+    it('Then it fails with CannotCancelOrderError if the order fills first', async () => {
+      server.use(
+        respondStatuses(['OrderOpen', 'OrderFulfilled']),
+        respond(PrepareCancelOrderQuery, {
+          __typename: 'PrepareCancelOrderResult',
+          data: typedData,
+        }),
+        respondMutation(CancelOrderMutation, transaction),
+      );
+      const { result } = renderHookWithinContext(() => useCancelOrder(handler));
+
+      const outcome = await act(() =>
+        result.current[0]({ id: 'order-1' as never }),
+      );
+
+      expect(outcome._unsafeUnwrapErr().name).toBe('CannotCancelOrderError');
     });
 
     it('Then it fails when the handler signs the cancel transaction instead of sending it', async () => {
       server.use(
+        respondStatuses(['OrderOpen']),
         respond(PrepareCancelOrderQuery, {
           __typename: 'PrepareCancelOrderResult',
           data: typedData,
@@ -353,6 +393,36 @@ describe('Given the order hooks', () => {
       );
 
       expect(outcome._unsafeUnwrapErr().name).toBe('UnexpectedError');
+    });
+  });
+
+  describe(`When '${useCancelOrder.name}' gets an order that already filled`, () => {
+    it('Then it fails with CannotCancelOrderError and never prepares', async () => {
+      server.use(respondStatuses(['OrderFulfilled']));
+      const { result } = renderHookWithinContext(() => useCancelOrder(handler));
+
+      const outcome = await act(() =>
+        result.current[0]({ id: 'order-1' as never }),
+      );
+
+      expect(outcome._unsafeUnwrapErr().name).toBe('CannotCancelOrderError');
+      expect(requestOf(PrepareCancelOrderQuery)).toBeUndefined();
+    });
+  });
+
+  describe(`When '${useOrderStatus.name}' watches an open order`, () => {
+    it('Then it polls until the order is final, then stops', async () => {
+      server.use(respondStatuses(['OrderOpen', 'OrderOpen', 'OrderFulfilled']));
+      const { result } = renderHookWithinContext(() =>
+        useOrderStatus({ id: 'order-1' as never }),
+      );
+
+      await waitFor(() =>
+        expect(result.current.data?.__typename).toBe('OrderFulfilled'),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(countOf(OrderStatusQuery)).toBe(3);
     });
   });
 });
