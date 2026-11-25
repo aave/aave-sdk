@@ -1,0 +1,36 @@
+packages/graphql/src/orders.ts
+  s_7dc6c1464bb543::t_0d66ce563ad257 3
+  s_7dc6c1464bb543::t_9e2dca23cc2a78 15-34
+  s_7dc6c1464bb543::t_bf6152b99bad1a 12-14
+.changeset/quiet-levers-rise.md
+  s_7dc6c1464bb543::t_5ec77cd00dd1c7 1-7
+packages/client/src/actions/orders.ts
+  s_7dc6c1464bb543::t_7b7b47e96dddd5 11-13
+  s_7dc6c1464bb543::t_34eb24a028cf7e 256-291
+  s_7dc6c1464bb543::t_a5f88cd0398561 255
+packages/graphql/src/graphql.ts
+  s_7dc6c1464bb543::t_9664d5d9653ac5 34
+  s_7dc6c1464bb543::t_7551846f839b32 72
+packages/graphql/src/enums.ts
+  s_7dc6c1464bb543::t_f9a54aa7f35ac1 108-114
+  s_7dc6c1464bb543::t_49c8bb5ed670a9 107
+packages/graphql/src/fragments/orders.ts
+  s_7dc6c1464bb543::t_c03257d0ee89e6 3,8,13-16
+  s_7dc6c1464bb543::t_55273c32fb342d 461-623
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "223ec5b3ba3ce44430c3b8713769780f577d5753",
+  "prompts": {},
+  "sessions": {
+    "s_7dc6c1464bb543": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "dc46cfc5-5dab-4065-bed2-fe981aa233e4",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Martin Grabina <mgrabina@itba.edu.ar>"
+    }
+  }
+}
