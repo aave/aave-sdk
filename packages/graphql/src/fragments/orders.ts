@@ -103,7 +103,7 @@ export const SupplySwapFragment = graphql(
     buy {
       ...PositionAmount
     }
-    kind
+    supplySwapKind: kind
     orderClass
   }`,
   [PositionAmountFragment],
@@ -119,7 +119,7 @@ export const WithdrawSwapFragment = graphql(
     buy {
       ...UnpricedTokenAmount
     }
-    kind
+    withdrawSwapKind: kind
     orderClass
     buyCurrency {
       ...SwapCurrency
@@ -138,7 +138,7 @@ export const BorrowSwapFragment = graphql(
     buy {
       ...PositionAmount
     }
-    kind
+    borrowSwapKind: kind
     orderClass
   }`,
   [PositionAmountFragment],
@@ -154,7 +154,7 @@ export const RepayWithSupplyFragment = graphql(
     supply {
       ...PositionAmount
     }
-    kind
+    repayWithSupplyKind: kind
     orderClass
     returned {
       ...ReturnedAmount
