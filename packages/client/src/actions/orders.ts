@@ -429,5 +429,14 @@ export function cancelOrder(
   client: AaveClient,
   request: CancelOrderRequest,
 ): ResultAsync<CancelOrderExecutionPlan, UnexpectedError> {
-  return client.mutation(CancelOrderMutation, { request });
+  return client.mutation(CancelOrderMutation, { request }).andThen((plan) => {
+    switch (plan.__typename) {
+      case 'OrderCancelledResult':
+      case 'TransactionRequest':
+        return okAsync(plan);
+
+      default:
+        return unsupported(plan);
+    }
+  });
 }
